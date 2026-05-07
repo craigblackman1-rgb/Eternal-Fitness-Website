@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 
 interface HeroSectionProps {
@@ -9,10 +10,13 @@ interface HeroSectionProps {
 const HeroSection = ({ onBookConsultation }: HeroSectionProps) => {
   return (
     <section className="relative min-h-[90vh] flex flex-col overflow-hidden">
-      <img
+      <Image
         src="/images/hero-gym.jpg"
         alt="Esther Fair, Level 4 personal trainer at Eternal Fitness Worthing"
-        className="absolute inset-0 w-full h-full object-cover"
+        fill
+        className="object-cover"
+        priority
+        sizes="100vw"
       />
       <div className="absolute inset-0 bg-hero-overlay/65" />
 

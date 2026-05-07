@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-dm-sans",
+});
 
 const SITE_URL = "https://eternalfitness.co.uk";
 
@@ -16,7 +23,7 @@ export const metadata: Metadata = {
     siteName: "Eternal Fitness",
     locale: "en_GB",
     type: "website",
-    images: [{ url: "/og-image.jpg", width: 1200, height: 630 }],
+    images: [{ url: "/og-image.svg", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
@@ -42,8 +49,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
+      <html lang="en" className={dmSans.variable}>
+        <body>
         <Providers>{children}</Providers>
       </body>
     </html>

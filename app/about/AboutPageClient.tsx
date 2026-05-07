@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowUpRight, Award, HeartHandshake, Users } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import CTASection from "@/components/CTASection";
@@ -89,7 +90,7 @@ export default function AboutPageClient() {
           <div className="flex justify-center">
             <div className="flex items-center gap-3 bg-accent/10 rounded-2xl px-6 py-4 max-w-xl">
               <Users className="w-5 h-5 text-accent shrink-0" />
-              <p className="text-foreground font-body text-base leading-relaxed">If you are wondering whether your medical situation, cancer recovery, disability, or complex needs mean you cannot train — please get in touch. The answer is almost always yes, I can help. That is exactly what I specialise in.</p>
+              <p className="text-foreground font-body text-base leading-relaxed">If you are wondering whether your medical situation, cancer recovery, disability, or complex needs mean you cannot train — <Link href="/contact" className="text-accent hover:underline">please get in touch</Link>. The answer is almost always yes, I can help. That is exactly what I <Link href="/personal-training" className="text-accent hover:underline">specialise in</Link>.</p>
             </div>
           </div>
         </div>

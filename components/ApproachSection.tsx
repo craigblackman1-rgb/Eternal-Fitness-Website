@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const approaches = [
   {
     image: "/images/approach-private.jpg",
@@ -48,8 +50,8 @@ const ApproachSection = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
           {approaches.map((item) => (
             <div key={item.title} className="bg-muted rounded-2xl overflow-hidden shadow-md">
-              <div className="aspect-[4/3] overflow-hidden">
-                <img src={item.image} alt={item.title} loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+              <div className="aspect-[4/3] overflow-hidden relative">
+                <Image src={item.image} alt={item.title} fill className="object-cover hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, 33vw" />
               </div>
               <div className="p-5">
                 <h4 className="text-foreground text-lg mb-1">{item.title}</h4>

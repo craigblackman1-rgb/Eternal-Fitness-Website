@@ -47,11 +47,11 @@ const Footer = () => {
           <div>
             <h4 className="font-body font-semibold text-foreground text-base mb-4">Services</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link href="/personal-training" className="hover:text-foreground transition-colors">Personal Training in Worthing</Link></li>
-              <li><Link href="/personal-training" className="hover:text-foreground transition-colors">Cancer Rehabilitation</Link></li>
-              <li><Link href="/personal-training" className="hover:text-foreground transition-colors">Exercise Referral</Link></li>
-              <li><Link href="/personal-training" className="hover:text-foreground transition-colors">Adaptive and Disability Training</Link></li>
-              <li><Link href="/personal-training" className="hover:text-foreground transition-colors">Injury Recovery</Link></li>
+              <li><Link href="/personal-training" className="hover:text-foreground transition-colors font-medium">Personal Training in Worthing</Link></li>
+              <li>Cancer Rehabilitation</li>
+              <li>Exercise Referral</li>
+              <li>Adaptive and Disability Training</li>
+              <li>Injury Recovery</li>
             </ul>
           </div>
 

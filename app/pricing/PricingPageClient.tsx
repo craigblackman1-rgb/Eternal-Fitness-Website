@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowUpRight, Check, Heart, Dumbbell, Target } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import FAQSection from "@/components/FAQSection";
@@ -208,6 +209,9 @@ export default function PricingPageClient() {
           <div className="mt-8 bg-background/5 border border-primary-foreground/10 rounded-2xl p-6 max-w-2xl">
             <p className="text-primary-foreground/70 font-body text-sm leading-relaxed">
               <strong className="text-primary-foreground">Not sure which to choose?</strong> Start with the free consultation. I will give you an honest recommendation based on your situation — not the most expensive option.
+            </p>
+            <p className="text-primary-foreground/60 font-body text-sm mt-3">
+              <Link href="/personal-training" className="text-accent hover:underline">See my specialist areas</Link> &middot; <Link href="/faqs" className="text-accent hover:underline">Read the FAQs</Link>
             </p>
           </div>
         </div>

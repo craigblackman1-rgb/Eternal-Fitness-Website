@@ -99,7 +99,7 @@ const faqSchema = {
 
 export const metadata: Metadata = {
   title: "FAQs: Cancer Rehab, Disability, Health Conditions Training",
-  description: "Answers to common questions about personal training at Eternal Fitness in Worthing. Health conditions, cancer rehab, disability, pricing, and what to expect from your first session.",
+  description: "Common questions about personal training at Eternal Fitness in Worthing. Health conditions, cancer rehab, disability, pricing and what to expect.",
   alternates: { canonical: "https://eternalfitness.co.uk/faqs" },
 };
 

@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const cards = [
   {
     title: "Specialist in complex health conditions",
@@ -35,7 +37,7 @@ const WhySection = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
           {cards.map((card) => (
             <div key={card.title} className="relative rounded-2xl overflow-hidden aspect-[4/5] group shadow-md">
-              <img src={card.image} alt={card.alt} loading="lazy" width={480} height={600} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <Image src={card.image} alt={card.alt} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, 33vw" />
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-5">
                 <h3 className="text-primary-foreground text-lg">{card.title}</h3>

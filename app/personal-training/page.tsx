@@ -24,7 +24,7 @@ const ptSchema = {
 
 export const metadata: Metadata = {
   title: "Personal Training in Worthing for Health Conditions and Complex Needs",
-  description: "One-to-one personal training in Worthing with a Level 4 specialist. Private sessions adapted for health conditions, cancer rehabilitation, disability, injury recovery and GP referrals.",
+  description: "Personal training in Worthing with a Level 4 specialist. Sessions adapted for health conditions, cancer rehab, disability, injury recovery and GP referrals.",
   alternates: { canonical: "https://eternalfitness.co.uk/personal-training" },
 };
 

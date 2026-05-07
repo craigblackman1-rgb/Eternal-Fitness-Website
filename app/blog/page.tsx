@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Health Conditions & Cancer Recovery Blog",
-  description: "Practical articles on training with health conditions, cancer rehabilitation, adaptive fitness, and moving well at any ability level. Written by Level 4 personal trainer Esther Fair.",
+  description: "Articles on training with health conditions, cancer rehabilitation, adaptive fitness and moving well at any ability. Written by Level 4 PT Esther Fair.",
   alternates: { canonical: "https://eternalfitness.co.uk/blog" },
 };
 

@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const specialisms = [
   {
     src: "/images/specialise-1.jpg",
@@ -39,7 +41,7 @@ const SpecialiseSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
           {specialisms.map((item) => (
             <div key={item.label} className={`relative rounded-xl overflow-hidden group shadow-lg aspect-[3/4] ${item.offset}`}>
-              <img src={item.src} alt={item.alt} loading="lazy" width={400} height={533} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <Image src={item.src} alt={item.alt} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 100vw, 33vw" />
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/10 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-5">
                 <h3 className="text-primary-foreground text-lg font-semibold">{item.label}</h3>

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 
 const WhoSection = () => {
@@ -18,8 +19,8 @@ const WhoSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-background rounded-2xl overflow-hidden shadow-md">
-            <div className="aspect-video overflow-hidden">
-              <img src="/images/who-health.jpg" alt="Training with health conditions Worthing" loading="lazy" className="w-full h-full object-cover" />
+            <div className="aspect-video overflow-hidden relative">
+              <Image src="/images/who-health.jpg" alt="Training with health conditions Worthing" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
             </div>
             <div className="p-6">
               <h3 className="text-foreground text-xl mb-2">People managing health conditions, disability, or injury</h3>
@@ -33,8 +34,8 @@ const WhoSection = () => {
           </div>
 
           <div className="bg-background rounded-2xl overflow-hidden shadow-md">
-            <div className="aspect-video overflow-hidden">
-              <img src="/images/who-mobility.jpg" alt="Inclusive personal training Worthing" loading="lazy" className="w-full h-full object-cover" />
+            <div className="aspect-video overflow-hidden relative">
+              <Image src="/images/who-mobility.jpg" alt="Inclusive personal training Worthing" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
             </div>
             <div className="p-6">
               <h3 className="text-foreground text-xl mb-2">People who have never felt welcome in fitness spaces</h3>

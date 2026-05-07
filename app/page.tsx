@@ -25,7 +25,7 @@ const localBusinessSchema = {
     { "@type": "AdministrativeArea", "name": "West Sussex" }
   ],
   "priceRange": "££",
-  "image": "https://eternalfitness.co.uk/og-image.jpg",
+  "image": "https://eternalfitness.co.uk/og-image.svg",
   "sameAs": ["https://www.facebook.com/EternalFitnessPersonalTraining/"],
   "founder": { "@type": "Person", "name": "Esther Fair", "jobTitle": "Level 4 Personal Trainer" },
   "hasOfferCatalog": {
@@ -60,7 +60,7 @@ const personSchema = {
 
 export const metadata: Metadata = {
   title: "Level 4 Personal Trainer for Health Conditions in Worthing",
-  description: "Private one-to-one personal training in Worthing with Level 4 qualified trainer Esther Fair. Specialist support for health conditions, cancer rehabilitation, disability and complex needs. Book a free consultation.",
+  description: "Private one-to-one personal training in Worthing with Level 4 trainer Esther Fair. Specialist for health conditions, cancer rehab, disability and more.",
   alternates: { canonical: "https://eternalfitness.co.uk/" },
 };
 

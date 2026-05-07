@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 
 interface CTASectionProps {
@@ -11,7 +12,7 @@ const CTASection = ({ onBookConsultation }: CTASectionProps) => {
     <section className="relative overflow-hidden">
       <div className="grid md:grid-cols-2 min-h-[420px]">
         <div className="relative h-64 md:h-auto">
-          <img src="/images/studio-1.jpg" alt="Private personal training studio Worthing" className="absolute inset-0 w-full h-full object-cover" />
+          <Image src="/images/studio-1.jpg" alt="Private personal training studio Worthing" fill className="object-cover" sizes="50vw" />
         </div>
         <div className="bg-accent flex items-center px-8 md:px-16 py-12 md:py-0">
           <div>
