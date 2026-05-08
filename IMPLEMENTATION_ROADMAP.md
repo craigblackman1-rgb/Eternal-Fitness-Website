@@ -572,15 +572,43 @@ Reference documents:
 - Content strategy (4-pillar framework)
 - Product marketing context (updated for specialist positioning)
 - Implementation roadmap (this document)
+- Session 2: Blog repositioning (reframed 3 posts, deleted 2, author updates done)
+- Session 3: Title tags updated + meta descriptions trimmed to ≤160 chars across all pages
+- Session 5: Schema markup (FAQPage, LocalBusiness, Person, Service schemas already in place)
+- Meta descriptions trimmed to ≤160 chars (homepage, /personal-training, /faqs, /blog)
+- Google Fonts @import replaced with next/font/google (self-hosted, no render-blocking)
+- 301 redirects added for 3 renamed slugs from Session 2
+- OG image placeholder created (/public/og-image.svg)
+- fetchpriority="high" added to hero image (LCP improvement)
+- Image dimensions added to CTA, Approach, Who sections (CLS reduction)
+- Duplicate footer links to /personal-training consolidated to one strong link
+- Outbound links added from Pricing and About pages
+- 6 components migrated from `<img>` to `next/image` (Hero, Why, Who, CTA, Approach, Specialise)
+- ef-project.json created with all 34 cards tracked by status
 
-🟡 **Ready to Start:**
-- Session 1: Remove noindex (CRITICAL)
-- Session 2: Blog repositioning (HIGH)
-- Session 3: Title tags (HIGH)
-- Session 4: Copy updates (HIGH)
+🟡 **Ready to Start (no DB needed):**
+- EF-016: Security headers via vercel.json
+- EF-015: Convert HomePageClient.tsx to server component
+- EF-025: Audit unused Radix UI packages
+- EF-012: Write "What Is a Level 4 Personal Trainer?" post
+- EF-013: Write "Exercise Referral in Worthing" post
+- EF-024: Write "Personal Trainer for Disabilities" post
 
-🔄 **Next:**
-- Session 5-8: Schema, linking, content, monitoring
+🔴 **Blocked — needs Supabase service role key:**
+- Session 7 migration (5 new blog posts ready to go)
+- Fix WordPress-style broken links in blog content (/slug/ → /blog/slug/)
+- Add internal content links to blog posts (topic clustering)
+
+🟢 **Production-only (skipped on staging):**
+- Session 1: Remove noindex (EF-001)
+- Google Search Console setup (EF-004)
+- Google Business Profile setup (EF-009)
+
+🔄 **Next (after DB items):**
+- Session 6: Internal linking & topic clustering
+- Session 8: Monitoring & ongoing optimization
+- Month 2 blog posts (5 posts)
+- Dedicated pillar pages (/cancer-rehabilitation, /exercise-referral, /adaptive-training)
 
 ---
 
