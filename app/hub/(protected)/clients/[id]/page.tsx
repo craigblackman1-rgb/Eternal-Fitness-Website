@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, FileText, Plus } from "lucide-react";
+import { ChevronLeft, FileText, Pencil, Plus } from "lucide-react";
 
 export default async function ClientDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -29,12 +29,20 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             {p?.logistics?.time_tier && ` · ${p.logistics.time_tier}`}
           </p>
         </div>
-        <Link href={`/hub/clients/${params.id}/blocks/new`}>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            New Block
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href={`/hub/clients/${params.id}/edit`}>
+            <Button variant="outline">
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit
+            </Button>
+          </Link>
+          <Link href={`/hub/clients/${params.id}/blocks/new`}>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              New Block
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">

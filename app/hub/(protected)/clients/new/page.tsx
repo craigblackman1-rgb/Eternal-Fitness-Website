@@ -58,7 +58,7 @@ export default function NewClientPage() {
     });
 
     if (error) {
-      toast.error("Failed to save client");
+      toast.error(`Failed to save client: ${error.message}`);
       setSaving(false);
       return;
     }

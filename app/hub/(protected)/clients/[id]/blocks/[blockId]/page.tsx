@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronLeft, Eye } from "lucide-react";
+import { ChevronLeft, Eye, Printer } from "lucide-react";
 
 const phaseColors: Record<string, string> = {
   foundation: "bg-blue-100 text-blue-800",
@@ -57,11 +57,19 @@ export default async function BlockViewPage({
             <Badge className="capitalize">{block.status}</Badge>
           </div>
         </div>
-        {block.status === "draft" && (
-          <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}/review`}>
-            <Button>Review & Approve</Button>
+        <div className="flex items-center gap-2">
+          <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}/print`}>
+            <Button variant="outline">
+              <Printer className="mr-2 h-4 w-4" />
+              Print
+            </Button>
           </Link>
-        )}
+          {block.status === "draft" && (
+            <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}/review`}>
+              <Button>Review & Approve</Button>
+            </Link>
+          )}
+        </div>
       </div>
 
       {block.block_note && (
