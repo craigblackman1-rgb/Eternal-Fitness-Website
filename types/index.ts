@@ -52,6 +52,11 @@ export interface ClientProfile {
   };
 }
 
+export interface ExerciseMedia {
+  image_url?: string;
+  video_url?: string;
+}
+
 export interface Exercise {
   exercise_name: string;
   sets: number;
@@ -61,6 +66,7 @@ export interface Exercise {
   coaching_cue: string;
   modification: string;
   equipment: string[];
+  media?: ExerciseMedia;
 }
 
 export interface SessionVersion {

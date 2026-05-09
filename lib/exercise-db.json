@@ -295,7 +295,8 @@
       "difficulty": 2,
       "intensity_tiers": ["compact", "standard", "extended"],
       "coaching_cue": "Chest up, knees out, go to comfortable depth",
-      "default_mod": "Raised heels, partial ROM, lighter weight"
+      "default_mod": "Raised heels, partial ROM, lighter weight",
+      "media": { "video_url": "https://www.youtube.com/results?search_query=goblet+squat+demonstration" }
     },
     {
       "id": "front-squat",
@@ -306,7 +307,8 @@
       "difficulty": 3,
       "intensity_tiers": ["standard", "extended"],
       "coaching_cue": "Elbows high, brace core, descend with control",
-      "default_mod": "Goblet hold instead, reduce load, partial depth"
+      "default_mod": "Goblet hold instead, reduce load, partial depth",
+      "media": { "video_url": "https://www.youtube.com/results?search_query=front+squat+demonstration" }
     },
     {
       "id": "back-squat",
@@ -317,7 +319,8 @@
       "difficulty": 4,
       "intensity_tiers": ["standard", "extended"],
       "coaching_cue": "Bar on traps, brace, hips back and down",
-      "default_mod": "Front squat or goblet squat, reduce load"
+      "default_mod": "Front squat or goblet squat, reduce load",
+      "media": { "video_url": "https://www.youtube.com/results?search_query=back+squat+demonstration" }
     },
     {
       "id": "bulgarian-split-squat",

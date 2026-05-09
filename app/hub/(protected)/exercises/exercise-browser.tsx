@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Dumbbell, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Dumbbell, ChevronDown, ChevronUp, Video } from "lucide-react";
 import type { Archetype } from "@/types";
 import type { ExerciseEntry } from "./page";
+import { ExerciseMediaPlaceholder } from "@/components/exercise-media";
 
 const movementTypeLabels: Record<string, string> = {
   spinal_mobility: "Spinal Mobility",
@@ -257,7 +258,20 @@ export function ExerciseBrowser({
                 ) : null}
 
                 {expanded === ex.id && (
-                  <div className="space-y-2 text-xs">
+                  <div className="space-y-3 text-xs">
+                    {ex.media?.video_url ? (
+                      <a
+                        href={ex.media.video_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-accent hover:underline"
+                      >
+                        <Video className="h-3 w-3" />
+                        Watch demo video
+                      </a>
+                    ) : (
+                      <ExerciseMediaPlaceholder exerciseName={ex.name} />
+                    )}
                     <div>
                       <span className="font-medium text-muted-foreground">Coaching: </span>
                       <p className="mt-0.5">{ex.coaching_cue}</p>

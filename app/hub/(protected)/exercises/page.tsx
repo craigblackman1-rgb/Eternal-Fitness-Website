@@ -12,6 +12,7 @@ export interface ExerciseEntry {
   intensity_tiers: string[];
   coaching_cue: string;
   default_mod: string;
+  media?: { video_url?: string; image_url?: string };
 }
 
 export default function ExercisesPage() {
