@@ -13,27 +13,16 @@
      ============================================ */
   :root {
     /* --- Colours (Primitives) --- */
-    --color-muted-rose-50: #f7f0f4;
-    --color-muted-rose-100: #ebd6e2;
-    --color-muted-rose-200: #ddbccc;
-    --color-muted-rose-300: #cfa3b6;
-    --color-muted-rose-400: #c1839f;
-    --color-muted-rose-500: #C1839F;
-    --color-muted-rose-600: #a46e87;
-    --color-muted-rose-700: #875a6f;
-    --color-muted-rose-800: #6a4657;
-    --color-muted-rose-900: #4d323f;
-
-    --color-teal-50: #e6f4fa;
-    --color-teal-100: #b3e0f2;
-    --color-teal-200: #80cce9;
-    --color-teal-300: #4db8e1;
-    --color-teal-400: #26a8d8;
-    --color-teal-500: #087EBB;
-    --color-teal-600: #06699e;
-    --color-teal-700: #055482;
-    --color-teal-800: #043f66;
-    --color-teal-900: #022a49;
+    --color-teal-50: #e6f4f0;
+    --color-teal-100: #b3e0d6;
+    --color-teal-200: #80ccbb;
+    --color-teal-300: #4db8a1;
+    --color-teal-400: #26a88e;
+    --color-teal-500: #087E8B;
+    --color-teal-600: #066a75;
+    --color-teal-700: #05565f;
+    --color-teal-800: #044249;
+    --color-teal-900: #022e33;
 
     --color-rose-50: #ffe8e8;
     --color-rose-100: #ffbfc0;
@@ -46,18 +35,27 @@
     --color-rose-800: #a0363a;
     --color-rose-900: #802a2e;
 
-    --color-foreground-hsl: 220, 20%, 15%;
-    --color-foreground: hsl(220, 20%, 15%);
-    --color-foreground-50: #f2f4f7;
-    --color-foreground-100: #d9dde3;
-    --color-foreground-200: #bfc5cf;
-    --color-foreground-300: #a5adbb;
-    --color-foreground-400: #8c96a7;
-    --color-foreground-500: #737e93;
-    --color-foreground-600: #59667f;
-    --color-foreground-700: #404e6b;
-    --color-foreground-800: #2d3a4a;
-    --color-foreground-900: #1a2633;
+    --color-muted-rose-50: #f7f0f4;
+    --color-muted-rose-100: #ebd6e2;
+    --color-muted-rose-200: #ddbccc;
+    --color-muted-rose-300: #cfa3b6;
+    --color-muted-rose-400: #c1839f;
+    --color-muted-rose-500: #C1839F;
+    --color-muted-rose-600: #a46e87;
+    --color-muted-rose-700: #875a6f;
+    --color-muted-rose-800: #6a4657;
+    --color-muted-rose-900: #4d323f;
+
+    --color-charcoal-50: #f2f2f2;
+    --color-charcoal-100: #d9d9d9;
+    --color-charcoal-200: #bfbfbf;
+    --color-charcoal-300: #a6a6a6;
+    --color-charcoal-400: #8c8c8c;
+    --color-charcoal-500: #737373;
+    --color-charcoal-600: #595959;
+    --color-charcoal-700: #404040;
+    --color-charcoal-800: #3C3C3C;
+    --color-charcoal-900: #262626;
 
     --color-neutral-50: #FAFAFA;
     --color-neutral-100: #F5F5F5;
@@ -144,25 +142,27 @@
      ============================================ */
   :root {
     /* --- Brand Colours (Semantic) --- */
-    --brand-primary: var(--color-muted-rose-400);
-    --brand-primary-hover: var(--color-muted-rose-600);
-    --brand-primary-light: var(--color-muted-rose-50);
-    --brand-primary-dark: var(--color-muted-rose-700);
-    --brand-accent: var(--color-teal-500);
-    --brand-accent-hover: var(--color-teal-600);
-    --brand-accent-light: var(--color-teal-50);
-    --brand-accent-dark: var(--color-teal-700);
-    --brand-dark: var(--color-foreground-800);
+    --brand-primary: var(--color-teal-500);
+    --brand-primary-hover: var(--color-teal-600);
+    --brand-primary-light: var(--color-teal-50);
+    --brand-primary-dark: var(--color-teal-700);
+    --brand-cta: var(--color-rose-500);
+    --brand-cta-hover: var(--color-rose-600);
+    --brand-cta-light: var(--color-rose-50);
+    --brand-secondary: var(--color-muted-rose-400);
+    --brand-secondary-hover: var(--color-muted-rose-600);
+    --brand-secondary-light: var(--color-muted-rose-50);
+    --brand-dark: var(--color-charcoal-800);
     --brand-neutral: var(--color-neutral-100);
 
     /* --- Text --- */
-    --text-primary: var(--color-foreground);
-    --text-secondary: var(--color-foreground-600);
-    --text-tertiary: var(--color-foreground-400);
-    --text-disabled: var(--color-neutral-300);
+    --text-primary: var(--color-charcoal-800);
+    --text-secondary: var(--color-charcoal-700);
+    --text-tertiary: var(--color-charcoal-500);
+    --text-disabled: var(--color-charcoal-300);
     --text-inverse: var(--color-white);
     --text-on-primary: var(--color-white);
-    --text-on-accent: var(--color-white);
+    --text-on-cta: var(--color-white);
     --text-on-dark: var(--color-white);
 
     /* --- Surfaces --- */
@@ -170,23 +170,25 @@
     --surface-card: var(--color-white);
     --surface-elevated: var(--color-neutral-50);
     --surface-overlay: var(--color-neutral-100);
-    --surface-dark: var(--color-foreground-800);
-    --surface-dark-elevated: var(--color-foreground-900);
+    --surface-dark: var(--color-charcoal-800);
+    --surface-dark-elevated: var(--color-charcoal-900);
     --surface-muted: var(--color-neutral-100);
-    --surface-brand-light: var(--color-muted-rose-50);
-    --surface-accent-light: var(--color-teal-50);
+    --surface-brand-light: var(--color-teal-50);
+    --surface-secondary-light: var(--color-muted-rose-50);
 
     /* --- Borders --- */
-    --border-light: hsl(220, 15%, 90%);
-    --border-default: hsl(220, 15%, 85%);
-    --border-strong: var(--color-foreground-500);
+    --border-light: var(--color-neutral-200);
+    --border-default: var(--color-neutral-300);
+    --border-strong: var(--color-charcoal-500);
     --border-focus: var(--brand-primary);
 
     /* --- Interactive --- */
     --interactive-primary: var(--brand-primary);
     --interactive-primary-hover: var(--brand-primary-hover);
-    --interactive-accent: var(--brand-accent);
-    --interactive-accent-hover: var(--brand-accent-hover);
+    --interactive-cta: var(--brand-cta);
+    --interactive-cta-hover: var(--brand-cta-hover);
+    --interactive-secondary: var(--brand-secondary);
+    --interactive-secondary-hover: var(--brand-secondary-hover);
 
     /* --- Feedback --- */
     --feedback-success: #16a34a;
@@ -207,9 +209,12 @@
     --btn-primary-bg: var(--interactive-primary);
     --btn-primary-text: var(--text-on-primary);
     --btn-primary-hover: var(--interactive-primary-hover);
-    --btn-accent-bg: var(--interactive-accent);
-    --btn-accent-text: var(--text-on-accent);
-    --btn-accent-hover: var(--interactive-accent-hover);
+    --btn-cta-bg: var(--interactive-cta);
+    --btn-cta-text: var(--text-on-cta);
+    --btn-cta-hover: var(--interactive-cta-hover);
+    --btn-secondary-bg: var(--brand-secondary);
+    --btn-secondary-text: var(--text-inverse);
+    --btn-secondary-hover: var(--interactive-secondary-hover);
     --btn-outline-border: var(--border-default);
     --btn-outline-text: var(--text-primary);
     --btn-outline-hover-bg: var(--surface-elevated);
@@ -349,14 +354,26 @@
     box-shadow: var(--shadow-md);
   }
 
-  .btn--accent {
-    background: var(--btn-accent-bg);
-    color: var(--btn-accent-text);
-    border-color: var(--btn-accent-bg);
+  .btn--cta {
+    background: var(--btn-cta-bg);
+    color: var(--btn-cta-text);
+    border-color: var(--btn-cta-bg);
   }
-  .btn--accent:hover {
-    background: var(--btn-accent-hover);
-    border-color: var(--btn-accent-hover);
+  .btn--cta:hover {
+    background: var(--btn-cta-hover);
+    border-color: var(--btn-cta-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn--secondary {
+    background: var(--btn-secondary-bg);
+    color: var(--btn-secondary-text);
+    border-color: var(--btn-secondary-bg);
+  }
+  .btn--secondary:hover {
+    background: var(--btn-secondary-hover);
+    border-color: var(--btn-secondary-hover);
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
   }
@@ -424,9 +441,14 @@
     background: var(--surface-brand-light);
     border-color: var(--brand-primary);
   }
-  .card--accent {
-    background: var(--surface-accent-light);
-    border-color: var(--brand-accent);
+  .card--cta {
+    background: var(--brand-cta);
+    border-color: var(--brand-cta);
+    color: var(--text-inverse);
+  }
+  .card--secondary {
+    background: var(--surface-secondary-light);
+    border-color: var(--brand-secondary);
   }
   .card--dark {
     background: var(--surface-dark);
@@ -452,9 +474,10 @@
   }
   .card--dark .card__subtitle { color: var(--color-neutral-400); }
   .card--dark .card__text { color: var(--color-neutral-300); }
-  .card--accent .card__subtitle { color: var(--color-teal-700); }
-  .card--accent .card__text { color: var(--color-teal-800); }
-
+  .card--cta .card__subtitle { color: rgba(255,255,255,0.7); }
+  .card--cta .card__text { color: rgba(255,255,255,0.85); }
+  .card--secondary .card__subtitle { color: var(--color-muted-rose-700); }
+  .card--secondary .card__text { color: var(--color-muted-rose-800); }
   .card--brand .card__subtitle { color: var(--color-teal-700); }
   .card--brand .card__text { color: var(--color-teal-800); }
   .card__footer {
@@ -463,7 +486,8 @@
     border-top: 1px solid var(--border-light);
   }
   .card--dark .card__footer { border-color: rgba(255,255,255,0.15); }
-  .card--accent .card__footer { border-color: var(--color-teal-200); }
+  .card--cta .card__footer { border-color: rgba(255,255,255,0.2); }
+  .card--secondary .card__footer { border-color: var(--color-muted-rose-200); }
   .card--brand .card__footer { border-color: var(--color-teal-200); }
 
   .card-grid {
@@ -485,17 +509,25 @@
     letter-spacing: 0.01em;
     white-space: nowrap;
   }
-  .badge--primary {
-    background: var(--color-muted-rose-50);
-    color: var(--color-muted-rose-700);
-  }
-  .badge--accent {
+  .badge--teal {
     background: var(--color-teal-50);
     color: var(--color-teal-700);
   }
-  .badge--subtle {
-    background: hsl(220, 15%, 95%);
-    color: var(--color-foreground-700);
+  .badge--rose {
+    background: var(--color-rose-50);
+    color: var(--color-rose-700);
+  }
+  .badge--muted-rose {
+    background: var(--color-muted-rose-50);
+    color: var(--color-muted-rose-700);
+  }
+  .badge--charcoal {
+    background: var(--color-charcoal-100);
+    color: var(--color-charcoal-800);
+  }
+  .badge--neutral {
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-700);
   }
   .badge--neutral {
     background: var(--color-neutral-100);
@@ -1018,7 +1050,7 @@
 
   /* --- Hero banner (for doc header) --- */
   .ds-hero {
-    background: linear-gradient(135deg, var(--color-muted-rose-400) 0%, var(--color-muted-rose-700) 100%);
+    background: linear-gradient(135deg, var(--color-teal-500) 0%, var(--color-teal-700) 100%);
     color: var(--text-inverse);
     padding: var(--space-16) var(--space-8);
     border-radius: var(--radius-xl);
@@ -1108,7 +1140,7 @@
         </div>
         <div>
           <div class="alert__title">Colour source of truth</div>
-          <div>This document reflects the live colour scheme on <code class="inline">staging.eternal-fitness.co.uk</code>. <strong>Primary = Muted Rose</strong> (#C1839F) for buttons and interactive elements. <strong>Accent = Teal</strong> (#087EBB) for section backgrounds and decorative highlights.</div>
+          <div>This document matches the Figma file exactly. <strong>Primary = Teal</strong> (#087E8B), <strong>CTA = Rose</strong> (#FF5A5F), <strong>Secondary = Muted Rose</strong> (#C1839F), <strong>Text = Charcoal</strong> (#3C3C3C), <strong>Background = Neutral</strong> (#F5F5F5).</div>
         </div>
       </div>
     </section>
@@ -1122,10 +1154,166 @@
         <p>Primitive colour tokens — the raw material of the brand.</p>
       </div>
 
-      <!-- Muted Rose (Primary) -->
+      <!-- Teal (Primary) -->
       <div class="ds-subsection">
-        <h3>Muted Rose — Primary Brand Colour</h3>
-        <p class="body-small mb-4" style="color: var(--text-tertiary);">Logo heart icon, buttons (primary), interactive elements, highlights.</p>
+        <h3>Teal — Primary Brand Colour</h3>
+        <p class="body-small mb-4" style="color: var(--text-tertiary);">Logo, primary buttons, headings, CTAs.</p>
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-teal-50);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Teal 50</div>
+              <div class="swatch__hex">#e6f4f0</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-teal-100);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Teal 100</div>
+              <div class="swatch__hex">#b3e0d6</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-teal-200);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Teal 200</div>
+              <div class="swatch__hex">#80ccbb</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-teal-300);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Teal 300</div>
+              <div class="swatch__hex">#4db8a1</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-teal-400);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Teal 400</div>
+              <div class="swatch__hex">#26a88e</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-teal-500);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name"><strong>Teal 500 ★</strong></div>
+              <div class="swatch__hex">#087E8B</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-teal-600);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Teal 600</div>
+              <div class="swatch__hex">#066a75</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-teal-700);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Teal 700</div>
+              <div class="swatch__hex">#05565f</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-teal-800);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Teal 800</div>
+              <div class="swatch__hex">#044249</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-teal-900);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Teal 900</div>
+              <div class="swatch__hex">#022e33</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rose (CTA) -->
+      <div class="ds-subsection">
+        <h3>Rose — Call to Action</h3>
+        <p class="body-small mb-4" style="color: var(--text-tertiary);">CTA buttons, highlights, warm accents, error states.</p>
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-rose-50);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Rose 50</div>
+              <div class="swatch__hex">#ffe8e8</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-rose-100);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Rose 100</div>
+              <div class="swatch__hex">#ffbfc0</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-rose-200);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Rose 200</div>
+              <div class="swatch__hex">#ff9598</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-rose-300);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Rose 300</div>
+              <div class="swatch__hex">#ff6c70</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-rose-400);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Rose 400</div>
+              <div class="swatch__hex">#ff5a5f</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-rose-500);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name"><strong>Rose 500 ★</strong></div>
+              <div class="swatch__hex">#FF5A5F</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-rose-600);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Rose 600</div>
+              <div class="swatch__hex">#e04e53</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-rose-700);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Rose 700</div>
+              <div class="swatch__hex">#c04246</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-rose-800);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Rose 800</div>
+              <div class="swatch__hex">#a0363a</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-rose-900);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Rose 900</div>
+              <div class="swatch__hex">#802a2e</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Muted Rose (Secondary) -->
+      <div class="ds-subsection">
+        <h3>Muted Rose — Secondary Accent</h3>
+        <p class="body-small mb-4" style="color: var(--text-tertiary);">Secondary buttons, hover states, supporting elements.</p>
         <div class="swatch-grid">
           <div class="swatch">
             <div class="swatch__color" style="background: var(--color-muted-rose-50);"></div>
@@ -1200,150 +1388,157 @@
         </div>
       </div>
 
-      <!-- Teal (Accent) -->
+      <!-- Charcoal (Text) -->
       <div class="ds-subsection">
-        <h3>Teal — Accent Colour</h3>
-        <p class="body-small mb-4" style="color: var(--text-tertiary);">Section backgrounds (bg-accent), decorative underline, info icons.</p>
+        <h3>Charcoal — Body Text &amp; Dark Surfaces</h3>
+        <p class="body-small mb-4" style="color: var(--text-tertiary);">Body text, headings, footer, dark backgrounds.</p>
         <div class="swatch-grid">
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-teal-50);"></div>
+            <div class="swatch__color" style="background: var(--color-charcoal-50);"></div>
             <div class="swatch__info">
-              <div class="swatch__name">Teal 50</div>
-              <div class="swatch__hex">#e6f4fa</div>
+              <div class="swatch__name">Charcoal 50</div>
+              <div class="swatch__hex">#f2f2f2</div>
             </div>
           </div>
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-teal-100);"></div>
+            <div class="swatch__color" style="background: var(--color-charcoal-100);"></div>
             <div class="swatch__info">
-              <div class="swatch__name">Teal 100</div>
-              <div class="swatch__hex">#b3e0f2</div>
+              <div class="swatch__name">Charcoal 100</div>
+              <div class="swatch__hex">#d9d9d9</div>
             </div>
           </div>
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-teal-200);"></div>
+            <div class="swatch__color" style="background: var(--color-charcoal-200);"></div>
             <div class="swatch__info">
-              <div class="swatch__name">Teal 200</div>
-              <div class="swatch__hex">#80cce9</div>
+              <div class="swatch__name">Charcoal 200</div>
+              <div class="swatch__hex">#bfbfbf</div>
             </div>
           </div>
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-teal-300);"></div>
+            <div class="swatch__color" style="background: var(--color-charcoal-300);"></div>
             <div class="swatch__info">
-              <div class="swatch__name">Teal 300</div>
-              <div class="swatch__hex">#4db8e1</div>
+              <div class="swatch__name">Charcoal 300</div>
+              <div class="swatch__hex">#a6a6a6</div>
             </div>
           </div>
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-teal-400);"></div>
+            <div class="swatch__color" style="background: var(--color-charcoal-400);"></div>
             <div class="swatch__info">
-              <div class="swatch__name">Teal 400</div>
-              <div class="swatch__hex">#26a8d8</div>
+              <div class="swatch__name">Charcoal 400</div>
+              <div class="swatch__hex">#8c8c8c</div>
             </div>
           </div>
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-teal-500);"></div>
+            <div class="swatch__color" style="background: var(--color-charcoal-500);"></div>
             <div class="swatch__info">
-              <div class="swatch__name"><strong>Teal 500 ★</strong></div>
-              <div class="swatch__hex">#087EBB</div>
+              <div class="swatch__name">Charcoal 500</div>
+              <div class="swatch__hex">#737373</div>
             </div>
           </div>
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-teal-600);"></div>
+            <div class="swatch__color" style="background: var(--color-charcoal-600);"></div>
             <div class="swatch__info">
-              <div class="swatch__name">Teal 600</div>
-              <div class="swatch__hex">#06699e</div>
+              <div class="swatch__name">Charcoal 600</div>
+              <div class="swatch__hex">#595959</div>
             </div>
           </div>
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-teal-700);"></div>
+            <div class="swatch__color" style="background: var(--color-charcoal-700);"></div>
             <div class="swatch__info">
-              <div class="swatch__name">Teal 700</div>
-              <div class="swatch__hex">#055482</div>
+              <div class="swatch__name">Charcoal 700</div>
+              <div class="swatch__hex">#404040</div>
             </div>
           </div>
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-teal-800);"></div>
+            <div class="swatch__color" style="background: var(--color-charcoal-800);"></div>
             <div class="swatch__info">
-              <div class="swatch__name">Teal 800</div>
-              <div class="swatch__hex">#043f66</div>
+              <div class="swatch__name"><strong>Charcoal 800 ★</strong></div>
+              <div class="swatch__hex">#3C3C3C</div>
             </div>
           </div>
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-teal-900);"></div>
+            <div class="swatch__color" style="background: var(--color-charcoal-900);"></div>
             <div class="swatch__info">
-              <div class="swatch__name">Teal 900</div>
-              <div class="swatch__hex">#022a49</div>
+              <div class="swatch__name">Charcoal 900</div>
+              <div class="swatch__hex">#262626</div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Foreground (Text) -->
+      <!-- Neutral (Background) -->
       <div class="ds-subsection">
-        <h3>Foreground — Body Text &amp; Dark Surfaces</h3>
-        <p class="body-small mb-4" style="color: var(--text-tertiary);">Body text, headings, dark backgrounds, footer. HSL: 220, 20%, 15%.</p>
+        <h3>Neutral — Light Backgrounds</h3>
+        <p class="body-small mb-4" style="color: var(--text-tertiary);">Page backgrounds, light surfaces, subtle dividers.</p>
         <div class="swatch-grid">
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-foreground-50);"></div>
+            <div class="swatch__color" style="background: var(--color-neutral-50);"></div>
             <div class="swatch__info">
-              <div class="swatch__name">Fg 50</div>
-              <div class="swatch__hex">#f2f4f7</div>
+              <div class="swatch__name">Neutral 50</div>
+              <div class="swatch__hex">#FAFAFA</div>
             </div>
           </div>
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-foreground-100);"></div>
+            <div class="swatch__color" style="background: var(--color-neutral-100);"></div>
             <div class="swatch__info">
-              <div class="swatch__name">Fg 100</div>
-              <div class="swatch__hex">#d9dde3</div>
+              <div class="swatch__name"><strong>Neutral 100 ★</strong></div>
+              <div class="swatch__hex">#F5F5F5</div>
             </div>
           </div>
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-foreground-300);"></div>
+            <div class="swatch__color" style="background: var(--color-neutral-200);"></div>
             <div class="swatch__info">
-              <div class="swatch__name">Fg 300</div>
-              <div class="swatch__hex">#a5adbb</div>
+              <div class="swatch__name">Neutral 200</div>
+              <div class="swatch__hex">#E5E5E5</div>
             </div>
           </div>
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-foreground-400);"></div>
+            <div class="swatch__color" style="background: var(--color-neutral-300);"></div>
             <div class="swatch__info">
-              <div class="swatch__name">Fg 400</div>
-              <div class="swatch__hex">#8c96a7</div>
+              <div class="swatch__name">Neutral 300</div>
+              <div class="swatch__hex">#D4D4D4</div>
             </div>
           </div>
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-foreground-500);"></div>
+            <div class="swatch__color" style="background: var(--color-neutral-400);"></div>
             <div class="swatch__info">
-              <div class="swatch__name">Fg 500</div>
-              <div class="swatch__hex">#737e93</div>
+              <div class="swatch__name">Neutral 400</div>
+              <div class="swatch__hex">#A3A3A3</div>
             </div>
           </div>
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-foreground-600);"></div>
+            <div class="swatch__color" style="background: var(--color-neutral-500);"></div>
             <div class="swatch__info">
-              <div class="swatch__name">Fg 600</div>
-              <div class="swatch__hex">#59667f</div>
+              <div class="swatch__name">Neutral 500</div>
+              <div class="swatch__hex">#737373</div>
             </div>
           </div>
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-foreground-700);"></div>
+            <div class="swatch__color" style="background: var(--color-neutral-600);"></div>
             <div class="swatch__info">
-              <div class="swatch__name">Fg 700</div>
-              <div class="swatch__hex">#404e6b</div>
+              <div class="swatch__name">Neutral 600</div>
+              <div class="swatch__hex">#525252</div>
             </div>
           </div>
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-foreground-800);"></div>
+            <div class="swatch__color" style="background: var(--color-neutral-700);"></div>
             <div class="swatch__info">
-              <div class="swatch__name"><strong>Fg 800 ★</strong></div>
-              <div class="swatch__hex">#2d3a4a</div>
+              <div class="swatch__name">Neutral 700</div>
+              <div class="swatch__hex">#404040</div>
             </div>
           </div>
           <div class="swatch">
-            <div class="swatch__color" style="background: var(--color-foreground-900);"></div>
+            <div class="swatch__color" style="background: var(--color-neutral-800);"></div>
             <div class="swatch__info">
-              <div class="swatch__name">Fg 900</div>
-              <div class="swatch__hex">#1a2633</div>
+              <div class="swatch__name">Neutral 800</div>
+              <div class="swatch__hex">#262626</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background: var(--color-neutral-900);"></div>
+            <div class="swatch__info">
+              <div class="swatch__name">Neutral 900</div>
+              <div class="swatch__hex">#171717</div>
             </div>
           </div>
         </div>
