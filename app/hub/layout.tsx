@@ -4,9 +4,9 @@ import { HubSidebar } from "./HubSidebar";
 
 export default async function HubLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error } = await supabase.auth.getUser();
 
-  if (!user) {
+  if (error || !user) {
     redirect("/hub/login");
   }
 

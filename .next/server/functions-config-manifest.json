@@ -1,1 +1,1 @@
-{"version":1,"functions":{"/_not-found":{},"/about":{},"/blog":{},"/contact":{},"/blog/[slug]":{},"/cookies-policy":{},"/faqs":{},"/pricing":{},"/personal-training":{},"/":{},"/terms":{},"/privacy-policy":{}}}
+{"version":1,"functions":{"/about":{},"/_not-found":{},"/contact":{},"/blog":{},"/cookies-policy":{},"/faqs":{},"/blog/[slug]":{},"/pricing":{},"/personal-training":{},"/":{},"/terms":{},"/privacy-policy":{}}}
