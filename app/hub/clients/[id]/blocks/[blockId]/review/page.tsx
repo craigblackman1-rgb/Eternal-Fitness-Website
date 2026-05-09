@@ -1,0 +1,184 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase-client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ChevronLeft, CheckCircle, AlertTriangle, Eye } from "lucide-react";
+import Link from "next/link";
+import { toast } from "sonner";
+import type { DBSession, DBBlock } from "@/types";
+
+export default function ReviewPage({
+  params,
+}: {
+  params: { id: string; blockId: string };
+}) {
+  const router = useRouter();
+  const supabase = createClient();
+  const [block, setBlock] = useState<DBBlock | null>(null);
+  const [sessions, setSessions] = useState<DBSession[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [approving, setApproving] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      const { data: b } = await supabase.from("blocks").select("*").eq("id", params.blockId).single();
+      const { data: s } = await supabase
+        .from("sessions")
+        .select("*")
+        .eq("block_id", params.blockId)
+        .order("session_number", { ascending: true });
+
+      setBlock(b);
+      setSessions(s || []);
+      setLoading(false);
+    }
+    load();
+  }, [params.blockId]);
+
+  const handleApprove = async () => {
+    setApproving(true);
+    try {
+      const res = await fetch(`/api/blocks/${params.blockId}/approve`, { method: "POST" });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to approve");
+      }
+      toast.success("Block approved!");
+      router.push(`/hub/clients/${params.id}/blocks/${params.blockId}`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+      setApproving(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="p-8 text-center text-muted-foreground">Loading...</div>;
+  }
+
+  if (!block) {
+    return <div className="p-8 text-center text-muted-foreground">Block not found</div>;
+  }
+
+  const hasMissingMods = sessions.some((s) => {
+    const studio = s.data?.versions?.studio;
+    const home = s.data?.versions?.home;
+    const allExercises = [
+      ...(studio?.warm_up || []),
+      ...(studio?.main_block || []),
+      ...(studio?.cooldown || []),
+      ...(home?.warm_up || []),
+      ...(home?.main_block || []),
+      ...(home?.cooldown || []),
+    ];
+    return allExercises.some((e: { modification?: string }) => !e.modification);
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <Link
+          href={`/hub/clients/${params.id}/blocks/${params.blockId}`}
+          className="text-muted-foreground hover:text-foreground"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </Link>
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold tracking-tight">Review & Approve</h1>
+          <p className="text-muted-foreground">
+            Block {block.block_number} — {sessions.length} sessions
+          </p>
+        </div>
+      </div>
+
+      {hasMissingMods && (
+        <Alert className="border-amber-200 bg-amber-50">
+          <AlertTriangle className="h-4 w-4 text-amber-600" />
+          <AlertDescription className="text-amber-800">
+            Some exercises are missing client-specific modifications. Review each session before approving.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Session Overview</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12">#</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Week</TableHead>
+                <TableHead>Phase</TableHead>
+                <TableHead>Exercises (Studio)</TableHead>
+                <TableHead>Exercises (Home)</TableHead>
+                <TableHead className="w-16"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sessions.map((session) => {
+                const studioCount =
+                  (session.data?.versions?.studio?.warm_up?.length || 0) +
+                  (session.data?.versions?.studio?.main_block?.length || 0) +
+                  (session.data?.versions?.studio?.cooldown?.length || 0);
+                const homeCount =
+                  (session.data?.versions?.home?.warm_up?.length || 0) +
+                  (session.data?.versions?.home?.main_block?.length || 0) +
+                  (session.data?.versions?.home?.cooldown?.length || 0);
+
+                return (
+                  <TableRow key={session.id}>
+                    <TableCell className="font-medium">{session.session_number}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          session.archetype === "A"
+                            ? "secondary"
+                            : session.archetype === "B"
+                            ? "default"
+                            : "outline"
+                        }
+                      >
+                        {session.archetype}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{session.week}</TableCell>
+                    <TableCell className="capitalize">{session.phase}</TableCell>
+                    <TableCell>{studioCount} exercises</TableCell>
+                    <TableCell>{homeCount} exercises</TableCell>
+                    <TableCell>
+                      <Link
+                        href={`/hub/clients/${params.id}/blocks/${params.blockId}/sessions/${session.session_number}`}
+                      >
+                        <Button variant="ghost" size="icon">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-end gap-3">
+        <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}`}>
+          <Button variant="outline">Back to Block</Button>
+        </Link>
+        <Button onClick={handleApprove} disabled={approving} className="gap-2">
+          <CheckCircle className="h-4 w-4" />
+          {approving ? "Approving..." : "Approve Block"}
+        </Button>
+      </div>
+    </div>
+  );
+}
