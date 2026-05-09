@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
-import type { ClientProfile, Session, Archetype, Phase } from "@/types";
+import type { ClientProfile, Session, Archetype, Phase, Exercise, SessionVersion } from "@/types";
 
 const archetypeOrder: Archetype[] = ["A", "B", "C"];
-const weekPhases: { week: number; phase: Phase }[] = [
+
+const roundPhases: { week: number; phase: Phase }[] = [
   { week: 1, phase: "foundation" },
   { week: 2, phase: "foundation" },
   { week: 3, phase: "build" },
@@ -11,12 +12,6 @@ const weekPhases: { week: number; phase: Phase }[] = [
   { week: 5, phase: "peak" },
   { week: 6, phase: "deload" },
 ];
-
-const archetypeLabels: Record<Archetype, string> = {
-  A: "Today is about how your body moves — joint health, range, and control",
-  B: "Today is about building a stronger you — load, tension, and control under resistance",
-  C: "Today is about energy — moving with intent, elevating heart rate, and building capacity",
-};
 
 export async function POST(request: Request) {
   const supabase = createClient();
@@ -51,7 +46,7 @@ export async function POST(request: Request) {
   let sessions: Session[];
 
   if (process.env.ANTHROPIC_API_KEY) {
-    sessions = await generateViaClaude(profile, blockNote, previousSummary);
+    sessions = await generateViaClaude(profile, blockNote, previousSummary, blockNumber);
   } else {
     sessions = generateFallback(profile, blockNumber);
   }
@@ -93,7 +88,8 @@ export async function POST(request: Request) {
 async function generateViaClaude(
   profile: ClientProfile,
   blockNote?: string,
-  previousSummary?: string
+  previousSummary?: string,
+  _blockNumber?: number
 ): Promise<Session[]> {
   const { default: Anthropic } = await import("@anthropic-ai/sdk");
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
@@ -116,13 +112,22 @@ ${JSON.stringify(profile, null, 2)}
 ${blockNote ? `Esther's note: ${blockNote}` : ""}
 ${previousSummary ? `Previous block summary: ${previousSummary}` : ""}
 
-Generate exactly 18 sessions following this structure:
-- 6 rounds of ABC (Archetype A = Mobility, B = Strength, C = Conditioning)
+STRUCTURE:
+- 6 rounds of Archetype A (Mobility), B (Strength), C (Conditioning)
 - Week 1-2: Foundation, Week 3: Build, Week 4: Develop, Week 5: Peak, Week 6: Deload
 - Each session has studio and home versions with warm_up, main_block, cooldown
-- Client-facing focus_label per session
 - Time tier: ${profile.logistics.time_tier}
-- Equipment available: dumbbells, resistance bands, kettlebells, barbell+plates, TRX, stationary bike, treadmill, rowing machine, step/box, mats, foam roller, stability ball
+- Equipment: dumbbells, resistance bands, kettlebells, barbell+plates, TRX, stationary bike, treadmill, rowing machine, step/box, mats, foam roller, stability ball
+
+CRITICAL — EXERCISE VARIETY:
+Sessions 1, 4, 7, 10, 13, 16 are ALL Archetype A — they MUST use DIFFERENT exercises from each other. Same for Archetype B (sessions 2, 5, 8, 11, 14, 17) and Archetype C (sessions 3, 6, 9, 12, 15, 18). NO exercise should appear more than once across all sessions.
+
+PROGRESSION RULES:
+- Foundation (weeks 1-2): basic regressions, learn patterns, low load, lower ROM
+- Build (week 3): increase load, add complexity to established patterns
+- Develop (week 4): compound movements, greater ROM, higher challenge
+- Peak (week 5): highest intensity/volume of the block
+- Deload (week 6): drop volume, submax loads, active recovery focus, easier exercises
 
 Return only a JSON array of 18 Session objects.`;
 
@@ -137,14 +142,186 @@ Return only a JSON array of 18 Session objects.`;
   return JSON.parse(text) as Session[];
 }
 
+/* ─── Fallback generator powered by exercise-db.json ─── */
+
+import exerciseDb from "@/lib/exercise-db.json";
+
+interface ExerciseDbEntry {
+  id: string;
+  name: string;
+  archetypes: Archetype[];
+  movement_type: string;
+  equipment: string[];
+  difficulty: number;
+  intensity_tiers: string[];
+  coaching_cue: string;
+  default_mod: string;
+}
+
+const archetypeSectionTypes: Record<Archetype, { warm_up: string[]; main_block: string[]; cooldown: string[] }> = {
+  A: {
+    warm_up: ["spinal_mobility", "upper_body_mobility", "full_body_mobility"],
+    main_block: ["lower_body_mobility", "full_body_mobility", "hinge_pattern"],
+    cooldown: ["rest_recovery", "spinal_mobility", "lower_body_mobility"],
+  },
+  B: {
+    warm_up: ["core_anterior", "core_posterior", "core_lateral"],
+    main_block: ["squat_pattern", "lunge_pattern", "hinge_pattern", "horizontal_pull", "horizontal_push", "vertical_push", "loaded_carry", "push_accessory", "pull_accessory"],
+    cooldown: ["spinal_mobility", "lower_body_mobility", "rest_recovery"],
+  },
+  C: {
+    warm_up: ["mobility_dynamic", "core_posterior", "lateral_movement"],
+    main_block: ["hinge_pattern", "power_output", "lateral_movement", "locomotion", "cardio"],
+    cooldown: ["lower_body_mobility", "rest_recovery"],
+  },
+};
+
+function pickExercise(
+  pool: ExerciseDbEntry[],
+  usedIds: Set<string>,
+  allowRepeat: boolean
+): ExerciseDbEntry | null {
+  const available = pool.filter((e) => allowRepeat || !usedIds.has(e.id));
+  if (available.length === 0) return null;
+  const pick = available[Math.floor(Math.random() * available.length)];
+  usedIds.add(pick.id);
+  return pick;
+}
+
+function makeExercise(
+  entry: ExerciseDbEntry,
+  phase: Phase,
+  section: "warm_up" | "main_block" | "cooldown"
+): Exercise {
+  const isDeload = phase === "deload";
+  const isFoundation = phase === "foundation";
+  const isPeak = phase === "peak";
+
+  let sets: number;
+  let reps: string;
+  let tempo: string;
+  let rest: string;
+
+  if (section === "warm_up") {
+    sets = 1; reps = "8-10"; tempo = "slow, controlled"; rest = "none";
+  } else if (section === "cooldown") {
+    sets = 1; reps = "hold 30-45s"; tempo = "breathe"; rest = "none";
+  } else {
+    if (isDeload) { sets = 2; reps = "10-12"; tempo = "2-0-2"; rest = "60s"; }
+    else if (isFoundation) { sets = 3; reps = "10-12"; tempo = "2-0-2"; rest = "60s"; }
+    else if (isPeak) { sets = 4; reps = "6-8"; tempo = "2-0-1"; rest = "90s"; }
+    else { sets = 3; reps = "8-10"; tempo = "2-0-2"; rest = "60-75s"; }
+  }
+
+  return {
+    exercise_name: entry.name,
+    sets,
+    reps,
+    tempo,
+    rest,
+    coaching_cue: entry.coaching_cue,
+    modification: entry.default_mod,
+    equipment: entry.equipment,
+  };
+}
+
+function composeSessionVersion(
+  archetype: Archetype,
+  phase: Phase,
+  usedIds: Set<string>,
+  isHome: boolean
+): SessionVersion {
+  const db = (exerciseDb as { exercises: ExerciseDbEntry[] }).exercises;
+  const archetypePool = db.filter((e) => e.archetypes.includes(archetype));
+
+  const sectionTypes = archetypeSectionTypes[archetype];
+
+  function composeSection(section: "warm_up" | "main_block" | "cooldown"): Exercise[] {
+    const types = sectionTypes[section];
+    const target = section === "main_block" ? 3 : 2;
+
+    const picked: Exercise[] = [];
+    const usedInSession = new Set<string>();
+
+    for (let i = 0; i < target && i < types.length; i++) {
+      const typePool = archetypePool.filter(
+        (e) => e.movement_type === types[i] && !usedIds.has(e.id) && !usedInSession.has(e.id)
+      );
+      const entry = pickExercise(typePool, usedIds, false);
+      if (entry) {
+        usedInSession.add(entry.id);
+        picked.push(makeExercise(entry, phase, section));
+      }
+    }
+
+    if (picked.length < target) {
+      const remaining = archetypePool.filter(
+        (e) => !usedIds.has(e.id) && !usedInSession.has(e.id)
+      );
+      while (picked.length < target && remaining.length > 0) {
+        const entry = pickExercise(remaining, usedIds, false);
+        if (entry) {
+          usedInSession.add(entry.id);
+          picked.push(makeExercise(entry, phase, section));
+        }
+      }
+    }
+
+    return picked.length > 0 ? picked : [makeExercise(archetypePool[0], phase, section)];
+  }
+
+  const warm_up = composeSection("warm_up");
+  const main_block = composeSection("main_block");
+  const cooldown = composeSection("cooldown");
+
+  if (isHome) {
+    return {
+      warm_up: warm_up.map((ex) => ({
+        ...ex,
+        modification: `${ex.modification} Do without equipment` + (ex.equipment.length > 0 ? ` (no ${ex.equipment.join("/")})` : ""),
+        equipment: [],
+        coaching_cue: ex.coaching_cue,
+      })),
+      main_block: main_block.map((ex) => ({
+        ...ex,
+        modification: `${ex.modification} Do without equipment` + (ex.equipment.length > 0 ? ` (no ${ex.equipment.join("/")})` : ""),
+        equipment: [],
+        coaching_cue: ex.coaching_cue,
+      })),
+      cooldown: cooldown.map((ex) => ({
+        ...ex,
+        modification: `${ex.modification} Do without equipment` + (ex.equipment.length > 0 ? ` (no ${ex.equipment.join("/")})` : ""),
+        equipment: [],
+        coaching_cue: ex.coaching_cue,
+      })),
+    };
+  }
+
+  return { warm_up, main_block, cooldown };
+}
+
 function generateFallback(profile: ClientProfile, blockNumber: number): Session[] {
   const sessions: Session[] = [];
+  const usedIds = new Set<string>();
+
+  const archetypeFocus: Record<Archetype, string> = {
+    A: "Mobility & Movement Quality",
+    B: "Strength & Stability",
+    C: "Power & Conditioning",
+  };
 
   for (let round = 0; round < 6; round++) {
     for (let ai = 0; ai < 3; ai++) {
       const sessionNumber = round * 3 + ai + 1;
       const archetype = archetypeOrder[ai];
-      const wp = weekPhases[round];
+      const wp = roundPhases[round];
+
+      const phaseLabel =
+        wp.phase === "foundation" ? "Building Foundations"
+        : wp.phase === "build" ? "Adding Load"
+        : wp.phase === "develop" ? "Increasing Complexity"
+        : wp.phase === "peak" ? "Peak Output"
+        : "Active Recovery";
 
       sessions.push({
         session_id: `generated-${blockNumber}-${sessionNumber}`,
@@ -154,42 +331,14 @@ function generateFallback(profile: ClientProfile, blockNumber: number): Session[
         archetype,
         week: wp.week,
         phase: wp.phase,
-        focus_label: archetypeLabels[archetype],
+        focus_label: `${archetypeFocus[archetype]} — ${phaseLabel} (Week ${wp.week})`,
         time_tier: profile.logistics.time_tier,
         versions: {
-          studio: {
-            warm_up: [
-              generateExercise("Cat-Cow", archetype, wp.phase),
-              generateExercise("Thoracic Rotation", archetype, wp.phase),
-            ],
-            main_block: [
-              generateExercise(archetype === "A" ? "Hip Hinge Pattern" : archetype === "B" ? "Goblet Squat" : "Kettlebell Swing", archetype, wp.phase),
-              generateExercise(archetype === "A" ? "World's Greatest Stretch" : archetype === "B" ? "Dumbbell Row" : "Box Step-Up", archetype, wp.phase),
-              generateExercise(archetype === "A" ? "Ankle Mobilisation" : archetype === "B" ? "Dumbbell Overhead Press" : "Farmer's Carry", archetype, wp.phase),
-            ],
-            cooldown: [
-              generateExercise("Child's Pose", archetype, wp.phase),
-              generateExercise("Figure-4 Stretch", archetype, wp.phase),
-            ],
-          },
-          home: {
-            warm_up: [
-              generateExercise("Cat-Cow", archetype, wp.phase),
-              generateExercise("Thoracic Rotation", archetype, wp.phase),
-            ],
-            main_block: [
-              generateExercise(archetype === "A" ? "Hip Hinge Pattern" : archetype === "B" ? "Bodyweight Squat" : "Band Pull-Apart", archetype, wp.phase),
-              generateExercise(archetype === "A" ? "World's Greatest Stretch" : archetype === "B" ? "Band Row" : "Marching Glute Bridge", archetype, wp.phase),
-              generateExercise(archetype === "A" ? "Ankle Mobilisation" : archetype === "B" ? "Push-Up" : "Band Walk", archetype, wp.phase),
-            ],
-            cooldown: [
-              generateExercise("Child's Pose", archetype, wp.phase),
-              generateExercise("Figure-4 Stretch", archetype, wp.phase),
-            ],
-          },
+          studio: composeSessionVersion(archetype, wp.phase, usedIds, false),
+          home: composeSessionVersion(archetype, wp.phase, usedIds, true),
         },
-        coaching_notes: `Client-specific: ${profile.health.contraindications?.join(", ") || "none noted"}. ${profile.notes.watch_for || ""}`,
-        client_intro: archetypeLabels[archetype],
+        coaching_notes: `Client-specific: ${profile.health.contraindications?.join(", ") || "none noted"}. ${profile.notes.watch_for || ""}. Home version substitutes bodyweight for equipment.`,
+        client_intro: archetypeFocus[archetype],
       });
     }
   }
@@ -197,18 +346,4 @@ function generateFallback(profile: ClientProfile, blockNumber: number): Session[
   return sessions;
 }
 
-function generateExercise(name: string, _archetype: Archetype, phase: Phase) {
-  const sets = phase === "deload" ? 2 : phase === "foundation" ? 3 : phase === "peak" ? 4 : 3;
-  const reps = phase === "foundation" ? "10-12" : phase === "deload" ? "8-10" : "8-10";
 
-  return {
-    exercise_name: name,
-    sets,
-    reps,
-    tempo: "2-0-2",
-    rest: "60 seconds",
-    coaching_cue: "Maintain control throughout",
-    modification: "Reduce range of motion if needed",
-    equipment: [],
-  };
-}

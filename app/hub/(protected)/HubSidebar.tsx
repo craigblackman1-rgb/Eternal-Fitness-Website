@@ -9,12 +9,14 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   Users,
+  BookText,
   LogOut,
 } from "lucide-react";
 
 const navItems = [
   { href: "/hub", label: "Dashboard", icon: LayoutDashboard },
   { href: "/hub/clients", label: "Clients", icon: Users },
+  { href: "/hub/exercises", label: "Exercise Library", icon: BookText },
 ];
 
 export function HubSidebar() {
