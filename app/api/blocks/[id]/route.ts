@@ -9,32 +9,13 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: block } = await supabase
-    .from("blocks")
-    .select("*")
-    .eq("id", params.id)
-    .single();
-
-  if (!block) {
-    return NextResponse.json({ error: "Block not found" }, { status: 404 });
-  }
-
-  const { error: sessionsError } = await supabase
-    .from("sessions")
-    .delete()
-    .eq("block_id", params.id);
-
-  if (sessionsError) {
-    return NextResponse.json({ error: sessionsError.message }, { status: 500 });
-  }
-
-  const { error: blockError } = await supabase
+  const { error } = await supabase
     .from("blocks")
     .delete()
     .eq("id", params.id);
 
-  if (blockError) {
-    return NextResponse.json({ error: blockError.message }, { status: 500 });
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });

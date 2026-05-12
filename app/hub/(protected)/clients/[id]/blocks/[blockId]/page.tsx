@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, Eye, Printer } from "lucide-react";
 import { DeleteBlockButton } from "./delete-block-button";
+import { ExportSpreadsheetButton } from "./export-spreadsheet";
 
 const phaseColors: Record<string, string> = {
   foundation: "bg-blue-100 text-blue-800",
@@ -70,6 +71,11 @@ export default async function BlockViewPage({
               <Button>Review & Approve</Button>
             </Link>
           )}
+          <ExportSpreadsheetButton
+            blockId={params.blockId}
+            blockNumber={block.block_number}
+            clientName={client?.name || "Client"}
+          />
           <DeleteBlockButton clientId={params.id} blockId={params.blockId} />
         </div>
       </div>

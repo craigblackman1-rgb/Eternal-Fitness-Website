@@ -11,6 +11,8 @@ import Link from "next/link";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import type { DBSession, Exercise } from "@/types";
+import type { ExerciseEntry } from "@/app/hub/(protected)/exercises/page";
+import { SwapExerciseDialog } from "../swap-exercise-dialog";
 
 export default function SessionViewPage({
   params,
@@ -180,6 +182,7 @@ function SessionSection({
   const supabase = createClient();
   const [editingUrl, setEditingUrl] = useState<number | null>(null);
   const [urlInput, setUrlInput] = useState("");
+  const [swapping, setSwapping] = useState<number | null>(null);
 
   if (exercises.length === 0) {
     return (
@@ -215,6 +218,32 @@ function SessionSection({
   const searchYoutube = (name: string) => {
     const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(name + " exercise")}`;
     window.open(url, "_blank");
+  };
+
+  const handleSwapExercise = async (idx: number, selected: ExerciseEntry) => {
+    const updatedData = { ...session.data };
+    const exercise = (updatedData.versions as any)[versionKey][sectionKey][idx] as Exercise;
+    exercise.exercise_name = selected.name;
+    exercise.coaching_cue = selected.coaching_cue;
+    exercise.modification = selected.default_mod;
+    exercise.equipment = selected.equipment;
+    if (selected.media) {
+      exercise.media = { ...exercise.media, ...selected.media };
+    }
+    (updatedData.versions as any)[versionKey][sectionKey][idx] = exercise;
+
+    const { error } = await supabase
+      .from("sessions")
+      .update({ data: updatedData })
+      .eq("id", session.id);
+
+    if (error) {
+      toast.error("Failed to swap exercise");
+      return;
+    }
+
+    onUpdateSession({ ...session, data: updatedData });
+    toast.success(`Swapped to ${selected.name}`);
   };
 
   return (
@@ -278,7 +307,22 @@ function SessionSection({
                 >
                   Search YouTube
                 </button>
+                <span className="text-xs text-muted-foreground">|</span>
+                <button
+                  onClick={() => setSwapping(swapping === i ? null : i)}
+                  className="text-xs text-accent hover:underline"
+                >
+                  Swap
+                </button>
               </div>
+
+              {swapping === i && (
+                <SwapExerciseDialog
+                  open={swapping === i}
+                  onOpenChange={(open) => { if (!open) setSwapping(null); }}
+                  onSelect={(selected) => handleSwapExercise(i, selected)}
+                />
+              )}
 
               {editingUrl === i && (
                 <div className="mt-2 flex gap-2">
