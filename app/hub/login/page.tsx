@@ -39,7 +39,7 @@ export default function LoginPage() {
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex items-center gap-2">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="16" cy="16" r="16" fill="#087EBB"/>
+              <circle cx="16" cy="16" r="16" fill="#087E8B"/>
               <path d="M10 22V12l6-4 6 4v10h-4v-6h-4v6h-4z" fill="white"/>
             </svg>
             <span className="text-xl font-bold text-accent">Eternal Fitness</span>
