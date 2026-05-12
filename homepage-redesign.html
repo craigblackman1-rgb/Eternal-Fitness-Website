@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eternal Fitness | Redesigned Homepage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..1000;1,9..40,300..1000&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* ===== BRAND PRIMITIVES ===== */
+  --teal-50: #e6f4f0;
+  --teal-100: #b3e0d6;
+  --teal-200: #80ccbb;
+  --teal-300: #4db8a1;
+  --teal-400: #26a88e;
+  --teal-500: #087E8B;
+  --teal-600: #066a75;
+  --teal-700: #05565f;
+  --teal-800: #044249;
+  --teal-900: #022e33;
+
+  --muted-rose-50: #f7f0f4;
+  --muted-rose-100: #ebd6e2;
+  --muted-rose-200: #ddbccc;
+  --muted-rose-300: #cfa3b6;
+  --muted-rose-400: #c1839f;
+  --muted-rose-500: #C1839F;
+  --muted-rose-600: #a46e87;
+  --muted-rose-700: #875a6f;
+  --muted-rose-800: #6a4657;
+  --muted-rose-900: #4d323f;
+
+  --gold-50: #FBF6EE;
+  --gold-100: #F2E8D6;
+  --gold-200: #E8D9BC;
+  --gold-300: #DDCAA2;
+  --gold-400: #D3BB88;
+  --gold-500: #C9A96E;
+  --gold-600: #B89456;
+
+  --sage-50: #F2F6EF;
+  --sage-100: #DEE5D6;
+  --sage-200: #C8D4BC;
+  --sage-300: #B2C3A3;
+  --sage-400: #9CB28A;
+  --sage-500: #8A9A7B;
+  --sage-600: #758665;
+
+  --charcoal-50: #f2f2f2;
+  --charcoal-100: #d9d9d9;
+  --charcoal-200: #bfbfbf;
+  --charcoal-300: #a6a6a6;
+  --charcoal-400: #8c8c8c;
+  --charcoal-500: #737373;
+  --charcoal-600: #595959;
+  --charcoal-700: #404040;
+  --charcoal-800: #3C3C3C;
+  --charcoal-900: #262626;
+
+  --neutral-50: #FAFAFA;
+  --neutral-100: #F5F5F5;
+  --neutral-200: #E5E5E5;
+  --neutral-300: #D4D4D4;
+  --neutral-400: #A3A3A3;
+  --neutral-500: #737373;
+  --white: #FFFFFF;
+
+  --warm-50: #FDF5F4;
+  --warm-100: #FAEFED;
+  --warm-200: #F5E2DF;
+
+  /* ===== SEMANTIC TOKENS ===== */
+  --brand-primary: var(--muted-rose-700);
+  --brand-primary-hover: var(--muted-rose-800);
+  --brand-primary-light: var(--muted-rose-50);
+  --brand-secondary: var(--teal-500);
+  --brand-secondary-hover: var(--teal-600);
+  --brand-secondary-light: var(--teal-50);
+  --brand-highlight: var(--gold-500);
+  --brand-highlight-light: var(--gold-50);
+  --brand-flourish: var(--sage-500);
+  --brand-flourish-light: var(--sage-50);
+
+  --text-primary: var(--charcoal-800);
+  --text-secondary: var(--charcoal-700);
+  --text-tertiary: var(--charcoal-500);
+  --text-inverse: var(--white);
+  --text-on-primary: var(--white);
+  --text-on-secondary: var(--white);
+
+  --surface-page: var(--white);
+  --surface-card: var(--white);
+  --surface-elevated: var(--neutral-50);
+  --surface-muted: var(--neutral-100);
+  --surface-warm: var(--warm-50);
+  --surface-warm-strong: var(--warm-100);
+  --surface-dark: var(--charcoal-800);
+  --surface-accent-tint: var(--muted-rose-50);
+  --surface-teal-tint: var(--teal-50);
+  --surface-gold-tint: var(--gold-50);
+
+  --border-light: var(--neutral-200);
+  --border-default: var(--neutral-300);
+
+  /* ===== TYPOGRAPHY ===== */
+  --font-family: 'DM Sans', 'Arial', 'Helvetica', sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.3;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  /* ===== SPACING ===== */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* ===== RADIUS ===== */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* ===== SHADOWS ===== */
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.04);
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--text-primary);
+  background: var(--surface-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img { max-width: 100%; display: block; }
+a { text-decoration: none; color: inherit; }
+
+/* ===== UTILITY CLASSES ===== */
+.container { max-width: 1200px; margin: 0 auto; }
+.section { padding: var(--space-20) var(--space-6); }
+.section--dark { background: var(--surface-dark); }
+.section--warm { background: var(--surface-warm); }
+.section--teal-tint { background: var(--surface-teal-tint); }
+
+.text-center { text-align: center; }
+
+.label-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--surface-accent-tint);
+  color: var(--brand-primary);
+  padding: var(--space-1-5, 6px) var(--space-4);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  margin-bottom: var(--space-4);
+}
+
+/* ===== INFRASTRUCTURE — Standardised Infographic System ===== */
+
+/* --- Icon Frame (consistent icon container) --- */
+.icon-frame {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.icon-frame--rose { background: var(--surface-accent-tint); color: var(--brand-primary); }
+.icon-frame--teal { background: var(--surface-teal-tint); color: var(--brand-secondary); }
+.icon-frame--gold { background: var(--brand-highlight-light); color: var(--brand-highlight); }
+.icon-frame--sage { background: var(--brand-flourish-light); color: var(--brand-flourish); }
+
+/* --- Stat Callout --- */
+.stat-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.stat-block__value {
+  font-family: var(--font-family);
+  font-size: var(--text-4xl);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-2);
+}
+.stat-block__value--teal { color: var(--brand-secondary); }
+.stat-block__value--rose { color: var(--brand-primary); }
+.stat-block__value--gold { color: var(--brand-highlight); }
+.stat-block__label {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  font-weight: 500;
+  max-width: 180px;
+}
+
+/* --- Process Flow Steps --- */
+.process-flow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-8);
+  position: relative;
+  counter-reset: step;
+}
+.process-flow__step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  counter-increment: step;
+}
+.process-flow__step::before {
+  content: "";
+  position: absolute;
+  top: 28px;
+  left: calc(50% + 36px);
+  right: calc(-50% + 36px);
+  height: 2px;
+  background: var(--neutral-200);
+  z-index: 0;
+}
+.process-flow__step:last-child::before { display: none; }
+.process-flow__circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: var(--text-xl);
+  position: relative;
+  z-index: 1;
+  margin-bottom: var(--space-4);
+  background: var(--surface-accent-tint);
+  color: var(--brand-primary);
+  border: 2px solid var(--muted-rose-200);
+}
+.process-flow__step--active .process-flow__circle {
+  background: var(--brand-primary);
+  color: var(--text-inverse);
+  border-color: var(--brand-primary);
+  box-shadow: var(--shadow-md);
+}
+.process-flow__title {
+  font-weight: 600;
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+.process-flow__desc {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  line-height: var(--leading-relaxed);
+}
+
+/* --- Feature Card (standardised) --- */
+.feature-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+.feature-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+.feature-card__icon {
+  margin-bottom: var(--space-4);
+}
+.feature-card__title {
+  font-weight: 600;
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-2);
+  color: var(--text-primary);
+}
+.feature-card__text {
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--text-tertiary);
+}
+.feature-card--accent {
+  background: var(--surface-accent-tint);
+  border-color: var(--muted-rose-200);
+}
+.feature-card--teal {
+  background: var(--surface-teal-tint);
+  border-color: var(--teal-200);
+}
+.feature-card--gold {
+  background: var(--brand-highlight-light);
+  border-color: var(--gold-200);
+}
+.feature-card--sage {
+  background: var(--brand-flourish-light);
+  border-color: var(--sage-200);
+}
+
+/* --- Image Card (standardised overlay) --- */
+.image-card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.image-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.image-card:hover img { transform: scale(1.05); }
+.image-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.1) 50%, transparent 100%);
+}
+.image-card__content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-5);
+  color: var(--text-inverse);
+}
+.image-card__title {
+  font-weight: 600;
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-1);
+}
+.image-card__desc {
+  font-size: var(--text-sm);
+  opacity: 0.85;
+}
+
+/* --- Buttons --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border: 2px solid transparent;
+  border-radius: var(--radius-full);
+  font-family: var(--font-family);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.btn:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+.btn--primary {
+  background: var(--brand-primary);
+  color: var(--text-on-primary);
+  border-color: var(--brand-primary);
+}
+.btn--primary:hover {
+  background: var(--brand-primary-hover);
+  border-color: var(--brand-primary-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.btn--secondary {
+  background: var(--brand-secondary);
+  color: var(--text-on-secondary);
+  border-color: var(--brand-secondary);
+}
+.btn--secondary:hover {
+  background: var(--brand-secondary-hover);
+  border-color: var(--brand-secondary-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.btn--outline {
+  background: transparent;
+  color: var(--text-inverse);
+  border-color: rgba(255,255,255,0.4);
+}
+.btn--outline:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.6);
+}
+.btn--outline-dark {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-default);
+}
+.btn--outline-dark:hover {
+  background: var(--surface-elevated);
+  border-color: var(--text-primary);
+}
+
+/* ===== NAVBAR ===== */
+.navbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 50;
+  padding: var(--space-5) var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.navbar__logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-inverse);
+}
+.navbar__logo-icon {
+  width: 32px;
+  height: 32px;
+}
+.navbar__logo-text {
+  font-weight: 700;
+  font-size: var(--text-lg);
+  letter-spacing: -0.02em;
+}
+.navbar__links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+.navbar__link {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: rgba(255,255,255,0.8);
+  transition: color 0.2s;
+}
+.navbar__link:hover { color: var(--text-inverse); }
+
+@media (max-width: 768px) {
+  .navbar__links { display: none; }
+}
+
+/* ===== HERO ===== */
+.hero {
+  position: relative;
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.hero__bg {
+  position: absolute;
+  inset: 0;
+}
+.hero__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.45) 100%);
+}
+.hero__body {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-24) var(--space-6) var(--space-8);
+}
+.hero__content { max-width: 720px; }
+.hero__kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: rgba(135, 90, 111, 0.35);
+  color: var(--muted-rose-100);
+  padding: 6px var(--space-4);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  margin-bottom: var(--space-5);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.hero__title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  line-height: var(--leading-tight);
+  color: var(--text-inverse);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-5);
+}
+.hero__subtitle {
+  font-size: var(--text-lg);
+  color: rgba(255,255,255,0.7);
+  max-width: 600px;
+  margin: 0 auto var(--space-8);
+  line-height: var(--leading-relaxed);
+}
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+/* Hero social proof bar */
+.hero__proof {
+  position: relative;
+  z-index: 10;
+  padding: 0 var(--space-6) var(--space-8);
+}
+.hero__proof-grid {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+@media (min-width: 768px) {
+  .hero__proof-grid { grid-template-columns: 1.1fr 1.3fr 1fr; }
+}
+
+.proof-card {
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+}
+.proof-card--glass {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-inverse);
+}
+.proof-card--solid {
+  background: var(--brand-primary);
+  color: var(--text-inverse);
+}
+.proof-card--stat {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-4);
+}
+.proof-card__stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: var(--text-xl);
+  color: var(--muted-rose-200);
+}
+.proof-card__stat-value {
+  font-weight: 700;
+  font-size: var(--text-xl);
+  margin-bottom: 2px;
+}
+.proof-card__stat-label {
+  font-size: var(--text-sm);
+  opacity: 0.75;
+}
+.proof-card__quote {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  font-style: italic;
+  margin-bottom: var(--space-3);
+  opacity: 0.9;
+}
+.proof-card__attribution {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  margin-top: auto;
+}
+.proof-card__attribution span {
+  font-weight: 400;
+  opacity: 0.6;
+}
+.proof-card__title {
+  font-weight: 600;
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-1);
+}
+.proof-card__text {
+  font-size: var(--text-sm);
+  opacity: 0.8;
+}
+
+/* ===== WHY SECTION ===== */
+.why {
+  padding: var(--space-20) var(--space-6);
+}
+.why__header { margin-bottom: var(--space-12); }
+.why__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+}
+@media (min-width: 640px) { .why__grid { grid-template-columns: repeat(3, 1fr); } }
+.why__card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  aspect-ratio: 4/5;
+  box-shadow: var(--shadow-md);
+}
+.why__card img { width: 100%; height: 100%; object-fit: cover; }
+.why__card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 60%, transparent 100%);
+}
+.why__card-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-5);
+  color: var(--text-inverse);
+}
+.why__card-title {
+  font-weight: 600;
+  font-size: var(--text-xl);
+  letter-spacing: -0.01em;
+}
+
+/* ===== SPECIALISE SECTION ===== */
+.specialise {
+  background: var(--surface-accent-tint);
+  padding: var(--space-20) var(--space-6);
+}
+.specialise__header { margin-bottom: var(--space-12); }
+.specialise__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+@media (min-width: 768px) { .specialise__grid { grid-template-columns: repeat(3, 1fr); } }
+
+/* ===== APPROACH SECTION (Process Flow) ===== */
+.approach {
+  padding: var(--space-20) var(--space-6);
+}
+.approach__header { margin-bottom: var(--space-16); }
+.approach__flow-wrapper {
+  max-width: 1000px;
+  margin: 0 auto var(--space-16);
+}
+.approach__details {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+}
+@media (min-width: 640px) { .approach__details { grid-template-columns: repeat(2, 1fr); } }
+
+/* ===== WHO SECTION ===== */
+.who {
+  background: var(--surface-accent-tint);
+  padding: var(--space-20) var(--space-6);
+}
+.who__header { margin-bottom: var(--space-10); }
+.who__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+}
+@media (min-width: 768px) { .who__grid { grid-template-columns: repeat(2, 1fr); } }
+.who__card {
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+.who__card-img {
+  aspect-ratio: 16/9;
+  overflow: hidden;
+}
+.who__card-img img { width: 100%; height: 100%; object-fit: cover; }
+.who__card-body { padding: var(--space-6); }
+.who__card-title {
+  font-weight: 600;
+  font-size: var(--text-xl);
+  margin-bottom: var(--space-2);
+  color: var(--text-primary);
+}
+.who__card-text {
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-4);
+}
+
+/* ===== TESTIMONIALS ===== */
+.testimonials {
+  padding: var(--space-20) var(--space-6);
+}
+.testimonials__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-12);
+  align-items: start;
+}
+@media (min-width: 768px) { .testimonials__grid { grid-template-columns: 1fr 1fr; } }
+.testimonial-card {
+  background: var(--surface-elevated);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+.testimonial-card__quote-mark {
+  font-size: var(--text-4xl);
+  line-height: 0.8;
+  color: var(--brand-primary);
+  margin-bottom: var(--space-2);
+  font-weight: 700;
+  opacity: 0.5;
+}
+.testimonial-card__text {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--text-primary);
+  margin-bottom: var(--space-5);
+}
+.testimonial-card__author {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.testimonial-card__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--brand-primary);
+  color: var(--text-inverse);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: var(--text-sm);
+}
+.testimonial-card__name {
+  font-weight: 600;
+  font-size: var(--text-base);
+  color: var(--text-primary);
+}
+.testimonial-card__location {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+}
+
+/* ===== CTA SECTION ===== */
+.cta {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 400px;
+}
+@media (min-width: 768px) { .cta { grid-template-columns: 1fr 1fr; } }
+.cta__image {
+  position: relative;
+  min-height: 280px;
+}
+.cta__image img { width: 100%; height: 100%; object-fit: cover; position: absolute; }
+.cta__content {
+  background: var(--brand-primary);
+  color: var(--text-inverse);
+  padding: var(--space-12) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.cta__title {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-4);
+}
+.cta__text {
+  font-size: var(--text-base);
+  opacity: 0.8;
+  max-width: 450px;
+  margin-bottom: var(--space-8);
+  line-height: var(--leading-relaxed);
+}
+.cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.cta__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--white);
+  color: var(--brand-primary);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  transition: all 0.2s;
+}
+.cta__btn:hover {
+  background: var(--muted-rose-100);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.cta__btn--outline {
+  background: transparent;
+  color: var(--text-inverse);
+  border: 2px solid rgba(255,255,255,0.4);
+}
+.cta__btn--outline:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.6);
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  border-top: 1px solid var(--border-light);
+  padding: var(--space-16) var(--space-6);
+}
+.footer__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-10);
+}
+@media (min-width: 640px) { .footer__grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .footer__grid { grid-template-columns: 2fr 1fr 1fr 1fr; } }
+.footer__brand-text {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  line-height: var(--leading-relaxed);
+  margin: var(--space-3) 0 var(--space-6);
+  max-width: 300px;
+}
+.footer__heading {
+  font-weight: 600;
+  font-size: var(--text-base);
+  margin-bottom: var(--space-4);
+  color: var(--text-primary);
+}
+.footer__list { list-style: none; display: flex; flex-direction: column; gap: var(--space-2); }
+.footer__link {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  transition: color 0.2s;
+}
+.footer__link:hover { color: var(--brand-primary); }
+.footer__contact-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-2);
+  transition: color 0.2s;
+}
+.footer__contact-item:hover { color: var(--brand-primary); }
+.footer__contact-icon { color: var(--brand-primary); flex-shrink: 0; }
+.footer__social {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+.footer__social-link {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-primary);
+  transition: all 0.2s;
+}
+.footer__social-link:hover {
+  background: var(--brand-primary);
+  color: var(--text-inverse);
+  border-color: var(--brand-primary);
+}
+.footer__bottom {
+  max-width: 1200px;
+  margin: var(--space-12) auto 0;
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: center;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+@media (min-width: 640px) { .footer__bottom { flex-direction: row; justify-content: space-between; } }
+.footer__bottom-links {
+  display: flex;
+  gap: var(--space-4);
+}
+.footer__bottom-links a:hover { color: var(--text-primary); }
+</style>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar">
+  <div class="navbar__logo">
+    <svg class="navbar__logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="16" fill="#C1839F"/>
+      <path d="M10 22V12l6-4 6 4v10h-4v-6h-4v6h-4z" fill="white"/>
+    </svg>
+    <span class="navbar__logo-text">Eternal Fitness</span>
+  </div>
+  <div class="navbar__links">
+    <a href="#" class="navbar__link">Home</a>
+    <a href="#" class="navbar__link">About</a>
+    <a href="#" class="navbar__link">Personal Training</a>
+    <a href="#" class="navbar__link">Pricing</a>
+    <a href="#" class="navbar__link">FAQs</a>
+    <a href="#" class="navbar__link">Blog</a>
+  </div>
+  <a href="#" class="btn btn--primary" style="padding: 10px 20px; font-size: 0.8125rem;">Contact Us</a>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero__bg">
+    <img src="/images/hero-gym.jpg" alt="Eternal Fitness personal training studio Worthing" onerror="this.style.background='linear-gradient(135deg, #875a6f, #6a4657)'">
+  </div>
+  <div class="hero__overlay"></div>
+
+  <div class="hero__body">
+    <div class="hero__content">
+      <div class="hero__kicker">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Level 4 Qualified · Exercise Referral · Cancer Rehab
+      </div>
+      <h1 class="hero__title">Rehabilitation and Recovery Training in Worthing for Complex Health Needs</h1>
+      <p class="hero__subtitle">Specialist one-to-one training for cancer rehabilitation, chronic health conditions, post-surgery recovery, mobility limitations, disabilities, and anyone with complex medical needs who has been overlooked by mainstream fitness. Level 4 qualified. GP-referred clients welcome.</p>
+      <div class="hero__actions">
+        <a href="#" class="btn btn--primary">Book a Free Consultation</a>
+        <a href="#" class="btn btn--outline">Find Out How It Works</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero__proof">
+    <div class="hero__proof-grid">
+      <div class="proof-card proof-card--glass proof-card--stat">
+        <div class="proof-card__stat-icon">4</div>
+        <div>
+          <div class="proof-card__stat-value">Level 4 Qualified</div>
+          <div class="proof-card__stat-label">The highest PT qualification in the UK — plus exercise referral and cancer rehabilitation.</div>
+        </div>
+      </div>
+      <div class="proof-card proof-card--glass">
+        <div class="proof-card__quote">"As someone who has dealt with chronic pain for years, I was sceptical. But the personalised approach has genuinely changed my quality of life."</div>
+        <div class="proof-card__attribution">Angela M <span>· Worthing client</span></div>
+      </div>
+      <div class="proof-card proof-card--solid">
+        <div class="proof-card__title">Free Consultation</div>
+        <div class="proof-card__text">Every new client starts with a free 30-minute conversation. No commitment, no sales pitch.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHY SECTION ===== -->
+<section class="why">
+  <div class="container">
+    <div class="why__header">
+      <div class="label-chip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Why Eternal Fitness
+      </div>
+      <div style="display: flex; flex-direction: column; gap: var(--space-6);">
+        <h2 style="font-size: clamp(1.75rem, 3.5vw, 2.5rem); font-weight: 700; letter-spacing: -0.02em; color: var(--text-primary);">Training That Meets You Where You Are</h2>
+        <p style="font-size: var(--text-base); color: var(--text-tertiary); line-height: var(--leading-relaxed); max-width: 500px;">
+          Esther Fair is a Level 4 personal trainer, Exercise Referral Specialist, and Cancer Rehabilitation Specialist based in Worthing. She specialises in rehabilitation and recovery training for cancer treatment survivors, chronic health conditions, post-surgery recovery, disabilities, and anyone with complex medical needs who has been overlooked by mainstream fitness.
+        </p>
+      </div>
+    </div>
+
+    <div class="why__grid">
+      <div class="why__card">
+        <img src="/images/mobility-movement.jpg" alt="Personal training for complex health conditions in Worthing" onerror="this.style.background='var(--teal-100)'">
+        <div class="why__card-overlay"></div>
+        <div class="why__card-content">
+          <h3 class="why__card-title">Specialist in complex health conditions</h3>
+        </div>
+      </div>
+      <div class="why__card">
+        <img src="/images/strength-tasks.jpg" alt="Strength and mobility personal training in Worthing" onerror="this.style.background='var(--muted-rose-200)'">
+        <div class="why__card-overlay"></div>
+        <div class="why__card-content">
+          <h3 class="why__card-title">Strength and mobility for real life</h3>
+        </div>
+      </div>
+      <div class="why__card">
+        <img src="/images/mind-body.jpg" alt="Private one-to-one personal training studio Worthing" onerror="this.style.background='var(--gold-200)'">
+        <div class="why__card-overlay"></div>
+        <div class="why__card-content">
+          <h3 class="why__card-title">Calm, private, one-to-one training</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SPECIALISE SECTION ===== -->
+<section class="specialise">
+  <div class="container">
+    <div class="specialise__header text-center">
+      <div class="label-chip" style="background: var(--muted-rose-100);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+        Specialist Areas
+      </div>
+      <h2 style="font-size: clamp(1.75rem, 3.5vw, 2.5rem); font-weight: 700; letter-spacing: -0.02em; color: var(--text-primary); margin-bottom: var(--space-3);">Who I Work With</h2>
+      <p style="font-size: var(--text-base); color: var(--text-secondary); line-height: var(--leading-relaxed); max-width: 640px; margin: 0 auto;">
+        Cancer rehabilitation (active treatment, in remission, post-surgery). Chronic health conditions (fibromyalgia, ME/CFS, autoimmune, diabetes, heart conditions). Disability and adaptive training. Neurological conditions (Parkinson's, MS, stroke recovery). GP-referred exercise programmes. Post-surgical and injury recovery. Mobility and fatigue management. Complex medical needs. If your situation is not listed — please still get in touch. The answer is almost always yes.
+      </p>
+    </div>
+
+    <div class="specialise__grid">
+      <div class="image-card" style="aspect-ratio: 3/4; box-shadow: var(--shadow-lg);">
+        <img src="/images/specialise-1.jpg" alt="Cancer rehabilitation personal training Worthing" onerror="this.style.background='var(--teal-200)'">
+        <div class="image-card__overlay"></div>
+        <div class="image-card__content">
+          <div class="image-card__title">Cancer Rehabilitation</div>
+          <div class="image-card__desc">Specialist support during treatment, in remission, and post-surgery.</div>
+        </div>
+      </div>
+      <div class="image-card" style="aspect-ratio: 3/4; margin-top: 0; box-shadow: var(--shadow-lg);">
+        <img src="/images/specialise-2.jpg" alt="Adaptive personal training for disability Worthing" onerror="this.style.background='var(--muted-rose-200)'">
+        <div class="image-card__overlay"></div>
+        <div class="image-card__content">
+          <div class="image-card__title">Adaptive Training</div>
+          <div class="image-card__desc">Inclusive programmes tailored to your abilities and goals.</div>
+        </div>
+      </div>
+      <div class="image-card" style="aspect-ratio: 3/4; margin-top: 0; box-shadow: var(--shadow-lg);">
+        <img src="/images/specialise-3.jpg" alt="Injury recovery and rehabilitation personal training Worthing" onerror="this.style.background='var(--gold-200)'">
+        <div class="image-card__overlay"></div>
+        <div class="image-card__content">
+          <div class="image-card__title">Injury Recovery</div>
+          <div class="image-card__desc">Safe, structured return to movement after injury or surgery.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== APPROACH SECTION ===== -->
+<section class="approach">
+  <div class="container">
+    <div class="approach__header">
+      <div class="label-chip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        The Approach
+      </div>
+      <div style="display: flex; flex-direction: column; gap: var(--space-6);">
+        <h2 style="font-size: clamp(1.75rem, 3.5vw, 2.5rem); font-weight: 700; letter-spacing: -0.02em; color: var(--text-primary);">This Is Not Like Other Personal Training</h2>
+        <p style="font-size: var(--text-base); color: var(--text-tertiary); line-height: var(--leading-relaxed); max-width: 480px;">
+          I am a Cancer Rehabilitation Specialist and Exercise Referral Specialist trained to adapt to medical conditions, medication side-effects, fatigue variability, and changing capacity. I work alongside your GP, specialist, or physiotherapist — not against them. Every session is tailored to your body on that day.
+        </p>
+      </div>
+    </div>
+
+    <!-- Process Flow Infographic -->
+    <div class="approach__flow-wrapper">
+      <div class="process-flow">
+        <div class="process-flow__step process-flow__step--active">
+          <div class="process-flow__circle">1</div>
+          <div class="process-flow__title">Free Consultation</div>
+          <div class="process-flow__desc">30-minute conversation to understand your medical history, goals, and whether we are the right fit.</div>
+        </div>
+        <div class="process-flow__step">
+          <div class="process-flow__circle">2</div>
+          <div class="process-flow__title">Tailored Plan</div>
+          <div class="process-flow__desc">A programme designed around your condition, your energy levels, and what matters to you.</div>
+        </div>
+        <div class="process-flow__step">
+          <div class="process-flow__circle">3</div>
+          <div class="process-flow__title">Private Sessions</div>
+          <div class="process-flow__desc">One-to-one training in a calm studio — no gym floor, no audience, no pressure.</div>
+        </div>
+        <div class="process-flow__step">
+          <div class="process-flow__circle">4</div>
+          <div class="process-flow__title">Adapt & Progress</div>
+          <div class="process-flow__desc">Your programme adjusts with your body. Fatigue flares, side-effects, changing capacity — always accommodated.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stat Bars -->
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-8); max-width: 800px; margin: 0 auto var(--space-16);">
+      <div class="stat-block">
+        <div class="stat-block__value stat-block__value--teal">Level 4</div>
+        <div class="stat-block__label">Highest PT qualification in the UK</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-block__value stat-block__value--rose">100%</div>
+        <div class="stat-block__label">One-to-one, every session, no exceptions</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-block__value stat-block__value--gold">GP-referred</div>
+        <div class="stat-block__label">Clients welcome — I work with your healthcare team</div>
+      </div>
+    </div>
+
+    <!-- Details cards -->
+    <div class="approach__details">
+      <div class="feature-card feature-card--accent">
+        <div class="feature-card__icon icon-frame icon-frame--rose">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="feature-card__title">Qualified in cancer rehabilitation and clinical exercise</div>
+        <div class="feature-card__text">Level 4 Personal Trainer, Exercise Referral Specialist, Cancer Rehabilitation Specialist. Trained to work with GP-referred clients, chronic conditions, post-treatment recovery, and complex medical needs — rare qualifications in any fitness setting.</div>
+      </div>
+      <div class="feature-card feature-card--teal">
+        <div class="feature-card__icon icon-frame icon-frame--teal">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="feature-card__title">No judgement. No agenda.</div>
+        <div class="feature-card__text">No weigh-ins, no before-and-after photos, no expectation of what fitness should look like. Just you and me, and a programme built for your body.</div>
+      </div>
+    </div>
+
+    <!-- Bottom stat-highlight row -->
+    <div style="display: grid; grid-template-columns: 1fr; gap: var(--space-5); margin-top: var(--space-8); max-width: 1000px; margin-left: auto; margin-right: auto;">
+      <div class="feature-card feature-card--sage">
+        <div class="feature-card__icon icon-frame icon-frame--sage">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        </div>
+        <div style="display: flex; gap: var(--space-4); align-items: flex-start; flex-wrap: wrap;">
+          <div>
+            <div class="feature-card__title">Private 1-to-1 studio</div>
+            <div class="feature-card__text">No gym floor. No other clients. No pressure to look or perform a certain way.</div>
+          </div>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5);">
+        <div class="feature-card feature-card--gold">
+          <div class="feature-card__icon icon-frame icon-frame--gold">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <div class="feature-card__title">Adapts when your medical situation changes</div>
+          <div class="feature-card__text">Fatigue flares. Conditions fluctuate. Side effects vary. Your programme adjusts with your body — always.</div>
+        </div>
+        <div class="feature-card" style="background: var(--surface-elevated);">
+          <div class="feature-card__icon icon-frame" style="background: var(--charcoal-100); color: var(--charcoal-700);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="feature-card__title">Long-term over quick fixes</div>
+          <div class="feature-card__text">Real results come from steady, sustainable progress — not six-week transformations.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHO SECTION ===== -->
+<section class="who">
+  <div class="container">
+    <div class="who__header">
+      <div class="label-chip">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Who This Is For
+      </div>
+      <div style="display: flex; gap: var(--space-6); align-items: flex-end; justify-content: space-between; flex-wrap: wrap;">
+        <h2 style="font-size: clamp(1.75rem, 3.5vw, 2.5rem); font-weight: 700; letter-spacing: -0.02em; color: var(--text-primary);">If You Have Been Told Fitness Is Not for You — It Is</h2>
+        <p style="font-size: var(--text-base); color: var(--text-tertiary); line-height: var(--leading-relaxed); max-width: 400px;">
+          I have worked with clients managing cancer, chronic illness, disability, visual impairment, neurological conditions, and complex mobility issues. I am here for the people other trainers cannot help.
+        </p>
+      </div>
+    </div>
+
+    <div class="who__grid">
+      <div class="who__card">
+        <div class="who__card-img">
+          <img src="/images/who-health.jpg" alt="Training with health conditions Worthing" onerror="this.style.background='var(--teal-100)'">
+        </div>
+        <div class="who__card-body">
+          <h3 class="who__card-title">People managing health conditions, disability, or injury</h3>
+          <p class="who__card-text">Cancer rehabilitation. Chronic illness. Neurological conditions. Post-surgical recovery. Extreme mobility limitations. I am Level 4 qualified and exercise referral trained — I know how to work safely and effectively with complex needs.</p>
+          <a href="#" class="btn btn--primary">See Specialist Areas <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></a>
+        </div>
+      </div>
+      <div class="who__card">
+        <div class="who__card-img">
+          <img src="/images/who-mobility.jpg" alt="Inclusive personal training Worthing" onerror="this.style.background='var(--muted-rose-100)'">
+        </div>
+        <div class="who__card-body">
+          <h3 class="who__card-title">People who have never felt welcome in fitness spaces</h3>
+          <p class="who__card-text">Whether you are a complete beginner, have had negative experiences elsewhere, or simply find gyms intimidating — the private, one-to-one format at Eternal Fitness is designed to feel completely different. No dress code, no weigh-in, no comparison to anyone else.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TESTIMONIALS SECTION ===== -->
+<section class="testimonials">
+  <div class="container">
+    <div class="testimonials__grid">
+      <div>
+        <div class="label-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+          Client Stories
+        </div>
+        <h2 style="font-size: clamp(1.75rem, 3.5vw, 2.5rem); font-weight: 700; letter-spacing: -0.02em; color: var(--text-primary); margin-bottom: var(--space-4);">What Clients Say</h2>
+        <p style="font-size: var(--text-base); color: var(--text-tertiary); line-height: var(--leading-relaxed); margin-bottom: var(--space-8);">
+          Progress looks different for everyone. For some it is lifting more, for others it is walking without pain, sleeping better, or simply feeling at home in their own body. Those are the results that matter here.
+        </p>
+        <a href="#" class="btn btn--primary">Read the FAQs <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></a>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: var(--space-5);">
+        <div class="testimonial-card">
+          <div class="testimonial-card__quote-mark">"</div>
+          <p class="testimonial-card__text">I was so nervous about starting, but from the first session Esther put me at ease. She listened, adapted everything to my condition, and I have never felt stronger or more confident in my own body.</p>
+          <div class="testimonial-card__author">
+            <div class="testimonial-card__avatar">M</div>
+            <div>
+              <div class="testimonial-card__name">Mary C</div>
+              <div class="testimonial-card__location">Worthing</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-card__quote-mark">"</div>
+          <p class="testimonial-card__text">As someone who has dealt with chronic pain for years, I was sceptical that exercise could help. The personalised approach at Eternal Fitness has genuinely changed my quality of life. I cannot recommend it enough.</p>
+          <div class="testimonial-card__author">
+            <div class="testimonial-card__avatar">A</div>
+            <div>
+              <div class="testimonial-card__name">Angela M</div>
+              <div class="testimonial-card__location">West Sussex</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA SECTION ===== -->
+<section class="cta">
+  <div class="cta__image">
+    <img src="/images/studio-1.jpg" alt="Private personal training studio Worthing" onerror="this.style.background='var(--charcoal-200)'">
+  </div>
+  <div class="cta__content">
+    <h2 class="cta__title">Ready to Find Out If This Is Right for You?</h2>
+    <p class="cta__text">The first conversation is free, there is no commitment, and there is no such thing as the wrong question. I work with a small number of clients at any one time — so every person gets my full attention.</p>
+    <div class="cta__actions">
+      <a href="#" class="cta__btn">Book a Free Consultation <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></a>
+      <a href="tel:07517658128" class="cta__btn cta__btn--outline">Give Me a Call <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <div style="display: flex; align-items: center; gap: var(--space-2);">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="16" r="16" fill="#875a6f"/>
+            <path d="M10 22V12l6-4 6 4v10h-4v-6h-4v6h-4z" fill="white"/>
+          </svg>
+          <span style="font-weight: 700; font-size: var(--text-lg);">Eternal Fitness</span>
+        </div>
+        <p class="footer__brand-text">Private, one-to-one personal training in Worthing. Level 4 qualified. Exercise referral specialist. Cancer rehabilitation.</p>
+        <div>
+          <div class="footer__heading">Get in Touch</div>
+          <a href="tel:07517658128" class="footer__contact-item">
+            <svg class="footer__contact-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            07517 658 128
+          </a>
+          <a href="mailto:esther.fair@eternal-fitness.co.uk" class="footer__contact-item">
+            <svg class="footer__contact-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            esther.fair@eternal-fitness.co.uk
+          </a>
+        </div>
+        <div class="footer__social">
+          <a href="#" class="footer__social-link" aria-label="Facebook">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <div class="footer__heading">Services</div>
+        <ul class="footer__list">
+          <li><a href="#" class="footer__link">Personal Training in Worthing</a></li>
+          <li><a href="#" class="footer__link">Cancer Rehabilitation</a></li>
+          <li><a href="#" class="footer__link">Exercise Referral</a></li>
+          <li><a href="#" class="footer__link">Adaptive and Disability Training</a></li>
+          <li><a href="#" class="footer__link">Injury Recovery</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer__heading">Information</div>
+        <ul class="footer__list">
+          <li><a href="#" class="footer__link">About Me</a></li>
+          <li><a href="#" class="footer__link">Pricing</a></li>
+          <li><a href="#" class="footer__link">FAQs</a></li>
+          <li><a href="#" class="footer__link">Contact</a></li>
+          <li><a href="#" class="footer__link">Terms and Conditions</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer__heading">Follow Me on Facebook</div>
+        <div class="footer__social">
+          <a href="#" class="footer__social-link" aria-label="Facebook">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>2026 Eternal Fitness | Esther Fair | Worthing, West Sussex</span>
+      <div class="footer__bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms and Conditions</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

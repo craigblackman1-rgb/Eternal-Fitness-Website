@@ -31,17 +31,24 @@ export function HubSidebar() {
 
   return (
     <aside className="flex w-64 flex-col border-r bg-card">
-      <div className="flex items-center gap-2 p-4">
-        <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="16" cy="16" r="16" fill="#087EBB"/>
-          <path d="M10 22V12l6-4 6 4v10h-4v-6h-4v6h-4z" fill="white"/>
+      {/* Brand header */}
+      <div className="flex items-center gap-3 p-5">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="8" fill="hsl(186, 89%, 29%)" />
+          <path d="M16 26c-5.5 0-10-4.5-10-10S10.5 6 16 6s10 4.5 10 10-4.5 10-10 10z" fill="white" opacity="0.2" />
+          <path d="M16 24c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="white" opacity="0.3" />
+          <path d="M16 22c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z" fill="white" />
+          <path d="M19 10l-3 10-3-4-4 3" stroke="hsl(186, 89%, 29%)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
         </svg>
         <div>
           <span className="text-sm font-bold text-accent">Eternal Fitness</span>
-          <p className="text-xs text-muted-foreground">Hub</p>
+          <p className="text-xs text-muted-foreground">Trainer Hub</p>
         </div>
       </div>
+
       <Separator />
+
+      {/* Navigation */}
       <nav className="flex-1 space-y-1 p-3">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -51,23 +58,36 @@ export function HubSidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
                 isActive
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "bg-accent/15 text-accent font-semibold"
+                  : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
               )}
             >
-              <Icon className="h-4 w-4" />
+              <Icon className={cn("h-4 w-4", isActive ? "text-accent" : "")} />
               {item.label}
             </Link>
           );
         })}
       </nav>
+
       <Separator />
-      <div className="p-3">
+
+      {/* User section */}
+      <div className="p-3 space-y-1">
+        <div className="flex items-center gap-3 px-3 py-2">
+          <div className="w-7 h-7 rounded-full bg-accent/20 text-accent flex items-center justify-center text-xs font-bold">
+            EF
+          </div>
+          <div className="text-xs">
+            <p className="font-medium text-foreground">Esther Fair</p>
+            <p className="text-muted-foreground">Level 4 PT</p>
+          </div>
+        </div>
         <Button
           variant="ghost"
-          className="w-full justify-start gap-3 text-muted-foreground"
+          size="sm"
+          className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground rounded-lg"
           onClick={handleSignOut}
         >
           <LogOut className="h-4 w-4" />
