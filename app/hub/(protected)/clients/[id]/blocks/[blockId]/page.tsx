@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, Eye, Printer } from "lucide-react";
+import { DeleteBlockButton } from "./delete-block-button";
 
 const phaseColors: Record<string, string> = {
   foundation: "bg-blue-100 text-blue-800",
@@ -69,6 +70,7 @@ export default async function BlockViewPage({
               <Button>Review & Approve</Button>
             </Link>
           )}
+          <DeleteBlockButton clientId={params.id} blockId={params.blockId} />
         </div>
       </div>
 
