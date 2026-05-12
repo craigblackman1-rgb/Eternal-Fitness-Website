@@ -52,7 +52,7 @@ export default function NewBlockPage({ params }: { params: { id: string } }) {
         </Link>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Generate New Block</h1>
-          <p className="text-muted-foreground">The AI will create 18 sessions based on the client profile</p>
+          <p className="text-muted-foreground">The AI will create a bespoke plan based on the client profile and schedule</p>
         </div>
       </div>
 

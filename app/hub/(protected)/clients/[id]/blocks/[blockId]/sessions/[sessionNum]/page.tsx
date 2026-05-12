@@ -24,6 +24,7 @@ export default function SessionViewPage({
   const [loading, setLoading] = useState(true);
   const [editingNotes, setEditingNotes] = useState(false);
   const [coachingNotes, setCoachingNotes] = useState("");
+  const [totalSessions, setTotalSessions] = useState(0);
 
   const sessionNum = parseInt(params.sessionNum);
 
@@ -37,6 +38,13 @@ export default function SessionViewPage({
         .single();
       setSession(data);
       setCoachingNotes(data?.data?.coaching_notes || "");
+
+      const { count } = await supabase
+        .from("sessions")
+        .select("*", { count: "exact", head: true })
+        .eq("block_id", params.blockId);
+      setTotalSessions(count || 0);
+
       setLoading(false);
     }
     load();
@@ -86,7 +94,7 @@ export default function SessionViewPage({
               <Button variant="outline" size="icon"><ChevronLeft className="h-4 w-4" /></Button>
             </Link>
           )}
-          {sessionNum < 18 && (
+          {sessionNum < totalSessions && (
             <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}/sessions/${sessionNum + 1}`}>
               <Button variant="outline" size="icon"><ChevronRight className="h-4 w-4" /></Button>
             </Link>

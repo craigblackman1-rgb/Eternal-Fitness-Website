@@ -54,7 +54,7 @@ export function DeleteBlockButton({
         <AlertDialogHeader>
           <AlertDialogTitle>Delete this block?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete this block and all 18 sessions inside
+            This will permanently delete this block and all sessions inside
             it. This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>

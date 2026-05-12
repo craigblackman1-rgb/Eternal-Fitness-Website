@@ -2,9 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import type { ClientProfile, Session, Archetype, Phase, Exercise, SessionVersion } from "@/types";
 
-const archetypeOrder: Archetype[] = ["A", "B", "C"];
-
-const roundPhases: { week: number; phase: Phase }[] = [
+const weekPhases: { week: number; phase: Phase }[] = [
   { week: 1, phase: "foundation" },
   { week: 2, phase: "foundation" },
   { week: 3, phase: "build" },
@@ -94,6 +92,15 @@ async function generateViaClaude(
   const { default: Anthropic } = await import("@anthropic-ai/sdk");
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
+  const spw = profile.logistics.sessions_per_week;
+  const totalSessions = spw * 6;
+
+  const sessionDistribution = weekPhases.map((wp, wi) => {
+    const start = wi * spw + 1;
+    const end = (wi + 1) * spw;
+    return `Sessions ${start}-${end}: Week ${wp.week} (${wp.phase})`;
+  }).join("\n");
+
   const system = `You are an expert exercise physiologist supporting Esther Fair, a Level 4 Personal Trainer
 specialising in cancer rehabilitation, exercise referral, adaptive training, and complex health needs.
 
@@ -104,7 +111,7 @@ Flag anything Esther should review in a top-level "esther_review_flags" array.
 
 Return valid JSON matching the Session[] schema. No markdown, no preamble, no explanation.`;
 
-  const user = `Generate an 18-session training block for this client:
+  const user = `Generate a ${totalSessions}-session training block for this client over 6 weeks:
 
 Client Profile:
 ${JSON.stringify(profile, null, 2)}
@@ -112,15 +119,18 @@ ${JSON.stringify(profile, null, 2)}
 ${blockNote ? `Esther's note: ${blockNote}` : ""}
 ${previousSummary ? `Previous block summary: ${previousSummary}` : ""}
 
-STRUCTURE:
-- 6 rounds of Archetype A (Mobility), B (Strength), C (Conditioning)
-- Week 1-2: Foundation, Week 3: Build, Week 4: Develop, Week 5: Peak, Week 6: Deload
-- Each session has studio and home versions with warm_up, main_block, cooldown
-- Time tier: ${profile.logistics.time_tier}
-- Equipment: dumbbells, resistance bands, kettlebells, barbell+plates, TRX, stationary bike, treadmill, rowing machine, step/box, mats, foam roller, stability ball
+FREQUENCY: ${spw}x/week (${totalSessions} sessions total)
 
-CRITICAL — EXERCISE VARIETY:
-Sessions 1, 4, 7, 10, 13, 16 are ALL Archetype A — they MUST use DIFFERENT exercises from each other. Same for Archetype B (sessions 2, 5, 8, 11, 14, 17) and Archetype C (sessions 3, 6, 9, 12, 15, 18). NO exercise should appear more than once across all sessions.
+SESSION DISTRIBUTION:
+${sessionDistribution}
+
+Each session has an archetype: A (Mobility & Movement Quality), B (Strength & Stability), or C (Power & Conditioning).
+Assign archetypes dynamically based on this client's goals and needs — do not use a fixed rotation.
+Ensure each archetype appears roughly evenly across the block.
+
+Each session has studio and home versions with warm_up, main_block, cooldown.
+Time tier: ${profile.logistics.time_tier}
+Equipment: dumbbells, resistance bands, kettlebells, barbell+plates, TRX, stationary bike, treadmill, rowing machine, step/box, mats, foam roller, stability ball
 
 PROGRESSION RULES:
 - Foundation (weeks 1-2): basic regressions, learn patterns, low load, lower ROM
@@ -129,7 +139,7 @@ PROGRESSION RULES:
 - Peak (week 5): highest intensity/volume of the block
 - Deload (week 6): drop volume, submax loads, active recovery focus, easier exercises
 
-Return only a JSON array of 18 Session objects.`;
+Return only a JSON array of ${totalSessions} Session objects.`;
 
   const response = await client.messages.create({
     model: "claude-sonnet-4-6",
@@ -300,9 +310,34 @@ function composeSessionVersion(
   return { warm_up, main_block, cooldown };
 }
 
+function getWeeklyArchetypes(spw: number, weekIndex: number, primaryGoal: string): Archetype[] {
+  const goalBias: Record<string, Archetype[]> = {
+    strength: ["B", "A", "C"],
+    mobility: ["A", "B", "C"],
+    weight_loss: ["C", "B", "A"],
+    rehabilitation: ["A", "C", "B"],
+    confidence: ["A", "B", "C"],
+    general_fitness: ["A", "B", "C"],
+  };
+
+  const bias = goalBias[primaryGoal] || ["A", "B", "C"];
+
+  if (spw === 3) return [bias[0], bias[1], bias[2]];
+
+  if (spw === 2) {
+    const a = bias[weekIndex % 3];
+    const b = bias[(weekIndex + 1) % 3];
+    return [a, b];
+  }
+
+  return [bias[weekIndex % 3]];
+}
+
 function generateFallback(profile: ClientProfile, blockNumber: number): Session[] {
   const sessions: Session[] = [];
   const usedIds = new Set<string>();
+  const spw = profile.logistics.sessions_per_week;
+  const primaryGoal = profile.goals.primary;
 
   const archetypeFocus: Record<Archetype, string> = {
     A: "Mobility & Movement Quality",
@@ -310,18 +345,21 @@ function generateFallback(profile: ClientProfile, blockNumber: number): Session[
     C: "Power & Conditioning",
   };
 
-  for (let round = 0; round < 6; round++) {
-    for (let ai = 0; ai < 3; ai++) {
-      const sessionNumber = round * 3 + ai + 1;
-      const archetype = archetypeOrder[ai];
-      const wp = roundPhases[round];
+  let sessionNumber = 0;
 
-      const phaseLabel =
-        wp.phase === "foundation" ? "Building Foundations"
-        : wp.phase === "build" ? "Adding Load"
-        : wp.phase === "develop" ? "Increasing Complexity"
-        : wp.phase === "peak" ? "Peak Output"
-        : "Active Recovery";
+  for (let weekIndex = 0; weekIndex < 6; weekIndex++) {
+    const wp = weekPhases[weekIndex];
+    const archetypes = getWeeklyArchetypes(spw, weekIndex, primaryGoal);
+
+    const phaseLabel =
+      wp.phase === "foundation" ? "Building Foundations"
+      : wp.phase === "build" ? "Adding Load"
+      : wp.phase === "develop" ? "Increasing Complexity"
+      : wp.phase === "peak" ? "Peak Output"
+      : "Active Recovery";
+
+    for (const archetype of archetypes) {
+      sessionNumber++;
 
       sessions.push({
         session_id: `generated-${blockNumber}-${sessionNumber}`,
