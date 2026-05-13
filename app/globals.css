@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,13 +5,13 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 220 20% 15%;
+    --foreground: 30 9% 21%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 15%;
+    --card-foreground: 30 9% 21%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 15%;
+    --popover-foreground: 30 9% 21%;
 
     --primary: 186 89% 29%;
     --primary-foreground: 0 0% 100%;
@@ -20,8 +19,8 @@
     --secondary: 333 33% 64%;
     --secondary-foreground: 333 30% 20%;
 
-    --muted: 40 15% 95%;
-    --muted-foreground: 220 10% 50%;
+    --muted: 36 28% 93%;
+    --muted-foreground: 22 5% 40%;
 
     --accent: 333 33% 64%;
     --accent-foreground: 333 30% 20%;
@@ -29,14 +28,14 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 220 15% 90%;
-    --input: 220 15% 90%;
+    --border: 33 14% 87%;
+    --input: 33 14% 87%;
     --ring: 186 89% 29%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --hero-overlay: 186 50% 10%;
-    --section-dark: 186 40% 15%;
+    --hero-overlay: 160 20% 15%;
+    --section-dark: 160 20% 15%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -49,6 +48,42 @@
 
     --font-display: var(--font-dm-sans), 'DM Sans', sans-serif;
     --font-body: var(--font-dm-sans), 'DM Sans', sans-serif;
+
+    /* Design System — named color tokens (OKLch-compatible hex) */
+    --color-teal: #087E8B;
+    --color-teal-dark: #065F6A;
+    --color-teal-light: #E6F5F7;
+    --color-rose: #C1839F;
+    --color-rose-dark: #A66887;
+    --color-rose-light: #F7EDF2;
+    --color-earth: #C47B5A;
+    --color-earth-dark: #A85F3E;
+    --color-earth-light: #F7EDE6;
+    --color-dark: #1E2D27;
+    --color-charcoal: #3A3530;
+    --color-mid: #6B6460;
+    --color-border: #E5E0DA;
+    --color-light: #F2EEE8;
+    --color-off-white: #FAF6F2;
+    --color-white: #FFFFFF;
+
+    /* Design System — radii */
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+    --radius-full: 9999px;
+
+    /* Design System — shadows */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.05);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,.12), 0 4px 12px rgba(0,0,0,.06);
+    --shadow-xl: 0 24px 64px rgba(0,0,0,.16);
+
+    /* Design System — motion */
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --duration-sm: 150ms;
+    --duration-md: 250ms;
   }
 
   .dark {

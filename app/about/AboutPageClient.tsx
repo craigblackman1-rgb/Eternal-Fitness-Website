@@ -128,9 +128,9 @@ export default function AboutPageClient() {
             <img src="/images/studio-1.jpg" alt="Eternal Fitness private training studio Worthing" loading="lazy" className="rounded-2xl w-full h-72 object-cover" />
             <img src="/images/studio-2.jpg" alt="Training equipment at Eternal Fitness Worthing" loading="lazy" className="rounded-2xl w-full h-72 object-cover" />
           </div>
-          <div className="bg-accent rounded-2xl p-6 md:p-8 max-w-2xl shadow-md">
-            <h4 className="text-accent-foreground text-lg mb-2">Built for All Abilities</h4>
-            <p className="text-accent-foreground/80 font-body text-base leading-relaxed">The studio is set up specifically for people with disabilities, mobility limitations, and complex health needs. Equipment is chosen to support functional recovery and movement — not performance aesthetics. The environment is deliberately calm, because the last thing someone managing a health condition or in recovery needs is more pressure or noise.</p>
+          <div className="bg-background/5 border border-primary-foreground/10 rounded-2xl p-6 md:p-8 max-w-2xl shadow-md">
+            <h4 className="text-primary-foreground text-lg mb-2">Built for All Abilities</h4>
+            <p className="text-primary-foreground/80 font-body text-base leading-relaxed">The studio is set up specifically for people with disabilities, mobility limitations, and complex health needs. Equipment is chosen to support functional recovery and movement — not performance aesthetics. The environment is deliberately calm, because the last thing someone managing a health condition or in recovery needs is more pressure or noise.</p>
           </div>
         </div>
       </section>

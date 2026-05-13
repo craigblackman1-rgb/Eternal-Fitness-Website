@@ -26,14 +26,14 @@ const specialisms = [
 
 const SpecialiseSection = () => {
   return (
-    <section className="py-20 md:py-28 bg-accent">
+    <section className="py-20 md:py-28 bg-section-dark">
       <div className="max-w-6xl mx-auto px-6 md:px-12">
         <div className="text-center mb-14">
           <span className="inline-flex items-center gap-2 bg-primary/20 text-primary-foreground px-4 py-1.5 rounded-full text-sm font-medium mb-4">
             ✦ Specialist Areas
           </span>
-          <h2 className="text-3xl md:text-4xl text-accent-foreground mb-3">Who I Work With</h2>
-          <p className="text-accent-foreground/70 font-body text-base max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-4xl text-primary-foreground mb-3">Who I Work With</h2>
+          <p className="text-primary-foreground/70 font-body text-base max-w-2xl mx-auto">
             Cancer rehabilitation (active treatment, in remission, post-surgery). Chronic health conditions (fibromyalgia, ME/CFS, autoimmune, diabetes, heart conditions). Disability and adaptive training. Neurological conditions (Parkinson's, MS, stroke recovery). GP-referred exercise programmes. Post-surgical and injury recovery. Mobility and fatigue management. Complex medical needs. If your situation is not listed — please still get in touch. The answer is almost always yes.
           </p>
         </div>

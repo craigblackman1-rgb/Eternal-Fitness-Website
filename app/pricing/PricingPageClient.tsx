@@ -211,7 +211,7 @@ export default function PricingPageClient() {
               <strong className="text-primary-foreground">Not sure which to choose?</strong> Start with the free consultation. I will give you an honest recommendation based on your situation — not the most expensive option.
             </p>
             <p className="text-primary-foreground/60 font-body text-sm mt-3">
-              <Link href="/personal-training" className="text-accent hover:underline">See my specialist areas</Link> &middot; <Link href="/faqs" className="text-accent hover:underline">Read the FAQs</Link>
+              <Link href="/personal-training" className="text-primary hover:underline">See my specialist areas</Link> &middot; <Link href="/faqs" className="text-primary hover:underline">Read the FAQs</Link>
             </p>
           </div>
         </div>

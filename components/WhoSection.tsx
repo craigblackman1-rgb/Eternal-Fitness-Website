@@ -3,16 +3,16 @@ import { ArrowUpRight } from "lucide-react";
 
 const WhoSection = () => {
   return (
-    <section className="py-20 md:py-28 bg-accent">
+    <section className="py-20 md:py-28 bg-section-dark">
       <div className="max-w-6xl mx-auto px-6 md:px-12">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
           <div>
             <span className="inline-flex items-center gap-2 bg-primary/20 text-primary-foreground px-4 py-1.5 rounded-full text-sm font-medium mb-4">
               ✦ Who This Is For
             </span>
-            <h2 className="text-3xl md:text-4xl text-accent-foreground">If You Have Been Told Fitness Is Not for You — It Is</h2>
+            <h2 className="text-3xl md:text-4xl text-primary-foreground">If You Have Been Told Fitness Is Not for You — It Is</h2>
           </div>
-          <p className="text-accent-foreground/70 font-body text-base max-w-sm">
+          <p className="text-primary-foreground/70 font-body text-base max-w-sm">
             I have worked with clients managing cancer, chronic illness, disability, visual impairment, neurological conditions, and complex mobility issues. I am here for the people other trainers cannot help.
           </p>
         </div>

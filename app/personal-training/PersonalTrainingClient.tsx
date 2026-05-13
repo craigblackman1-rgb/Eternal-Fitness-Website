@@ -201,12 +201,12 @@ export default function PersonalTrainingClient() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {focusCards.map((card) => (
-              <div key={card.title} className="bg-accent rounded-2xl p-6">
-                <div className="w-12 h-12 rounded-full bg-accent-foreground/10 flex items-center justify-center mb-4">
-                  <span className="text-accent-foreground text-lg">✦</span>
+              <div key={card.title} className="bg-background/5 border border-primary-foreground/10 rounded-2xl p-6">
+                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mb-4">
+                  <span className="text-primary text-lg">✦</span>
                 </div>
-                <h4 className="text-accent-foreground text-lg mb-2">{card.title}</h4>
-                <p className="text-accent-foreground/70 font-body text-sm">{card.desc}</p>
+                <h4 className="text-primary-foreground text-lg mb-2">{card.title}</h4>
+                <p className="text-primary-foreground/70 font-body text-sm">{card.desc}</p>
               </div>
             ))}
           </div>
