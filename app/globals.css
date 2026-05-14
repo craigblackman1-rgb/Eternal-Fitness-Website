@@ -53,9 +53,9 @@
     --color-teal: #087E8B;
     --color-teal-dark: #065F6A;
     --color-teal-light: #E6F5F7;
-    --color-rose: #C1839F;
-    --color-rose-dark: #A66887;
-    --color-rose-light: #F7EDF2;
+    --color-rose: #FF5A5F;
+    --color-rose-dark: #E84248;
+    --color-rose-light: #FFECEF;
     --color-earth: #C47B5A;
     --color-earth-dark: #A85F3E;
     --color-earth-light: #F7EDE6;
@@ -63,8 +63,8 @@
     --color-charcoal: #3A3530;
     --color-mid: #6B6460;
     --color-border: #E5E0DA;
-    --color-light: #F2EEE8;
-    --color-off-white: #FAF6F2;
+    --color-light: #F5F5F5;
+    --color-off-white: #F5F5F5;
     --color-white: #FFFFFF;
 
     /* Design System — radii */
