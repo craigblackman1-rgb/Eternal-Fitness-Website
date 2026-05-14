@@ -4,9 +4,9 @@ interface EternalFitnessLogoProps {
 }
 
 const EternalFitnessLogo = ({ className = "", variant = "light" }: EternalFitnessLogoProps) => {
-  const textColor = variant === "light" ? "#FFFFFF" : "hsl(220, 20%, 15%)";
-  const heartColor = "hsl(333, 33%, 64%)";
-  const accentColor = "hsl(180, 70%, 32%)";
+  const textColor = variant === "light" ? "#FFFFFF" : "#1E2D27";
+  const heartColor = "#C1839F"; // Design system rose
+  const accentColor = "#087E8B"; // Design system teal
 
   return (
     <svg
