@@ -4,1687 +4,505 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Eternal Fitness — Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200..1000;1,9..40,200..1000&display=swap" rel="stylesheet">
 <style>
   :root {
-    --primary-h: 186;  --primary-s: 89%;  --primary-l: 29%;
-    --accent-h: 333;   --accent-s: 33%;   --accent-l: 64%;
-    --fg-h: 220;       --fg-s: 20%;       --fg-l: 15%;
-
-    --primary: hsl(var(--primary-h), var(--primary-s), var(--primary-l));
-    --primary-foreground: hsl(0, 0%, 100%);
-    --accent: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
-    --accent-foreground: hsl(333, 30%, 20%);
-    --background: hsl(0, 0%, 100%);
-    --foreground: hsl(var(--fg-h), var(--fg-s), var(--fg-l));
-    --muted: hsl(40, 15%, 95%);
-    --muted-foreground: hsl(220, 10%, 50%);
-    --border: hsl(220, 15%, 90%);
-    --card: hsl(0, 0%, 100%);
-    --card-foreground: hsl(220, 20%, 15%);
-    --hero-overlay: hsl(186, 50%, 10%);
-    --section-dark: hsl(186, 40%, 15%);
-
-    --teal: #087E8B;
-    --rose: #C1839F;
-    --charcoal: #3C3C3C;
+    --sage:      #d8e2dc;
+    --cream:     #fafaf7;
+    --blush:     #ffcad4;
+    --rose:      #f4acb7;
+    --mauve:     #9d8189;
+    --plum:      #5a2740;
+    --plum-soft: #ecdde5;
+    --ink:       #1c1418;
+    --ink-soft:  #52454b;
+    --surface:   #ffffff;
+    --border:    #e8e3db;
 
     --font-display: 'DM Sans', sans-serif;
-    --font-body: 'DM Sans', sans-serif;
+    --font-body:    'DM Sans', sans-serif;
 
-    --space-1: 4px;   --space-2: 8px;   --space-3: 12px;
-    --space-4: 16px;  --space-5: 20px;  --space-6: 24px;
-    --space-8: 32px;  --space-10: 40px; --space-12: 48px;
-    --space-16: 64px; --space-20: 80px;
+    --space-1: 4px;   --space-2: 8px;   --space-3: 12px;  --space-4: 16px;
+    --space-5: 20px;  --space-6: 24px;  --space-8: 32px;   --space-10: 40px;
+    --space-12: 48px; --space-16: 64px; --space-20: 80px;  --space-24: 96px;
 
-    --radius-sm: 4px;  --radius-md: 8px;
-    --radius-lg: 12px; --radius-xl: 16px;
-    --radius-2xl: 16px;
-    --radius-full: 9999px;
+    --radius-sm: 4px;  --radius-md: 8px;  --radius-lg: 12px;  --radius-xl: 16px;
+    --radius-2xl: 24px; --radius-3xl: 32px; --radius-full: 9999px;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
-
+  html { scroll-behavior: smooth; scroll-padding-top: 72px; }
   body {
-    font-family: var(--font-display);
-    color: var(--foreground);
-    background: var(--background);
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
+    font-family: var(--font-body); color: var(--ink); background: var(--surface);
+    line-height: 1.6; -webkit-font-smoothing: antialiased;
   }
 
-  /* ---- Focus styles (WCAG 2.2 SC 2.4.11) ---- */
-  :focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
-    border-radius: var(--radius-sm);
-  }
-
-  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
-    border-radius: var(--radius-sm);
-  }
-
-  /* ---- Skip link ---- */
   .skip-link {
-    position: absolute;
-    top: -100px;
-    left: 8px;
-    padding: 8px 16px;
-    background: var(--primary);
-    color: var(--primary-foreground);
-    font-size: 0.85rem;
-    font-weight: 600;
-    border-radius: var(--radius-sm);
-    z-index: 200;
-    text-decoration: none;
+    position: absolute; top: -100px; left: 8px; padding: 8px 16px;
+    background: var(--plum); color: white; border-radius: var(--radius-sm);
+    z-index: 200; text-decoration: none; font-weight: 600; font-size: 0.85rem;
   }
   .skip-link:focus { top: 8px; }
 
-  /* ---- Sticky Top Nav ---- */
-  .ds-nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 40px;
-    background: hsla(186, 50%, 10%, 0.92);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px; height: 56px;
+    background: color-mix(in srgb, var(--plum) 92%, transparent);
+    backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08);
   }
-
-  .ds-nav-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: white;
-    font-weight: 700;
-    font-size: 0.88rem;
-    letter-spacing: 0.05em;
-    text-decoration: none;
+  .nav-logo {
+    display: flex; align-items: center; gap: 8px; color: white; text-decoration: none;
+    font-weight: 700; font-size: 0.88rem;
   }
-
-  .ds-nav-links {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
+  .nav-links {
+    display: flex; align-items: center; gap: 4px;
   }
-
-  .ds-nav-links a {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: rgba(255,255,255,0.6);
-    text-decoration: none;
-    padding: 5px 11px;
-    border-radius: var(--radius-full);
+  .nav-links a {
+    font-size: 0.88rem; font-weight: 500; color: rgba(255,255,255,0.65);
+    text-decoration: none; padding: 6px 14px; border-radius: var(--radius-full);
     transition: color 0.15s, background 0.15s;
-    white-space: nowrap;
   }
-
-  .ds-nav-links a:hover { color: white; background: rgba(255,255,255,0.1); }
-  .ds-nav-links a:focus-visible { outline-color: white; outline-offset: 2px; }
-  .ds-nav-links a.active { color: white; background: rgba(255,255,255,0.12); font-weight: 600; }
-
-  .ds-nav-actions { display: flex; align-items: center; gap: 10px; }
-
-  .ds-nav-badge {
-    font-size: 0.65rem;
-    padding: 3px 10px;
-    border-radius: var(--radius-full);
-    background: hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.3);
-    color: white;
-    font-weight: 600;
-    white-space: nowrap;
+  .nav-links a:hover { color: white; background: rgba(255,255,255,0.1); }
+  .nav-cta {
+    display: inline-flex; align-items: center; gap: 6px; padding: 7px 20px;
+    border-radius: var(--radius-full); background: white; color: var(--plum);
+    font-size: 0.85rem; font-weight: 600; text-decoration: none;
+    transition: opacity 0.15s;
   }
+  .nav-cta:hover { opacity: 0.9; }
 
-  /* ---- Hero Banner ---- */
-  .ds-hero {
-    position: relative;
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-    margin-top: 56px;
-  }
-
-  .ds-hero-bg {
-    position: absolute;
-    inset: 0;
-    background: var(--hero-overlay);
-  }
-
-  .ds-hero-bg::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 80% 60% at 0% 50%, hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.15) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 50% at 100% 40%, hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.1) 0%, transparent 60%);
-  }
-
-  .ds-hero-content {
-    position: relative;
-    z-index: 1;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 80px 40px 60px;
-    width: 100%;
-  }
-
-  .ds-hero-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-    align-items: end;
-  }
-
-  .ds-hero h1 {
-    font-size: clamp(2rem, 4vw, 2.8rem);
-    font-weight: 800;
-    color: white;
-    line-height: 1.1;
-    margin-bottom: 8px;
-  }
-
-  .ds-hero p {
-    font-size: 0.95rem;
-    color: rgba(255,255,255,0.6);
-    max-width: 440px;
-  }
-
-  .ds-hero-glass {
-    background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(16px);
-    border-radius: 16px;
-    padding: 24px;
-    border: 1px solid rgba(255,255,255,0.08);
-  }
-
-  .ds-hero-glass p { color: rgba(255,255,255,0.75); max-width: 100%; }
-  .ds-hero-glass-row { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-
-  .ds-hero-badge {
-    font-size: 0.72rem;
-    padding: 5px 12px;
-    border-radius: var(--radius-full);
-    background: hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.2);
-    color: white;
-    font-weight: 500;
-  }
-
-  /* ---- Section Layout ---- */
-  .ds-section-wrap { padding: 60px 40px; scroll-margin-top: 72px; }
-  .ds-section-wrap--white { background: var(--background); }
-  .ds-section-wrap--rose { background: var(--accent); }
-
-  .ds-section-inner { max-width: 1200px; margin: 0 auto; }
-
-  .ds-section-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 24px;
-    margin-bottom: 32px;
-  }
-
-  .ds-section-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 14px;
-    border-radius: var(--radius-full);
-    font-size: 0.78rem;
-    font-weight: 500;
-    margin-bottom: 12px;
-  }
-
-  .ds-section-tag--teal { background: hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.1); color: var(--primary); }
-  .ds-section-tag--white { background: hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.2); color: var(--primary-foreground); }
-
-  .ds-section-header h2 {
-    font-size: clamp(1.5rem, 3vw, 2rem);
-    font-weight: 700;
-    line-height: 1.15;
-    color: var(--foreground);
-  }
-
-  .ds-section-header p {
-    font-size: 0.88rem;
-    max-width: 360px;
-    font-weight: 400;
-    color: var(--muted-foreground);
-  }
-
-  .ds-section-header h2.white { color: white; }
-  .ds-section-header p.white-text { color: rgba(255,255,255,0.8); }
-
-  .ds-section-meta {
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .ds-section-meta--white { color: rgba(255,255,255,0.4); }
-  .ds-section-meta--muted { color: var(--muted-foreground); }
-
-  .ds-subsection { margin-bottom: 40px; }
-  .ds-subsection h3 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; }
-
-  /* ---- Component Preview ---- */
-  .ds-preview {
-    background: var(--muted);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 24px;
-  }
-
-  .ds-preview--glass {
-    background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255,255,255,0.08);
-  }
-
-  .ds-preview-label {
-    font-size: 0.68rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted-foreground);
-    margin-bottom: 14px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .ds-preview-label--glass { color: rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.1); }
-
-  /* ---- Tokens Table ---- */
-  .ds-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.85rem;
-    font-weight: 400;
-    margin-bottom: 24px;
-  }
-
-  .ds-table th {
-    text-align: left;
-    font-weight: 600;
-    padding: 8px 12px;
-    border-bottom: 2px solid var(--border);
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted-foreground);
-  }
-
-  .ds-table th.white { color: rgba(255,255,255,0.5); border-color: rgba(255,255,255,0.15); }
-  .ds-table th.muted { color: var(--muted-foreground); }
-
-  .ds-table td {
-    padding: 8px 12px;
-    border-bottom: 1px solid var(--border);
-    vertical-align: middle;
-    color: var(--foreground);
-  }
-
-  .ds-table td.white { border-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
-  .ds-table td.muted { border-color: var(--border); }
-
-  .color-swatch {
-    display: inline-block;
-    width: 18px; height: 18px;
-    border-radius: 4px;
-    border: 1px solid var(--border);
-    vertical-align: middle;
-    margin-right: 8px;
-  }
-
-  .color-swatch--no-border { border-color: transparent; }
-
-  /* ---- Buttons ---- */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 28px;
-    border-radius: var(--radius-full);
-    font-size: 0.88rem;
-    font-weight: 500;
-    font-family: var(--font-body);
-    border: none;
-    cursor: pointer;
-    transition: opacity 0.2s, box-shadow 0.2s;
-    text-decoration: none;
-    line-height: 1;
-  }
-
-  .btn:hover { opacity: 0.9; }
-  .btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
-  .btn--primary { background: var(--primary); color: var(--primary-foreground); }
-  .btn--accent { background: var(--accent); color: var(--accent-foreground); }
-  .btn--outline { background: transparent; border: 1.5px solid var(--border); color: var(--foreground); }
-  .btn--outline-primary { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
-  .btn--ghost { background: transparent; color: var(--foreground); }
-  .btn--sm { padding: 8px 20px; font-size: 0.82rem; }
-  .btn--lg { padding: 14px 36px; font-size: 0.95rem; }
-  .btn--white { background: white; color: var(--primary); }
-  .btn--ghost-white { background: transparent; border: 1.5px solid rgba(255,255,255,0.3); color: white; }
-  .btn--outline-rose { background: transparent; border: 1.5px solid var(--accent-foreground); color: var(--accent-foreground); opacity: 0.8; }
-  .btn-group { display: flex; flex-wrap: wrap; gap: 12px; }
-  .btn-icon { width: 16px; height: 16px; }
-
-  /* ---- Badges ---- */
   .ds-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 14px;
-    border-radius: var(--radius-full);
-    font-size: 0.78rem;
-    font-weight: 500;
+    display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px;
+    border-radius: var(--radius-full); font-size: 0.78rem; font-weight: 500;
     font-family: var(--font-body);
   }
-
-  .ds-badge--teal { background: hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.1); color: var(--primary); }
-  .ds-badge--rose { background: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.15); color: var(--accent-foreground); }
-  .ds-badge--neutral { background: var(--muted); color: var(--muted-foreground); }
+  .ds-badge--plum { background: color-mix(in srgb, var(--plum) 10%, transparent); color: var(--plum); }
+  .ds-badge--rose { background: color-mix(in srgb, var(--rose) 30%, transparent); color: var(--plum); }
+  .ds-badge--sage { background: color-mix(in srgb, var(--sage) 50%, transparent); color: var(--ink); }
+  .ds-badge--neutral { background: var(--cream); color: var(--ink-soft); border: 1px solid var(--border); }
   .ds-badge--white { background: rgba(255,255,255,0.12); color: white; }
 
-  /* ---- Cards ---- */
-  .ds-card {
-    background: var(--background);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    transition: box-shadow 0.2s;
+  .container { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+
+  .ds-hero {
+    margin-top: 56px; padding: 56px 0 32px; background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .ds-hero .ds-badge { margin-bottom: 16px; }
+  .ds-hero h1 {
+    font-family: var(--font-display); font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 700; line-height: 1.1; margin-bottom: 12px; color: var(--ink);
+  }
+  .ds-hero p {
+    font-size: 1rem; color: var(--ink-soft); max-width: 600px; line-height: 1.6;
   }
 
-  .ds-card--shadow { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-  .ds-card--muted { background: var(--muted); border: none; }
-  .ds-card--glass { background: rgba(255,255,255,0.08); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); }
-  .ds-card__title { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
-  .ds-card__subtitle { font-size: 0.82rem; color: var(--muted-foreground); margin-bottom: 8px; }
-  .ds-card__text { font-size: 0.85rem; color: var(--muted-foreground); line-height: 1.6; }
-  .ds-card__glass-text { color: rgba(255,255,255,0.7); }
-  .ds-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
-
-  /* ---- Icon Frame ---- */
-  .ds-iframe {
-    width: 56px; height: 56px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
+  .ds-section {
+    padding: 48px 0; border-bottom: 1px solid var(--border);
+  }
+  .ds-section:last-of-type { border-bottom: none; }
+  .ds-section h2 {
+    font-family: var(--font-display); font-size: 1.5rem; font-weight: 600;
+    margin-bottom: 24px; color: var(--ink);
+  }
+  .ds-section h3 {
+    font-size: 1rem; font-weight: 600; margin-bottom: 12px; color: var(--ink);
+  }
+  .ds-section > .container > p {
+    font-size: 0.92rem; color: var(--ink-soft); margin-bottom: 24px; max-width: 600px;
   }
 
-  .ds-iframe--teal { background: hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.15); }
-  .ds-iframe--teal svg { color: var(--primary); }
-  .ds-iframe--rose { background: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.15); }
-  .ds-iframe--rose svg { color: hsl(333, 40%, 45%); }
-  .ds-iframe--charcoal { background: hsla(var(--fg-h), var(--fg-s), var(--fg-l), 0.1); }
-  .ds-iframe--charcoal svg { color: var(--foreground); }
-  .ds-iframe svg { width: 24px; height: 24px; }
-
-  /* ---- Step Badge ---- */
-  .ds-step {
-    width: 24px; height: 24px;
-    border-radius: 50%;
-    background: var(--primary);
-    color: var(--primary-foreground);
-    font-size: 0.72rem;
-    font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
+  .swatch-grid {
+    display: grid; gap: 12px; margin-bottom: 32px;
   }
-
-  /* ---- Forms ---- */
-  .form-group { display: flex; flex-direction: column; gap: 6px; }
-  .form-label { font-size: 0.82rem; font-weight: 500; color: var(--foreground); }
-
-  .form-input {
-    padding: 10px 14px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 0.88rem;
-    font-family: var(--font-body);
-    background: var(--background);
-    color: var(--foreground);
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
+  .swatch-grid--pastel {
+    grid-template-columns: repeat(5, 1fr);
   }
-
-  .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.12); }
-  .form-input--error { border-color: #D32F2F; }
-  .form-hint { font-size: 0.75rem; color: var(--muted-foreground); }
-  .form-error { font-size: 0.75rem; color: #D32F2F; }
-
-  .form-checkbox {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 0.85rem; cursor: pointer;
+  .swatch-grid--accent {
+    grid-template-columns: repeat(2, 1fr); max-width: 400px;
   }
-
-  .form-checkbox input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); }
-
-  .form-select {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 36px;
-  }
-
-  /* ---- Alerts ---- */
-  .alert {
-    display: flex; gap: 12px;
-    padding: 16px;
-    border-radius: 12px;
-    font-size: 0.85rem;
-  }
-
-  .alert__icon { width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px; }
-  .alert__title { font-weight: 600; margin-bottom: 2px; }
-  .alert--info { background: hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.08); color: hsl(186, 80%, 15%); }
-  .alert--success { background: hsl(145, 50%, 92%); color: hsl(145, 60%, 22%); }
-  .alert--warning { background: hsl(38, 80%, 92%); color: hsl(38, 70%, 22%); }
-  .alert--error { background: hsl(0, 70%, 94%); color: hsl(0, 60%, 30%); }
-
-  /* ---- Quotes ---- */
-  .ds-quote {
-    padding: 24px;
-    border-left: 3px solid var(--primary);
-    background: var(--muted);
-    border-radius: 0 12px 12px 0;
-  }
-
-  .ds-quote__text { font-size: 0.92rem; line-height: 1.7; font-style: italic; margin-bottom: 12px; }
-  .ds-quote__author { font-weight: 600; font-size: 0.85rem; }
-  .ds-quote__role { font-size: 0.75rem; color: var(--muted-foreground); }
-
-  .ds-quote--glass {
-    background: rgba(255,255,255,0.06);
-    border-color: var(--accent);
-  }
-
-  .ds-quote--glass .ds-quote__text { color: rgba(255,255,255,0.85); }
-  .ds-quote--glass .ds-quote__role { color: rgba(255,255,255,0.5); }
-
-  /* ---- Stats ---- */
-  .ds-stat { text-align: center; }
-  .ds-stat__value { font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 800; line-height: 1; margin-bottom: 4px; }
-  .ds-stat__value--teal { color: var(--primary); }
-  .ds-stat__value--rose { color: var(--accent); }
-  .ds-stat__value--fg { color: var(--foreground); }
-  .ds-stat__value--white { color: white; }
-  .ds-stat__label { font-size: 0.82rem; max-width: 180px; margin: 0 auto; }
-  .ds-stat__label--muted { color: var(--muted-foreground); }
-  .ds-stat__label--white { color: rgba(255,255,255,0.6); }
-
-  /* ---- Nav Link ---- */
-  .ds-navlink {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--muted-foreground);
-    text-decoration: none;
-    transition: color 0.2s;
-  }
-
-  .ds-navlink:hover { color: var(--foreground); }
-  .ds-navlink--active { color: var(--primary); font-weight: 600; }
-
-  /* ---- Code blocks ---- */
-  .ds-code {
-    background: var(--muted);
-    padding: 16px;
-    border-radius: 12px;
-    font-size: 0.78rem;
-    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
-    line-height: 1.8;
-    overflow-x: auto;
-  }
-
-  .ds-code--dark {
-    background: rgba(0,0,0,0.3);
-    color: rgba(255,255,255,0.8);
-  }
-
-  /* ---- Chips ---- */
-  .ds-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 12px;
-    border-radius: var(--radius-full);
-    font-size: 0.78rem;
-    background: var(--muted);
-    color: var(--muted-foreground);
-    border: 1px solid var(--border);
-  }
-
-  /* ---- Layout Helpers ---- */
-  .flex { display: flex; }
-  .flex-col { flex-direction: column; }
-  .flex-wrap { flex-wrap: wrap; }
-  .items-center { align-items: center; }
-  .items-end { align-items: flex-end; }
-  .justify-between { justify-content: space-between; }
-  .gap-1 { gap: 4px; } .gap-2 { gap: 8px; }
-  .gap-3 { gap: 12px; } .gap-4 { gap: 16px; }
-  .gap-6 { gap: 24px; }
-  .mb-1 { margin-bottom: 4px; } .mb-2 { margin-bottom: 8px; }
-  .mb-3 { margin-bottom: 12px; } .mb-4 { margin-bottom: 16px; }
-  .mb-6 { margin-bottom: 24px; }
-  .mt-4 { margin-top: 16px; }
-  .mt-6 { margin-top: 24px; }
-  .w-full { width: 100%; }
-  .text-center { text-align: center; }
-  .text-sm { font-size: 0.82rem; }
-  .text-xs { font-size: 0.72rem; }
-  .text-muted { color: var(--muted-foreground); }
-
-  /* ---- Feature card inside rose ---- */
-  .ds-feat-card {
-    background: var(--muted);
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  }
-
-  .ds-feat-card h4 { font-size: 1rem; font-weight: 600; margin-top: 16px; margin-bottom: 6px; }
-  .ds-feat-card p { font-size: 0.82rem; color: var(--muted-foreground); line-height: 1.6; }
-
-  /* ---- Process flow ---- */
-  .ds-process-grid {
-    display: grid;
+  .swatch-grid--surface {
     grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    position: relative;
+  }
+  .swatch-card {
+    border: 1px solid var(--border); border-radius: var(--radius-lg);
+    overflow: hidden; background: var(--surface);
+  }
+  .swatch-card__color { height: 60px; }
+  .swatch-card__info { padding: 8px 12px; }
+  .swatch-card__name { font-size: 0.82rem; font-weight: 600; }
+  .swatch-card__value { font-size: 0.72rem; color: var(--ink-soft); font-family: 'SF Mono', 'Fira Code', monospace; }
+
+  .type-demo { margin-bottom: 32px; }
+  .type-demo__display {
+    font-family: var(--font-display); font-size: clamp(2.2rem, 4vw, 3.2rem);
+    font-weight: 500; line-height: 1.02; margin-bottom: 8px;
+  }
+  .type-demo__meta { font-size: 0.82rem; color: var(--ink-soft); }
+  .type-scale { display: flex; flex-direction: column; gap: 16px; }
+  .type-scale-row { display: flex; align-items: baseline; gap: 16px; }
+  .type-scale-row__label { font-size: 0.72rem; font-weight: 600; color: var(--ink-soft); width: 100px; flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.05em; }
+  .type-scale-row__example { color: var(--ink); }
+  .type-scale-row__example--eyebrow { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+  .type-scale-row__example--heading { font-size: 1.875rem; font-weight: 600; line-height: 1.2; }
+  .type-scale-row__example--lead { font-size: 1.125rem; line-height: 1.55; }
+  .type-scale-row__example--body { font-size: 1rem; line-height: 1.625; }
+  .type-scale-row__example--caption { font-size: 0.875rem; }
+
+  .radius-demo { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 24px; }
+  .radius-sample { width: 44px; height: 44px; background: var(--plum); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.6rem; font-weight: 600; }
+  .spacing-demo { display: flex; flex-direction: column; gap: 12px; padding: 4px 0; }
+  .spacing-row { display: flex; align-items: center; gap: 12px; }
+  .spacing-bar { background: var(--plum); border-radius: 2px; flex-shrink: 0; }
+  .spacing-label { font-size: 0.82rem; color: var(--ink-soft); }
+
+  .shadow-demo { display: flex; gap: 20px; }
+  .shadow-box { flex: 1; background: var(--surface); border-radius: var(--radius-xl); padding: 28px; text-align: center; border: 1px solid var(--border); }
+  .shadow-box__title { font-weight: 600; font-size: 0.88rem; margin-bottom: 4px; }
+  .shadow-box__value { font-size: 0.72rem; color: var(--ink-soft); }
+  .shadow-soft { box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .shadow-lift { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .shadow-deep { box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px;
+    border-radius: var(--radius-full); font-size: 0.88rem; font-weight: 500;
+    font-family: var(--font-body); border: none; cursor: pointer; text-decoration: none;
+    line-height: 1; transition: opacity 0.15s, box-shadow 0.15s;
+  }
+  .btn:hover { opacity: 0.88; }
+  .btn--primary { background: var(--plum); color: white; }
+  .btn--secondary { background: var(--sage); color: var(--ink); }
+  .btn--outline { background: transparent; border: 1.5px solid var(--border); color: var(--ink); }
+  .btn--ghost { background: transparent; color: var(--ink); }
+  .btn--link { background: transparent; color: var(--plum); padding: 0; border: none; text-decoration: underline; text-underline-offset: 4px; }
+  .btn--sm { padding: 8px 20px; font-size: 0.82rem; }
+  .btn--lg { padding: 14px 36px; font-size: 0.95rem; }
+  .btn--disabled { opacity: 0.4; pointer-events: none; }
+  .btn-group { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  .form-demo { max-width: 480px; }
+  .form-demo .form-row { display: flex; gap: 12px; align-items: center; }
+  .form-demo .form-input {
+    flex: 1; padding: 10px 16px; border: 1px solid var(--border);
+    border-radius: var(--radius-md); font-size: 0.92rem; font-family: var(--font-body);
+    background: var(--surface); color: var(--ink); outline: none;
+  }
+  .form-demo .form-input:focus { border-color: var(--plum); box-shadow: 0 0 0 3px color-mix(in srgb, var(--plum) 12%, transparent); }
+
+  .badge-demo { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  .icon-demo { display: flex; gap: 24px; align-items: center; }
+  .icon-frame {
+    width: 56px; height: 56px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .icon-frame--plum { background: color-mix(in srgb, var(--plum) 15%, transparent); color: var(--plum); }
+  .icon-frame--rose { background: color-mix(in srgb, var(--rose) 30%, transparent); color: var(--plum); }
+  .icon-frame--sage { background: color-mix(in srgb, var(--sage) 40%, transparent); color: var(--ink); }
+  .icon-frame svg { width: 24px; height: 24px; }
+
+  .motion-fade-up {
+    opacity: 0; transform: translateY(16px);
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+  .motion-marquee {
+    overflow: hidden; position: relative;
+    background: var(--cream); border-radius: var(--radius-lg);
+  }
+  .motion-marquee__inner {
+    display: flex; gap: 32px; white-space: nowrap;
+    animation: marquee 40s linear infinite; padding: 14px 0;
+  }
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
   }
 
-  .ds-process-line {
-    position: absolute;
-    top: 28px;
-    left: 12.5%;
-    right: 12.5%;
-    height: 1px;
-    background: var(--border);
+  .footer {
+    border-top: 1px solid var(--border); padding: 32px 0; background: var(--cream);
   }
-
-  .ds-process-step {
-    text-align: center;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  .footer-grid {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px;
   }
+  .footer h4 { font-size: 0.82rem; font-weight: 600; margin-bottom: 12px; }
+  .footer p, .footer a { font-size: 0.82rem; color: var(--ink-soft); text-decoration: none; line-height: 1.8; }
+  .footer a:hover { color: var(--plum); }
 
-  .ds-process-step h4 { font-size: 0.95rem; font-weight: 600; margin-top: 16px; margin-bottom: 6px; }
-  .ds-process-step p { font-size: 0.78rem; color: var(--muted-foreground); max-width: 200px; line-height: 1.5; }
-
-  /* ---- WCAG 2.2 AA contrast notes ---- */
-  .ds-a11y-note {
-    background: hsl(50, 80%, 92%);
-    border-left: 3px solid hsl(40, 80%, 35%);
-    padding: 12px 16px;
-    border-radius: 0 8px 8px 0;
-    font-size: 0.78rem;
-    margin-bottom: 16px;
-  }
-
-  .ds-a11y-note strong { color: hsl(40, 80%, 20%); }
-
-  /* ---- Footer ---- */
-  .ds-footer {
-    padding: 32px 40px;
-    border-top: 1px solid var(--border);
-  }
-
-  .ds-footer-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  /* ---- Mobile ---- */
   @media (max-width: 768px) {
-    .ds-nav { padding: 10px 16px; flex-wrap: wrap; gap: 8px; }
-    .ds-nav-links { display: none; }
-    .ds-hero-content { padding: 60px 16px 40px; }
-    .ds-hero-grid { grid-template-columns: 1fr; }
-    .ds-section-wrap { padding: 40px 16px; }
-    .ds-section-header { flex-direction: column; gap: 8px; }
-    .ds-process-grid { grid-template-columns: repeat(2, 1fr); }
-    .ds-process-line { display: none; }
-    .ds-footer { padding: 24px 16px; }
-    .ds-footer-inner { flex-direction: column; align-items: flex-start; }
+    .nav { padding: 0 16px; }
+    .nav-links { display: none; }
+    .container { padding: 0 16px; }
+    .swatch-grid--pastel { grid-template-columns: repeat(3, 1fr); }
+    .swatch-grid--surface { grid-template-columns: repeat(2, 1fr); }
+    .shadow-demo { flex-direction: column; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 
-<a class="skip-link" href="#tokens">Skip to content</a>
-
-<nav class="ds-nav" aria-label="Design system navigation">
-  <a class="ds-nav-brand" href="#">
-    <svg width="20" height="20" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-      <path d="M16 26c-5.5 0-10-4.5-10-10S10.5 6 16 6s10 4.5 10 10-4.5 10-10 10z" fill="rgba(255,255,255,0.15)"/>
-      <path d="M16 24c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="rgba(255,255,255,0.25)"/>
-      <path d="M16 22c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z" fill="white"/>
-      <path d="M19 10l-3 10-3-4-4 3" stroke="#087E8B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-    </svg>
-    Eternal Fitness
-  </a>
-
-  <div class="ds-nav-links" role="list">
-    <a href="#tokens" role="listitem">Tokens</a>
-    <a href="#typography" role="listitem">Type</a>
-    <a href="#spacing" role="listitem">Spacing</a>
-    <a href="#buttons" role="listitem">Buttons</a>
-    <a href="#badges" role="listitem">Badges</a>
-    <a href="#cards" role="listitem">Cards</a>
-    <a href="#forms" role="listitem">Forms</a>
-    <a href="#alerts" role="listitem">Alerts</a>
-    <a href="#testimonials" role="listitem">Testimonials</a>
-    <a href="#process" role="listitem">Process</a>
-    <a href="#stats" role="listitem">Stats</a>
-    <a href="#sections" role="listitem">Sections</a>
-    <a href="#hub" role="listitem">Hub</a>
-    <a href="#icons" role="listitem">Icons</a>
-    <a href="#anti-patterns" role="listitem">Avoid</a>
+<nav class="nav" aria-label="Site navigation">
+  <a class="nav-logo" href="#">EternalFitness</a>
+  <div class="nav-links">
+    <a href="https://eternal-sparkle-showcase.lovable.app/">Home</a>
+    <a href="https://eternal-sparkle-showcase.lovable.app/">About</a>
+    <a href="https://eternal-sparkle-showcase.lovable.app/">Personal Training</a>
+    <a href="https://eternal-sparkle-showcase.lovable.app/">FAQs</a>
+    <a href="#" aria-current="page">Design System</a>
   </div>
-
-  <div class="ds-nav-actions">
-    <span class="ds-nav-badge">v2.0</span>
-  </div>
+  <a class="nav-cta" href="https://eternal-sparkle-showcase.lovable.app/">Contact Us</a>
 </nav>
 
-<header class="ds-hero" role="banner">
-  <div class="ds-hero-bg"></div>
-  <div class="ds-hero-content">
-    <div class="ds-hero-grid">
-      <div>
-        <h1>Design System</h1>
-        <p>Complete visual reference for the Eternal Fitness brand. Every token, component, and pattern used across the marketing site and training hub.</p>
-      </div>
-      <div class="ds-hero-glass">
-        <div class="ds-hero-glass-row">
-          <span class="ds-hero-badge">Source: app/globals.css</span>
-          <span class="ds-hero-badge" style="background: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.2);">Tailwind: tailwind.config.ts</span>
-        </div>
-        <p>Esther Fair &middot; Level 4 Personal Trainer &middot; Worthing, West Sussex</p>
-      </div>
-    </div>
-  </div>
-</header>
-
-<section id="tokens" class="ds-section-wrap ds-section-wrap--white" aria-labelledby="tokens-heading">
-<div class="ds-section-inner">
-
-  <div class="ds-section-header">
-    <div>
-      <span class="ds-section-tag ds-section-tag--teal">&#10026; Colour Palette</span>
-      <h2 id="tokens-heading">Design Tokens</h2>
-    </div>
-    <span class="ds-section-meta ds-section-meta--muted">7 tokens</span>
-  </div>
-
-  <table class="ds-table">
-    <caption class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;">Colour token reference table</caption>
-    <thead>
-      <tr>
-        <th scope="col">Token</th>
-        <th scope="col">CSS Variable</th>
-        <th scope="col">Value</th>
-        <th scope="col">Usage</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="color-swatch" style="background:var(--primary)" aria-hidden="true"></span>Teal &mdash; Primary</td>
-        <td><code>--primary</code></td>
-        <td><code>hsl(186 89% 29%)</code></td>
-        <td>CTAs, buttons, links, badges, step indicators, emphasis</td>
-      </tr>
-      <tr>
-        <td><span class="color-swatch" style="background:var(--accent)" aria-hidden="true"></span>Rose &mdash; Accent</td>
-        <td><code>--accent</code> / <code>--secondary</code></td>
-        <td><code>hsl(333 33% 64%)</code></td>
-        <td>Section backgrounds (sparingly), decorative elements, testimonials</td>
-      </tr>
-      <tr>
-        <td><span class="color-swatch" style="background:var(--foreground)" aria-hidden="true"></span>Charcoal &mdash; Foreground</td>
-        <td><code>--foreground</code></td>
-        <td><code>hsl(220 20% 15%)</code></td>
-        <td>Body text, headings, primary content</td>
-      </tr>
-      <tr>
-        <td><span class="color-swatch" style="background:var(--primary-foreground)" aria-hidden="true"></span>White &mdash; Primary Foreground</td>
-        <td><code>--primary-foreground</code></td>
-        <td><code>hsl(0 0% 100%)</code></td>
-        <td>Text on teal backgrounds, hero overlay text</td>
-      </tr>
-      <tr>
-        <td><span class="color-swatch" style="background:var(--background);border-color:var(--border)" aria-hidden="true"></span>White &mdash; Background</td>
-        <td><code>--background</code></td>
-        <td><code>hsl(0 0% 100%)</code></td>
-        <td>Page background, card surfaces</td>
-      </tr>
-      <tr>
-        <td><span class="color-swatch" style="background:var(--muted)" aria-hidden="true"></span>Warm Grey &mdash; Muted</td>
-        <td><code>--muted</code></td>
-        <td><code>hsl(40 15% 95%)</code></td>
-        <td>Feature cards, muted backgrounds, ApproachSection cards</td>
-      </tr>
-      <tr>
-        <td><span class="color-swatch" style="background:var(--border)" aria-hidden="true"></span>Light Grey &mdash; Border</td>
-        <td><code>--border</code></td>
-        <td><code>hsl(220 15% 90%)</code></td>
-        <td>Dividers, card borders, input borders</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="ds-a11y-note">
-    <strong>&#10026; WCAG 2.2 AA</strong> &mdash; Teal on white = 4.7:1 (AA normal text, AAA large). Rose background with <code>--accent-foreground</code> (#4A262E) = 8.2:1 (AAA). Never use white text on rose backgrounds &mdash; contrast ratio is 2.1:1 (fails AA).
-  </div>
-
-  <div class="ds-subsection">
-    <h3>Extended Tokens</h3>
-    <table class="ds-table">
-      <caption class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;">Extended token reference table</caption>
-      <thead>
-        <tr>
-          <th scope="col">Token</th>
-          <th scope="col">CSS Variable</th>
-          <th scope="col">Value</th>
-          <th scope="col">Usage</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><span class="color-swatch color-swatch--no-border" style="background:var(--hero-overlay)" aria-hidden="true"></span>Hero Overlay</td>
-          <td><code>--hero-overlay</code></td>
-          <td><code>hsl(186 50% 10%)</code></td>
-          <td>Full-bleed image overlay on hero section</td>
-        </tr>
-        <tr>
-          <td><span class="color-swatch color-swatch--no-border" style="background:var(--section-dark)" aria-hidden="true"></span>Section Dark</td>
-          <td><code>--section-dark</code></td>
-          <td><code>hsl(186 40% 15%)</code></td>
-          <td>Dark background surfaces, mobile menu backdrop</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="ds-subsection">
-    <h3>Swatches</h3>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;">
-      <div style="flex:1;min-width:100px;">
-        <div style="height:48px;background:var(--primary);border-radius:16px 16px 0 0;"></div>
-        <div style="padding:6px 10px;font-size:0.72rem;border:1px solid var(--border);border-top:0;border-radius:0 0 16px 16px;"><strong>Primary</strong><br>Teal #087E8B</div>
-      </div>
-      <div style="flex:1;min-width:100px;">
-        <div style="height:48px;background:var(--accent);border-radius:16px 16px 0 0;"></div>
-        <div style="padding:6px 10px;font-size:0.72rem;border:1px solid var(--border);border-top:0;border-radius:0 0 16px 16px;"><strong>Accent</strong><br>Rose #C1839F</div>
-      </div>
-      <div style="flex:1;min-width:100px;">
-        <div style="height:48px;background:var(--foreground);border-radius:16px 16px 0 0;"></div>
-        <div style="padding:6px 10px;font-size:0.72rem;border:1px solid var(--border);border-top:0;border-radius:0 0 16px 16px;"><strong>Foreground</strong><br>Charcoal #3C3C3C</div>
-      </div>
-      <div style="flex:1;min-width:100px;">
-        <div style="height:48px;background:var(--hero-overlay);border-radius:16px 16px 0 0;"></div>
-        <div style="padding:6px 10px;font-size:0.72rem;border:1px solid var(--border);border-top:0;border-radius:0 0 16px 16px;"><strong>Hero Overlay</strong><br>Dark teal</div>
-      </div>
-      <div style="flex:1;min-width:100px;">
-        <div style="height:48px;background:var(--muted);border:1px solid var(--border);border-radius:16px 16px 0 0;"></div>
-        <div style="padding:6px 10px;font-size:0.72rem;border:1px solid var(--border);border-top:0;border-radius:0 0 16px 16px;"><strong>Muted</strong><br>Warm grey</div>
-      </div>
+<main id="main-content">
+  <div class="ds-hero">
+    <div class="container">
+      <span class="ds-badge ds-badge--plum">Design system v1.0</span>
+      <h1>Eternal Fitness — design system</h1>
+      <p>Calm, editorial, studio-led. A wellness brand language built on deep teal, dusty rose, cream, and a serif/sans pairing. Every token and primitive used across the site lives here for review and reuse.</p>
     </div>
   </div>
 
-</div>
-</section>
+  <section class="ds-section" id="brand">
+    <div class="container">
+      <h2>1 &middot; Brand</h2>
 
-<section id="typography" class="ds-section-wrap ds-section-wrap--rose" aria-labelledby="type-heading">
-<div class="ds-section-inner">
-
-  <div class="ds-section-header">
-    <div>
-      <span class="ds-section-tag ds-section-tag--white">&#10026; Type System</span>
-      <h2 id="type-heading" style="color:white">Typography</h2>
-    </div>
-    <span class="ds-section-meta ds-section-meta--white">DM Sans &middot; 400&ndash;800</span>
-  </div>
-
-  <div class="ds-subsection">
-    <h3 style="color:var(--accent-foreground)">Type Scale</h3>
-    <table class="ds-table">
-      <caption class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;">Type scale reference</caption>
-      <thead>
-        <tr>
-          <th class="white" scope="col">Level</th>
-          <th class="white" scope="col">Size</th>
-          <th class="white" scope="col">Weight</th>
-          <th class="white" scope="col">Example</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="white">Hero H1</td>
-          <td class="white"><code style="color:rgba(255,255,255,0.7)">clamp(2.5rem, 5vw, 3.75rem)</code></td>
-          <td class="white">800 ExtraBold</td>
-          <td class="white" style="font-size:clamp(1.8rem,3vw,2.5rem);font-weight:800;line-height:1.1;">Heading One</td>
-        </tr>
-        <tr>
-          <td class="white">Section H2</td>
-          <td class="white"><code style="color:rgba(255,255,255,0.7)">clamp(1.75rem, 4vw, 2.5rem)</code></td>
-          <td class="white">700 Bold</td>
-          <td class="white" style="font-size:clamp(1.3rem,2.5vw,1.8rem);font-weight:700;line-height:1.15;">Section Heading</td>
-        </tr>
-        <tr>
-          <td class="white">Card H3</td>
-          <td class="white"><code style="color:rgba(255,255,255,0.7)">1rem / 1.125rem</code></td>
-          <td class="white">600 SemiBold</td>
-          <td class="white" style="font-size:1.125rem;font-weight:600;">Card Title Here</td>
-        </tr>
-        <tr>
-          <td class="white">Body</td>
-          <td class="white"><code style="color:rgba(255,255,255,0.7)">0.95rem &ndash; 1rem</code></td>
-          <td class="white">400 Regular</td>
-          <td class="white" style="font-size:0.9rem;opacity:0.85;">Body paragraph text for descriptions and content.</td>
-        </tr>
-        <tr>
-          <td class="white">Small</td>
-          <td class="white"><code style="color:rgba(255,255,255,0.7)">0.82rem &ndash; 0.85rem</code></td>
-          <td class="white">400 / 500</td>
-          <td class="white" style="font-size:0.82rem;opacity:0.6;">Metadata, captions, labels</td>
-        </tr>
-        <tr>
-          <td class="white">Caption</td>
-          <td class="white"><code style="color:rgba(255,255,255,0.7)">0.68rem &ndash; 0.72rem</code></td>
-          <td class="white">600 uppercase</td>
-          <td class="white" style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;opacity:0.5;">UPPERCASE CAPTION</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="ds-subsection">
-    <h3 style="color:var(--accent-foreground)">Font Stacks</h3>
-    <div class="ds-code ds-code--dark" style="margin-bottom:16px">
-<pre>:root {
-  --font-display: 'DM Sans', sans-serif;   /* headings, large text */
-  --font-body:    'DM Sans', sans-serif;    /* paragraphs, UI labels */
-}
-
-/* Single family throughout. Weights: 400, 500, 600, 700, 800.
-   All-caps captions use 600 weight with 0.08em letter-spacing. */</pre>
-    </div>
-    <p style="font-size:0.85rem;color:rgba(255,255,255,0.6);">Loaded via <code>next/font/google</code> in <code>app/layout.tsx</code>. The <code>DM_Sans</code> variable is mapped to <code>--font-dm-sans</code> and aliased via <code>--font-display</code> / <code>--font-body</code>.</p>
-  </div>
-
-  <div class="ds-a11y-note" style="background:rgba(255,255,255,0.15);border-left-color:var(--accent-foreground);">
-    <strong>&#10026; WCAG 2.2 AA</strong> &mdash; White text on rose (#C1839F) = 2.1:1 contrast ratio, <strong>fails AA</strong>. All headings on rose backgrounds use <code>--accent-foreground</code> (#4A262E, 8.2:1) or the table cells use white-on-dark via the dark overlay. Do not add white text directly on rose backgrounds.
-  </div>
-</div>
-</section>
-
-<section id="spacing" class="ds-section-wrap ds-section-wrap--white" aria-labelledby="spacing-heading">
-<div class="ds-section-inner">
-
-  <div class="ds-section-header">
-    <div>
-      <span class="ds-section-tag ds-section-tag--teal">&#10026; Layout Rhythm</span>
-      <h2 id="spacing-heading">Spacing &amp; Grid</h2>
-    </div>
-    <span class="ds-section-meta ds-section-meta--muted">4px base unit</span>
-  </div>
-
-  <table class="ds-table">
-    <caption class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;">Spacing token reference</caption>
-    <thead>
-      <tr>
-        <th class="muted" scope="col">Token</th>
-        <th class="muted" scope="col">Value</th>
-        <th class="muted" scope="col">Visual</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td><code>--space-1</code></td><td>4px</td><td><div style="height:4px;width:100%;max-width:120px;background:var(--primary);border-radius:2px;"></div></td></tr>
-      <tr><td><code>--space-2</code></td><td>8px</td><td><div style="height:8px;width:100%;max-width:120px;background:var(--primary);border-radius:2px;"></div></td></tr>
-      <tr><td><code>--space-3</code></td><td>12px</td><td><div style="height:12px;width:100%;max-width:120px;background:var(--primary);border-radius:2px;"></div></td></tr>
-      <tr><td><code>--space-4</code></td><td>16px</td><td><div style="height:16px;width:100%;max-width:120px;background:var(--primary);border-radius:2px;"></div></td></tr>
-      <tr><td><code>--space-6</code></td><td>24px</td><td><div style="height:24px;width:100%;max-width:120px;background:var(--primary);border-radius:2px;"></div></td></tr>
-      <tr><td><code>--space-8</code></td><td>32px</td><td><div style="height:32px;width:100%;max-width:120px;background:var(--primary);border-radius:2px;"></div></td></tr>
-      <tr><td><code>--space-12</code></td><td>48px</td><td><div style="height:48px;width:100%;max-width:120px;background:var(--primary);border-radius:2px;"></div></td></tr>
-      <tr><td><code>--space-16</code></td><td>64px</td><td><div style="height:64px;width:100%;max-width:120px;background:var(--primary);border-radius:2px;"></div></td></tr>
-    </tbody>
-  </table>
-
-  <div style="background:var(--muted);padding:16px;border-radius:16px;font-size:0.82rem;">
-    <strong>Section vertical rhythm:</strong> All marketing sections use <code>py-20 md:py-28</code> = 80px top/bottom on mobile, 112px on desktop. Containers use <code>max-w-6xl</code> (1200px) with <code>px-6 md:px-12</code> horizontal padding. Cards within grids use <code>gap-5</code> or <code>gap-6</code>.
-  </div>
-</div>
-</section>
-
-<section id="buttons" class="ds-section-wrap ds-section-wrap--white" aria-labelledby="buttons-heading">
-<div class="ds-section-inner">
-
-  <div class="ds-section-header">
-    <div>
-      <span class="ds-section-tag ds-section-tag--teal">&#10026; Interactive</span>
-      <h2 id="buttons-heading">Buttons</h2>
-    </div>
-    <span class="ds-section-meta ds-section-meta--muted">Pill &middot; 5 variants</span>
-  </div>
-
-  <div class="ds-preview">
-    <div class="ds-preview-label">All variants on white</div>
-    <div class="btn-group">
-      <button class="btn btn--primary">Primary CTA <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></button>
-      <button class="btn btn--accent">Accent CTA</button>
-      <button class="btn btn--outline-primary">Outline Primary</button>
-      <button class="btn btn--outline">Outline</button>
-      <button class="btn btn--ghost">Ghost</button>
-      <button class="btn btn--primary btn--sm">Small</button>
-      <button class="btn btn--primary btn--lg">Large</button>
-    </div>
-  </div>
-
-  <div class="ds-preview" style="background:var(--accent);">
-    <div class="ds-preview-label" style="color:var(--accent-foreground);opacity:0.5;border-color:var(--accent-foreground);">CTAs on rose background <span style="font-weight:400;">(as used in WhoSection, CTASection)</span></div>
-    <div class="btn-group">
-      <button class="btn btn--primary">Book a Free Consultation <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></button>
-      <button class="btn btn--outline-rose">Give Me a Call <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></button>
-    </div>
-  </div>
-
-  <div class="ds-preview" style="background:var(--hero-overlay);">
-    <div class="ds-preview-label" style="color:rgba(255,255,255,0.4);border-color:rgba(255,255,255,0.1);">CTAs on hero overlay <span style="font-weight:400;">(as used in HeroSection)</span></div>
-    <div class="btn-group">
-      <button class="btn btn--white">Book a Free Consultation <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></button>
-      <button class="btn btn--ghost-white">Find Out How It Works</button>
-    </div>
-  </div>
-
-  <div class="ds-a11y-note">
-    <strong>&#10026; WCAG 2.2 AA</strong> &mdash; All button variants pass AA contrast. Primary CTA on hero (white bg, teal text) = 4.7:1. Focus-visible states use a 2px teal outline with 2px offset. Interactive elements must always have visible focus indicators.
-  </div>
-
-  <div style="margin-top:16px;font-size:0.82rem;color:var(--muted-foreground);">
-    <strong>Pattern:</strong> All CTAs use <code>ArrowUpRight</code> icon (Lucide). Primary CTA on hero = white bg, teal text. Primary CTA on rose = teal bg, white text. Outline on rose uses <code>border-accent-foreground/40</code>.
-  </div>
-</div>
-</section>
-
-<section id="badges" class="ds-section-wrap ds-section-wrap--white" aria-labelledby="badges-heading">
-<div class="ds-section-inner">
-
-  <div class="ds-section-header">
-    <div>
-      <span class="ds-section-tag ds-section-tag--teal">&#10026; Labels</span>
-      <h2 id="badges-heading">Badges &amp; Chips</h2>
-    </div>
-    <span class="ds-section-meta ds-section-meta--muted">4 variants</span>
-  </div>
-
-  <div class="ds-preview">
-    <div class="ds-preview-label">Badge variants on white</div>
-    <div class="btn-group">
-      <span class="ds-badge ds-badge--teal">&#10026; Cancer Rehabilitation</span>
-      <span class="ds-badge ds-badge--rose">&#10026; Exercise Referral</span>
-      <span class="ds-badge ds-badge--neutral">Level 4 PT</span>
-      <span class="chip ds-chip">Info chip</span>
-    </div>
-  </div>
-
-  <div class="ds-preview" style="background:var(--accent);">
-    <div class="ds-preview-label" style="color:var(--accent-foreground);opacity:0.5;border-color:var(--accent-foreground);">Badges on rose background <span style="font-weight:400;">(SpecialiseSection, WhoSection)</span></div>
-    <div class="btn-group">
-      <span class="ds-badge ds-badge--white">&#10026; Specialist Areas</span>
-      <span class="ds-badge ds-badge--white">&#10026; Who This Is For</span>
-    </div>
-    <p style="font-size:0.78rem;margin-top:12px;color:var(--accent-foreground);opacity:0.6;">On rose backgrounds, badges use <code>bg-primary/20 text-primary-foreground</code> for contrast (white on teal-tinted = 16:1).</p>
-  </div>
-</div>
-</section>
-
-<section id="cards" class="ds-section-wrap ds-section-wrap--white" aria-labelledby="cards-heading">
-<div class="ds-section-inner">
-
-  <div class="ds-section-header">
-    <div>
-      <span class="ds-section-tag ds-section-tag--teal">&#10026; Containers</span>
-      <h2 id="cards-heading">Cards</h2>
-    </div>
-    <span class="ds-section-meta ds-section-meta--muted">3 variants</span>
-  </div>
-
-  <div class="ds-preview">
-    <div class="ds-preview-label">Card variants</div>
-    <div class="ds-card-grid">
-      <div class="ds-card ds-card--shadow">
-        <div class="ds-card__title">Standard Card</div>
-        <div class="ds-card__subtitle">Elevated with shadow</div>
-        <div class="ds-card__text">Used for WhoSection content cards, pricing, feature blocks. <code>rounded-2xl</code> + <code>shadow-md</code>.</div>
-      </div>
-      <div class="ds-card ds-card--muted">
-        <div class="ds-card__title">Muted Card</div>
-        <div class="ds-card__subtitle">No border, muted bg</div>
-        <div class="ds-card__text">Used for ApproachSection cards, feature cards.</div>
-      </div>
-      <div class="ds-card" style="overflow:hidden;padding:0;">
-        <div style="height:80px;background:linear-gradient(135deg,var(--primary),var(--hero-overlay));display:flex;align-items:center;justify-content:center;">
-          <span style="color:white;font-weight:700;font-size:0.85rem;">Image area</span>
-        </div>
-        <div style="padding:24px;">
-          <div class="ds-card__title">Image Card</div>
-          <div class="ds-card__text">Used in WhySection, SpecialiseSection. <code>aspect-[4/5]</code> with gradient overlay.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="ds-subsection">
-    <h3>Feature Card with Icon Frame</h3>
-    <div class="ds-preview">
-      <div class="ds-card-grid">
-        <div class="ds-feat-card">
-          <div class="ds-iframe ds-iframe--teal">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="12" y2="13"/></svg>
-          </div>
-          <h4>Cancer Rehabilitation</h4>
-          <p>Pre and post-treatment programming designed around cancer-related fatigue, lymphoedema awareness, and immune status.</p>
-        </div>
-        <div class="ds-feat-card">
-          <div class="ds-iframe ds-iframe--rose">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          </div>
-          <h4>Exercise Referral</h4>
-          <p>GP and NHS-scheme clients welcome. Functional goals, not aesthetic targets.</p>
-        </div>
-        <div class="ds-feat-card">
-          <div class="ds-iframe ds-iframe--charcoal">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-          </div>
-          <h4>Adaptive Training</h4>
-          <p>Seated and supported variations for every exercise. Wheelchair users, MS, Parkinson's, stroke survivors.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="ds-subsection">
-    <h3>WhoSection Card Pattern <span style="font-weight:400;font-size:0.82rem;color:var(--muted-foreground);">(image + content on rose bg)</span></h3>
-    <div class="ds-preview" style="background:var(--accent);">
-      <div class="ds-card-grid" style="grid-template-columns:1fr 1fr;">
-        <div class="ds-card" style="overflow:hidden;padding:0;">
-          <div style="aspect-video;background:var(--muted);display:flex;align-items:center;justify-content:center;font-size:0.78rem;color:var(--muted-foreground);">Image placeholder</div>
-          <div style="padding:24px;">
-            <div class="ds-card__title">People managing health conditions</div>
-            <div class="ds-card__text" style="margin-bottom:16px;">With text and a CTA underneath.</div>
-            <button class="btn btn--primary btn--sm">See Specialist Areas <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></button>
-          </div>
-        </div>
-        <div class="ds-card" style="overflow:hidden;padding:0;">
-          <div style="aspect-video;background:var(--muted);display:flex;align-items:center;justify-content:center;font-size:0.78rem;color:var(--muted-foreground);">Image placeholder</div>
-          <div style="padding:24px;">
-            <div class="ds-card__title">People new to fitness spaces</div>
-            <div class="ds-card__text">Content card with no CTA.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-</section>
-
-<section id="forms" class="ds-section-wrap ds-section-wrap--white" aria-labelledby="forms-heading">
-<div class="ds-section-inner">
-
-  <div class="ds-section-header">
-    <div>
-      <span class="ds-section-tag ds-section-tag--teal">&#10026; Inputs</span>
-      <h2 id="forms-heading">Form Elements</h2>
-    </div>
-    <span class="ds-section-meta ds-section-meta--muted">Inputs &middot; validation</span>
-  </div>
-
-  <div class="ds-preview">
-    <div class="ds-preview-label">Contact form example</div>
-    <div style="max-width:480px;display:flex;flex-direction:column;gap:14px;">
-      <div class="form-group">
-        <label class="form-label" for="demo-name">Full name</label>
-        <input class="form-input" id="demo-name" type="text" placeholder="e.g. Angela M">
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="demo-email">Email address</label>
-        <input class="form-input" id="demo-email" type="email" placeholder="angela@example.com">
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="demo-subject">What best describes you?</label>
-        <select class="form-input form-select" id="demo-subject">
-          <option>Select an option...</option>
-          <option>Cancer rehabilitation</option>
-          <option>GP exercise referral</option>
-          <option>Adaptive training</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="demo-msg">Your message</label>
-        <textarea class="form-input" id="demo-msg" rows="3" placeholder="Tell me what you are looking for..."></textarea>
-      </div>
-      <label class="form-checkbox">
-        <input type="checkbox" checked>
-        I agree to the privacy policy
-      </label>
-      <button class="btn btn--primary" style="align-self:flex-start;">Send enquiry</button>
-    </div>
-  </div>
-
-  <div class="ds-preview">
-    <div class="ds-preview-label">Validation states</div>
-    <div style="max-width:480px;display:flex;flex-direction:column;gap:12px;">
-      <div class="form-group">
-        <label class="form-label" for="demo-err-email">Email address</label>
-        <input class="form-input form-input--error" id="demo-err-email" type="email" value="not-an-email">
-        <span class="form-error" role="alert">Please enter a valid email address</span>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="demo-phone">Phone</label>
-        <input class="form-input" id="demo-phone" type="tel" placeholder="07700 900000">
-        <span class="form-hint" id="phone-hint">We only call to confirm your consultation</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="ds-a11y-note">
-    <strong>&#10026; WCAG 2.2 AA</strong> &mdash; All form inputs have visible labels (not placeholders alone). Error messages use <code>role="alert"</code> for screen reader announcements. Focus states show a 3px teal ring. Minimum target size for inputs is 44px (WCAG 2.5.8).
-  </div>
-</div>
-</section>
-
-<section id="alerts" class="ds-section-wrap ds-section-wrap--white" aria-labelledby="alerts-heading">
-<div class="ds-section-inner">
-
-  <div class="ds-section-header">
-    <div>
-      <span class="ds-section-tag ds-section-tag--teal">&#10026; Feedback</span>
-      <h2 id="alerts-heading">Alerts</h2>
-    </div>
-    <span class="ds-section-meta ds-section-meta--muted">4 states</span>
-  </div>
-
-  <div style="display:flex;flex-direction:column;gap:10px;">
-    <div class="alert alert--info" role="status">
-      <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-      <div>
-        <div class="alert__title">Info</div>
-        <div>Your first consultation is completely free. No commitment.</div>
-      </div>
-    </div>
-    <div class="alert alert--success" role="status">
-      <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-      <div>
-        <div class="alert__title">Success</div>
-        <div>Your consultation has been booked. We will confirm via email.</div>
-      </div>
-    </div>
-    <div class="alert alert--warning" role="alert">
-      <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <div>
-        <div class="alert__title">Important</div>
-        <div>If you are undergoing cancer treatment, we need GP clearance before we begin.</div>
-      </div>
-    </div>
-    <div class="alert alert--error" role="alert">
-      <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-      <div>
-        <div class="alert__title">Error</div>
-        <div>Something went wrong. Please try again or email us directly.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="ds-a11y-note">
-    <strong>&#10026; WCAG 2.2 AA</strong> &mdash; Alerts use <code>role="status"</code> for non-critical and <code>role="alert"</code> for warning/error states. All alert text passes AA contrast against their tinted backgrounds (info: teal text 4.7:1, success: green text 4.8:1, warning: amber text 4.5:1, error: red text 4.6:1).
-  </div>
-</div>
-</section>
-
-<section id="testimonials" class="ds-section-wrap ds-section-wrap--rose" aria-labelledby="testimonials-heading">
-<div class="ds-section-inner">
-
-  <div class="ds-section-header">
-    <div>
-      <span class="ds-section-tag ds-section-tag--white">&#10026; Social Proof</span>
-      <h2 id="testimonials-heading" style="color:white">Testimonials &amp; Quotes</h2>
-    </div>
-    <span class="ds-section-meta ds-section-meta--white">2 formats</span>
-  </div>
-
-  <div class="ds-preview ds-preview--glass">
-    <div class="ds-preview-label ds-preview-label--glass">Quote style (left border)</div>
-    <div class="ds-quote ds-quote--glass">
-      <div class="ds-quote__text">"As someone who has dealt with chronic pain for years, I was sceptical. But the personalised approach has genuinely changed my quality of life."</div>
-      <div class="ds-quote__author" style="color:rgba(255,255,255,0.9);">Angela M</div>
-      <div class="ds-quote__role" style="color:rgba(255,255,255,0.5);">Worthing client &middot; Exercise referral</div>
-    </div>
-  </div>
-
-  <div class="ds-preview ds-preview--glass">
-    <div class="ds-preview-label ds-preview-label--glass">Testimonial card with avatar</div>
-    <div class="ds-card ds-card--glass" style="max-width:500px;">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-        <div style="width:44px;height:44px;border-radius:50%;background:hsla(var(--accent-h),var(--accent-s),var(--accent-l),0.3);display:flex;align-items:center;justify-content:center;font-weight:700;color:white;">JB</div>
-        <div>
-          <div style="font-weight:600;font-size:0.88rem;color:white;">James B.</div>
-          <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);">Post-cardiac rehab client</div>
-        </div>
-      </div>
-      <div class="ds-card__text ds-card__glass-text" style="font-style:italic;">"After my heart surgery, I did not think I would ever train again. Esther worked with my cardiac team to build a programme that was safe but still challenging."</div>
-    </div>
-  </div>
-
-  <div class="ds-a11y-note" style="background:rgba(255,255,255,0.15);border-left-color:var(--accent-foreground);">
-    <strong>&#10026; WCAG 2.2 AA</strong> &mdash; Testimonial card text on glass (80% white on 8% tint) = calculated 7.5:1. Author names at 90% white = 12:1. Always ensure testimonial text has sufficient contrast against the glass overlay.
-  </div>
-</div>
-</section>
-
-<section id="process" class="ds-section-wrap ds-section-wrap--white" aria-labelledby="process-heading">
-<div class="ds-section-inner">
-
-  <div class="ds-section-header">
-    <div>
-      <span class="ds-section-tag ds-section-tag--teal">&#10026; Journey</span>
-      <h2 id="process-heading">Process Flow</h2>
-    </div>
-    <span class="ds-section-meta ds-section-meta--muted">4 steps</span>
-  </div>
-
-  <div class="ds-preview">
-    <div class="ds-preview-label">How It Works — step progression</div>
-    <div class="ds-process-grid">
-      <div class="ds-process-line" aria-hidden="true"></div>
-      <div class="ds-process-step">
-        <div class="ds-step" style="position:absolute;top:-8px;right:16px;" aria-hidden="true">1</div>
-        <div class="ds-iframe ds-iframe--teal" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="12" y2="13"/></svg>
-        </div>
-        <h4>Free Consultation</h4>
-        <p>30-minute conversation. No commitment. No sales pitch.</p>
-      </div>
-      <div class="ds-process-step">
-        <div class="ds-step" style="position:absolute;top:-8px;right:16px;" aria-hidden="true">2</div>
-        <div class="ds-iframe ds-iframe--rose" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        </div>
-        <h4>Initial Assessment</h4>
-        <p>Full functional movement screening and health review.</p>
-      </div>
-      <div class="ds-process-step">
-        <div class="ds-step" style="position:absolute;top:-8px;right:16px;" aria-hidden="true">3</div>
-        <div class="ds-iframe ds-iframe--charcoal" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><polyline points="3.6 11 7 11 8.5 8.5 11.5 13.5 13 11 16 11"/></svg>
-        </div>
-        <h4>One-to-One Training</h4>
-        <p>Private sessions adapt to how you feel each day.</p>
-      </div>
-      <div class="ds-process-step">
-        <div class="ds-step" style="position:absolute;top:-8px;right:16px;" aria-hidden="true">4</div>
-        <div class="ds-iframe ds-iframe--teal" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-        </div>
-        <h4>Ongoing Support</h4>
-        <p>Progress reviews every 6&ndash;12 sessions. Consistent care.</p>
-      </div>
-    </div>
-  </div>
-</div>
-</section>
-
-<section id="stats" class="ds-section-wrap ds-section-wrap--white" aria-labelledby="stats-heading">
-<div class="ds-section-inner">
-
-  <div class="ds-section-header">
-    <div>
-      <span class="ds-section-tag ds-section-tag--teal">&#10026; Metrics</span>
-      <h2 id="stats-heading">Stats &amp; Key Numbers</h2>
-    </div>
-    <span class="ds-section-meta ds-section-meta--muted">3-value row</span>
-  </div>
-
-  <div class="ds-preview">
-    <div class="ds-preview-label">Stat row on white</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;padding:8px 0;">
-      <div class="ds-stat">
-        <div class="ds-stat__value ds-stat__value--teal">Level 4</div>
-        <div class="ds-stat__label ds-stat__label--muted">Highest PT qualification in the UK</div>
-      </div>
-      <div class="ds-stat">
-        <div class="ds-stat__value" style="color:hsl(333, 40%, 45%);">1-to-1</div>
-        <div class="ds-stat__label ds-stat__label--muted">Private studio, no other clients</div>
-      </div>
-      <div class="ds-stat">
-        <div class="ds-stat__value ds-stat__value--fg">100%</div>
-        <div class="ds-stat__label ds-stat__label--muted">GP-referred clients train long-term</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="ds-preview" style="background:var(--hero-overlay);">
-    <div class="ds-preview-label" style="color:rgba(255,255,255,0.4);border-color:rgba(255,255,255,0.1);">Stat row on dark background</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;padding:8px 0;">
-      <div class="ds-stat">
-        <div class="ds-stat__value ds-stat__value--white">Level 4</div>
-        <div class="ds-stat__label ds-stat__label--white">Highest UK PT qualification</div>
-      </div>
-      <div class="ds-stat">
-        <div class="ds-stat__value" style="color:var(--accent);">1-to-1</div>
-        <div class="ds-stat__label ds-stat__label--white">Private studio sessions</div>
-      </div>
-      <div class="ds-stat">
-        <div class="ds-stat__value ds-stat__value--white">60</div>
-        <div class="ds-stat__label ds-stat__label--white">Minutes per session</div>
-      </div>
-    </div>
-  </div>
-
-  <div style="margin-top:20px;font-size:0.82rem;color:var(--muted-foreground);">
-    <strong>Pattern:</strong> Stats use <code>text-4xl md:text-5xl font-bold tracking-tight</code>. On white bg: teal or charcoal stat values. On dark bg: white values with rose accent for secondary.
-  </div>
-</div>
-</section>
-
-<section id="sections" class="ds-section-wrap ds-section-wrap--white" aria-labelledby="sections-heading">
-<div class="ds-section-inner">
-
-  <div class="ds-section-header">
-    <div>
-      <span class="ds-section-tag ds-section-tag--teal">&#10026; Layout</span>
-      <h2 id="sections-heading">Section Backgrounds</h2>
-    </div>
-    <span class="ds-section-meta ds-section-meta--muted">3 treatments</span>
-  </div>
-
-  <div style="display:flex;flex-direction:column;gap:12px;">
-    <div class="ds-preview">
-      <div class="ds-preview-label">Muted background <code>bg-muted</code></div>
-      <p style="font-size:0.85rem;max-width:500px;">Used for: ApproachSection cards, feature cards (InfographicSystem). Light warm grey with full-contrast text.</p>
-    </div>
-
-    <div style="background:var(--accent);padding:24px;border-radius:16px;">
-      <div class="ds-preview-label" style="color:var(--accent-foreground);opacity:0.5;border-color:var(--accent-foreground);">Accent/rose background <code>bg-accent</code> &mdash; used sparingly</div>
-      <p style="font-size:0.85rem;max-width:500px;color:var(--accent-foreground);opacity:0.85;">Used for: SpecialiseSection, WhoSection, CTASection (3 sections total). Light rose #C1839F with dark text #4A262E (8.2:1 AA+). Badges use <code>bg-primary/20 text-primary-foreground</code>. CTAs are teal.</p>
-      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
-        <span class="ds-badge ds-badge--white">&#10026; Specialist Areas</span>
-        <button class="btn btn--primary btn--sm">CTA on Rose</button>
-      </div>
-    </div>
-
-    <div style="background:var(--primary);padding:24px;border-radius:16px;">
-      <div class="ds-preview-label" style="color:rgba(255,255,255,0.4);border-color:rgba(255,255,255,0.15);">Dark/teal background <code>bg-primary</code> or <code>bg-hero-overlay</code></div>
-      <p style="font-size:0.85rem;max-width:500px;color:rgba(255,255,255,0.7);">Used for: HeroSection social proof cards, dark sections. White buttons for CTAs. Rose accent for secondary highlights.</p>
-      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn--white">White CTA</button>
-        <button class="btn btn--ghost-white">Outline on Dark</button>
-      </div>
-    </div>
-  </div>
-
-  <div style="margin-top:20px;background:var(--muted);padding:16px;border-radius:16px;font-size:0.82rem;">
-    <strong>Rhythm rule:</strong> The live site alternates backgrounds. Rose sections are used <strong>sparingly</strong> (maximum 3 out of 7&ndash;8 sections) to preserve their emphasis. Teal backgrounds are reserved for hero overlays and CTAs only.
-  </div>
-</div>
-</section>
-
-<section id="navigation" class="ds-section-wrap ds-section-wrap--white" aria-labelledby="nav-heading">
-<div class="ds-section-inner">
-
-  <div class="ds-section-header">
-    <div>
-      <span class="ds-section-tag ds-section-tag--teal">&#10026; Nav</span>
-      <h2 id="nav-heading">Navigation Pattern</h2>
-    </div>
-    <span class="ds-section-meta ds-section-meta--muted">Hero overlay style</span>
-  </div>
-
-  <div class="ds-preview" style="background:var(--hero-overlay);">
-    <div class="ds-preview-label" style="color:rgba(255,255,255,0.4);border-color:rgba(255,255,255,0.1);">Desktop nav on hero overlay</div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-          <path d="M16 26c-5.5 0-10-4.5-10-10S10.5 6 16 6s10 4.5 10 10-4.5 10-10 10z" fill="rgba(255,255,255,0.15)"/>
-          <path d="M16 24c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="rgba(255,255,255,0.25)"/>
+      <h3>Logo lockup</h3>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding:16px 20px;background:var(--cream);border-radius:var(--radius-lg);max-width:320px;">
+        <svg width="36" height="36" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <path d="M16 26c-5.5 0-10-4.5-10-10S10.5 6 16 6s10 4.5 10 10-4.5 10-10 10z" fill="var(--sage)"/>
+          <path d="M16 24c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="var(--plum)"/>
           <path d="M16 22c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z" fill="white"/>
-          <path d="M19 10l-3 10-3-4-4 3" stroke="#087E8B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <path d="M19 10l-3 10-3-4-4 3" stroke="#5a2740" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
         </svg>
-        <span style="font-weight:700;font-size:0.95rem;color:white;letter-spacing:0.05em;">ETERNAL FITNESS</span>
+        <span style="font-weight:700;font-size:1.1rem;">EternalFitness</span>
       </div>
-      <div style="display:flex;align-items:center;gap:28px;">
-        <a href="#" style="font-size:0.85rem;color:white;text-decoration:none;font-weight:500;">Home</a>
-        <a href="#" style="font-size:0.85rem;color:rgba(255,255,255,0.7);text-decoration:none;">About</a>
-        <a href="#" style="font-size:0.85rem;color:rgba(255,255,255,0.7);text-decoration:none;">Personal Training</a>
-        <a href="#" style="font-size:0.85rem;color:rgba(255,255,255,0.7);text-decoration:none;">Pricing</a>
-        <a href="#" style="font-size:0.85rem;color:rgba(255,255,255,0.7);text-decoration:none;">FAQs</a>
-        <a href="#" style="font-size:0.85rem;color:rgba(255,255,255,0.7);text-decoration:none;">Blog</a>
-        <button class="btn btn--primary btn--sm">Contact Us <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></button>
+
+      <h3>Voice</h3>
+      <p style="margin-bottom:12px;">Calm, confident, never preachy. We coach — we don't sell transformation.</p>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:8px;">
+        <li style="display:flex;align-items:center;gap:8px;font-size:0.88rem;"><span style="color:var(--plum);font-weight:700;">&middot;</span> Plain English over fitness jargon</li>
+        <li style="display:flex;align-items:center;gap:8px;font-size:0.88rem;"><span style="color:var(--plum);font-weight:700;">&middot;</span> Specific over hype ("steady, sustainable progress")</li>
+        <li style="display:flex;align-items:center;gap:8px;font-size:0.88rem;"><span style="color:var(--plum);font-weight:700;">&middot;</span> Respectful of where the reader is right now</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="ds-section" id="color">
+    <div class="container">
+      <h2>2 &middot; Color</h2>
+      <p>A soft pastel palette: peach, blush, rose, sage and mauve. Tokens are authored in <code style="font-size:0.85rem;">oklch</code>; hex values are sRGB approximations for design tooling. Always reference tokens — never hex — in code.</p>
+
+      <h3>Pastel palette</h3>
+      <div class="swatch-grid swatch-grid--pastel">
+        <div class="swatch-card"><div class="swatch-card__color" style="background:var(--sage);"></div><div class="swatch-card__info"><div class="swatch-card__name">Sage</div><div class="swatch-card__value">--teal-soft &middot; #d8e2dc</div></div></div>
+        <div class="swatch-card"><div class="swatch-card__color" style="background:var(--cream);border-bottom:1px solid var(--border);"></div><div class="swatch-card__info"><div class="swatch-card__name">Cream</div><div class="swatch-card__value">--cream &middot; #fafaf7</div></div></div>
+        <div class="swatch-card"><div class="swatch-card__color" style="background:var(--blush);"></div><div class="swatch-card__info"><div class="swatch-card__name">Blush</div><div class="swatch-card__value">--rose-soft &middot; #ffcad4</div></div></div>
+        <div class="swatch-card"><div class="swatch-card__color" style="background:var(--rose);"></div><div class="swatch-card__info"><div class="swatch-card__name">Rose</div><div class="swatch-card__value">--rose &middot; #f4acb7</div></div></div>
+        <div class="swatch-card"><div class="swatch-card__color" style="background:var(--mauve);"></div><div class="swatch-card__info"><div class="swatch-card__name">Mauve</div><div class="swatch-card__value">--teal &middot; #9d8189</div></div></div>
+      </div>
+
+      <h3>Accent — plum (contrast)</h3>
+      <div class="swatch-grid swatch-grid--accent">
+        <div class="swatch-card"><div class="swatch-card__color" style="background:var(--plum);"></div><div class="swatch-card__info"><div class="swatch-card__name">Plum</div><div class="swatch-card__value">--ochre / --primary &middot; #5a2740</div></div></div>
+        <div class="swatch-card"><div class="swatch-card__color" style="background:var(--plum-soft);"></div><div class="swatch-card__info"><div class="swatch-card__name">Plum soft</div><div class="swatch-card__value">--ochre-soft &middot; #ecdde5</div></div></div>
+      </div>
+
+      <h3>Ink &amp; surface</h3>
+      <div class="swatch-grid swatch-grid--surface">
+        <div class="swatch-card"><div class="swatch-card__color" style="background:var(--ink);"></div><div class="swatch-card__info"><div class="swatch-card__name">Ink</div><div class="swatch-card__value">--ink &middot; #1c1418</div></div></div>
+        <div class="swatch-card"><div class="swatch-card__color" style="background:var(--ink-soft);"></div><div class="swatch-card__info"><div class="swatch-card__name">Ink soft</div><div class="swatch-card__value">--ink-soft &middot; #52454b</div></div></div>
+        <div class="swatch-card"><div class="swatch-card__color" style="background:var(--surface);border-bottom:1px solid var(--border);"></div><div class="swatch-card__info"><div class="swatch-card__name">Surface</div><div class="swatch-card__value">--surface &middot; #ffffff</div></div></div>
+        <div class="swatch-card"><div class="swatch-card__color" style="background:var(--border);"></div><div class="swatch-card__info"><div class="swatch-card__name">Border</div><div class="swatch-card__value">--border &middot; #e8e3db</div></div></div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div style="margin-top:16px;font-size:0.82rem;">
-    <strong>Pattern:</strong> Navbar is <code>absolute top-0 left-0 w-full z-50 px-6 md:px-12 py-5</code>. White text on hero overlay. Links are <code>text-primary-foreground/80</code>. Active page gets <code>text-primary-foreground font-medium</code>. CTA button uses <code>bg-primary text-primary-foreground rounded-full</code> with <code>ArrowUpRight</code> icon. Mobile menu uses <code>bg-section-dark/95 backdrop-blur-md</code>.
-  </div>
-</div>
-</section>
+  <section class="ds-section" id="typography">
+    <div class="container">
+      <h2>3 &middot; Typography</h2>
 
-<section id="hub" class="ds-section-wrap ds-section-wrap--white" aria-labelledby="hub-heading">
-<div class="ds-section-inner">
-
-  <div class="ds-section-header">
-    <div>
-      <span class="ds-section-tag ds-section-tag--teal">&#10026; Tooling</span>
-      <h2 id="hub-heading">Hub UI Components</h2>
-    </div>
-    <span class="ds-section-meta ds-section-meta--muted">shadcn/ui integration</span>
-  </div>
-
-  <div class="ds-preview">
-    <div class="ds-preview-label">Hub primitives — inherited from brand tokens</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;">
-      <div class="ds-card ds-card--shadow" style="text-align:center;">
-        <div class="ds-card__title">Primary Button</div>
-        <div class="ds-card__text" style="font-size:0.78rem;">Uses <code>bg-primary</code> &mdash; teal</div>
-        <div style="margin-top:12px;"><button class="btn btn--primary btn--sm">Create Client</button></div>
+      <h3>Display — DM Sans</h3>
+      <div class="type-demo">
+        <div class="type-demo__display">Move better.<br>Feel stronger.</div>
+        <div class="type-demo__meta">500 weight &middot; -2% tracking &middot; 1.02 line-height</div>
       </div>
-      <div class="ds-card ds-card--shadow" style="text-align:center;">
-        <div class="ds-card__title">Status Badge</div>
-        <div class="ds-card__text" style="font-size:0.78rem;">Uses <code>bg-primary/10</code></div>
-        <div style="margin-top:12px;"><span class="ds-badge ds-badge--teal">Active</span></div>
-      </div>
-      <div class="ds-card ds-card--shadow" style="text-align:center;">
-        <div class="ds-card__title">Focus Ring</div>
-        <div class="ds-card__text" style="font-size:0.78rem;">Uses <code>ring-primary</code></div>
-        <div style="margin-top:12px;"><span class="ds-badge ds-badge--teal">Teal Focus</span></div>
-      </div>
-      <div class="ds-card ds-card--shadow" style="text-align:center;">
-        <div class="ds-card__title">Sidebar</div>
-        <div class="ds-card__text" style="font-size:0.78rem;">Independent <code>--sidebar-*</code></div>
-        <div style="margin-top:12px;"><span class="ds-badge ds-badge--neutral">Sidebar</span></div>
+
+      <h3>Body — DM Sans</h3>
+      <div class="type-scale">
+        <div class="type-scale-row"><span class="type-scale-row__label">Eyebrow</span><span class="type-scale-row__example type-scale-row__example--eyebrow" style="color:var(--ink-soft);">12/16</span></div>
+        <div class="type-scale-row"><span class="type-scale-row__label">Heading</span><span class="type-scale-row__example type-scale-row__example--heading">30/36</span></div>
+        <div class="type-scale-row"><span class="type-scale-row__label">Lead paragraph</span><span class="type-scale-row__example type-scale-row__example--lead" style="color:var(--ink-soft);">18/28. Personal training built around your body, not a template.</span></div>
+        <div class="type-scale-row"><span class="type-scale-row__label">Body</span><span class="type-scale-row__example type-scale-row__example--body" style="color:var(--ink-soft);">16/26. Calm sessions that build long-term wellbeing, not quick fixes.</span></div>
+        <div class="type-scale-row"><span class="type-scale-row__label">Caption</span><span class="type-scale-row__example type-scale-row__example--caption" style="color:var(--ink-soft);">14/20</span></div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="alert alert--info" style="margin-top:16px;">
-    <svg class="alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-    <div>
-      <div class="alert__title">How the hub inherits from branding</div>
-      <div>All shadcn/ui components reference <code>--primary</code>, <code>--accent</code>, and <code>--ring</code> from <code>app/globals.css</code>. Updating the design tokens automatically updates the entire hub. The sidebar uses its own <code>--sidebar-*</code> tokens for independent theming (<code>app/hub/(protected)/HubSidebar.tsx</code>).</div>
+  <section class="ds-section" id="spacing">
+    <div class="container">
+      <h2>4 &middot; Spacing &amp; radius</h2>
+
+      <h3>Radius scale</h3>
+      <div class="radius-demo">
+        <div class="radius-sample" style="border-radius:var(--radius-sm);">sm</div>
+        <div class="radius-sample" style="border-radius:var(--radius-md);">md</div>
+        <div class="radius-sample" style="border-radius:var(--radius-lg);">lg</div>
+        <div class="radius-sample" style="border-radius:var(--radius-xl);">xl</div>
+        <div class="radius-sample" style="border-radius:var(--radius-2xl);">2xl</div>
+        <div class="radius-sample" style="border-radius:var(--radius-3xl);">3xl</div>
+        <div class="radius-sample" style="border-radius:var(--radius-full);width:52px;">full</div>
+      </div>
+
+      <h3>Spacing (4pt scale)</h3>
+      <div class="spacing-demo">
+        <div class="spacing-row"><div class="spacing-bar" style="width:8px;height:8px;"></div><span class="spacing-label">2 &middot; 8px</span></div>
+        <div class="spacing-row"><div class="spacing-bar" style="width:16px;height:8px;"></div><span class="spacing-label">4 &middot; 16px</span></div>
+        <div class="spacing-row"><div class="spacing-bar" style="width:24px;height:8px;"></div><span class="spacing-label">6 &middot; 24px</span></div>
+        <div class="spacing-row"><div class="spacing-bar" style="width:32px;height:8px;"></div><span class="spacing-label">8 &middot; 32px</span></div>
+        <div class="spacing-row"><div class="spacing-bar" style="width:48px;height:8px;"></div><span class="spacing-label">12 &middot; 48px</span></div>
+        <div class="spacing-row"><div class="spacing-bar" style="width:64px;height:8px;"></div><span class="spacing-label">16 &middot; 64px</span></div>
+        <div class="spacing-row"><div class="spacing-bar" style="width:96px;height:8px;"></div><span class="spacing-label">24 &middot; 96px</span></div>
+      </div>
     </div>
-  </div>
-</div>
-</section>
+  </section>
 
-<section id="icons" class="ds-section-wrap ds-section-wrap--white" aria-labelledby="icons-heading">
-<div class="ds-section-inner">
-
-  <div class="ds-section-header">
-    <div>
-      <span class="ds-section-tag ds-section-tag--teal">&#10026; Visuals</span>
-      <h2 id="icons-heading">Iconography System</h2>
+  <section class="ds-section" id="elevation">
+    <div class="container">
+      <h2>5 &middot; Elevation</h2>
+      <div class="shadow-demo">
+        <div class="shadow-box shadow-soft"><div class="shadow-box__title">Soft</div><div class="shadow-box__value">.shadow-soft</div></div>
+        <div class="shadow-box shadow-lift"><div class="shadow-box__title">Lift</div><div class="shadow-box__value">.shadow-lift</div></div>
+        <div class="shadow-box shadow-deep"><div class="shadow-box__title">Deep</div><div class="shadow-box__value">.shadow-deep</div></div>
+      </div>
     </div>
-    <span class="ds-section-meta ds-section-meta--muted">SVG + circular frames</span>
-  </div>
+  </section>
 
-  <div class="ds-preview">
-    <div class="ds-preview-label">Icon frame color variants</div>
-    <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;">
-      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
-        <div class="ds-iframe ds-iframe--teal" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <section class="ds-section" id="buttons">
+    <div class="container">
+      <h2>6 &middot; Buttons</h2>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="btn-group">
+          <button class="btn btn--primary">Primary</button>
+          <button class="btn btn--secondary">Secondary</button>
+          <button class="btn btn--outline">Outline</button>
+          <button class="btn btn--ghost">Ghost</button>
+          <button class="btn btn--link">Link</button>
         </div>
-        <span style="font-size:0.72rem;color:var(--muted-foreground);">Teal (primary)</span>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
-        <div class="ds-iframe ds-iframe--rose" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+        <div class="btn-group">
+          <button class="btn btn--primary">Pill primary</button>
+          <button class="btn btn--primary btn--lg">Large pill</button>
+          <button class="btn btn--primary btn--sm">Small</button>
+          <button class="btn btn--primary btn--disabled">Disabled</button>
         </div>
-        <span style="font-size:0.72rem;color:var(--muted-foreground);">Rose (accent)</span>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
-        <div class="ds-iframe ds-iframe--charcoal" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+    </div>
+  </section>
+
+  <section class="ds-section" id="forms">
+    <div class="container">
+      <h2>7 &middot; Form controls</h2>
+      <div class="form-demo">
+        <div class="form-row">
+          <input class="form-input" type="text" placeholder="I'd like to book a free consultation" aria-label="Your message">
+          <button class="btn btn--primary">Send</button>
         </div>
-        <span style="font-size:0.72rem;color:var(--muted-foreground);">Charcoal (fg)</span>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="ds-preview">
-    <div class="ds-preview-label">Standard icon set</div>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;">
-      <div class="ds-iframe ds-iframe--teal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="12" y2="13"/></svg></div>
-      <div class="ds-iframe ds-iframe--rose" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-      <div class="ds-iframe ds-iframe--charcoal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><polyline points="3.6 11 7 11 8.5 8.5 11.5 13.5 13 11 16 11"/></svg></div>
-      <div class="ds-iframe ds-iframe--teal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
-      <div class="ds-iframe ds-iframe--teal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6.5 6.5h11v11h-11z"/><line x1="6.5" y1="9.5" x2="17.5" y2="9.5"/><line x1="6.5" y1="14.5" x2="17.5" y2="14.5"/></svg></div>
-      <div class="ds-iframe ds-iframe--rose" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
-      <div class="ds-iframe ds-iframe--charcoal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg></div>
-      <div class="ds-iframe ds-iframe--teal" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></div>
+  <section class="ds-section" id="badges">
+    <div class="container">
+      <h2>8 &middot; Badges &amp; eyebrows</h2>
+      <div class="badge-demo">
+        <span class="ds-badge ds-badge--rose">Rose eyebrow</span>
+        <span class="ds-badge ds-badge--sage">Teal w/ icon</span>
+        <span class="ds-badge ds-badge--neutral" style="color:var(--ink);background:var(--cream);">Cream on ink</span>
+      </div>
     </div>
-    <div style="margin-top:12px;display:flex;gap:16px;font-size:0.72rem;color:var(--muted-foreground);flex-wrap:wrap;">
-      <span>Consultation</span><span>Assessment</span><span>HeartPulse</span><span>Trending</span><span>Dumbbell</span><span>Target</span><span>Calendar</span><span>Shield</span>
-    </div>
-  </div>
+  </section>
 
-  <div class="ds-preview">
-    <div class="ds-preview-label">Usage rule</div>
-    <p style="font-size:0.85rem;max-width:600px;">Icons only appear inside circular icon frames (56&times;56px, <code>rounded-full</code>). Used for feature cards, process steps (HowItWorksSection), and hub navigation. Never place icons next to section headings &mdash; that is an anti-pattern.</p>
-  </div>
-</div>
-</section>
+  <section class="ds-section" id="icons">
+    <div class="container">
+      <h2>9 &middot; Iconography</h2>
+      <div class="icon-demo">
+        <div class="icon-frame icon-frame--plum">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="icon-frame icon-frame--rose">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+        </div>
+        <div class="icon-frame icon-frame--sage">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<section id="anti-patterns" class="ds-section-wrap ds-section-wrap--white" aria-labelledby="anti-heading">
-<div class="ds-section-inner">
+  <section class="ds-section" id="motion">
+    <div class="container">
+      <h2>10 &middot; Motion</h2>
 
-  <div class="ds-section-header">
-    <div>
-      <span class="ds-section-tag ds-section-tag--teal">&#10026; Avoid</span>
-      <h2 id="anti-heading">Do Not Use</h2>
-    </div>
-    <span class="ds-section-meta ds-section-meta--muted">Anti-patterns</span>
-  </div>
+      <h3>Fade-up</h3>
+      <p>700ms &middot; cubic-bezier(.22,1,.36,1)</p>
+      <div style="margin-bottom:32px;">
+        <div class="motion-fade-up">
+          <span class="ds-badge ds-badge--plum">Element entering</span>
+        </div>
+      </div>
 
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
-    <div class="ds-card" style="border-left:3px solid #D32F2F;">
-      <div class="ds-card__title" style="color:#D32F2F;">Gradient backgrounds</div>
-      <div class="ds-card__text">No aggressive purple/violet gradients. Flat colours only &mdash; teal, rose, muted, white.</div>
+      <h3>Marquee</h3>
+      <p>40s linear infinite</p>
+      <div class="motion-marquee" style="margin-top:12px;">
+        <div class="motion-marquee__inner">
+          <span style="font-weight:600;color:var(--plum);padding:0 16px;">Mobility</span>
+          <span style="color:var(--ink-soft);">&middot;</span>
+          <span style="font-weight:600;color:var(--plum);padding:0 16px;">Strength</span>
+          <span style="color:var(--ink-soft);">&middot;</span>
+          <span style="font-weight:600;color:var(--plum);padding:0 16px;">Recovery</span>
+          <span style="color:var(--ink-soft);">&middot;</span>
+          <span style="font-weight:600;color:var(--plum);padding:0 16px;">Mobility</span>
+          <span style="color:var(--ink-soft);">&middot;</span>
+          <span style="font-weight:600;color:var(--plum);padding:0 16px;">Strength</span>
+          <span style="color:var(--ink-soft);">&middot;</span>
+          <span style="font-weight:600;color:var(--plum);padding:0 16px;">Recovery</span>
+          <span style="color:var(--ink-soft);">&middot;</span>
+        </div>
+      </div>
     </div>
-    <div class="ds-card" style="border-left:3px solid #D32F2F;">
-      <div class="ds-card__title" style="color:#D32F2F;">Generic emoji icons</div>
-      <div class="ds-card__text">No sparkles, rockets, targets as feature icons. Use SVG system or Lucide.</div>
-    </div>
-    <div class="ds-card" style="border-left:3px solid #D32F2F;">
-      <div class="ds-card__title" style="color:#D32F2F;">Left-border accent cards</div>
-      <div class="ds-card__text">No rounded cards with a coloured left border. Use tinted backgrounds or elevated cards.</div>
-    </div>
-    <div class="ds-card" style="border-left:3px solid #D32F2F;">
-      <div class="ds-card__title" style="color:#D32F2F;">Invented metrics</div>
-      <div class="ds-card__text">No "10&times; faster" or "99.9% uptime" without a source. Honest placeholder beats fake stat.</div>
-    </div>
-    <div class="ds-card" style="border-left:3px solid #D32F2F;">
-      <div class="ds-card__title" style="color:#D32F2F;">Filler copy</div>
-      <div class="ds-card__text">No "Feature One / Feature Two" or lorem ipsum. Every section must have real copy.</div>
-    </div>
-    <div class="ds-card" style="border-left:3px solid #D32F2F;">
-      <div class="ds-card__title" style="color:#D32F2F;">Rose overuse</div>
-      <div class="ds-card__text">Limit rose section backgrounds to a maximum of 3 per page. Overuse dilutes the emphasis it provides.</div>
-    </div>
-  </div>
-</div>
-</section>
+  </section>
+</main>
 
-<footer class="ds-footer" role="contentinfo">
-  <div class="ds-footer-inner">
-    <div>
-      <p style="font-weight:600;font-size:0.85rem;">Eternal Fitness &mdash; Design System v2.0</p>
-      <p style="font-size:0.78rem;color:var(--muted-foreground);margin-top:2px;">Esther Fair &middot; Level 4 Personal Trainer &middot; Worthing, West Sussex</p>
+<footer class="footer" role="contentinfo">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h4>EternalFitness</h4>
+        <p>Private fitness studio in Worthing focused on mobility, strength, and long-term wellbeing.</p>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p>07517 658 126</p>
+        <p>esther.fair@eternal-fitness.co.uk</p>
+      </div>
+      <div>
+        <h4>Navigation</h4>
+        <p><a href="#">Personal Training in Worthing</a></p>
+        <p><a href="#">Mobility &amp; Strength Coaching</a></p>
+        <p><a href="#">Injury Recovery &amp; Rehab</a></p>
+        <p><a href="#">Private Training Studio</a></p>
+      </div>
+      <div>
+        <h4>Follow</h4>
+      </div>
     </div>
-    <p style="font-size:0.72rem;color:var(--muted-foreground);">Source of truth: <code>app/globals.css</code> + <code>tailwind.config.ts</code></p>
+    <p style="font-size:0.78rem;color:var(--ink-soft);margin-top:24px;padding-top:16px;border-top:1px solid var(--border);">&copy; 2026 Eternal Fitness &middot; Worthing, UK &middot; All rights reserved &middot; Privacy Policy &middot; Terms of Use</p>
   </div>
 </footer>
-
-<script>
-(function() {
-  const links = document.querySelectorAll('.ds-nav-links a');
-  const sections = [];
-
-  links.forEach(link => {
-    const href = link.getAttribute('href');
-    if (href && href.startsWith('#')) {
-      const id = href.slice(1);
-      const el = document.getElementById(id);
-      if (el) sections.push({ id, el, link });
-    }
-  });
-
-  function updateActive() {
-    let current = sections[0];
-    const scrollY = window.scrollY + 100;
-    for (const s of sections) {
-      if (s.el.offsetTop <= scrollY) current = s;
-    }
-    links.forEach(l => l.classList.remove('active'));
-    if (current) current.link.classList.add('active');
-  }
-
-  window.addEventListener('scroll', updateActive, { passive: true });
-  updateActive();
-
-  links.forEach(link => {
-    link.addEventListener('click', function(e) {
-      const href = this.getAttribute('href');
-      if (href && href.startsWith('#')) {
-        e.preventDefault();
-        const el = document.getElementById(href.slice(1));
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-  });
-})();
-</script>
-
 </body>
 </html>

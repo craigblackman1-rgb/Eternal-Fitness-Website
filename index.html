@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eternal Fitness — Personal Training in Worthing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200..1000;1,9..40,200..1000&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:         oklch(63.2% .036 359);
+    --teal-soft:    oklch(90.3% .013 160);
+    --teal-foreground: oklch(98.5% .008 60);
+    --rose:         oklch(81.6% .086 9);
+    --rose-soft:    oklch(88.8% .061 6);
+    --rose-foreground: oklch(25% .03 5);
+    --ochre:        oklch(36% .095 350);
+    --ochre-soft:   oklch(92% .025 350);
+    --ochre-foreground: oklch(98.5% .008 60);
+    --cream:        oklch(98.5% .006 60);
+    --ink:          oklch(22% .02 350);
+    --ink-soft:     oklch(45% .02 350);
+    --surface:      oklch(100% 0 0);
+    --background:   oklch(98.5% .006 60);
+    --foreground:   oklch(22% .02 350);
+    --card:         oklch(100% 0 0);
+    --border:       oklch(91% .01 40);
+    --ring:         oklch(36% .095 350);
+    --muted:        oklch(95.5% .008 60);
+    --muted-foreground: oklch(48% .02 350);
+    --primary:      var(--ochre);
+    --primary-foreground: var(--ochre-foreground);
+    --radius: 1rem;
+    --font-display: 'DM Sans', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --shadow-soft: 0 1px 2px 0 oklch(20% .04 200/.04), 0 8px 24px -8px oklch(20% .04 200/.08);
+    --shadow-lift: 0 4px 12px -2px oklch(20% .04 200/.06), 0 24px 48px -16px oklch(20% .04 200/.14);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body); color: var(--foreground); background: var(--background);
+    line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; height: auto; display: block; }
+  a { color: inherit; text-decoration: none; }
+  ul, ol { list-style: none; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  .sr-only-focusable:focus { position: fixed; left: 16px; top: 16px; z-index: 50; background: var(--primary); color: var(--primary-foreground); padding: 8px 16px; border-radius: calc(var(--radius) - 2px); font-size: 0.875rem; font-weight: 500; clip: auto; width: auto; height: auto; overflow: visible; }
+
+  .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── Nav ── */
+  .site-header { position: sticky; top: 0; z-index: 30; border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--background) 80%, transparent); backdrop-filter: blur(12px); }
+  .site-header-inner { max-width: 1280px; margin: 0 auto; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .site-logo { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); }
+  .site-logo-text { font-family: var(--font-display); font-size: 1.25rem; letter-spacing: -0.02em; }
+  .site-logo-text-italic { font-family: var(--font-display); font-size: 1.25rem; letter-spacing: -0.02em; font-style: italic; }
+  .site-logo img { height: 28px; width: auto; object-fit: contain; }
+  .site-nav { display: flex; align-items: center; gap: 32px; }
+  @media (max-width: 767px) { .site-nav { display: none; } }
+  .site-nav a { font-size: 0.875rem; font-weight: 500; color: var(--ink); transition: opacity 0.15s; }
+  .site-nav a:hover { opacity: 0.7; }
+  .site-actions { display: flex; align-items: center; gap: 8px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; font-family: var(--font-body); font-size: 0.875rem; font-weight: 500; cursor: pointer; border: none; border-radius: var(--radius); transition: background 0.15s, opacity 0.15s; }
+  .btn:focus-visible { outline: none; box-shadow: 0 0 0 1px var(--ring); }
+  .btn:disabled { pointer-events: none; opacity: 0.5; }
+  .btn--primary { background: var(--primary); color: var(--primary-foreground); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .btn--primary:hover { background: color-mix(in srgb, var(--primary) 90%, transparent); }
+  .btn--sm { height: 32px; padding: 0 12px; font-size: 0.75rem; }
+  .btn--rounded { border-radius: 9999px; }
+  .btn--icon { width: 44px; height: 44px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+  .icon { width: 16px; height: 16px; flex-shrink: 0; display: inline-block; }
+  .icon--sm { width: 14px; height: 14px; }
+  .mobile-menu-btn { display: none; background: none; border: none; color: var(--ink); cursor: pointer; padding: 0; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 50%; }
+  @media (max-width: 767px) { .mobile-menu-btn { display: inline-flex; } }
+  .mobile-menu-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  .mobile-menu-btn svg { width: 20px; height: 20px; }
+
+  /* ── Hero ── */
+  .hero { position: relative; overflow: hidden; background: var(--cream); color: var(--ink); }
+  .hero::before { content: ''; position: absolute; inset: 0; z-index: -10; pointer-events: none;
+    background-image: radial-gradient(ellipse at top right, var(--rose-soft), transparent 55%),
+                      radial-gradient(ellipse at bottom left, var(--ochre-soft), transparent 60%);
+  }
+  .hero-inner { position: relative; z-index: 1; margin: 0 auto; display: grid; max-width: 80rem; gap: 3rem; padding: 4rem 1.5rem 5rem; }
+  @media (min-width: 64rem) { .hero-inner { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 2rem; padding-top: 6rem; } }
+  @media (min-width: 64rem) { .hero-text-col { grid-column: span 7; padding-right: 2rem; } }
+  .hero-eyebrow { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.14em; background: color-mix(in srgb, var(--ochre) 25%, transparent); color: var(--ink); }
+  .hero-eyebrow svg { width: 14px; height: 14px; }
+  .hero h1 { font-family: var(--font-display); font-size: 3rem; line-height: 1.02; margin-top: 1.5rem; text-wrap: balance; }
+  @media (min-width: 48rem) { .hero h1 { font-size: 3.75rem; } }
+  @media (min-width: 64rem) { .hero h1 { font-size: 4.5rem; } }
+  .hero h1 .rose-text { color: var(--rose); font-style: italic; position: relative; }
+  .hero-desc { margin-top: 1.5rem; max-width: 36rem; font-size: 1.125rem; line-height: 1.625; color: var(--muted-foreground); text-wrap: pretty; }
+  .hero-btns { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .hero-btn { display: inline-flex; align-items: center; gap: 0.5rem; height: 2.5rem; padding: 0 1.5rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500; cursor: pointer; border: none; transition: background 0.15s; }
+  .hero-btn svg { width: 1rem; height: 1rem; pointer-events: none; }
+  .hero-btn:focus-visible { outline: none; box-shadow: 0 0 0 1px var(--ring); }
+  .hero-btn--primary { background: var(--primary); color: var(--primary-foreground); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .hero-btn--primary:hover { background: color-mix(in srgb, var(--primary) 90%, transparent); }
+  .hero-btn--ghost { background: transparent; color: var(--ink); }
+  .hero-btn--ghost:hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
+  .hero-stats { margin-top: 2.5rem; display: flex; gap: 2.5rem; }
+  .hero-stat-value { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.25rem; }
+  .hero-stat-value .star { width: 1rem; height: 1rem; color: var(--rose); }
+  .hero-stat-label { font-size: 0.75rem; color: var(--muted-foreground); margin-top: 0.125rem; }
+  @media (min-width: 64rem) { .hero-image-col { grid-column: span 5; position: relative; } }
+  .hero-image-wrap { position: relative; overflow: hidden; border-radius: calc(var(--radius) + 12px); box-shadow: var(--shadow-lift); }
+  .hero-image-wrap img { width: 100%; height: auto; display: block; }
+  .hero-testimonial-floating { position: absolute; left: 0; right: 3rem; bottom: 1.5rem; background: color-mix(in srgb, var(--card) 92%, transparent); backdrop-filter: blur(12px); border-radius: calc(var(--radius) + 8px); padding: 1.25rem; box-shadow: var(--shadow-lift); }
+  .hero-testimonial-floating svg { width: 1rem; height: 1rem; color: var(--rose); flex-shrink: 0; }
+  .hero-testimonial-floating p { font-size: 0.75rem; line-height: 1.5; color: var(--ink); margin-top: 0.375rem; font-style: italic; }
+  .hero-testimonial-floating cite { font-size: 0.6875rem; color: var(--muted-foreground); display: block; margin-top: 0.375rem; font-style: normal; }
+  .hero-now-booking { position: absolute; top: 1rem; right: 1rem; background: color-mix(in srgb, var(--card) 92%, transparent); backdrop-filter: blur(12px); border-radius: calc(var(--radius) + 8px); padding: 1rem 1.25rem; box-shadow: var(--shadow-soft); }
+  .hero-now-booking .label { font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted-foreground); }
+  .hero-now-booking .value { font-size: 0.875rem; font-weight: 600; color: var(--ink); margin-top: 0.125rem; }
+
+  /* ── Why section ── */
+  .section-why { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 96px 0; }
+  @media (min-width: 768px) { .section-why { padding: 128px 0; } }
+  .section-why-header { display: flex; flex-direction: column; gap: 32px; }
+  @media (min-width: 768px) { .section-why-header { flex-direction: row; align-items: flex-end; justify-content: space-between; } }
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.14em; }
+  .badge--rose { background: color-mix(in srgb, var(--rose) 15%, transparent); color: var(--rose); }
+  .badge--ochre { background: color-mix(in srgb, var(--ochre) 15%, transparent); color: var(--ochre); }
+  .badge--teal { background: color-mix(in srgb, var(--teal) 15%, transparent); color: var(--teal); }
+  .badge--cream { background: color-mix(in srgb, var(--cream) 15%, transparent); color: var(--cream); }
+  .badge--light { background: rgba(255,255,255,0.15); color: white; }
+  .h2 { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3rem); text-wrap: balance; }
+  .h2--sm { font-size: clamp(1.5rem, 3.5vw, 2.25rem); }
+  .why-header h2 { max-width: 576px; }
+  .why-header p { max-width: 448px; font-size: 1rem; color: var(--muted-foreground); text-wrap: pretty; line-height: 1.625; }
+  .why-scroll { margin-top: 48px; overflow-x: auto; padding-bottom: 16px; scrollbar-width: thin; margin-left: -24px; margin-right: -24px; padding-left: 24px; }
+  .why-scroll-inner { display: flex; gap: 20px; }
+  .why-card { position: relative; flex-shrink: 0; width: 300px; height: 440px; overflow: hidden; border-radius: 24px; box-shadow: var(--shadow-soft); }
+  .why-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s; }
+  .why-card:hover img { transform: scale(1.05); }
+  .why-card-grad { position: absolute; inset: 0; background: linear-gradient(to top, color-mix(in srgb, var(--ink) 85%, transparent), color-mix(in srgb, var(--ink) 10%, transparent), transparent); }
+  .why-card-content { position: absolute; left: 0; right: 0; bottom: 0; padding: 24px; }
+  .why-card-content .badge { background: rgba(255,255,255,0.15); color: white; backdrop-filter: blur(4px); }
+  .why-card-content h3 { font-family: var(--font-display); font-size: 1.5rem; color: white; margin-top: 12px; }
+
+  /* ── Specialties ── */
+  .section-specialties { background: var(--teal); color: var(--teal-foreground); padding: 96px 0; }
+  @media (min-width: 768px) { .section-specialties { padding: 128px 0; } }
+  .section-specialties .section-header { max-width: 576px; margin: 0 auto; text-align: center; }
+  .section-specialties .section-header h2 { margin-top: 20px; }
+  .section-specialties .section-header h2 em { font-style: italic; }
+  .section-specialties .section-header p { margin-top: 20px; color: color-mix(in srgb, var(--teal-foreground) 75%, transparent); text-wrap: pretty; }
+  .bento-grid { margin-top: 56px; display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 768px) { .bento-grid { grid-template-columns: repeat(12, 1fr); gap: 20px; } }
+  .bento-item { position: relative; overflow: hidden; border-radius: 24px; min-height: 280px; }
+  .bento-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s; }
+  .bento-item:hover img { transform: scale(1.05); }
+  .bento-grad { position: absolute; inset: 0; background: linear-gradient(to top, color-mix(in srgb, var(--ink) 80%, transparent), color-mix(in srgb, var(--ink) 20%, transparent), transparent); }
+  .bento-content { position: absolute; left: 0; right: 0; bottom: 0; padding: 24px; }
+  .bento-content h3 { font-family: var(--font-display); font-size: 1.5rem; color: white; }
+  .bento-content p { margin-top: 4px; max-width: 384px; font-size: 0.875rem; color: color-mix(in srgb, white 80%, transparent); }
+  @media (min-width: 768px) {
+    .bento-mobility { grid-column: span 7; }
+    .bento-group { grid-column: span 5; }
+    .bento-strength { grid-column: span 4; }
+    .bento-ageing { grid-column: span 4; }
+    .bento-studio { grid-column: span 4; }
+  }
+
+  /* ── Approach ── */
+  .section-approach { background: var(--surface); border-top: 1px solid var(--border); padding: 96px 0; }
+  @media (min-width: 768px) { .section-approach { padding: 128px 0; } }
+  .section-approach .section-header { max-width: 576px; margin: 0 auto; text-align: center; }
+  .section-approach .section-header h2 { margin-top: 20px; }
+  .section-approach .section-header p { margin-top: 20px; color: var(--muted-foreground); text-wrap: pretty; }
+  .approach-steps { margin-top: 64px; display: grid; gap: 24px; }
+  @media (min-width: 768px) { .approach-steps { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .approach-steps { grid-template-columns: repeat(4, 1fr); } }
+  .approach-card { position: relative; border-radius: 24px; border: 1px solid var(--border); background: var(--card); padding: 28px; box-shadow: var(--shadow-soft); transition: transform 0.2s; }
+  .approach-card:hover { transform: translateY(-4px); }
+  .approach-card-header { display: flex; align-items: center; justify-content: space-between; }
+  .approach-icon { display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%; }
+  .approach-icon svg { width: 24px; height: 24px; }
+  .approach-icon--teal { background: var(--teal); color: var(--teal-foreground); }
+  .approach-icon--rose { background: var(--rose); color: var(--rose-foreground); }
+  .approach-number { font-family: var(--font-display); font-size: 1.875rem; color: color-mix(in srgb, var(--muted-foreground) 40%, transparent); }
+  .approach-card h3 { font-family: var(--font-display); font-size: 1.5rem; margin-top: 24px; }
+  .approach-card p { margin-top: 12px; font-size: 0.875rem; line-height: 1.625; color: var(--muted-foreground); }
+  @media (min-width: 1024px) { .approach-stagger { transform: translateY(32px); } }
+
+  /* ── Who ── */
+  .section-who { padding-bottom: 96px; }
+  @media (min-width: 768px) { .section-who { padding-bottom: 128px; } }
+  .who-card-outer { border-radius: 24px; background: var(--teal); color: var(--teal-foreground); padding: 32px; }
+  @media (min-width: 768px) { .who-card-outer { padding: 56px; } }
+  .who-header { display: flex; flex-direction: column; gap: 24px; }
+  @media (min-width: 768px) { .who-header { flex-direction: row; align-items: flex-end; justify-content: space-between; } }
+  .who-header h2 { margin-top: 16px; }
+  .who-header p { max-width: 448px; color: color-mix(in srgb, var(--teal-foreground) 75%, transparent); text-wrap: pretty; }
+  .who-grid { margin-top: 40px; display: grid; gap: 24px; }
+  @media (min-width: 768px) { .who-grid { grid-template-columns: 1fr 1fr; } }
+  .who-card-ideal { position: relative; overflow: hidden; border-radius: 16px; background: var(--cream); padding: 28px; color: var(--ink); }
+  .who-card-ideal-header { display: flex; align-items: center; justify-content: space-between; }
+  .who-card-icon { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; }
+  .who-card-icon svg { width: 16px; height: 16px; }
+  .who-card-icon--teal { background: var(--teal); color: var(--teal-foreground); }
+  .who-card-icon--rose { background: var(--rose); color: var(--rose-foreground); }
+  .who-list { margin-top: 24px; display: flex; flex-direction: column; gap: 12px; }
+  .who-list li { display: flex; gap: 12px; font-size: 0.875rem; }
+  .who-list li svg { margin-top: 2px; width: 16px; height: 16px; flex-shrink: 0; }
+  .who-list li .check { color: var(--teal); }
+  .who-list li .minus { color: var(--rose); }
+  .who-card-not { position: relative; overflow: hidden; border-radius: 16px; }
+  .who-card-not img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .who-card-not-grad { position: absolute; inset: 0; background: linear-gradient(to bottom right, color-mix(in srgb, var(--ink) 85%, transparent), color-mix(in srgb, var(--ink) 40%, transparent)); }
+  .who-card-not-content { position: relative; padding: 28px; color: var(--cream); }
+  .who-card-not-content .who-card-ideal-header { display: flex; align-items: center; justify-content: space-between; }
+
+  /* ── Testimonials ── */
+  .section-testimonials { padding-bottom: 96px; }
+  @media (min-width: 768px) { .section-testimonials { padding-bottom: 128px; } }
+  .testimonials-grid { display: grid; gap: 48px; }
+  @media (min-width: 768px) { .testimonials-grid { grid-template-columns: 5fr 7fr; } }
+  .testimonials-left .badge { margin-bottom: 20px; }
+  .testimonials-left h2 { margin-top: 20px; }
+  .testimonials-left > p { margin-top: 20px; color: var(--muted-foreground); }
+  .testimonials-nav { margin-top: 32px; display: flex; align-items: center; gap: 12px; }
+  .testimonials-nav .btn--primary { height: 36px; padding: 0 16px; }
+  .testimonials-nav .btn-outline { display: inline-flex; width: 40px; height: 40px; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--border); color: var(--ink); background: transparent; cursor: pointer; transition: background 0.15s; }
+  .testimonials-nav .btn-outline:hover { background: var(--muted); }
+  .testimonials-nav .btn-outline:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  .testimonials-nav .btn-outline svg { width: 16px; height: 16px; }
+  .testimonial-cards { display: grid; gap: 20px; }
+  @media (min-width: 768px) { .testimonial-cards { grid-template-columns: 1fr 1fr; } }
+  .testimonial-card { display: flex; flex-direction: column; border-radius: 24px; border: 1px solid var(--border); background: var(--card); padding: 28px; box-shadow: var(--shadow-soft); }
+  .testimonial-card svg.quote-icon { width: 24px; height: 24px; color: var(--rose); }
+  .testimonial-card blockquote { margin-top: 16px; flex: 1; font-family: var(--font-display); font-size: 1.125rem; line-height: 1.3; text-wrap: pretty; }
+  .testimonial-card figcaption { margin-top: 24px; display: flex; align-items: center; gap: 12px; border-top: 1px solid var(--border); padding-top: 16px; }
+  .testimonial-card .initial { display: inline-flex; width: 40px; height: 40px; align-items: center; justify-content: center; border-radius: 50%; background: color-mix(in srgb, var(--rose) 15%, transparent); font-family: var(--font-display); color: var(--rose); font-weight: 500; }
+  .testimonial-card .name { font-size: 0.875rem; font-weight: 600; }
+  .testimonial-card .place { font-size: 0.75rem; color: var(--muted-foreground); }
+
+  /* ── CTA ── */
+  .section-cta { padding: 0 24px 96px; }
+  @media (min-width: 768px) { .section-cta { padding-bottom: 128px; } }
+  .cta-card { max-width: 1280px; margin: 0 auto; overflow: hidden; border-radius: 24px; background: var(--teal); color: var(--teal-foreground); }
+  @media (min-width: 768px) { .cta-card { display: grid; grid-template-columns: 1fr 1fr; } }
+  .cta-image { position: relative; min-height: 320px; }
+  .cta-image img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .cta-content { padding: 40px; }
+  @media (min-width: 768px) { .cta-content { padding: 56px; } }
+  .cta-content .badge { margin-bottom: 20px; }
+  .cta-content h2 { margin-top: 20px; }
+  .cta-content > p { margin-top: 20px; max-width: 448px; color: color-mix(in srgb, var(--teal-foreground) 80%, transparent); text-wrap: pretty; }
+  .cta-btns { margin-top: 32px; display: flex; flex-wrap: wrap; gap: 12px; }
+  .cta-btn { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 32px; border-radius: 9999px; font-size: 0.875rem; font-weight: 500; cursor: pointer; border: none; transition: background 0.15s; }
+  .cta-btn:focus-visible { outline: none; box-shadow: 0 0 0 1px var(--ring); }
+  .cta-btn--primary { background: var(--ochre); color: var(--ochre-foreground); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .cta-btn--primary:hover { background: color-mix(in srgb, var(--ochre) 90%, transparent); }
+  .cta-btn--ghost { background: transparent; color: var(--cream); }
+  .cta-btn--ghost:hover { background: color-mix(in srgb, var(--cream) 10%, transparent); }
+
+  /* ── Footer ── */
+  .footer { border-top: 1px solid var(--border); background: var(--background); }
+  .footer-inner { max-width: 1280px; margin: 0 auto; display: grid; gap: 48px; padding: 64px 24px; }
+  @media (min-width: 768px) { .footer-inner { grid-template-columns: repeat(4, 1fr); } }
+  .footer-brand .site-logo { margin-bottom: 16px; }
+  .footer-brand p { max-width: 288px; font-size: 0.875rem; color: var(--muted-foreground); }
+  .footer-col h4 { font-family: var(--font-display); font-size: 1.125rem; margin-bottom: 16px; }
+  .footer-col ul { display: flex; flex-direction: column; gap: 12px; }
+  .footer-col ul li { font-size: 0.875rem; color: var(--muted-foreground); display: flex; align-items: center; gap: 8px; }
+  .footer-col ul li svg { width: 16px; height: 16px; color: var(--rose); flex-shrink: 0; }
+  .footer-social { display: flex; gap: 12px; margin-top: 16px; }
+  .footer-social a { display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 50%; background: color-mix(in srgb, var(--rose) 15%, transparent); color: var(--rose); transition: background 0.15s, color 0.15s; }
+  .footer-social a:hover { background: var(--rose); color: var(--rose-foreground); }
+  .footer-social a:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  .footer-social a svg { width: 16px; height: 16px; }
+  .footer-bottom { border-top: 1px solid var(--border); }
+  .footer-bottom-inner { max-width: 1280px; margin: 0 auto; padding: 24px; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 8px; font-size: 0.75rem; color: var(--muted-foreground); }
+  @media (min-width: 768px) { .footer-bottom-inner { flex-direction: row; align-items: center; } }
+
+  /* ── Responsive ── */
+  @media (max-width: 767px) {
+    .why-scroll-inner { gap: 16px; }
+    .why-card { width: 260px; height: 380px; }
+    .bento-item { min-height: 240px; }
+    .approach-card { min-height: auto; }
+    .hero-stats { gap: 16px; }
+    .hero-inner { padding-top: 40px; padding-bottom: 64px; }
+    .section-why { padding: 64px 0; }
+    .section-specialties { padding: 64px 0; }
+    .section-approach { padding: 64px 0; }
+    .who-card-outer { padding: 24px; border-radius: 16px; }
+    .cta-content { padding: 24px; }
+    .footer-inner { gap: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<a href="#main-content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<header class="site-header">
+    <div class="site-header-inner">
+      <a class="site-logo" href="/">
+        <span class="site-logo-text">Eternal</span>
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <circle cx="16" cy="20" r="10" fill="oklch(63.2% .036 359)" opacity="0.3"/>
+          <path d="M16 6C12 6 8 9 8 14c0 5 4 9 8 12 4-3 8-7 8-12 0-5-4-8-8-8z" fill="oklch(81.6% .086 9)"/>
+          <path d="M16 10c-2.5 0-4 2-4 4 0 3 2 5.5 4 7 2-1.5 4-4 4-7 0-2-1.5-4-4-4z" fill="white"/>
+          <path d="M18.5 12L16 18l-1.5-3-2 2" stroke="oklch(36% .095 350)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+        <span class="site-logo-text-italic">Fitness</span>
+      </a>
+      <nav class="site-nav">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/personal-training">Personal Training</a>
+        <a href="/faqs">FAQs</a>
+        <a href="/docs/design-system.html">Design System</a>
+      </nav>
+      <div class="site-actions">
+        <a href="/contact" class="btn btn--primary btn--sm btn--rounded">Contact Us
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+        </a>
+        <button class="mobile-menu-btn" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+<main id="main-content">
+
+<div class="hero">
+
+  <div class="hero-inner">
+    <div class="hero-text-col">
+      <span class="hero-eyebrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/></svg>
+        Personal Training · Worthing
+      </span>
+      <h1>Move better.<br><span class="rose-text">Feel stronger.</span><br>Live with confidence.</h1>
+      <p class="hero-desc">A private fitness studio for people who want to train without the noise, the pressure or the gym-floor crowds. Just steady, intentional progress paced to your real life.</p>
+      <div class="hero-btns">
+        <a href="/contact" class="hero-btn hero-btn--primary">Book a free consultation <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+        <a href="/about" class="hero-btn hero-btn--ghost">About the studio <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      </div>
+      <div class="hero-stats">
+        <div><p class="hero-stat-value">12+</p><p class="hero-stat-label">Years coaching</p></div>
+        <div><p class="hero-stat-value">200k+</p><p class="hero-stat-label">Sessions delivered</p></div>
+        <div><p class="hero-stat-value">5.0<svg class="star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg></p><p class="hero-stat-label">Average rating</p></div>
+      </div>
+    </div>
+
+    <div class="hero-image-col">
+      <div class="hero-image-wrap">
+        <img src="https://eternal-sparkle-showcase.lovable.app/assets/esther-portrait-C6PtMgNE.jpg" alt="Esther Fair, founder of Eternal Fitness, in the studio">
+      </div>
+      <div class="hero-testimonial-floating">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/></svg>
+        <p>&ldquo;This might be the best 1:1 coaching I&rsquo;ve ever had — calm, personal, and genuinely transformative.&rdquo;</p>
+        <cite>Wendy Dustin · May 2025</cite>
+      </div>
+      <div class="hero-now-booking">
+        <p class="label">Now booking</p>
+        <p class="value">Spring intake</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="section-why" aria-labelledby="why-h">
+  <div class="container">
+    <div class="section-why-header why-header">
+      <div>
+        <span class="badge badge--rose">
+          <svg class="icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/><path d="M3.22 13H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></svg>
+          Why Eternal Fitness
+        </span>
+        <h2 class="h2" id="why-h">Training that respects the body you walk in with.</h2>
+      </div>
+      <p>At Eternal Fitness, we don&rsquo;t build bodies that survive workouts — we build bodies that move well in everyday life. Recovering from injury, returning to fitness, or aging strong, you&rsquo;ll be met where you are.</p>
+    </div>
+    <div class="why-scroll">
+      <div class="why-scroll-inner">
+        <article class="why-card">
+          <img src="https://eternal-sparkle-showcase.lovable.app/assets/why-mobility-BecP12St.jpg" alt="Mobility &amp; functional movement" loading="lazy">
+          <div class="why-card-grad"></div>
+          <div class="why-card-content">
+            <span class="badge badge--light">Mobility</span>
+            <h3>Mobility &amp; functional movement</h3>
+          </div>
+        </article>
+        <article class="why-card">
+          <img src="https://eternal-sparkle-showcase.lovable.app/assets/why-strength-D5Pl0x7S.jpg" alt="Strength for everyday life" loading="lazy">
+          <div class="why-card-grad"></div>
+          <div class="why-card-content">
+            <span class="badge badge--light">Strength</span>
+            <h3>Strength for everyday life</h3>
+          </div>
+        </article>
+        <article class="why-card">
+          <img src="https://eternal-sparkle-showcase.lovable.app/assets/why-mind-B3udJPLo.jpg" alt="Mind-body wellbeing" loading="lazy">
+          <div class="why-card-grad"></div>
+          <div class="why-card-content">
+            <span class="badge badge--light">Wellbeing</span>
+            <h3>Mind–body wellbeing</h3>
+          </div>
+        </article>
+        <article class="why-card">
+          <img src="https://eternal-sparkle-showcase.lovable.app/assets/why-longevity-uP25uD_u.jpg" alt="Longevity &amp; confidence" loading="lazy">
+          <div class="why-card-grad"></div>
+          <div class="why-card-content">
+            <span class="badge badge--light">Longevity</span>
+            <h3>Longevity &amp; confidence</h3>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-specialties" aria-labelledby="specialties-h">
+  <div class="container">
+    <div class="section-header">
+      <span class="badge badge--rose">Our Specialties</span>
+      <h2 class="h2" id="specialties-h">What we <em>specialise in</em></h2>
+      <p>From mobility work and strength-building to recovery and longevity — every session is tailored to the person in front of us.</p>
+    </div>
+    <div class="bento-grid">
+      <article class="bento-item bento-mobility">
+        <img src="https://eternal-sparkle-showcase.lovable.app/assets/bento-coaching-D-qTHqv8.jpg" alt="Mobility &amp; movement" loading="lazy">
+        <div class="bento-grad"></div>
+        <div class="bento-content">
+          <h3>Mobility &amp; movement</h3>
+          <p>Restore range of motion and move with ease.</p>
+        </div>
+      </article>
+      <article class="bento-item bento-group">
+        <img src="https://eternal-sparkle-showcase.lovable.app/assets/bento-group-CvR6hvXN.jpg" alt="Group classes" loading="lazy">
+        <div class="bento-grad"></div>
+        <div class="bento-content">
+          <h3>Group classes</h3>
+          <p>Small, supportive group sessions.</p>
+        </div>
+      </article>
+      <article class="bento-item bento-strength">
+        <img src="https://eternal-sparkle-showcase.lovable.app/assets/bento-detail-l-4dv0rC.jpg" alt="Strength foundations" loading="lazy">
+        <div class="bento-grad"></div>
+        <div class="bento-content">
+          <h3>Strength foundations</h3>
+          <p>Build a body that lasts decades.</p>
+        </div>
+      </article>
+      <article class="bento-item bento-ageing">
+        <img src="https://eternal-sparkle-showcase.lovable.app/assets/why-longevity-uP25uD_u.jpg" alt="Active ageing" loading="lazy">
+        <div class="bento-grad"></div>
+        <div class="bento-content">
+          <h3>Active ageing</h3>
+          <p>Stay capable, confident, independent.</p>
+        </div>
+      </article>
+      <article class="bento-item bento-studio">
+        <img src="https://eternal-sparkle-showcase.lovable.app/assets/bento-studio-BbJdK_J7.jpg" alt="Private studio" loading="lazy">
+        <div class="bento-grad"></div>
+        <div class="bento-content">
+          <h3>Private studio</h3>
+          <p>Calm, equipped, distraction-free.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section-approach" aria-labelledby="approach-h">
+  <div class="container">
+    <div class="section-header">
+      <span class="badge badge--rose">
+        <svg class="icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>
+        The Approach
+      </span>
+      <h2 class="h2" id="approach-h">A simple programme that meets you where you are.</h2>
+      <p>A personal training experience that adapts to your real-world life. No extremes. No pressure. Just steady progress that fits.</p>
+    </div>
+    <ol class="approach-steps">
+      <li class="approach-card">
+        <div class="approach-card-header">
+          <span class="approach-icon approach-icon--teal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>
+          </span>
+          <span class="approach-number">01</span>
+        </div>
+        <h3>Consultation</h3>
+        <p>We discuss your goals, lifestyle, concerns, and what &lsquo;progress&rsquo; should look like for you.</p>
+      </li>
+      <li class="approach-card approach-stagger">
+        <div class="approach-card-header">
+          <span class="approach-icon approach-icon--rose">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>
+          </span>
+          <span class="approach-number">02</span>
+        </div>
+        <h3>Assessment</h3>
+        <p>We check movement basics, mobility, strength foundations, and any limitations so training starts safely.</p>
+      </li>
+      <li class="approach-card">
+        <div class="approach-card-header">
+          <span class="approach-icon approach-icon--teal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          </span>
+          <span class="approach-number">03</span>
+        </div>
+        <h3>Personalised plan</h3>
+        <p>A simple, realistic plan built around your body and routine — with clear session structure and progression.</p>
+      </li>
+      <li class="approach-card approach-stagger">
+        <div class="approach-card-header">
+          <span class="approach-icon approach-icon--rose">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 17H5"/><path d="M19 7h-9"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+          </span>
+          <span class="approach-number">04</span>
+        </div>
+        <h3>Ongoing support</h3>
+        <p>We coach, adjust, and refine as you improve — keeping training sustainable, motivating, and aligned.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="section-who" aria-labelledby="who-h">
+  <div class="container">
+    <div class="who-card-outer">
+      <div class="who-header">
+        <div>
+          <span class="badge badge--rose">Who this is for</span>
+          <h2 class="h2 h2--sm" id="who-h">Is Eternal Fitness right for you?</h2>
+        </div>
+        <p>We work best with people who value steady, sustainable progress over quick fixes.</p>
+      </div>
+      <div class="who-grid">
+        <div class="who-card-ideal">
+          <div class="who-card-ideal-header">
+            <span class="badge badge--teal">Ideal for</span>
+            <span class="who-card-icon who-card-icon--teal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+          </div>
+          <ul class="who-list">
+            <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Values health and longevity over quick fixes</li>
+            <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Wants support with mobility, stability or strength</li>
+            <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Returning to training after a break or injury</li>
+            <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Prefers a calm, private studio environment</li>
+          </ul>
+        </div>
+        <div class="who-card-not">
+          <img src="https://eternal-sparkle-showcase.lovable.app/assets/who-ideal-C_tw-nnu.jpg" alt="" loading="lazy">
+          <div class="who-card-not-grad"></div>
+          <div class="who-card-not-content">
+            <div class="who-card-ideal-header">
+              <span class="badge badge--rose">Not ideal for</span>
+              <span class="who-card-icon who-card-icon--rose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
+              </span>
+            </div>
+            <ul class="who-list">
+              <li><svg class="minus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>Looking for crash programmes or extreme diets</li>
+              <li><svg class="minus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>Wants a busy commercial gym atmosphere</li>
+              <li><svg class="minus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>Seeking quick aesthetic transformations only</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-testimonials" aria-labelledby="testimonials-h">
+  <div class="container">
+    <div class="testimonials-grid">
+      <div class="testimonials-left">
+        <span class="badge badge--rose">
+          <svg class="icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/></svg>
+          Testimonials
+        </span>
+        <h2 class="h2" id="testimonials-h">What they say about us</h2>
+        <p>The studio process, called Esther&rsquo;s process, is individual reassessment of progress paced to your real life. Most of all? Coaching that listens.</p>
+        <div class="testimonials-nav">
+          <a href="/contact" class="btn btn--primary btn--rounded" style="height:36px;padding:0 16px;font-size:0.875rem;">
+            Read their stories
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+          </a>
+          <button class="btn-outline" aria-label="Previous">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+          </button>
+          <button class="btn-outline" aria-label="Next">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="testimonial-cards">
+        <figure class="testimonial-card">
+          <svg class="quote-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/></svg>
+          <blockquote>&ldquo;Anywhere else I&rsquo;d have been somewhere else. With Esther I&rsquo;ve grown in confidence and capability. The studio process is reassuring and approachable.&rdquo;</blockquote>
+          <figcaption>
+            <span class="initial">M</span>
+            <div><p class="name">Mark Park</p><p class="place">Worthing</p></div>
+          </figcaption>
+        </figure>
+        <figure class="testimonial-card">
+          <svg class="quote-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/></svg>
+          <blockquote>&ldquo;An honest assessment of the project we needed early, calm and personalised. Esther is one of the few coaches I&rsquo;d recommend without hesitation.&rdquo;</blockquote>
+          <figcaption>
+            <span class="initial">A</span>
+            <div><p class="name">Angela Wade</p><p class="place">Worthing</p></div>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-cta" aria-labelledby="cta-h">
+  <div class="cta-card">
+    <div class="cta-image">
+      <img src="https://eternal-sparkle-showcase.lovable.app/assets/cta-strength-B_KRaDfg.jpg" alt="" loading="lazy">
+    </div>
+    <div class="cta-content">
+      <span class="badge badge--rose">Get started</span>
+      <h2 class="h2 h2--sm" id="cta-h">Book a personal training session in Worthing.</h2>
+      <p>Want a simple plan based on your body and goals? Book a free consultation and we&rsquo;ll map out a safe return-to-training approach that feels good and fits your week.</p>
+      <div class="cta-btns">
+        <a href="/contact" class="cta-btn cta-btn--primary">Book Now <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+        <a href="/contact" class="cta-btn cta-btn--ghost">Speak to Esther <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a class="site-logo" href="/">
+        <span class="site-logo-text">Eternal</span>
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <circle cx="16" cy="20" r="10" fill="oklch(63.2% .036 359)" opacity="0.3"/>
+          <path d="M16 6C12 6 8 9 8 14c0 5 4 9 8 12 4-3 8-7 8-12 0-5-4-8-8-8z" fill="oklch(81.6% .086 9)"/>
+          <path d="M16 10c-2.5 0-4 2-4 4 0 3 2 5.5 4 7 2-1.5 4-4 4-7 0-2-1.5-4-4-4z" fill="white"/>
+          <path d="M18.5 12L16 18l-1.5-3-2 2" stroke="oklch(36% .095 350)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+        <span class="site-logo-text-italic">Fitness</span>
+      </a>
+      <p>Private fitness studio in Worthing focused on mobility, strength, and long-term wellbeing.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></svg> 07517 658 126</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg> esther.fair@eternal-fitness.co.uk</li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Navigation</h4>
+      <ul>
+        <li>Personal Training in Worthing</li>
+        <li>Mobility &amp; Strength Coaching</li>
+        <li>Injury Recovery &amp; Rehab</li>
+        <li>Private Training Studio</li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Follow</h4>
+      <div class="footer-social">
+        <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg></a>
+        <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg></a>
+        <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-bottom-inner">
+      <p>&copy; 2026 Eternal Fitness · Worthing, UK · All rights reserved</p>
+      <p><a href="/privacy-policy">Privacy Policy</a> · <a href="/terms">Terms of Use</a></p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  var btn = document.querySelector('.mobile-menu-btn');
+  var nav = document.querySelector('.site-nav');
+  if (btn && nav) {
+    btn.addEventListener('click', function() {
+      nav.style.display = nav.style.display === 'flex' ? '' : 'flex';
+      if (nav.style.display === 'flex') {
+        nav.style.flexDirection = 'column';
+        nav.style.position = 'absolute';
+        nav.style.top = '72px';
+        nav.style.left = '0';
+        nav.style.right = '0';
+        nav.style.background = 'var(--background)';
+        nav.style.padding = '16px 24px';
+        nav.style.borderBottom = '1px solid var(--border)';
+        nav.style.gap = '16px';
+      } else {
+        nav.style.flexDirection = '';
+        nav.style.position = '';
+        nav.style.top = '';
+        nav.style.left = '';
+        nav.style.right = '';
+        nav.style.background = '';
+        nav.style.padding = '';
+        nav.style.borderBottom = '';
+        nav.style.gap = '';
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -11,12 +11,14 @@ import {
   Users,
   BookText,
   LogOut,
+  ClipboardList,
 } from "lucide-react";
 
 const navItems = [
   { href: "/hub", label: "Dashboard", icon: LayoutDashboard },
   { href: "/hub/clients", label: "Clients", icon: Users },
   { href: "/hub/exercises", label: "Exercise Library", icon: BookText },
+  { href: "/hub/tracker", label: "Medical Tracker", icon: ClipboardList },
 ];
 
 export function HubSidebar() {
