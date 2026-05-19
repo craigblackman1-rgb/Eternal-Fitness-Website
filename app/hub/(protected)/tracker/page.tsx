@@ -36,14 +36,27 @@ import { toast } from "sonner";
 
 // Conditions that AUTOMATICALLY require clearance (non-negotiable)
 const AUTO_CLEARANCE_CONDITIONS = [
+  // Implanted medical devices
   "shunt", "pacemaker", "defibrillator", "neurostimulator", "insulin pump",
+  // Anticoagulants
   "warfarin", "apixaban", "rivaroxaban", "dabigatran", "clopidogrel",
-  "prv", "haemophilia", "leukaemia", "thrombocytopenia",
-  "hypertension", "epilepsy", "type 1 diabetes", "type 1 diabetic",
-  "cancer", "chemotherapy", "radiotherapy",
-  "balance", "coordination", "sensation",
-  "stroke", "ms", "multiple sclerosis", "parkinson",
-  "haematological", "hematological",
+  // Haematological conditions
+  "prv", "polycythaemia rubra vera", "haemophilia", "leukaemia", "thrombocytopenia", "haematological", "hematological",
+  // Type 1 diabetes
+  "type 1 diabetes", "type 1 diabetic",
+  // Uncontrolled hypertension (not "hypertension" which catches "controlled hypertension")
+  "uncontrolled hypertension", "systolic", "diastolic",
+  // Cancer treatment
+  "active cancer", "cancer treatment", "chemotherapy", "radiotherapy",
+  // Uncontrolled epilepsy
+  "epilepsy", "uncontrolled epilepsy",
+  // Neurological conditions
+  "stroke", "ms", "multiple sclerosis", "parkinson", "parkinsons",
+  "neurological condition", "affecting balance", "affecting coordination", "affecting sensation",
+  // Consultant-given restrictions
+  "consultant restriction", "consultant advised", "told not to exercise", "advised to restrict",
+  // Recent surgery (checked with date logic)
+  "recent surgery", "post-operative", "post-op", "surgery within",
 ];
 
 // Conditions that trigger case-by-case assessment
@@ -51,8 +64,8 @@ const CASE_BY_CASE_CONDITIONS = [
   "type 2 diabetes", "type 2 diabetic",
   "controlled hypertension",
   "osteoporosis",
-  "chronic heart", "heart disease",
-  "copd", "asthma", "respiratory",
+  "chronic heart", "chronic heart disease", "heart disease", "heart failure",
+  "copd", "asthma", "respiratory condition", "respiratory disease",
 ];
 
 interface TrackerRow {
@@ -71,19 +84,54 @@ interface TrackerRow {
   clearance_filed: "Y" | "N";
   annual_review_due_date: string | null;
   last_session_delivered: string | null;
+  surgery_date: string | null;
   notes: string | null;
 }
 
-function computeFlag(row: TrackerRow): { label: string; variant: "ok" | "na" | "chase" | "check" } {
-  if (row.clearance_required === "NA" || row.clearance_required === "N") {
+function isRecentSurgery(surgeryDate: string | null): boolean {
+  if (!surgeryDate) return false;
+  const today = new Date();
+  const surgery = new Date(surgeryDate);
+  const weeksSince = (today.getTime() - surgery.getTime()) / (1000 * 60 * 60 * 24 * 7);
+  return weeksSince <= 12;
+}
+
+function computeFlag(row: TrackerRow): { label: string; variant: "ok" | "na" | "chase" | "check" | "urgent" | "assess" } {
+  // Check for auto-clearance conditions
+  const { auto: detectedAuto, caseByCase: detectedCase } = detectConditions(row.conditions_requiring_clearance || "");
+
+  // Check if recent surgery requires clearance
+  const hasRecentSurgery = (row.conditions_requiring_clearance || "").toLowerCase().includes("surgery") && isRecentSurgery(row.surgery_date);
+
+  // If auto-clearance condition is detected, treat as requiring clearance
+  const autoFlagDetected = detectedAuto.length > 0 || hasRecentSurgery;
+
+  // Determine effective clearance status based on detected conditions or manual setting
+  const effectiveClearanceRequired = autoFlagDetected || row.clearance_required === "Y";
+
+  // If no conditions detected and manual is "NA" or "N", it's not required
+  if (!effectiveClearanceRequired) {
     return { label: "N/A", variant: "na" };
   }
+
+  // If clearance is required
   if (row.clearance_status === "CLEARED") {
     if (row.clearance_filed !== "Y") {
       return { label: "Check", variant: "check" };
     }
     return { label: "OK", variant: "ok" };
   }
+
+  // If auto-clearance condition detected but not cleared, show URGENT
+  if (autoFlagDetected && row.clearance_status !== "CLEARED") {
+    return { label: "URGENT", variant: "urgent" };
+  }
+
+  // Case-by-case conditions detected
+  if (detectedCase.length > 0 && row.clearance_required === "NA") {
+    return { label: "ASSESS", variant: "assess" };
+  }
+
   return { label: "Chase", variant: "chase" };
 }
 
@@ -122,6 +170,7 @@ const emptyForm = {
   clearance_filed: "N" as "Y" | "N",
   annual_review_due_date: "",
   last_session_delivered: "",
+  surgery_date: "",
   notes: "",
 };
 
@@ -205,6 +254,7 @@ export default function TrackerPage() {
       clearance_filed: row.clearance_filed,
       annual_review_due_date: row.annual_review_due_date || "",
       last_session_delivered: row.last_session_delivered || "",
+      surgery_date: row.surgery_date || "",
       notes: row.notes || "",
     });
     const { auto, caseByCase } = detectConditions(row.conditions_requiring_clearance || "");
@@ -231,6 +281,7 @@ export default function TrackerPage() {
       gp_letter_received_date: form.gp_letter_received_date || null,
       annual_review_due_date: form.annual_review_due_date || null,
       last_session_delivered: form.last_session_delivered || null,
+      surgery_date: form.surgery_date || null,
       notes: form.notes || null,
     };
 
@@ -467,6 +518,21 @@ export default function TrackerPage() {
                 </div>
               </div>
 
+              {(form.conditions_requiring_clearance.toLowerCase().includes("surgery")) && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-amber-700">Surgery Date</Label>
+                    <Input
+                      type="date"
+                      value={form.surgery_date}
+                      onChange={(e) => setForm({ ...form, surgery_date: e.target.value })}
+                      className="border-amber-300"
+                    />
+                    <p className="text-xs text-amber-700">Required for surgery conditions. Auto-flagged if within 12 weeks.</p>
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Annual Review Due</Label>
@@ -610,25 +676,10 @@ export default function TrackerPage() {
                     </TableCell>
                     <TableCell>
                       <Badge
-                        variant={
-                          flag.variant === "ok" || flag.variant === "na"
-                            ? "default"
-                            : flag.variant === "chase"
-                            ? "destructive"
-                            : "secondary"
-                        }
-                        className={
-                          flag.variant === "ok"
-                            ? "bg-green-600"
-                            : flag.variant === "na"
-                            ? "bg-muted-foreground"
-                            : flag.variant === "chase"
-                            ? "bg-amber-600"
-                            : "bg-orange-500"
-                        }
+                        variant={flag.variant as "ok" | "na" | "chase" | "check" | "urgent" | "assess" | "default" | "secondary" | "destructive" | "outline"}
                       >
                         {flag.variant === "ok" && <CheckCircle className="mr-1 h-3 w-3" />}
-                        {(flag.variant === "chase" || flag.variant === "check") && (
+                        {(flag.variant === "chase" || flag.variant === "check" || flag.variant === "urgent" || flag.variant === "assess") && (
                           <AlertTriangle className="mr-1 h-3 w-3" />
                         )}
                         {flag.label}
