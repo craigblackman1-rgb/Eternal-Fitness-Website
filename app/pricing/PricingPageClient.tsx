@@ -116,7 +116,7 @@ export default function PricingPageClient() {
       <section className="py-20 md:py-28 px-6 md:px-12 bg-background">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div>
-            <span className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+            <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
               What You Are Investing In
             </span>
             <h2 className="text-3xl md:text-5xl text-foreground leading-tight mb-10">
@@ -146,7 +146,7 @@ export default function PricingPageClient() {
       <section id="pricing" className="py-20 md:py-28 px-6 md:px-12 bg-section-dark">
         <div className="max-w-6xl mx-auto">
           <div className="mb-12">
-            <span className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+            <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
               Pricing
             </span>
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">

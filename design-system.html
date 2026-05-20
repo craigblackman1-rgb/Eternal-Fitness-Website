@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eternal Fitness — Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rose: #C1839F;
+    --rose-dark: #A36683;
+    --rose-light: #F7EDF2;
+    --forest: #1C3D2E;
+    --forest-dark: #0F241A;
+    --forest-light: #2A5A44;
+    --forest-mist: #E8F0EC;
+    --teal: #087E8B;
+    --ink: #262627;
+    --ink-soft: #1D2130;
+    --body: #525A61;
+    --muted: #848991;
+    --placeholder: #9CA3AF;
+    --border: #E5E5E5;
+    --divider: #D9D9D9;
+    --surface: #F2F4F8;
+    --white: #FFFFFF;
+    --coral: #FF5A5F;
+    --section-dark: #1D2130;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--white); color: var(--body); line-height: 1.5; }
+  .ds-container { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+  .ds-header { background: var(--white); border-bottom: 1px solid var(--border); padding: 20px 0; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px); background: rgba(255,255,255,0.92); }
+  .ds-header-inner { display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+  .ds-header h1 { font-size: 20px; font-weight: 700; color: var(--ink-soft); letter-spacing: -0.02em; }
+  .ds-header nav { display: flex; gap: 16px; flex-wrap: wrap; }
+  .ds-header nav a { font-size: 13px; font-weight: 600; color: var(--body); text-decoration: none; padding: 4px 10px; border-radius: 6px; transition: all 0.15s; }
+  .ds-header nav a:hover { background: var(--rose-light); color: var(--rose); }
+  .ds-section { padding: 60px 0; border-bottom: 1px solid var(--surface); }
+  .ds-section:last-of-type { border-bottom: none; }
+  .ds-label { font-size: 11px; font-weight: 700; color: var(--rose); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+  .ds-title { font-size: 28px; font-weight: 700; color: var(--ink-soft); margin-bottom: 8px; letter-spacing: -0.02em; }
+  .ds-desc { font-size: 15px; color: var(--body); max-width: 600px; margin-bottom: 32px; }
+  .ds-grid-swatches { display: flex; flex-wrap: wrap; gap: 16px; }
+  .ds-swatch { border-radius: 16px; overflow: hidden; width: 180px; border: 1px solid var(--border); background: var(--white); }
+  .ds-swatch-color { height: 100px; }
+  .ds-swatch-info { padding: 12px 14px; }
+  .ds-swatch-name { font-size: 12px; font-weight: 700; color: var(--ink-soft); }
+  .ds-swatch-hex { font-size: 11px; color: var(--muted); font-family: 'SF Mono', 'DM Mono', monospace; }
+  .ds-swatch-tag { display: inline-block; font-size: 9px; font-weight: 700; background: var(--surface); color: var(--body); border-radius: 4px; padding: 2px 6px; margin-top: 4px; }
+  .ds-swatch-tag.primary { background: var(--rose); color: var(--white); }
+  .ds-swatch-tag.forest { background: var(--forest); color: var(--white); }
+  .ds-swatch-tag.legacy { background: var(--teal); color: var(--white); }
+  .ds-type-grid { display: flex; flex-direction: column; gap: 4px; }
+  .ds-type-row { display: flex; align-items: baseline; gap: 24px; padding: 12px 0; border-bottom: 1px solid var(--surface); }
+  .ds-type-row:last-child { border-bottom: none; }
+  .ds-type-meta { width: 140px; flex-shrink: 0; }
+  .ds-type-token { font-size: 10px; font-weight: 700; color: var(--rose); letter-spacing: 0.06em; text-transform: uppercase; }
+  .ds-type-specs { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .ds-type-sample { color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ds-spacing-grid { display: flex; gap: 4px; align-items: flex-end; flex-wrap: wrap; }
+  .ds-spacing-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .ds-spacing-bar { background: var(--rose); border-radius: 4px; width: 40px; min-height: 4px; }
+  .ds-spacing-label { font-size: 10px; font-weight: 600; color: var(--body); }
+  .ds-btn-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .ds-btn { display: inline-flex; align-items: center; gap: 10px; height: 56px; padding: 0 32px; border-radius: 12px; border: none; cursor: default; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 16px; transition: opacity 0.15s; }
+  .ds-btn-primary { background: var(--rose); color: var(--white); }
+  .ds-btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: var(--white); backdrop-filter: blur(30px); }
+  .ds-btn-outline { background: transparent; border: 1.5px solid var(--rose); color: var(--rose); }
+  .ds-btn-dark { background: var(--forest); color: var(--white); }
+  .ds-btn-sm { height: 44px; padding: 0 20px; font-size: 14px; border-radius: 10px; }
+  .ds-btn-dot { width: 24px; height: 24px; border-radius: 70px; background: var(--white); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .ds-card-row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .ds-card { border-radius: 24px; padding: 20px; width: 220px; }
+  .ds-card-white { background: var(--white); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .ds-card-glass { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); backdrop-filter: blur(30px); }
+  .ds-card-rose { background: var(--rose); }
+  .ds-card-forest { background: var(--forest); }
+  .ds-card-title { font-size: 18px; font-weight: 700; color: var(--ink-soft); margin-bottom: 6px; }
+  .ds-card-body { font-size: 14px; font-weight: 300; color: var(--body); line-height: 1.5; }
+  .ds-card-stat { font-size: 24px; font-weight: 700; color: var(--ink-soft); }
+  .ds-card-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .ds-card-on-dark-title { font-size: 18px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
+  .ds-card-on-dark-body { font-size: 13px; font-weight: 300; color: rgba(255,255,255,0.75); line-height: 1.5; }
+  .ds-badge-chip { display: inline-flex; align-items: center; gap: 10px; background: var(--rose); border-radius: 12px; padding: 10px 15px; height: 44px; }
+  .ds-badge-chip-avatar { width: 24px; height: 24px; border-radius: 999px; background: var(--rose-dark); flex-shrink: 0; }
+  .ds-badge-chip span { font-size: 16px; font-weight: 700; color: var(--white); }
+  .ds-radius-grid { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .ds-radius-box { width: 60px; height: 60px; background: var(--rose-light); border: 1px solid var(--rose); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: var(--rose); text-align: center; }
+  .ds-shadow-grid { display: flex; gap: 24px; flex-wrap: wrap; }
+  .ds-shadow-box { width: 120px; height: 80px; background: var(--white); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--muted); }
+  .ds-chip-label { display: inline-flex; align-items: center; gap: 6px; background: var(--rose); border-radius: 12px; padding: 6px 12px; }
+  .ds-chip-label span { font-size: 12px; font-weight: 700; color: var(--white); }
+  .ds-code-block { background: var(--surface); border-radius: 12px; padding: 20px; font-family: 'SF Mono', 'DM Mono', monospace; font-size: 13px; line-height: 1.6; color: var(--ink-soft); overflow-x: auto; }
+  .ds-code-block .comment { color: var(--placeholder); }
+  .ds-code-block .token { color: var(--rose); }
+  .footer-badge { display: inline-flex; align-items: center; gap: 12px; margin-top: 12px; }
+  .footer-badge-c { width: 36px; height: 36px; border-radius: 999px; background: var(--rose); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .dark-section { background: var(--section-dark); padding: 40px; border-radius: 24px; }
+  .on-dark-text { color: var(--white) !important; }
+  .on-dark-muted { color: rgba(255,255,255,0.6) !important; }
+  .mt-2 { margin-top: 8px; }
+  .mt-4 { margin-top: 16px; }
+  .mt-6 { margin-top: 24px; }
+  .mb-2 { margin-bottom: 8px; }
+  .mb-4 { margin-bottom: 16px; }
+  .mb-6 { margin-bottom: 24px; }
+  .gap-2 { gap: 8px; }
+  .gap-4 { gap: 16px; }
+  .flex { display: flex; }
+  .flex-wrap { flex-wrap: wrap; }
+  .items-center { align-items: center; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="ds-header">
+  <div class="ds-header-inner">
+    <h1>Eternal Fitness · Design System</h1>
+    <nav>
+      <a href="#colors">Colors</a>
+      <a href="#type">Typography</a>
+      <a href="#spacing">Spacing</a>
+      <a href="#buttons">Buttons</a>
+      <a href="#cards">Cards</a>
+      <a href="#chips">Chips</a>
+      <a href="#radius">Radius</a>
+      <a href="#shadows">Shadows</a>
+      <a href="#tokens">Tokens</a>
+    </nav>
+  </div>
+</header>
+
+<main class="ds-container">
+
+<!-- Colors -->
+<section class="ds-section" id="colors">
+  <div class="ds-label">Foundation</div>
+  <h2 class="ds-title">Brand Colors</h2>
+  <p class="ds-desc">The Eternal Fitness palette — rose mauve primary, forest green replacement for teal, and a neutral system built for readability and warmth.</p>
+  <div class="ds-grid-swatches">
+    <div class="ds-swatch"><div class="ds-swatch-color" style="background:var(--rose)"></div><div class="ds-swatch-info"><div class="ds-swatch-name">Rose / Mauve</div><div class="ds-swatch-hex">#C1839F</div><span class="ds-swatch-tag primary">Primary</span></div></div>
+    <div class="ds-swatch"><div class="ds-swatch-color" style="background:var(--rose-dark)"></div><div class="ds-swatch-info"><div class="ds-swatch-name">Rose Dark</div><div class="ds-swatch-hex">#A36683</div></div></div>
+    <div class="ds-swatch"><div class="ds-swatch-color" style="background:var(--rose-light)"></div><div class="ds-swatch-info"><div class="ds-swatch-name">Rose Light</div><div class="ds-swatch-hex">#F7EDF2</div></div></div>
+    <div class="ds-swatch"><div class="ds-swatch-color" style="background:var(--forest)"></div><div class="ds-swatch-info"><div class="ds-swatch-name" style="color:var(--white)">Forest Green</div><div class="ds-swatch-hex" style="color:rgba(255,255,255,0.6)">#1C3D2E</div><span class="ds-swatch-tag forest">Secondary</span></div></div>
+    <div class="ds-swatch"><div class="ds-swatch-color" style="background:var(--forest-dark)"></div><div class="ds-swatch-info"><div class="ds-swatch-name" style="color:var(--white)">Forest Dark</div><div class="ds-swatch-hex" style="color:rgba(255,255,255,0.6)">#0F241A</div></div></div>
+    <div class="ds-swatch"><div class="ds-swatch-color" style="background:var(--forest-mist)"></div><div class="ds-swatch-info"><div class="ds-swatch-name">Forest Mist</div><div class="ds-swatch-hex">#E8F0EC</div></div></div>
+    <div class="ds-swatch"><div class="ds-swatch-color" style="background:var(--teal)"></div><div class="ds-swatch-info"><div class="ds-swatch-name" style="color:var(--white)">Teal</div><div class="ds-swatch-hex" style="color:rgba(255,255,255,0.6)">#087E8B</div><span class="ds-swatch-tag legacy">Legacy</span></div></div>
+  </div>
+
+  <h3 class="ds-title mt-6">Neutrals</h3>
+  <div class="ds-grid-swatches">
+    <div class="ds-swatch"><div class="ds-swatch-color" style="background:var(--ink)"></div><div class="ds-swatch-info"><div class="ds-swatch-name" style="color:var(--white)">Ink</div><div class="ds-swatch-hex" style="color:rgba(255,255,255,0.6)">#262627</div><span class="ds-swatch-tag primary">Text</span></div></div>
+    <div class="ds-swatch"><div class="ds-swatch-color" style="background:var(--ink-soft)"></div><div class="ds-swatch-info"><div class="ds-swatch-name" style="color:var(--white)">Ink Soft</div><div class="ds-swatch-hex" style="color:rgba(255,255,255,0.6)">#1D2130</div><span class="ds-swatch-tag forest">Section Dark</span></div></div>
+    <div class="ds-swatch"><div class="ds-swatch-color" style="background:var(--body)"></div><div class="ds-swatch-info"><div class="ds-swatch-name" style="color:var(--white)">Body</div><div class="ds-swatch-hex" style="color:rgba(255,255,255,0.6)">#525A61</div></div></div>
+    <div class="ds-swatch"><div class="ds-swatch-color" style="background:var(--muted)"></div><div class="ds-swatch-info"><div class="ds-swatch-name" style="color:var(--white)">Muted</div><div class="ds-swatch-hex" style="color:rgba(255,255,255,0.6)">#848991</div></div></div>
+    <div class="ds-swatch"><div class="ds-swatch-color" style="background:var(--placeholder)"></div><div class="ds-swatch-info"><div class="ds-swatch-name">Placeholder</div><div class="ds-swatch-hex">#9CA3AF</div></div></div>
+    <div class="ds-swatch"><div class="ds-swatch-color" style="background:var(--border)"></div><div class="ds-swatch-info"><div class="ds-swatch-name">Border</div><div class="ds-swatch-hex">#E5E5E5</div></div></div>
+    <div class="ds-swatch"><div class="ds-swatch-color" style="background:var(--surface)"></div><div class="ds-swatch-info"><div class="ds-swatch-name">Surface</div><div class="ds-swatch-hex">#F2F4F8</div></div></div>
+    <div class="ds-swatch"><div class="ds-swatch-color" style="background:var(--white);border-bottom:1px solid var(--border)"></div><div class="ds-swatch-info"><div class="ds-swatch-name">White</div><div class="ds-swatch-hex">#FFFFFF</div></div></div>
+    <div class="ds-swatch"><div class="ds-swatch-color" style="background:var(--coral)"></div><div class="ds-swatch-info"><div class="ds-swatch-name" style="color:var(--white)">Coral</div><div class="ds-swatch-hex" style="color:rgba(255,255,255,0.6)">#FF5A5F</div><span class="ds-swatch-tag">Accent</span></div></div>
+  </div>
+</section>
+
+<!-- Typography -->
+<section class="ds-section" id="type">
+  <div class="ds-label">Foundation</div>
+  <h2 class="ds-title">Typography</h2>
+  <p class="ds-desc">DM Sans is the single typeface across the entire site. Weights 300–800. All sizes, line heights, and letter-spacing tokens below.</p>
+
+  <div class="ds-type-grid">
+    <div class="ds-type-row"><div class="ds-type-meta"><div class="ds-type-token">H1</div><div class="ds-type-specs">56px · 700 · −0.02em · 1.23</div></div><div class="ds-type-sample" style="font-size:56px;font-weight:700;letter-spacing:-0.02em;line-height:1.23">Eternal Fitness</div></div>
+    <div class="ds-type-row"><div class="ds-type-meta"><div class="ds-type-token">H2</div><div class="ds-type-specs">50px · 700 · −0.02em · 1.0</div></div><div class="ds-type-sample" style="font-size:50px;font-weight:700;letter-spacing:-0.02em;line-height:1">What We Specialise In</div></div>
+    <div class="ds-type-row"><div class="ds-type-meta"><div class="ds-type-token">H3</div><div class="ds-type-specs">48px · 700 · 1.0</div></div><div class="ds-type-sample" style="font-size:48px;font-weight:700;line-height:1">The Eternal Approach</div></div>
+    <div class="ds-type-row"><div class="ds-type-meta"><div class="ds-type-token">H4</div><div class="ds-type-specs">28px · 700 · 1.0</div></div><div class="ds-type-sample" style="font-size:28px;font-weight:700;line-height:1">Mobility & Movement</div></div>
+    <div class="ds-type-row"><div class="ds-type-meta"><div class="ds-type-token">H5</div><div class="ds-type-specs">24px · 700 · 1.0</div></div><div class="ds-type-sample" style="font-size:24px;font-weight:700;line-height:1">Personal Training Plans</div></div>
+    <div class="ds-type-row"><div class="ds-type-meta"><div class="ds-type-token">H6</div><div class="ds-type-specs">20px · 700 · 1.0</div></div><div class="ds-type-sample" style="font-size:20px;font-weight:700;line-height:1">Book an Initial Consultation</div></div>
+    <div class="ds-type-row"><div class="ds-type-meta"><div class="ds-type-token">Body Lg</div><div class="ds-type-specs">20px · 300 · 1.0</div></div><div class="ds-type-sample" style="font-size:20px;font-weight:300;color:var(--body);line-height:1">A private studio built for people who want to move better.</div></div>
+    <div class="ds-type-row"><div class="ds-type-meta"><div class="ds-type-token">Body</div><div class="ds-type-specs">18px · 400 · 1.46</div></div><div class="ds-type-sample" style="font-size:18px;font-weight:400;color:var(--body);line-height:1.46">Read reviews and ratings from Eternal Fitness subscribers.</div></div>
+    <div class="ds-type-row"><div class="ds-type-meta"><div class="ds-type-token">Body Sm</div><div class="ds-type-specs">16px · 400 · 1.46</div></div><div class="ds-type-sample" style="font-size:16px;font-weight:400;color:var(--body);line-height:1.46">Read reviews from other subscribers.</div></div>
+    <div class="ds-type-row"><div class="ds-type-meta"><div class="ds-type-token">Label</div><div class="ds-type-specs">16px · 700 · 1.5</div></div><div class="ds-type-sample" style="font-size:16px;font-weight:700;line-height:1.5">Book an Initial Consultation</div></div>
+    <div class="ds-type-row"><div class="ds-type-meta"><div class="ds-type-token">Caption</div><div class="ds-type-specs">14px · 400 · 1.43</div></div><div class="ds-type-sample" style="font-size:14px;font-weight:400;color:var(--muted);line-height:1.43">May 2, 2023 · Worthing, UK</div></div>
+  </div>
+
+  <div class="dark-section mt-6">
+    <span class="ds-label" style="color:var(--rose)">On Dark</span>
+    <h3 class="ds-title on-dark-text">Type on Dark Backgrounds</h3>
+    <p class="ds-desc on-dark-muted">All text on dark sections (forest green or section dark backgrounds) uses white with reduced opacity for secondary content.</p>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:28px;font-weight:700;color:var(--white);letter-spacing:-0.02em">Heading on Dark — White, Bold</span>
+      <span style="font-size:18px;font-weight:400;color:rgba(255,255,255,0.85)">Body on dark at 85% opacity for primary content.</span>
+      <span style="font-size:14px;font-weight:400;color:rgba(255,255,255,0.5)">Muted on dark at 50% opacity for secondary content.</span>
+    </div>
+  </div>
+</section>
+
+<!-- Spacing -->
+<section class="ds-section" id="spacing">
+  <div class="ds-label">Foundation</div>
+  <h2 class="ds-title">Spacing & Layout</h2>
+  <p class="ds-desc">Consistent 4px grid. All spacing values are multiples of 4. Section padding is 70–80px vertical. Content max-width: 1320px.</p>
+  <div class="ds-spacing-grid">
+    <div class="ds-spacing-item"><div class="ds-spacing-bar" style="height:4px"></div><span class="ds-spacing-label">4px</span></div>
+    <div class="ds-spacing-item"><div class="ds-spacing-bar" style="height:8px"></div><span class="ds-spacing-label">8px</span></div>
+    <div class="ds-spacing-item"><div class="ds-spacing-bar" style="height:12px"></div><span class="ds-spacing-label">12px</span></div>
+    <div class="ds-spacing-item"><div class="ds-spacing-bar" style="height:16px"></div><span class="ds-spacing-label">16px</span></div>
+    <div class="ds-spacing-item"><div class="ds-spacing-bar" style="height:20px"></div><span class="ds-spacing-label">20px</span></div>
+    <div class="ds-spacing-item"><div class="ds-spacing-bar" style="height:24px"></div><span class="ds-spacing-label">24px</span></div>
+    <div class="ds-spacing-item"><div class="ds-spacing-bar" style="height:28px"></div><span class="ds-spacing-label">28px</span></div>
+    <div class="ds-spacing-item"><div class="ds-spacing-bar" style="height:32px"></div><span class="ds-spacing-label">32px</span></div>
+    <div class="ds-spacing-item"><div class="ds-spacing-bar" style="height:40px"></div><span class="ds-spacing-label">40px</span></div>
+    <div class="ds-spacing-item"><div class="ds-spacing-bar" style="height:48px"></div><span class="ds-spacing-label">48px</span></div>
+    <div class="ds-spacing-item"><div class="ds-spacing-bar" style="height:64px"></div><span class="ds-spacing-label">64px</span></div>
+    <div class="ds-spacing-item"><div class="ds-spacing-bar" style="height:80px"></div><span class="ds-spacing-label">80px</span></div>
+  </div>
+
+  <div class="grid-2 mt-6">
+    <div>
+      <h4 class="ds-type-token mb-2">Section Layout</h4>
+      <div class="ds-code-block">
+        <span class="comment">/* Page structure */</span><br>
+        max-width: <span class="token">1440px</span> <span class="comment">/* desktop page */</span><br>
+        content: <span class="token">1320px</span> <span class="comment">/* inner content */</span><br>
+        padding-x: <span class="token">60px</span><br>
+        section-y: <span class="token">70px</span>
+      </div>
+    </div>
+    <div>
+      <h4 class="ds-type-token mb-2">Card & Component</h4>
+      <div class="ds-code-block">
+        <span class="comment">/* Internal spacing */</span><br>
+        card padding: <span class="token">20px</span><br>
+        nav padding: <span class="token">28px</span><br>
+        card gap: <span class="token">20–33px</span><br>
+        section gap: <span class="token">16–24px</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Buttons -->
+<section class="ds-section" id="buttons">
+  <div class="ds-label">Components</div>
+  <h2 class="ds-title">Buttons</h2>
+  <p class="ds-desc">56px height on desktop, 44px on small. 12px border-radius. All buttons include a white circle with diagonal arrow.</p>
+
+  <div class="flex flex-wrap items-center gap-4">
+    <span style="font-size:11px;font-weight:700;color:var(--placeholder);letter-spacing:0.06em;text-transform:uppercase;width:80px">Primary</span>
+    <button class="ds-btn ds-btn-primary" disabled>Contact Us <span class="ds-btn-dot"><svg width="11" height="11" viewBox="0 0 15 15" fill="none"><line x1="1" y1="14" x2="14" y2="1" stroke="#1D2130" stroke-width="1.8" stroke-linecap="round"/><polyline points="5,1 14,1 14,10" stroke="#1D2130" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+    <button class="ds-btn ds-btn-primary ds-btn-sm" disabled>Contact Us</button>
+  </div>
+
+  <div class="flex flex-wrap items-center gap-4 mt-4">
+    <span style="font-size:11px;font-weight:700;color:var(--placeholder);letter-spacing:0.06em;text-transform:uppercase;width:80px">Outline</span>
+    <button class="ds-btn ds-btn-outline" disabled>Learn More</button>
+    <button class="ds-btn ds-btn-dark" disabled>Visit the Studio</button>
+  </div>
+
+  <div class="dark-section mt-4">
+    <div class="flex flex-wrap items-center gap-4">
+      <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:0.06em;text-transform:uppercase;width:80px">Ghost</span>
+      <button class="ds-btn ds-btn-ghost" disabled>Visit the Studio</button>
+      <button class="ds-btn ds-btn-primary" disabled>Book Now <span class="ds-btn-dot"><svg width="11" height="11" viewBox="0 0 15 15" fill="none"><line x1="1" y1="14" x2="14" y2="1" stroke="#1D2130" stroke-width="1.8" stroke-linecap="round"/><polyline points="5,1 14,1 14,10" stroke="#1D2130" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+    </div>
+  </div>
+</section>
+
+<!-- Cards -->
+<section class="ds-section" id="cards">
+  <div class="ds-label">Components</div>
+  <h2 class="ds-title">Cards</h2>
+  <p class="ds-desc">24px border-radius. 20px internal padding. White cards use subtle shadow, glass cards use backdrop blur, rose/forest for accent.</p>
+  <div class="ds-card-row">
+    <div class="ds-card ds-card-white">
+      <div class="ds-card-stat">200,000+</div>
+      <div class="ds-card-sub">Training now</div>
+      <div class="ds-card-body mt-2">Read reviews from other Eternal Fitness subscribers.</div>
+    </div>
+    <div class="ds-card ds-card-rose">
+      <div style="width:32px;height:32px;border-radius:999px;background:var(--white);display:flex;align-items:center;justify-content:center;margin-bottom:12px;margin-left:auto;">
+        <span style="font-size:14px;color:#000">&#x2715;</span>
+      </div>
+      <div class="ds-card-on-dark-title">Filter the list</div>
+      <div class="ds-card-on-dark-body">Of studios and gyms by booking type, location, time.</div>
+    </div>
+    <div class="ds-card ds-card-forest">
+      <div class="ds-chip-label mb-2"><span>Approach</span></div>
+      <div class="ds-card-on-dark-title">Compassion-based Coaching</div>
+      <div class="ds-card-on-dark-body">No "no pain, no gain" culture here.</div>
+    </div>
+  </div>
+
+  <div class="dark-section mt-6">
+    <h4 class="ds-card-on-dark-title mb-2">Glassmorphism Card</h4>
+    <p class="ds-card-on-dark-body mb-4">Navbar, testimonials, and hero overlay cards use glass effect.</p>
+    <div style="display:flex;gap:16px;flex-wrap:wrap">
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);backdrop-filter:blur(30px);border-radius:24px;padding:20px;width:240px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <div style="width:32px;height:32px;border-radius:999px;background:var(--white);display:flex;align-items:center;justify-content:center">
+            <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
+              <polyline points="7,1 1,7 7,13" stroke="var(--coral)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <p style="font-size:16px;font-weight:500;color:var(--white);text-align:center;line-height:24px;flex:1">"This might be the best app on my phone."</p>
+          <div style="width:32px;height:32px;border-radius:999px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;justify-content:center">
+            <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
+              <polyline points="1,1 7,7 1,13" stroke="var(--white)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:12px">
+          <span style="font-size:16px;font-weight:700;color:var(--white)">Wendi, Dublin</span>
+          <span style="font-size:13px;color:rgba(221,223,227,0.9)">May 2, 2023</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Chips & Badges -->
+<section class="ds-section" id="chips">
+  <div class="ds-label">Components</div>
+  <h2 class="ds-title">Chips & Badges</h2>
+  <p class="ds-desc">Section label chips use 12px border-radius, 44px height, rose background with white text and avatar circle.</p>
+  <div class="flex flex-wrap items-center gap-4">
+    <div class="ds-badge-chip"><div class="ds-badge-chip-avatar"></div><span>Fitness</span></div>
+    <div class="ds-badge-chip" style="background:var(--forest)"><div class="ds-badge-chip-avatar"></div><span>Approach</span></div>
+    <span class="ds-chip-label"><span>Specialise</span></span>
+    <span class="ds-chip-label" style="background:var(--forest)"><span>Who</span></span>
+  </div>
+</section>
+
+<!-- Border Radius -->
+<section class="ds-section" id="radius">
+  <div class="ds-label">Foundation</div>
+  <h2 class="ds-title">Border Radius</h2>
+  <p class="ds-desc">The radius scale — from 4px (form inputs) to 999px (icon circles).</p>
+  <div class="ds-radius-grid">
+    <div class="ds-radius-box" style="border-radius:4px">4px</div>
+    <div class="ds-radius-box" style="border-radius:8px">8px</div>
+    <div class="ds-radius-box" style="border-radius:12px">12px</div>
+    <div class="ds-radius-box" style="border-radius:24px">24px</div>
+    <div class="ds-radius-box" style="border-radius:32px">32px</div>
+    <div class="ds-radius-box" style="border-radius:999px">999px</div>
+  </div>
+  <div class="grid-3 mt-4">
+    <div><span class="ds-type-token">· xs = 4px</span><br><span style="font-size:12px;color:var(--muted)">Form inputs, tiny elements</span></div>
+    <div><span class="ds-type-token">· sm = 8px</span><br><span style="font-size:12px;color:var(--muted)">Small chips</span></div>
+    <div><span class="ds-type-token">· md = 12px</span><br><span style="font-size:12px;color:var(--muted)">Buttons, input fields</span></div>
+    <div><span class="ds-type-token">· lg = 24px</span><br><span style="font-size:12px;color:var(--muted)">Cards, image frames</span></div>
+    <div><span class="ds-type-token">· xl = 32px</span><br><span style="font-size:12px;color:var(--muted)">Page-level containers</span></div>
+    <div><span class="ds-type-token">· full = 999px</span><br><span style="font-size:12px;color:var(--muted)">Icon circles, pills</span></div>
+  </div>
+</section>
+
+<!-- Shadows -->
+<section class="ds-section" id="shadows">
+  <div class="ds-label">Foundation</div>
+  <h2 class="ds-title">Shadows</h2>
+  <p class="ds-desc">Three levels of shadow + glass shadow for frosted surfaces.</p>
+  <div class="ds-shadow-grid">
+    <div class="ds-shadow-box" style="box-shadow:0 1px 3px rgba(0,0,0,0.08)">sm</div>
+    <div class="ds-shadow-box" style="box-shadow:0 2px 8px rgba(0,0,0,0.10)">md</div>
+    <div class="ds-shadow-box" style="box-shadow:0 4px 24px rgba(0,0,0,0.20)">lg</div>
+    <div class="ds-shadow-box" style="box-shadow:0 8px 32px rgba(0,0,0,0.12);border:1px solid var(--border)">glass</div>
+  </div>
+</section>
+
+<!-- CSS Tokens -->
+<section class="ds-section" id="tokens">
+  <div class="ds-label">Code</div>
+  <h2 class="ds-title">CSS Custom Properties</h2>
+  <p class="ds-desc">All design tokens available in <code>app/globals.css</code> and <code>tailwind.config.ts</code>. Use these CSS custom properties directly or via Tailwind utility classes.</p>
+
+  <div class="grid-2">
+    <div>
+      <h4 class="ds-type-token mb-2">Color Tokens</h4>
+      <div class="ds-code-block">
+--color-rose: #C1839F;<br>
+--color-rose-dark: #A36683;<br>
+--color-rose-light: #F7EDF2;<br>
+--color-forest: #1C3D2E;<br>
+--color-forest-dark: #0F241A;<br>
+--color-forest-light: #2A5A44;<br>
+--color-forest-mist: #E8F0EC;<br>
+--color-teal: #087E8B; <span class="comment">/* legacy */</span><br>
+--color-ink: #262627;<br>
+--color-ink-soft: #1D2130;<br>
+--color-body: #525A61;<br>
+--color-muted-text: #848991;<br>
+--color-placeholder: #9CA3AF;<br>
+--color-border: #E5E5E5;<br>
+--color-surface: #F2F4F8;<br>
+--color-white: #FFFFFF;<br>
+--color-coral: #FF5A5F;
+      </div>
+    </div>
+    <div>
+      <h4 class="ds-type-token mb-2">Tailwind Utilities</h4>
+      <div class="ds-code-block">
+<span class="comment">/* bg / text / border utilities */</span><br>
+bg-rose, text-rose, border-rose<br>
+bg-forest, text-forest, border-forest<br>
+bg-ink, text-ink<br>
+bg-body, text-body<br>
+bg-coral, text-coral<br>
+bg-teal, text-teal <span class="comment">/* legacy */</span><br>
+<br>
+<span class="comment">/* shadcn/ui semantic colors */</span><br>
+bg-primary → rose<br>
+bg-secondary → forest green<br>
+bg-section-dark → #1D2130<br>
+bg-background → white<br>
+text-foreground → #1D2130<br>
+text-muted-foreground → #525A61
+      </div>
+    </div>
+  </div>
+
+  <h4 class="ds-type-token mt-6 mb-2">Radius & Shadow Tokens</h4>
+  <div class="grid-2">
+    <div class="ds-code-block">
+<span class="comment">/* Border radius */</span><br>
+--radius-xs: 4px;<br>
+--radius-sm: 8px;<br>
+--radius-md: 12px;<br>
+--radius-lg: 24px;<br>
+--radius-xl: 32px;<br>
+--radius-full: 999px;
+    </div>
+    <div class="ds-code-block">
+<span class="comment">/* Shadows */</span><br>
+--shadow-sm: 0 1px 3px rgba(0,0,0,0.08);<br>
+--shadow-md: 0 2px 8px rgba(0,0,0,0.10);<br>
+--shadow-lg: 0 4px 24px rgba(0,0,0,0.20);<br>
+--shadow-glass: 0 8px 32px rgba(0,0,0,0.12);
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer style="background:var(--surface);padding:32px 0;text-align:center">
+  <div class="ds-container">
+    <p style="font-size:14px;color:var(--muted)">Eternal Fitness Design System · Built from Eternal Fitness 2026.fig</p>
+    <p style="font-size:12px;color:var(--placeholder);margin-top:4px">Last updated May 2026 · Forest Green replaces teal as secondary brand color</p>
+  </div>
+</footer>
+
+</body>
+</html>

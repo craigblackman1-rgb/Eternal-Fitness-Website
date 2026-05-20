@@ -44,7 +44,7 @@ export default function AboutPageClient() {
       {/* Story */}
       <section id="story" className="py-20 md:py-28 px-6 md:px-12 bg-background">
         <div className="max-w-6xl mx-auto">
-          <div className="flex justify-center mb-6"><span className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-1.5 rounded-full text-sm font-medium">✦ My Story</span></div>
+          <div className="flex justify-center mb-6"><span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold">✦ My Story</span></div>
           <h2 className="text-3xl md:text-4xl text-foreground text-center mb-14">I Have Been Where You Are</h2>
           <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
             <div>
@@ -62,7 +62,7 @@ export default function AboutPageClient() {
       <section className="py-20 md:py-28 bg-muted">
         <div className="max-w-6xl mx-auto px-6 md:px-12">
           <div className="text-center mb-14">
-            <span className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-4">✦ Qualifications</span>
+            <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">✦ Qualifications</span>
             <h2 className="text-3xl md:text-4xl text-foreground mb-4">Qualified to Help Where Others Cannot</h2>
             <p className="text-muted-foreground font-body text-base max-w-2xl mx-auto">Most personal trainers hold a Level 3 qualification. I hold Level 4 — alongside specialist certifications that are rare in any fitness setting.</p>
           </div>
@@ -81,7 +81,7 @@ export default function AboutPageClient() {
       {/* Experience */}
       <section className="py-20 md:py-28 px-6 md:px-12 bg-background">
         <div className="max-w-6xl mx-auto">
-          <div className="flex justify-center mb-6"><span className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-1.5 rounded-full text-sm font-medium">✦ Experience</span></div>
+          <div className="flex justify-center mb-6"><span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold">✦ Experience</span></div>
           <h2 className="text-3xl md:text-4xl text-foreground text-center mb-6">Experience Across the Full Range of Human Complexity</h2>
           <div className="max-w-3xl mx-auto text-center mb-14">
             <p className="text-muted-foreground font-body text-base leading-relaxed mb-5">Over the years, I have worked with clients that most personal trainers would not know how to support — cancer treatment survivors and people in recovery, people managing serious chronic health conditions (fibromyalgia, ME/CFS, autoimmune diseases, heart conditions), people in post-surgical or post-fracture rehabilitation, people with physical disabilities and mobility limitations, clients with significant visual impairment, people with neurological conditions (Parkinson's, MS, stroke recovery), and anyone whose health situation doesn't fit into mainstream fitness templates.</p>
@@ -101,7 +101,7 @@ export default function AboutPageClient() {
         <div className="max-w-6xl mx-auto px-6 md:px-12">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <span className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-4">✦ Philosophy</span>
+              <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">✦ Philosophy</span>
               <h2 className="text-3xl md:text-4xl text-foreground leading-tight mb-6">The Philosophy</h2>
               <p className="text-muted-foreground font-body text-base leading-relaxed mb-5">Eternal Fitness is not a weight loss service. It is not about transforming your body into something it is not. It is about rehabilitation and recovery — finding out what your body is capable of right now, with all the health conditions, medications, limitations, and recovery status it is currently dealing with — and building steadily from there.</p>
               <p className="text-muted-foreground font-body text-base leading-relaxed mb-6">The goal is not a six-week result. It is returning to activities after cancer treatment. Being able to move with less pain. Having better fatigue management. Managing your chronic condition without fear. Recovering full function after injury. Climbing stairs. Walking further. Moving through life with more ease, capability, and confidence than before. That takes time, consistency, and working with someone who genuinely understands medical complexity and adjusts when your health or capacity changes. That is what I do.</p>
@@ -120,7 +120,7 @@ export default function AboutPageClient() {
       <section className="py-20 md:py-28 bg-section-dark">
         <div className="max-w-6xl mx-auto px-6 md:px-12">
           <div className="text-center mb-14">
-            <span className="inline-flex items-center gap-2 bg-accent/20 text-primary-foreground px-4 py-1.5 rounded-full text-sm font-medium mb-4">✦ Studio</span>
+            <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">✦ Studio</span>
             <h2 className="text-3xl md:text-4xl text-primary-foreground mb-4">A Private Space in Worthing</h2>
             <p className="text-primary-foreground/70 font-body text-base max-w-2xl mx-auto">Sessions take place in a small, private, fully equipped studio. No public gym floor. No other clients watching. No ambient pressure of what anyone else around you is doing.</p>
           </div>
@@ -140,7 +140,7 @@ export default function AboutPageClient() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-14 gap-6">
             <div>
-              <span className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-4">✦ Long-Term Progress</span>
+              <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">✦ Long-Term Progress</span>
               <h2 className="text-3xl md:text-4xl text-foreground">Why the Long-Term Approach Matters</h2>
             </div>
             <p className="text-muted-foreground font-body text-base max-w-md">Quick fixes do not work. Sustainable change does — and Eternal Fitness is built around that belief.</p>

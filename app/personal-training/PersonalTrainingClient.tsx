@@ -114,7 +114,7 @@ export default function PersonalTrainingClient() {
       {/* What to Expect */}
       <section id="what" className="py-20 md:py-28 px-6 md:px-12 bg-background">
         <div className="max-w-6xl mx-auto">
-          <span className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+          <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
             What to Expect
           </span>
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -150,7 +150,7 @@ export default function PersonalTrainingClient() {
       <section className="py-20 md:py-28 bg-muted">
         <div className="max-w-6xl mx-auto px-6 md:px-12">
           <div className="text-center mb-14">
-            <span className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+            <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
               Specialist Areas
             </span>
             <h2 className="text-3xl md:text-4xl text-foreground mb-4">Who I Work With</h2>
@@ -174,7 +174,7 @@ export default function PersonalTrainingClient() {
         <div className="max-w-6xl mx-auto px-6 md:px-12">
           <div className="grid md:grid-cols-2 gap-12 items-start mb-12">
             <div>
-              <span className="inline-flex items-center gap-2 bg-primary/20 text-primary-foreground px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+              <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
                 What I Work On
               </span>
               <h2 className="text-3xl md:text-4xl text-primary-foreground leading-tight mb-4">
@@ -216,7 +216,7 @@ export default function PersonalTrainingClient() {
       {/* How It Works */}
       <section className="py-20 md:py-28 px-6 md:px-12 bg-background">
         <div className="max-w-6xl mx-auto text-center">
-          <span className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+          <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
             The Process
           </span>
           <h2 className="text-3xl md:text-4xl text-foreground mb-14">How It Works</h2>
@@ -250,7 +250,7 @@ export default function PersonalTrainingClient() {
       <section className="py-20 md:py-28 px-6 md:px-12 bg-muted">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
-            <span className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+            <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
               Learn More
             </span>
             <h2 className="text-3xl md:text-4xl text-foreground mb-4">Related Articles</h2>

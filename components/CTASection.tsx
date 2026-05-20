@@ -14,7 +14,7 @@ const CTASection = ({ onBookConsultation }: CTASectionProps) => {
         <div className="relative h-64 md:h-auto">
           <Image src="/images/studio-1.jpg" alt="Private personal training studio Worthing" fill className="object-cover" sizes="50vw" />
         </div>
-        <div className="bg-primary flex items-center px-8 md:px-16 py-12 md:py-0">
+        <div className="bg-secondary flex items-center px-8 md:px-16 py-12 md:py-0">
           <div>
             <h2 className="font-display text-3xl md:text-4xl text-primary-foreground leading-tight mb-4">
               Ready to Find Out If This Is Right for You?
@@ -24,11 +24,11 @@ const CTASection = ({ onBookConsultation }: CTASectionProps) => {
             </p>
             <div className="flex flex-wrap gap-4">
               {onBookConsultation ? (
-                <button onClick={onBookConsultation} className="inline-flex items-center gap-2 bg-section-dark text-primary-foreground px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-opacity">
+                <button onClick={onBookConsultation} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-opacity">
                   Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
                 </button>
               ) : (
-                <a href="/contact" className="inline-flex items-center gap-2 bg-section-dark text-primary-foreground px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-opacity">
+                <a href="/contact" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-opacity">
                   Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
                 </a>
               )}

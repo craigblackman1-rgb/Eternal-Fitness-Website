@@ -7,7 +7,7 @@ const WhoSection = () => {
       <div className="max-w-6xl mx-auto px-6 md:px-12">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
           <div>
-            <span className="inline-flex items-center gap-2 bg-primary/20 text-primary-foreground px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+            <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
               ✦ Who This Is For
             </span>
             <h2 className="text-3xl md:text-4xl text-primary-foreground">If You Have Been Told Fitness Is Not for You — It Is</h2>

@@ -5,37 +5,37 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 30 9% 21%;
+    --foreground: 228 27% 17%;
 
     --card: 0 0% 100%;
-    --card-foreground: 30 9% 21%;
+    --card-foreground: 228 27% 17%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 30 9% 21%;
+    --popover-foreground: 228 27% 17%;
 
-    --primary: 186 89% 29%;
+    --primary: 357 100% 67.5%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 333 33% 64%;
-    --secondary-foreground: 333 30% 20%;
+    --secondary: 186 88% 28%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 36 28% 93%;
-    --muted-foreground: 22 5% 40%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 37%;
 
-    --accent: 333 33% 64%;
-    --accent-foreground: 333 30% 20%;
+    --accent: 317 20% 60%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 33 14% 87%;
-    --input: 33 14% 87%;
-    --ring: 186 89% 29%;
+    --border: 0 0% 90%;
+    --input: 0 0% 96%;
+    --ring: 357 100% 67.5%;
 
     --radius: 0.75rem;
 
-    --hero-overlay: 160 20% 15%;
-    --section-dark: 160 20% 15%;
+    --hero-overlay: 0 0% 0%;
+    --section-dark: 228 27% 17%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -49,38 +49,33 @@
     --font-display: var(--font-dm-sans), 'DM Sans', sans-serif;
     --font-body: var(--font-dm-sans), 'DM Sans', sans-serif;
 
-    /* Design System — named color tokens (OKLch-compatible hex) */
-    --color-teal: #087E8B;
-    --color-teal-dark: #065F6A;
-    --color-teal-light: #E6F5F7;
     --color-rose: #C1839F;
-    --color-rose-dark: #A66887;
+    --color-rose-dark: #A36683;
     --color-rose-light: #F7EDF2;
-    --color-earth: #C47B5A;
-    --color-earth-dark: #A85F3E;
-    --color-earth-light: #F7EDE6;
-    --color-dark: #1E2D27;
-    --color-charcoal: #3A3530;
-    --color-mid: #6B6460;
-    --color-border: #E5E0DA;
-    --color-light: #F2EEE8;
-    --color-off-white: #FAF6F2;
+    --color-teal: #087EBB;
+    --color-teal-dark: #065A7A;
+    --color-teal-light: #E0F7FA;
+    --color-ink: #3C3C3C;
+    --color-body: #3C3C3C;
+    --color-hot-pink: #FF5A5F;
+    --color-muted-text: #848991;
+    --color-placeholder: #9CA3AF;
+    --color-border: #E5E5E5;
+    --color-surface: #F2F4F8;
     --color-white: #FFFFFF;
 
-    /* Design System — radii */
-    --radius-sm: 6px;
+    --radius-xs: 4px;
+    --radius-sm: 8px;
     --radius-md: 12px;
-    --radius-lg: 20px;
-    --radius-xl: 28px;
-    --radius-full: 9999px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
+    --radius-full: 999px;
 
-    /* Design System — shadows */
-    --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-    --shadow-md: 0 4px 16px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.05);
-    --shadow-lg: 0 12px 40px rgba(0,0,0,.12), 0 4px 12px rgba(0,0,0,.06);
-    --shadow-xl: 0 24px 64px rgba(0,0,0,.16);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 2px 8px rgba(0,0,0,0.10);
+    --shadow-lg: 0 4px 24px rgba(0,0,0,0.20);
+    --shadow-glass: 0 8px 32px rgba(0,0,0,0.12);
 
-    /* Design System — motion */
     --ease: cubic-bezier(0.4, 0, 0.2, 1);
     --duration-sm: 150ms;
     --duration-md: 250ms;
@@ -93,19 +88,19 @@
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 350 35% 60%;
+    --primary: 357 100% 67.5%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 186 88% 28%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 180 70% 32%;
+    --accent: 317 20% 60%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 357 100% 67.5%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
