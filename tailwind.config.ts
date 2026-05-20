@@ -54,23 +54,25 @@ export default {
         "hero-overlay": "hsl(var(--hero-overlay))",
         "section-dark": "hsl(var(--section-dark))",
         teal: {
-          DEFAULT: "hsl(186, 88%, 28%)",
-          dark: "hsl(186, 88%, 22%)",
-          light: "hsl(186, 60%, 93%)",
+          DEFAULT: "var(--color-teal)",
         },
         rose: {
           DEFAULT: "var(--color-rose)",
-          dark: "var(--color-rose-dark)",
-          light: "var(--color-rose-light)",
         },
-        "hot-pink": {
-          DEFAULT: "var(--color-hot-pink)",
+        slate: {
+          DEFAULT: "var(--color-slate)",
         },
-        ink: {
-          DEFAULT: "var(--color-ink)",
+        "near-black": {
+          DEFAULT: "var(--color-near-black)",
         },
-        body: {
-          DEFAULT: "var(--color-body)",
+        "dark-navy": {
+          DEFAULT: "var(--color-dark-navy)",
+        },
+        "light-gray": {
+          DEFAULT: "var(--color-light-gray)",
+        },
+        "off-white": {
+          DEFAULT: "var(--color-off-white)",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

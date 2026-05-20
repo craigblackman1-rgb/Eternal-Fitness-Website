@@ -4,65 +4,73 @@
 
 @layer base {
   :root {
+    /* ===== FIGMA CORE COLORS (EXACT HEX VALUES) ===== */
+    --color-white: #FFFFFF;
+    --color-rose: #C1839F;
+    --color-black: #000000;
+    --color-teal: #087E8B;
+    --color-slate: #525A61;
+    --color-near-black: #1E1E1E;
+    --color-dark-navy: #282B38;
+    --color-light-gray: #D9D9D9;
+    --color-off-white: #F1F1F1;
+
+    /* ===== FIGMA OPACITY COLORS (FOR SHADOWS/OVERLAYS) ===== */
+    --color-white-5: rgba(255, 255, 255, 0.05);
+    --color-white-9: rgba(255, 255, 255, 0.09);
+    --color-white-24: rgba(255, 255, 255, 0.24);
+    --color-white-30: rgba(255, 255, 255, 0.30);
+    --color-gray-50: rgba(156, 163, 175, 0.50);
+    --color-black-5: rgba(0, 0, 0, 0.05);
+    --color-black-40: rgba(0, 0, 0, 0.40);
+    --color-black-56: rgba(0, 0, 0, 0.56);
+    --color-gray-40: rgba(162, 170, 181, 0.40);
+
+    /* ===== SEMANTIC TAILWIND COLORS ===== */
     --background: 0 0% 100%;
-    --foreground: 228 27% 17%;
+    --foreground: 0 0% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 228 27% 17%;
+    --card-foreground: 0 0% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 228 27% 17%;
+    --popover-foreground: 0 0% 12%;
 
-    --primary: 357 100% 67.5%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
 
-    --secondary: 186 88% 28%;
+    --secondary: 196 19% 33%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 37%;
+    --muted: 220 13% 91%;
+    --muted-foreground: 219 10% 40%;
 
-    --accent: 317 20% 60%;
+    --accent: 344 71% 63%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 344 71% 63%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 96%;
-    --ring: 357 100% 67.5%;
+    --border: 220 13% 91%;
+    --input: 0 0% 97%;
+    --ring: 344 71% 63%;
 
     --radius: 0.75rem;
 
     --hero-overlay: 0 0% 0%;
-    --section-dark: 228 27% 17%;
+    --section-dark: 196 19% 33%;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 12%;
+    --sidebar-primary: 344 71% 63%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 13% 91%;
+    --sidebar-accent-foreground: 0 0% 12%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 344 71% 63%;
 
     --font-display: var(--font-dm-sans), 'DM Sans', sans-serif;
     --font-body: var(--font-dm-sans), 'DM Sans', sans-serif;
-
-    --color-rose: #C1839F;
-    --color-rose-dark: #A36683;
-    --color-rose-light: #F7EDF2;
-    --color-teal: #087EBB;
-    --color-teal-dark: #065A7A;
-    --color-teal-light: #E0F7FA;
-    --color-ink: #3C3C3C;
-    --color-body: #3C3C3C;
-    --color-hot-pink: #FF5A5F;
-    --color-muted-text: #848991;
-    --color-placeholder: #9CA3AF;
-    --color-border: #E5E5E5;
-    --color-surface: #F2F4F8;
-    --color-white: #FFFFFF;
 
     --radius-xs: 4px;
     --radius-sm: 8px;
