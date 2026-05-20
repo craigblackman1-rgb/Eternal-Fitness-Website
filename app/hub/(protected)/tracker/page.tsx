@@ -123,7 +123,7 @@ function computeFlag(row: TrackerRow): { label: string; variant: "ok" | "na" | "
   }
 
   // If auto-clearance condition detected but not cleared, show URGENT
-  if (autoFlagDetected && row.clearance_status !== "CLEARED") {
+  if (autoFlagDetected) {
     return { label: "URGENT", variant: "urgent" };
   }
 
