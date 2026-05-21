@@ -51,7 +51,7 @@ export default function PrivacyPolicyClient() {
             We are committed to protecting your personal information and your right to privacy. This policy explains what information we collect, how we use it, and your rights.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <a href="/contact" className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
+            <a href="/contact" className="inline-flex items-center gap-2 bg-teal text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
               Book a Free Consultation
             </a>
             <a href="#information-collect" className="inline-flex items-center gap-2 border border-white/40 text-white px-7 py-3 rounded-full font-medium hover:bg-white/10 transition-colors">

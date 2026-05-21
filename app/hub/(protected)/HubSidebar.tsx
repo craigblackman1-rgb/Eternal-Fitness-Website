@@ -35,63 +35,62 @@ export function HubSidebar() {
 
   return (
     <aside className="flex w-64 flex-col border-r bg-white">
-      {/* Brand header */}
-      <div className="flex items-center gap-3 p-5">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="32" height="32" rx="8" fill="hsl(186, 89%, 29%)" />
-          <path d="M16 26c-5.5 0-10-4.5-10-10S10.5 6 16 6s10 4.5 10 10-4.5 10-10 10z" fill="white" opacity="0.2" />
-          <path d="M16 24c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="white" opacity="0.3" />
-          <path d="M16 22c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z" fill="white" />
-          <path d="M19 10l-3 10-3-4-4 3" stroke="hsl(186, 89%, 29%)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-        </svg>
+      {/* Brand header — uses Eternal Fitness rose + real identity */}
+      <div className="flex items-center gap-3 p-5 border-b border-border/50">
+        <div className="w-9 h-9 rounded-xl bg-rose flex items-center justify-center">
+          <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 26c-5.5 0-10-4.5-10-10S10.5 6 16 6s10 4.5 10 10-4.5 10-10 10z" fill="white" opacity="0.3" />
+            <path d="M16 24c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="white" opacity="0.5" />
+            <path d="M16 22c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z" fill="white" />
+            <path d="M19 10l-3 10-3-4-4 3" stroke="hsl(318, 86%, 63%)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          </svg>
+        </div>
         <div>
-          <span className="text-sm font-bold text-rose">Eternal Fitness</span>
-          <p className="text-xs text-muted-foreground">Trainer Hub</p>
+          <span className="text-sm font-bold text-rose leading-tight block">Eternal Fitness</span>
+          <span className="text-xs text-muted-foreground">Trainer Hub</span>
         </div>
       </div>
 
-      <Separator />
-
-      {/* Navigation */}
+      {/* Navigation — rose active state matching website */}
       <nav className="flex-1 space-y-1 p-3">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || (item.href !== "/hub" && pathname.startsWith(item.href));
+          const isActive = pathname === item.href || (item.href !== "/hub" && pathname.startsWith(item.href + "/"));
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
                 isActive
-                  ? "bg-rose/15 text-rose font-semibold"
-                  : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
+                  ? "bg-rose/10 text-rose font-semibold"
+                  : "text-slate hover:bg-off-white hover:text-foreground"
               )}
             >
-              <Icon className={cn("h-4 w-4", isActive ? "text-rose" : "")} />
+              <Icon className={cn("h-4 w-4 transition-colors", isActive ? "text-rose" : "text-muted-foreground")} />
               {item.label}
             </Link>
           );
         })}
       </nav>
 
-      <Separator />
+      <Separator className="mx-3" />
 
-      {/* User section */}
+      {/* User section — warm, personal */}
       <div className="p-3 space-y-1">
-        <div className="flex items-center gap-3 px-3 py-2">
-          <div className="w-7 h-7 rounded-full bg-rose/20 text-rose flex items-center justify-center text-xs font-bold">
+        <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-off-white/60 mx-1">
+          <div className="w-8 h-8 rounded-full bg-rose text-white flex items-center justify-center text-xs font-bold shrink-0">
             EF
           </div>
-          <div className="text-xs">
-            <p className="font-medium text-foreground">Esther Fair</p>
+          <div className="text-xs min-w-0">
+            <p className="font-semibold text-foreground truncate">Esther Fair</p>
             <p className="text-muted-foreground">Level 4 PT</p>
           </div>
         </div>
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground rounded-lg"
+          className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground hover:bg-off-white rounded-xl mt-1"
           onClick={handleSignOut}
         >
           <LogOut className="h-4 w-4" />

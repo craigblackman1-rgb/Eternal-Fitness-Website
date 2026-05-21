@@ -34,14 +34,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white">
-      <Card className="w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-off-white">
+      <Card className="w-full max-w-md shadow-sm border-border/60 rounded-2xl">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex items-center gap-2">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="16" cy="16" r="16" fill="#087E8B"/>
-              <path d="M10 22V12l6-4 6 4v10h-4v-6h-4v6h-4z" fill="white"/>
-            </svg>
+            <div className="w-10 h-10 rounded-xl bg-rose flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 26c-5.5 0-10-4.5-10-10S10.5 6 16 6s10 4.5 10 10-4.5 10-10 10z" fill="white" opacity="0.3" />
+                <path d="M16 24c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="white" opacity="0.5" />
+                <path d="M16 22c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z" fill="white" />
+                <path d="M19 10l-3 10-3-4-4 3" stroke="hsl(318, 86%, 63%)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+              </svg>
+            </div>
             <span className="text-xl font-bold text-rose">Eternal Fitness</span>
           </div>
           <CardTitle>Hub Login</CardTitle>
@@ -75,7 +79,7 @@ export default function LoginPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full rounded-full bg-rose hover:bg-rose/90 text-white" disabled={loading}>
               {loading ? "Signing in..." : "Sign in"}
             </Button>
           </form>

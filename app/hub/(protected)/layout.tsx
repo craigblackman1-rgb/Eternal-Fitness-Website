@@ -11,13 +11,30 @@ export default async function HubLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-off-white">
       <HubSidebar />
-      <main className="flex-1 overflow-auto">
-        <div className="mx-auto max-w-6xl p-6 lg:p-8">
-          {children}
-        </div>
-      </main>
+      <div className="flex-1 flex flex-col">
+        {/* Top bar — subtle, matches website header feel */}
+        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-border/50">
+          <div className="mx-auto max-w-6xl px-6 lg:px-8 h-14 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="text-rose font-semibold">Hub</span>
+              <span>/</span>
+              <span className="text-foreground font-medium">Dashboard</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-full bg-rose/10 text-rose flex items-center justify-center text-xs font-bold">
+                EF
+              </div>
+            </div>
+          </div>
+        </header>
+        <main className="flex-1 overflow-auto">
+          <div className="mx-auto max-w-6xl p-6 lg:p-8">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
