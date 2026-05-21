@@ -12,6 +12,7 @@ import {
   BookText,
   LogOut,
   ClipboardList,
+  FileSignature,
 } from "lucide-react";
 
 const navItems = [
@@ -19,6 +20,7 @@ const navItems = [
   { href: "/hub/clients", label: "Clients", icon: Users },
   { href: "/hub/exercises", label: "Exercise Library", icon: BookText },
   { href: "/hub/tracker", label: "Medical Tracker", icon: ClipboardList },
+  { href: "/hub/agreements", label: "Agreements", icon: FileSignature },
 ];
 
 export function HubSidebar() {

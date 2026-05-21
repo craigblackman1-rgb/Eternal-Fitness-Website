@@ -20,10 +20,6 @@ interface FormData {
   clientSignatureDate: string;
   clientSignature: string;
   clientTypedSignature: string;
-  trainerNamePrint: string;
-  trainerSignatureDate: string;
-  trainerSignature: string;
-  trainerTypedSignature: string;
   parqCompleted: "yes" | "no" | "";
   parqDate: string;
   parqFiledBy: string;
@@ -49,10 +45,6 @@ const initialFormData: FormData = {
   clientSignatureDate: "",
   clientSignature: "",
   clientTypedSignature: "",
-  trainerNamePrint: "Esther Fair",
-  trainerSignatureDate: "",
-  trainerSignature: "",
-  trainerTypedSignature: "",
   parqCompleted: "",
   parqDate: "",
   parqFiledBy: "",
@@ -66,6 +58,8 @@ export default function AgreementPage() {
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const agreementRef = useRef<HTMLDivElement>(null);
 
   const handleChange = (field: keyof FormData, value: string) => {
@@ -116,14 +110,43 @@ export default function AgreementPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
-      setIsSubmitted(true);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
+    setSubmitError(null);
+
+    if (!validate()) {
       const firstError = document.querySelector("[data-error-first]");
       firstError?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/agreements", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          trainerNamePrint: "Esther Fair",
+          trainerSignatureDate: new Date().toISOString().split("T")[0],
+          trainerTypedSignature: "Esther Fair",
+          agreedToTerms,
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || "Failed to save agreement");
+      }
+
+      setIsSubmitted(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Something went wrong");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -166,7 +189,7 @@ export default function AgreementPage() {
             Thank you, {formData.clientName}. Your personal training agreement has been completed and saved.
           </p>
           <p className="text-sm text-[#525A61] mb-6">
-            A copy of this agreement will be held securely on file. You can request access to your data at any time.
+            A copy of this agreement is held securely on file. You can request access to your data at any time.
           </p>
           <div className="flex gap-3 justify-center">
             <Button
@@ -181,6 +204,7 @@ export default function AgreementPage() {
                 setIsSubmitted(false);
                 setFormData(initialFormData);
                 setAgreedToTerms(false);
+                setSubmitError(null);
               }}
               variant="outline"
             >
@@ -218,6 +242,14 @@ export default function AgreementPage() {
           </header>
 
           <form onSubmit={handleSubmit} noValidate className="px-6 py-6 space-y-8">
+            {/* Submit error */}
+            {submitError && (
+              <div className="bg-red-50 border border-red-200 rounded-md p-4" role="alert">
+                <p className="text-red-800 text-sm font-semibold">Error saving agreement</p>
+                <p className="text-red-700 text-sm mt-1">{submitError}</p>
+              </div>
+            )}
+
             {/* Error summary */}
             {Object.keys(errors).length > 0 && (
               <div
@@ -364,7 +396,6 @@ export default function AgreementPage() {
                     id="trainerName"
                     type="text"
                     value={formData.trainerName}
-                    onChange={(e) => handleChange("trainerName", e.target.value)}
                     className={inputClass("trainerName")}
                     readOnly
                     aria-readonly="true"
@@ -379,7 +410,6 @@ export default function AgreementPage() {
                     id="businessName"
                     type="text"
                     value={formData.businessName}
-                    onChange={(e) => handleChange("businessName", e.target.value)}
                     className={inputClass("businessName")}
                     readOnly
                     aria-readonly="true"
@@ -797,46 +827,20 @@ export default function AgreementPage() {
                 </div>
               </div>
 
-              {/* Trainer signature - pre-filled, read-only */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-                <div>
-                  <Label htmlFor="trainerNamePrint" className="text-[#1E1E1E] font-medium mb-2 block">
-                    Trainer name (print)
-                  </Label>
-                  <Input
-                    id="trainerNamePrint"
-                    type="text"
-                    value={formData.trainerNamePrint}
-                    onChange={(e) => handleChange("trainerNamePrint", e.target.value)}
-                    className={inputClass("trainerNamePrint")}
-                    readOnly
-                    aria-readonly="true"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="trainerSignatureDate" className="text-[#1E1E1E] font-medium mb-2 block">
-                    Date
-                  </Label>
-                  <Input
-                    id="trainerSignatureDate"
-                    type="date"
-                    value={formData.trainerSignatureDate}
-                    onChange={(e) => handleChange("trainerSignatureDate", e.target.value)}
-                    className={inputClass("trainerSignatureDate")}
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <Label className="text-[#1E1E1E] font-medium mb-2 block">
-                    Trainer signature
-                  </Label>
-                  <SignaturePad
-                    label="Trainer signature"
-                    value={formData.trainerSignature}
-                    typedValue={formData.trainerTypedSignature}
-                    onChange={(val) => handleChange("trainerSignature", val)}
-                    onTypedChange={(val) => handleChange("trainerTypedSignature", val)}
-                    prefillText="Esther Fair"
-                  />
+              {/* Trainer signature - auto-signed */}
+              <div className="bg-[#F1F1F1] rounded-md p-4 mb-8">
+                <p className="text-sm text-[#525A61] mb-3">
+                  Trainer signature is applied automatically by Esther Fair upon client submission.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-[#1E1E1E] font-medium text-sm">Trainer name (print)</Label>
+                    <p className="text-sm text-[#1E1E1E] mt-1 font-medium">Esther Fair</p>
+                  </div>
+                  <div>
+                    <Label className="text-[#1E1E1E] font-medium text-sm">Trainer signature</Label>
+                    <p className="text-sm text-[#1E1E1E] mt-1 italic font-serif text-lg">Esther Fair</p>
+                  </div>
                 </div>
               </div>
 
@@ -948,9 +952,20 @@ export default function AgreementPage() {
             <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-[#D9D9D9]">
               <Button
                 type="submit"
-                className="bg-[#087E8B] text-white hover:bg-[#087E8B]/90 px-8 py-3 text-base font-semibold"
+                disabled={isSubmitting}
+                className="bg-[#087E8B] text-white hover:bg-[#087E8B]/90 px-8 py-3 text-base font-semibold disabled:opacity-60"
               >
-                Sign and submit agreement
+                {isSubmitting ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Saving...
+                  </span>
+                ) : (
+                  "Sign and submit agreement"
+                )}
               </Button>
               <Button
                 type="button"
