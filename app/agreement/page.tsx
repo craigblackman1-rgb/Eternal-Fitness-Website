@@ -19,9 +19,11 @@ interface FormData {
   clientNamePrint: string;
   clientSignatureDate: string;
   clientSignature: string;
+  clientTypedSignature: string;
   trainerNamePrint: string;
   trainerSignatureDate: string;
   trainerSignature: string;
+  trainerTypedSignature: string;
   parqCompleted: "yes" | "no" | "";
   parqDate: string;
   parqFiledBy: string;
@@ -46,9 +48,11 @@ const initialFormData: FormData = {
   clientNamePrint: "",
   clientSignatureDate: "",
   clientSignature: "",
-  trainerNamePrint: "",
+  clientTypedSignature: "",
+  trainerNamePrint: "Esther Fair",
   trainerSignatureDate: "",
   trainerSignature: "",
+  trainerTypedSignature: "",
   parqCompleted: "",
   parqDate: "",
   parqFiledBy: "",
@@ -87,7 +91,6 @@ export default function AgreementPage() {
       "startDate",
       "clientNamePrint",
       "clientSignatureDate",
-      "clientSignature",
     ];
 
     requiredFields.forEach((field) => {
@@ -95,6 +98,11 @@ export default function AgreementPage() {
         newErrors[field] = "This field is required";
       }
     });
+
+    const hasClientSignature = formData.clientSignature || formData.clientTypedSignature;
+    if (!hasClientSignature) {
+      newErrors.clientSignature = "A signature is required";
+    }
 
     if (formData.clientEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.clientEmail)) {
       newErrors.clientEmail = "Please enter a valid email address";
@@ -359,6 +367,7 @@ export default function AgreementPage() {
                     onChange={(e) => handleChange("trainerName", e.target.value)}
                     className={inputClass("trainerName")}
                     readOnly
+                    aria-readonly="true"
                   />
                 </div>
 
@@ -373,6 +382,7 @@ export default function AgreementPage() {
                     onChange={(e) => handleChange("businessName", e.target.value)}
                     className={inputClass("businessName")}
                     readOnly
+                    aria-readonly="true"
                   />
                 </div>
               </div>
@@ -778,14 +788,16 @@ export default function AgreementPage() {
                   <SignaturePad
                     label="Client signature"
                     value={formData.clientSignature}
+                    typedValue={formData.clientTypedSignature}
                     onChange={(val) => handleChange("clientSignature", val)}
+                    onTypedChange={(val) => handleChange("clientTypedSignature", val)}
                     required
                     error={errors.clientSignature}
                   />
                 </div>
               </div>
 
-              {/* Trainer signature */}
+              {/* Trainer signature - pre-filled, read-only */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
                 <div>
                   <Label htmlFor="trainerNamePrint" className="text-[#1E1E1E] font-medium mb-2 block">
@@ -797,6 +809,8 @@ export default function AgreementPage() {
                     value={formData.trainerNamePrint}
                     onChange={(e) => handleChange("trainerNamePrint", e.target.value)}
                     className={inputClass("trainerNamePrint")}
+                    readOnly
+                    aria-readonly="true"
                   />
                 </div>
                 <div>
@@ -818,7 +832,10 @@ export default function AgreementPage() {
                   <SignaturePad
                     label="Trainer signature"
                     value={formData.trainerSignature}
+                    typedValue={formData.trainerTypedSignature}
                     onChange={(val) => handleChange("trainerSignature", val)}
+                    onTypedChange={(val) => handleChange("trainerTypedSignature", val)}
+                    prefillText="Esther Fair"
                   />
                 </div>
               </div>

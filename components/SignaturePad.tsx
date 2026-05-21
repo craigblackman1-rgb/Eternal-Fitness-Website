@@ -2,29 +2,37 @@
 
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface SignaturePadProps {
   label: string;
   value?: string;
+  typedValue?: string;
   onChange: (dataUrl: string) => void;
+  onTypedChange?: (text: string) => void;
   required?: boolean;
   error?: string;
   className?: string;
+  prefillText?: string;
 }
 
 export function SignaturePad({
   label,
   value,
+  typedValue = "",
   onChange,
+  onTypedChange,
   required = false,
   error,
   className,
+  prefillText,
 }: SignaturePadProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasSignature, setHasSignature] = useState(false);
-  const [isDrawingMode, setIsDrawingMode] = useState(false);
+  const [useTypedSignature, setUseTypedSignature] = useState(!!prefillText);
   const [liveRegionMessage, setLiveRegionMessage] = useState("");
 
   const lastPoint = useRef<{ x: number; y: number } | null>(null);
@@ -57,7 +65,7 @@ export function SignaturePad({
       ctx.lineJoin = "round";
     }
 
-    if (value) {
+    if (value && !useTypedSignature) {
       const img = new Image();
       img.onload = () => {
         if (ctx) {
@@ -68,12 +76,12 @@ export function SignaturePad({
       };
       img.src = value;
     }
-  }, [value]);
+  }, [value, useTypedSignature]);
 
   useEffect(() => {
     initCanvas();
     const handleResize = () => {
-      if (hasSignature) {
+      if (hasSignature && !useTypedSignature) {
         const currentData = canvasRef.current?.toDataURL();
         initCanvas();
         if (currentData) {
@@ -93,7 +101,7 @@ export function SignaturePad({
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [initCanvas, hasSignature]);
+  }, [initCanvas, hasSignature, useTypedSignature]);
 
   const getRelativePos = (
     e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent
@@ -171,142 +179,116 @@ export function SignaturePad({
       ctx.clearRect(0, 0, rect.width, rect.height);
     }
     setHasSignature(false);
-    setIsDrawingMode(false);
     onChange("");
+    if (onTypedChange) onTypedChange("");
     setLiveRegionMessage("Signature cleared");
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      if (!isDrawingMode) {
-        setIsDrawingMode(true);
-        setLiveRegionMessage(
-          "Drawing mode enabled. Use arrow keys to draw. Press Escape to exit."
-        );
-      }
+  const handleTypedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const text = e.target.value;
+    if (onTypedChange) {
+      onTypedChange(text);
     }
-    if (e.key === "Escape" && isDrawingMode) {
-      setIsDrawingMode(false);
-      saveSignature();
-      setLiveRegionMessage("Drawing mode exited. Signature saved.");
+    setHasSignature(text.length > 0);
+    setLiveRegionMessage(text ? `Typed signature entered: ${text}` : "Typed signature cleared");
+  };
+
+  const toggleSignatureMode = () => {
+    const newMode = !useTypedSignature;
+    setUseTypedSignature(newMode);
+    if (newMode) {
+      setLiveRegionMessage("Switched to typed signature. Type your full name.");
+    } else {
+      setLiveRegionMessage("Switched to drawn signature. Use mouse or touch to draw.");
     }
   };
 
-  const handleArrowDraw = (dx: number, dy: number) => {
-    const canvas = canvasRef.current;
-    const ctx = getCanvasContext();
-    if (!canvas || !ctx) return;
-
-    if (!lastPoint.current) {
-      const rect = containerRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      lastPoint.current = { x: rect.width / 2, y: rect.height / 2 };
-    }
-
-    const pos = {
-      x: lastPoint.current.x + dx,
-      y: lastPoint.current.y + dy,
-    };
-
-    ctx.beginPath();
-    ctx.moveTo(lastPoint.current.x, lastPoint.current.y);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
-
-    lastPoint.current = pos;
-    setHasSignature(true);
-  };
-
-  useEffect(() => {
-    if (!isDrawingMode) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const step = 5;
-      switch (e.key) {
-        case "ArrowUp":
-          e.preventDefault();
-          handleArrowDraw(0, -step);
-          break;
-        case "ArrowDown":
-          e.preventDefault();
-          handleArrowDraw(0, step);
-          break;
-        case "ArrowLeft":
-          e.preventDefault();
-          handleArrowDraw(-step, 0);
-          break;
-        case "ArrowRight":
-          e.preventDefault();
-          handleArrowDraw(step, 0);
-          break;
-        case "Escape":
-          setIsDrawingMode(false);
-          saveSignature();
-          setLiveRegionMessage("Drawing mode exited. Signature saved.");
-          break;
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isDrawingMode]);
+  const fieldId = label.replace(/\s/g, "").toLowerCase();
 
   return (
     <div className={cn("w-full", className)}>
       <fieldset className="border-0 p-0 m-0">
         <legend className="sr-only">{label}</legend>
 
-        <div
-          ref={containerRef}
-          className={cn(
-            "relative w-full h-32 sm:h-40 border-2 rounded-md bg-white",
-            error ? "border-red-500" : "border-[#D9D9D9]",
-            isDrawingMode && "ring-2 ring-[#087E8B] border-[#087E8B]",
-            "focus-within:ring-2 focus-within:ring-[#087E8B] focus-within:border-[#087E8B]"
-          )}
-          role="application"
-          aria-label={`${label} - draw your signature`}
-          aria-describedby={`signature-help-${label.replace(/\s/g, "")}`}
-        >
-          {!hasSignature && !isDrawingMode && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className="text-[#525A61] text-sm italic">
-                Draw signature here
-              </span>
+        {onTypedChange && (
+          <div className="mb-3">
+            <button
+              type="button"
+              onClick={toggleSignatureMode}
+              className="text-sm text-[#087E8B] hover:text-[#087E8B]/80 underline focus:outline-none focus:ring-2 focus:ring-[#087E8B] focus:ring-offset-2 rounded px-2 py-1"
+              aria-label={useTypedSignature ? "Switch to drawn signature" : "Switch to typed signature"}
+            >
+              {useTypedSignature ? "Switch to drawn signature" : "Type your name instead"}
+            </button>
+          </div>
+        )}
+
+        {useTypedSignature && onTypedChange ? (
+          <div>
+            <Label htmlFor={`typed-${fieldId}`} className="text-[#1E1E1E] font-medium mb-2 block">
+              Type your full name as signature <span className="text-red-600" aria-hidden="true">*</span>
+            </Label>
+            <Input
+              id={`typed-${fieldId}`}
+              type="text"
+              value={typedValue}
+              onChange={handleTypedChange}
+              placeholder="Type your full name"
+              className={cn(
+                "w-full rounded-md border border-[#D9D9D9] bg-white px-3 py-2 text-[#1E1E1E] text-sm",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#087E8B] focus-visible:ring-offset-2",
+                error && "border-red-500 focus-visible:ring-red-500"
+              )}
+              required={required}
+              aria-required={required}
+              aria-invalid={!!error}
+              aria-describedby={error ? `${fieldId}-error` : undefined}
+            />
+            {typedValue && (
+              <p className="text-sm text-[#525A61] mt-2 italic">
+                Typed signature: {typedValue}
+              </p>
+            )}
+          </div>
+        ) : (
+          <div>
+            <div
+              ref={containerRef}
+              className={cn(
+                "relative w-full h-32 sm:h-40 border-2 rounded-md bg-white",
+                error ? "border-red-500" : "border-[#D9D9D9]",
+                "focus-within:ring-2 focus-within:ring-[#087E8B] focus-within:border-[#087E8B]"
+              )}
+              role="img"
+              aria-label={`${label} area - use mouse or touch to draw your signature`}
+            >
+              {!hasSignature && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <span className="text-[#525A61] text-sm italic">
+                    Draw signature here with mouse or finger
+                  </span>
+                </div>
+              )}
+
+              <canvas
+                ref={canvasRef}
+                className="absolute inset-0 w-full h-full cursor-crosshair touch-none"
+                onMouseDown={startDrawing}
+                onMouseMove={draw}
+                onMouseUp={stopDrawing}
+                onMouseLeave={stopDrawing}
+                onTouchStart={startDrawing}
+                onTouchMove={draw}
+                onTouchEnd={stopDrawing}
+                aria-hidden="true"
+              />
             </div>
-          )}
 
-          <canvas
-            ref={canvasRef}
-            className="absolute inset-0 w-full h-full cursor-crosshair touch-none"
-            onMouseDown={startDrawing}
-            onMouseMove={draw}
-            onMouseUp={stopDrawing}
-            onMouseLeave={stopDrawing}
-            onTouchStart={startDrawing}
-            onTouchMove={draw}
-            onTouchEnd={stopDrawing}
-            tabIndex={0}
-            onKeyDown={handleKeyDown}
-            aria-hidden="true"
-          />
-
-          {isDrawingMode && (
-            <div className="absolute top-2 right-2 bg-[#087E8B] text-white text-xs px-2 py-1 rounded">
-              Arrow key mode
-            </div>
-          )}
-        </div>
-
-        <div
-          id={`signature-help-${label.replace(/\s/g, "")}`}
-          className="sr-only"
-        >
-          {isDrawingMode
-            ? "Use arrow keys to draw. Press Escape to finish."
-            : "Press Enter or Space to enable arrow key drawing mode, or use mouse or touch to draw directly."}
-        </div>
+            <p id={`signature-help-${fieldId}`} className="sr-only">
+              Use your mouse or finger to draw your signature in the box above.
+            </p>
+          </div>
+        )}
 
         <div className="flex gap-2 mt-2">
           <button
@@ -325,7 +307,7 @@ export function SignaturePad({
         </div>
 
         {error && (
-          <p className="text-sm text-red-600 mt-1" role="alert">
+          <p id={`${fieldId}-error`} className="text-sm text-red-600 mt-1" role="alert">
             {error}
           </p>
         )}
