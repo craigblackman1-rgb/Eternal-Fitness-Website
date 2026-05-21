@@ -68,13 +68,13 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
         </Link>
 
         {/* Desktop nav */}
-        <ul className="hidden md:flex items-center gap-8 text-sm font-body text-primary-foreground/80">
+        <ul className="hidden md:flex items-center gap-8 text-sm font-body text-white/80">
           {navItems.map((item) => (
             <li key={item.label}>
               <Link
                 href={item.to}
-                className={`hover:text-primary-foreground transition-colors ${
-                  pathname === item.to ? "text-primary-foreground font-medium" : ""
+                className={`hover:text-white transition-colors ${
+                  pathname === item.to ? "text-white font-medium" : ""
                 }`}
               >
                 {item.label}
@@ -102,7 +102,7 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
         {/* Mobile toggle */}
         <button
           onClick={() => setOpen(!open)}
-          className="md:hidden text-primary-foreground"
+          className="md:hidden text-white"
           aria-label={open ? "Close menu" : "Open menu"}
         >
           {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -116,7 +116,7 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
                 key={item.label}
                 href={item.to}
                 onClick={() => setOpen(false)}
-                className="text-primary-foreground/80 hover:text-primary-foreground text-sm font-body"
+                className="text-white/80 hover:text-white text-sm font-body"
               >
                 {item.label}
               </Link>

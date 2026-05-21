@@ -77,10 +77,10 @@ export default function ContactPageClient() {
         />
         <div className="absolute inset-0 bg-hero-overlay/65" />
         <div className="relative z-10 text-center max-w-3xl px-6">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl text-primary-foreground leading-tight mb-5">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-5">
             Get in Touch
           </h1>
-          <p className="text-primary-foreground/70 font-body text-base md:text-lg mb-8 max-w-xl mx-auto">
+          <p className="text-white/70 font-body text-base md:text-lg mb-8 max-w-xl mx-auto">
             Whether you have a question, want to learn more, or are ready to book your free consultation — I would love to hear from you.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
@@ -92,7 +92,7 @@ export default function ContactPageClient() {
               </a>
             <a
               href="#map"
-              className="inline-flex items-center gap-2 border border-primary-foreground/40 text-primary-foreground px-7 py-3 rounded-full font-medium hover:bg-primary-foreground/10 transition-colors"
+              className="inline-flex items-center gap-2 border border-white/40 text-white px-7 py-3 rounded-full font-medium hover:bg-white/10 transition-colors"
             >
               Find the Studio
             </a>

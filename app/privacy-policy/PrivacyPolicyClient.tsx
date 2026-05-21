@@ -46,15 +46,15 @@ export default function PrivacyPolicyClient() {
         <img src="/images/hero-gym.jpg" alt="Privacy Policy — Eternal Fitness Worthing" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-hero-overlay/70" />
         <div className="relative z-10 text-center max-w-2xl px-6">
-          <h1 className="text-4xl md:text-5xl text-primary-foreground leading-tight mb-4">Privacy Policy</h1>
-          <p className="text-primary-foreground/70 font-body text-lg mb-8">
+          <h1 className="text-4xl md:text-5xl text-white leading-tight mb-4">Privacy Policy</h1>
+          <p className="text-white/70 font-body text-lg mb-8">
             We are committed to protecting your personal information and your right to privacy. This policy explains what information we collect, how we use it, and your rights.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <a href="/contact" className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
               Book a Free Consultation
             </a>
-            <a href="#information-collect" className="inline-flex items-center gap-2 border border-primary-foreground/40 text-primary-foreground px-7 py-3 rounded-full font-medium hover:bg-primary-foreground/10 transition-colors">
+            <a href="#information-collect" className="inline-flex items-center gap-2 border border-white/40 text-white px-7 py-3 rounded-full font-medium hover:bg-white/10 transition-colors">
               Read the Policy
             </a>
           </div>

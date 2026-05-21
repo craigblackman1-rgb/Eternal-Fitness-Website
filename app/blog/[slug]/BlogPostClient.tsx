@@ -86,15 +86,15 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
         <div className="absolute inset-0 bg-hero-overlay/80" />
         <Navbar onBookConsultation={openDialog} />
         <div className="relative z-10 text-center px-6 pt-20">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl text-primary-foreground mb-4">Blog</h1>
-          <p className="text-primary-foreground/70 max-w-xl mx-auto text-sm md:text-base mb-8">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl text-white mb-4">Blog</h1>
+          <p className="text-white/70 max-w-xl mx-auto text-sm md:text-base mb-8">
             Practical articles on training, health, and moving well — written for people whose situations are rarely straightforward.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <button onClick={openDialog} className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity">
               Book an Initial Consultation
             </button>
-            <Link href="/about" className="inline-flex items-center gap-2 border border-primary-foreground/30 text-primary-foreground px-6 py-3 rounded-full text-sm font-semibold hover:bg-primary-foreground/10 transition-colors">
+            <Link href="/about" className="inline-flex items-center gap-2 border border-white/30 text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-white/10 transition-colors">
               Visit the Studio
             </Link>
           </div>
@@ -302,17 +302,17 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
       {/* CTA Section */}
       <section className="bg-section-dark py-16 md:py-24 px-6 md:px-12">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="font-display text-3xl md:text-4xl text-primary-foreground leading-tight mb-4">
+          <h2 className="font-display text-3xl md:text-4xl text-white leading-tight mb-4">
             Book a Personal Training Session in Worthing
           </h2>
-          <p className="text-primary-foreground/60 text-base md:text-lg mb-8">
+          <p className="text-white/60 text-base md:text-lg mb-8">
             Want a simple plan based on your body and goals? Book a free consultation and I will map out a safe, personalised approach that feels good and fits your week.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <button onClick={openDialog} className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
               Book Now <ArrowUpRight className="w-4 h-4" />
             </button>
-            <a href="tel:07517658128" className="inline-flex items-center gap-2 border border-primary-foreground/30 text-primary-foreground px-6 py-3 rounded-full font-medium hover:bg-primary-foreground/10 transition-colors">
+            <a href="tel:07517658128" className="inline-flex items-center gap-2 border border-white/30 text-white px-6 py-3 rounded-full font-medium hover:bg-white/10 transition-colors">
               Give Me a Call <ArrowUpRight className="w-4 h-4" />
             </a>
           </div>

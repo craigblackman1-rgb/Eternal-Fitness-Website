@@ -40,7 +40,7 @@ const WhySection = () => {
               <Image src={card.image} alt={card.alt} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, 33vw" />
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-5">
-                <h3 className="text-primary-foreground text-lg">{card.title}</h3>
+                <h3 className="text-white text-lg">{card.title}</h3>
               </div>
             </div>
           ))}

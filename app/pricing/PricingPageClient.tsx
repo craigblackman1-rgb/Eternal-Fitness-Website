@@ -89,10 +89,10 @@ export default function PricingPageClient() {
         <img src="/images/pricing-hero.jpg" alt="Personal training pricing Worthing" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-hero-overlay/70" />
         <div className="relative z-10 text-center max-w-3xl px-6">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl text-primary-foreground leading-tight mb-5">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-5">
             Straightforward pricing. No contracts. No surprises.
           </h1>
-          <p className="text-primary-foreground/70 font-body text-base md:text-lg mb-8 max-w-xl mx-auto">
+          <p className="text-white/70 font-body text-base md:text-lg mb-8 max-w-xl mx-auto">
             My pricing reflects premium 1:1 support, tailored programming, and accountability that helps you build long-term results. I start with a free consultation so you only invest in what you actually need.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
@@ -104,7 +104,7 @@ export default function PricingPageClient() {
             </button>
             <a
               href="#pricing"
-              className="inline-flex items-center gap-2 border border-primary-foreground/40 text-primary-foreground px-7 py-3 rounded-full font-medium hover:bg-primary-foreground/10 transition-colors"
+              className="inline-flex items-center gap-2 border border-white/40 text-white px-7 py-3 rounded-full font-medium hover:bg-white/10 transition-colors"
             >
               See Pricing
             </a>
@@ -151,10 +151,10 @@ export default function PricingPageClient() {
             </span>
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
               <div>
-                <h2 className="text-3xl md:text-5xl text-primary-foreground leading-tight mb-2">
+                <h2 className="text-3xl md:text-5xl text-white leading-tight mb-2">
                   Choose what works for you
                 </h2>
-                <p className="text-primary-foreground/60 font-body text-lg">
+                <p className="text-white/60 font-body text-lg">
                   All sessions are 60 minutes, one-to-one, in a private studio in Worthing.
                 </p>
               </div>
@@ -206,11 +206,11 @@ export default function PricingPageClient() {
             ))}
           </div>
 
-          <div className="mt-8 bg-background/5 border border-primary-foreground/10 rounded-2xl p-6 max-w-2xl">
-            <p className="text-primary-foreground/70 font-body text-sm leading-relaxed">
-              <strong className="text-primary-foreground">Not sure which to choose?</strong> Start with the free consultation. I will give you an honest recommendation based on your situation — not the most expensive option.
+          <div className="mt-8 bg-background/5 border border-white/10 rounded-2xl p-6 max-w-2xl">
+            <p className="text-white/70 font-body text-sm leading-relaxed">
+              <strong className="text-white">Not sure which to choose?</strong> Start with the free consultation. I will give you an honest recommendation based on your situation — not the most expensive option.
             </p>
-            <p className="text-primary-foreground/60 font-body text-sm mt-3">
+            <p className="text-white/60 font-body text-sm mt-3">
               <Link href="/personal-training" className="text-rose hover:underline">See my specialist areas</Link> &middot; <Link href="/faqs" className="text-rose hover:underline">Read the FAQs</Link>
             </p>
           </div>

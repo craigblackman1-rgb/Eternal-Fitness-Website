@@ -32,11 +32,11 @@ export default function AboutPageClient() {
         <img src="/images/about-hero.jpg" alt="Esther Fair, Level 4 personal trainer in Worthing" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-hero-overlay/65" />
         <div className="relative z-10 text-center max-w-3xl px-6">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl text-primary-foreground leading-tight mb-5">About Esther Fair — Cancer Rehabilitation Specialist</h1>
-          <p className="text-primary-foreground/70 font-body text-base md:text-lg mb-8 max-w-xl mx-auto">Level 4 Personal Trainer. Cancer Rehabilitation Specialist. Exercise Referral Specialist. Specialist in rehabilitation and recovery training for complex health needs. I know first-hand what it feels like to start from zero.</p>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-5">About Esther Fair — Cancer Rehabilitation Specialist</h1>
+          <p className="text-white/70 font-body text-base md:text-lg mb-8 max-w-xl mx-auto">Level 4 Personal Trainer. Cancer Rehabilitation Specialist. Exercise Referral Specialist. Specialist in rehabilitation and recovery training for complex health needs. I know first-hand what it feels like to start from zero.</p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button onClick={openDialog} className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">Book a Free Consultation</button>
-            <a href="#story" className="inline-flex items-center gap-2 border border-primary-foreground/40 text-primary-foreground px-7 py-3 rounded-full font-medium hover:bg-primary-foreground/10 transition-colors">My Story</a>
+            <a href="#story" className="inline-flex items-center gap-2 border border-white/40 text-white px-7 py-3 rounded-full font-medium hover:bg-white/10 transition-colors">My Story</a>
           </div>
         </div>
       </section>
@@ -121,16 +121,16 @@ export default function AboutPageClient() {
         <div className="max-w-6xl mx-auto px-6 md:px-12">
           <div className="text-center mb-14">
             <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">✦ Studio</span>
-            <h2 className="text-3xl md:text-4xl text-primary-foreground mb-4">A Private Space in Worthing</h2>
-            <p className="text-primary-foreground/70 font-body text-base max-w-2xl mx-auto">Sessions take place in a small, private, fully equipped studio. No public gym floor. No other clients watching. No ambient pressure of what anyone else around you is doing.</p>
+            <h2 className="text-3xl md:text-4xl text-white mb-4">A Private Space in Worthing</h2>
+            <p className="text-white/70 font-body text-base max-w-2xl mx-auto">Sessions take place in a small, private, fully equipped studio. No public gym floor. No other clients watching. No ambient pressure of what anyone else around you is doing.</p>
           </div>
           <div className="grid md:grid-cols-2 gap-6 mb-10">
             <img src="/images/studio-1.jpg" alt="Eternal Fitness private training studio Worthing" loading="lazy" className="rounded-2xl w-full h-72 object-cover" />
             <img src="/images/studio-2.jpg" alt="Training equipment at Eternal Fitness Worthing" loading="lazy" className="rounded-2xl w-full h-72 object-cover" />
           </div>
-          <div className="bg-background/5 border border-primary-foreground/10 rounded-2xl p-6 md:p-8 max-w-2xl shadow-md">
-            <h4 className="text-primary-foreground text-lg mb-2">Built for All Abilities</h4>
-            <p className="text-primary-foreground/80 font-body text-base leading-relaxed">The studio is set up specifically for people with disabilities, mobility limitations, and complex health needs. Equipment is chosen to support functional recovery and movement — not performance aesthetics. The environment is deliberately calm, because the last thing someone managing a health condition or in recovery needs is more pressure or noise.</p>
+          <div className="bg-background/5 border border-white/10 rounded-2xl p-6 md:p-8 max-w-2xl shadow-md">
+            <h4 className="text-white text-lg mb-2">Built for All Abilities</h4>
+            <p className="text-white/80 font-body text-base leading-relaxed">The studio is set up specifically for people with disabilities, mobility limitations, and complex health needs. Equipment is chosen to support functional recovery and movement — not performance aesthetics. The environment is deliberately calm, because the last thing someone managing a health condition or in recovery needs is more pressure or noise.</p>
           </div>
         </div>
       </section>

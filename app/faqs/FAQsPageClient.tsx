@@ -133,10 +133,10 @@ export default function FAQsPageClient() {
         <img src="/images/hero-gym.jpg" alt="Frequently Asked Questions — Eternal Fitness Worthing" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-hero-overlay/70" />
         <div className="relative z-10 text-center max-w-2xl px-6">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl text-primary-foreground leading-tight mb-4">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-4">
             Frequently Asked Questions
           </h1>
-          <p className="text-primary-foreground/70 font-body text-lg md:text-xl mb-8 max-w-lg mx-auto">
+          <p className="text-white/70 font-body text-lg md:text-xl mb-8 max-w-lg mx-auto">
             If something is stopping you from getting in touch, the answer is probably here. And if it is not — just ask.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
@@ -146,7 +146,7 @@ export default function FAQsPageClient() {
             >
               Book a Free Consultation
             </button>
-            <a href="#faq" className="inline-flex items-center gap-2 border border-primary-foreground/40 text-primary-foreground px-7 py-3 rounded-full font-medium hover:bg-primary-foreground/10 transition-colors">
+            <a href="#faq" className="inline-flex items-center gap-2 border border-white/40 text-white px-7 py-3 rounded-full font-medium hover:bg-white/10 transition-colors">
               Read the FAQs
             </a>
           </div>

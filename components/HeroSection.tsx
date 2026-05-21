@@ -23,10 +23,10 @@ const HeroSection = ({ onBookConsultation }: HeroSectionProps) => {
       {/* Main content */}
       <div className="relative z-10 flex-1 flex items-center justify-center text-center px-6 pt-24">
         <div className="max-w-3xl">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl text-primary-foreground leading-tight mb-5">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-5">
             Rehabilitation and Recovery Training in Worthing for Complex Health Needs
           </h1>
-          <p className="text-primary-foreground/70 font-body text-base md:text-lg mb-8 max-w-xl mx-auto">
+          <p className="text-white/70 font-body text-base md:text-lg mb-8 max-w-xl mx-auto">
             Specialist one-to-one training for cancer rehabilitation, chronic health conditions, post-surgery recovery, mobility limitations, disabilities, and anyone with complex medical needs who has been overlooked by mainstream fitness. Level 4 qualified. GP-referred clients welcome.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
@@ -38,7 +38,7 @@ const HeroSection = ({ onBookConsultation }: HeroSectionProps) => {
             </button>
             <a
               href="#why"
-              className="inline-flex items-center gap-2 border border-primary-foreground/40 text-primary-foreground px-7 py-3 rounded-full font-medium hover:bg-primary-foreground/10 transition-colors"
+              className="inline-flex items-center gap-2 border border-white/40 text-white px-7 py-3 rounded-full font-medium hover:bg-white/10 transition-colors"
             >
               Find Out How It Works
             </a>
@@ -54,15 +54,15 @@ const HeroSection = ({ onBookConsultation }: HeroSectionProps) => {
               <span className="text-teal text-xl font-bold">4</span>
             </div>
             <div>
-              <p className="text-primary-foreground font-bold text-base">Level 4 Qualified</p>
-              <p className="text-primary-foreground/60 text-xs leading-relaxed">The highest personal training qualification in the UK — plus exercise referral and cancer rehabilitation. That is what I bring to every session.</p>
+              <p className="text-white font-bold text-base">Level 4 Qualified</p>
+              <p className="text-white/60 text-xs leading-relaxed">The highest personal training qualification in the UK — plus exercise referral and cancer rehabilitation. That is what I bring to every session.</p>
             </div>
           </div>
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-md">
-            <p className="text-primary-foreground/80 text-sm italic mb-2">
+            <p className="text-white/80 text-sm italic mb-2">
               "As someone who has dealt with chronic pain for years, I was sceptical. But the personalised approach has genuinely changed my quality of life."
             </p>
-            <p className="text-primary-foreground font-semibold text-xs">Angela M · <span className="text-primary-foreground/50">Worthing client</span></p>
+            <p className="text-white font-semibold text-xs">Angela M · <span className="text-white/50">Worthing client</span></p>
           </div>
           <div className="bg-rose rounded-2xl p-5 flex flex-col justify-center shadow-md">
             <h4 className="text-white text-base font-semibold mb-1">Free Consultation</h4>
