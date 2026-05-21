@@ -8,13 +8,13 @@ import type { DBClient, DBBlock } from "@/types";
 
 function StatCard({ icon, label, value, accent }: { icon: React.ReactNode; label: string; value: string | number; accent: "primary" | "accent" | "foreground" | "muted" }) {
   const map = {
-    primary: "bg-primary/10 text-primary",
-    accent: "bg-accent/10 text-accent",
+    primary: "bg-rose/10 text-rose",
+    accent: "bg-rose/10 text-rose",
     foreground: "bg-foreground/5 text-foreground",
     muted: "bg-border/50 text-muted-foreground",
   };
   return (
-    <Card className="shadow-sm border-border/60">
+    <Card className="shadow-sm border-muted">
       <CardContent className="p-5 flex items-center gap-4">
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${map[accent]}`}>
           {icon}
@@ -30,8 +30,8 @@ function StatCard({ icon, label, value, accent }: { icon: React.ReactNode; label
 
 function StatusDot({ status }: { status: string }) {
   const color =
-    status === "active" || status === "approved" ? "bg-primary"
-    : status === "draft" ? "bg-accent"
+    status === "active" || status === "approved" ? "bg-rose"
+    : status === "draft" ? "bg-rose"
     : "bg-border";
   return <span className={`w-2 h-2 rounded-full inline-block ${color}`} />;
 }
@@ -101,13 +101,13 @@ export default async function DashboardPage() {
       {/* Main grid */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Recent Clients */}
-        <Card className="lg:col-span-2 shadow-sm border-border/60">
+        <Card className="lg:col-span-2 shadow-sm border-muted">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <CardTitle className="text-lg flex items-center gap-2">
-              <Users className="w-4 h-4 text-primary" />
+              <Users className="w-4 h-4 text-rose" />
               Recent Clients
             </CardTitle>
-            <Link href="/hub/clients" className="text-sm text-primary hover:underline inline-flex items-center gap-1">
+            <Link href="/hub/clients" className="text-sm text-rose hover:underline inline-flex items-center gap-1">
               View all <ArrowUpRight className="w-3 h-3" />
             </Link>
           </CardHeader>
@@ -124,7 +124,7 @@ export default async function DashboardPage() {
                       href={`/hub/clients/${client.id}`}
                       className="flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-muted/70 group"
                     >
-                      <div className="w-9 h-9 rounded-full bg-accent/20 text-accent flex items-center justify-center text-xs font-bold shrink-0">
+                      <div className="w-9 h-9 rounded-full bg-rose/20 text-rose flex items-center justify-center text-xs font-bold shrink-0">
                         {initials}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -159,10 +159,10 @@ export default async function DashboardPage() {
         {/* Activity / Overview Sidebar */}
         <div className="space-y-6">
           {/* Block Activity */}
-          <Card className="shadow-sm border-border/60">
+          <Card className="shadow-sm border-muted">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
-                <FileText className="w-4 h-4 text-primary" />
+                <FileText className="w-4 h-4 text-rose" />
                 Recent Blocks
               </CardTitle>
             </CardHeader>
@@ -191,23 +191,23 @@ export default async function DashboardPage() {
           </Card>
 
           {/* Quick Actions */}
-          <Card className="shadow-sm border-border/60">
+          <Card className="shadow-sm border-muted">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
-                <Activity className="w-4 h-4 text-primary" />
+                <Activity className="w-4 h-4 text-rose" />
                 Quick Actions
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <Link href="/hub/clients/new">
                 <Button variant="outline" className="w-full justify-start rounded-full gap-2 text-sm">
-                  <UserPlus className="w-4 h-4 text-primary" />
+                  <UserPlus className="w-4 h-4 text-rose" />
                   Add a new client
                 </Button>
               </Link>
               <Link href="/hub/exercises">
                 <Button variant="outline" className="w-full justify-start rounded-full gap-2 text-sm">
-                  <FileText className="w-4 h-4 text-accent" />
+                  <FileText className="w-4 h-4 text-rose" />
                   Browse exercise library
                 </Button>
               </Link>

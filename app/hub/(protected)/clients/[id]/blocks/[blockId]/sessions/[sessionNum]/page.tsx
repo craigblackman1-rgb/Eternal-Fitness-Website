@@ -103,7 +103,7 @@ export default function SessionViewPage({
       </div>
 
       {session.data?.client_intro && (
-        <Card className="border-accent/20 bg-accent/5">
+        <Card className="border-rose/20 bg-rose/5">
           <CardContent className="pt-4">
             <p className="text-sm italic text-muted-foreground">Client intro</p>
             <p className="mt-1">{session.data.client_intro}</p>
@@ -280,7 +280,7 @@ function SessionSection({
                       href={ex.media.video_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
+                      className="inline-flex items-center gap-1 text-xs text-rose hover:underline"
                     >
                       <Video className="h-3 w-3" />
                       Watch
@@ -302,7 +302,7 @@ function SessionSection({
                       setEditingUrl(editingUrl === i ? null : i);
                       setUrlInput("");
                     }}
-                    className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
+                    className="inline-flex items-center gap-1 text-xs text-rose hover:underline"
                   >
                     <Video className="h-3 w-3" />
                     Add video
@@ -318,7 +318,7 @@ function SessionSection({
                 <span className="text-xs text-muted-foreground">|</span>
                 <button
                   onClick={() => setSwapping(swapping === i ? null : i)}
-                  className="text-xs text-accent hover:underline"
+                  className="text-xs text-rose hover:underline"
                 >
                   Swap
                 </button>
@@ -344,7 +344,7 @@ function SessionSection({
                   />
                   <button
                     onClick={() => updateExerciseMedia(i, urlInput.trim())}
-                    className="rounded-md bg-accent px-2 py-1 text-xs text-accent-foreground"
+                    className="rounded-md bg-rose px-2 py-1 text-xs text-white"
                   >
                     Save
                   </button>

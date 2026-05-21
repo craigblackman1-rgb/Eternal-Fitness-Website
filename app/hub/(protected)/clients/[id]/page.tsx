@@ -58,7 +58,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                     <Link
                       key={block.id}
                       href={`/hub/clients/${params.id}/blocks/${block.id}`}
-                      className="flex items-center justify-between rounded-md border p-3 transition-colors hover:bg-muted"
+                      className="flex items-center justify-between rounded-md border p-3 transition-colors hover:bg-white"
                     >
                       <div className="flex items-center gap-3">
                         <FileText className="h-5 w-5 text-muted-foreground" />

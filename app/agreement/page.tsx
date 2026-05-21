@@ -764,7 +764,7 @@ export default function AgreementPage() {
                     id="agreedToTerms"
                     checked={agreedToTerms}
                     onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    className="mt-1 h-4 w-4 rounded border-[#D9D9D9] text-[#087E8B] focus:ring-[#087E8B] focus:ring-offset-0 cursor-pointer"
+                    className="mt-1 h-4 w-4 rounded border-[#D9D9D9] text-rose focus:ring-rose focus:ring-offset-0 cursor-pointer"
                     aria-required="true"
                     aria-invalid={!!errors.agreedToTerms}
                   />
@@ -857,7 +857,7 @@ export default function AgreementPage() {
                           value="yes"
                           checked={formData.parqCompleted === "yes"}
                           onChange={() => handleChange("parqCompleted", "yes")}
-                          className="h-4 w-4 text-[#087E8B] focus:ring-[#087E8B]"
+                          className="h-4 w-4 text-rose focus:ring-rose"
                         />
                         YES
                       </label>
@@ -868,7 +868,7 @@ export default function AgreementPage() {
                           value="no"
                           checked={formData.parqCompleted === "no"}
                           onChange={() => handleChange("parqCompleted", "no")}
-                          className="h-4 w-4 text-[#087E8B] focus:ring-[#087E8B]"
+                          className="h-4 w-4 text-rose focus:ring-rose"
                         />
                         NO
                       </label>
@@ -907,7 +907,7 @@ export default function AgreementPage() {
                           value="yes"
                           checked={formData.medicalClearance === "yes"}
                           onChange={() => handleChange("medicalClearance", "yes")}
-                          className="h-4 w-4 text-[#087E8B] focus:ring-[#087E8B]"
+                          className="h-4 w-4 text-rose focus:ring-rose"
                         />
                         YES
                       </label>
@@ -918,7 +918,7 @@ export default function AgreementPage() {
                           value="na"
                           checked={formData.medicalClearance === "na"}
                           onChange={() => handleChange("medicalClearance", "na")}
-                          className="h-4 w-4 text-[#087E8B] focus:ring-[#087E8B]"
+                          className="h-4 w-4 text-rose focus:ring-rose"
                         />
                         N/A
                       </label>

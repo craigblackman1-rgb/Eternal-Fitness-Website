@@ -142,7 +142,7 @@ export default function FAQsPageClient() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button
               onClick={openDialog}
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
             >
               Book a Free Consultation
             </button>
@@ -159,7 +159,7 @@ export default function FAQsPageClient() {
 
           {/* Left — intro */}
           <div className="md:sticky md:top-24">
-            <span className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+            <span className="inline-flex items-center gap-2 bg-rose/10 text-rose px-4 py-1.5 rounded-full text-sm font-medium mb-6">
               ✦ Your Questions Answered
             </span>
             <h2 className="text-3xl md:text-4xl text-foreground leading-tight mb-4">
@@ -173,7 +173,7 @@ export default function FAQsPageClient() {
             </p>
             <button
               onClick={openDialog}
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
             >
               Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
             </button>
@@ -183,12 +183,12 @@ export default function FAQsPageClient() {
           <div className="space-y-12">
             {faqGroups.map((group) => (
               <div key={group.group}>
-                <h3 className="text-sm font-medium text-accent uppercase tracking-wider mb-4 pb-2 border-b border-border">
+                <h3 className="text-sm font-medium text-rose uppercase tracking-wider mb-4 pb-2 border-b border-muted">
                   {group.group}
                 </h3>
                 <Accordion type="single" collapsible className="w-full">
                   {group.faqs.map((faq, i) => (
-                    <AccordionItem key={i} value={`${group.group}-${i}`} className="border-border">
+                    <AccordionItem key={i} value={`${group.group}-${i}`} className="border-muted">
                       <AccordionTrigger className="font-body text-foreground text-left text-base py-5 hover:no-underline">
                         {faq.question}
                       </AccordionTrigger>

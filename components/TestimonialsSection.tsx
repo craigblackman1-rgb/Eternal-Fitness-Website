@@ -48,33 +48,33 @@ const TestimonialsSection = () => {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(reviewSchema) }}
       />
 
-      <section className="py-20 md:py-28 px-6 md:px-12 bg-background">
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-off-white">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 md:gap-20 items-start">
           <div>
-            <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
+            <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
               ✦ Client Stories
             </span>
             <h2 className="text-3xl md:text-4xl text-foreground mb-4">What Clients Say</h2>
             <p className="text-muted-foreground font-body text-base mb-8">
               Progress looks different for everyone. For some it is lifting more, for others it is walking without pain, sleeping better, or simply feeling at home in their own body. Those are the results that matter here.
             </p>
-            <a href="/faqs" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
+            <a href="/faqs" className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
               Read the FAQs <ArrowUpRight className="w-4 h-4" />
             </a>
           </div>
 
           <div className="space-y-6">
-            {testimonials.map((t) => (
-              <div key={t.name} className="bg-muted rounded-2xl p-6 shadow-md">
-                <div className="text-primary text-3xl mb-3 font-display">&quot;</div>
+            {testimonials.map((t, idx) => (
+              <div key={t.name} className="bg-white rounded-2xl p-6 shadow-sm border border-muted">
+                <div className={`${idx === 1 ? 'text-teal' : 'text-rose'} text-3xl mb-3 font-display`}>&quot;</div>
                 <p className="text-foreground font-body text-base leading-relaxed mb-5">{t.quote}</p>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-accent-foreground text-sm font-bold">
+                  <div className={`w-10 h-10 rounded-full ${idx === 1 ? 'bg-teal' : 'bg-rose'} flex items-center justify-center text-white text-sm font-bold`}>
                     {t.name[0]}
                   </div>
                   <div>
-                    <p className="text-foreground font-semibold text-base">{t.name}</p>
-                    <p className="text-muted-foreground text-sm">{t.detail}</p>
+                    <p className="text-foreground font-semibold text-sm">{t.name}</p>
+                    <p className="text-muted-foreground text-xs">{t.detail}</p>
                   </div>
                 </div>
               </div>

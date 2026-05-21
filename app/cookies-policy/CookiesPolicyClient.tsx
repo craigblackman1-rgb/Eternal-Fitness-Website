@@ -50,7 +50,7 @@ export default function CookiesPolicyClient() {
             This Cookie Policy explains how Eternal Fitness uses cookies and similar technologies when you visit our website.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <a href="/contact" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
+            <a href="/contact" className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
               Book a Free Consultation
             </a>
             <a href="#what-are-cookies" className="inline-flex items-center gap-2 border border-primary-foreground/40 text-primary-foreground px-7 py-3 rounded-full font-medium hover:bg-primary-foreground/10 transition-colors">
@@ -73,7 +73,7 @@ export default function CookiesPolicyClient() {
                   href={`#${item.id}`}
                   className={`px-4 py-2 rounded-lg text-sm font-body transition-colors ${
                     activeId === item.id
-                      ? "bg-accent text-accent-foreground font-medium"
+                       ? "bg-rose text-white font-medium"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
@@ -286,11 +286,11 @@ export default function CookiesPolicyClient() {
               <h2 className="text-2xl text-foreground mb-3">Where can I get further information?</h2>
               <p className="text-muted-foreground text-base leading-relaxed">
                 If you have any questions about our use of cookies or other technologies, please email us at{" "}
-                <a href="mailto:esther.fair@eternal-fitness.co.uk" className="text-primary hover:underline">
+                <a href="mailto:esther.fair@eternal-fitness.co.uk" className="text-rose hover:underline">
                   esther.fair@eternal-fitness.co.uk
                 </a>{" "}
                 or call us on{" "}
-                <a href="tel:+4407517658128" className="text-primary hover:underline">
+                <a href="tel:+4407517658128" className="text-rose hover:underline">
                   (+44) 07517 658128
                 </a>.
               </p>

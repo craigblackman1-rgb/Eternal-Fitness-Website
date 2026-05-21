@@ -34,7 +34,7 @@ export function HubSidebar() {
   };
 
   return (
-    <aside className="flex w-64 flex-col border-r bg-card">
+    <aside className="flex w-64 flex-col border-r bg-white">
       {/* Brand header */}
       <div className="flex items-center gap-3 p-5">
         <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -45,7 +45,7 @@ export function HubSidebar() {
           <path d="M19 10l-3 10-3-4-4 3" stroke="hsl(186, 89%, 29%)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
         </svg>
         <div>
-          <span className="text-sm font-bold text-accent">Eternal Fitness</span>
+          <span className="text-sm font-bold text-rose">Eternal Fitness</span>
           <p className="text-xs text-muted-foreground">Trainer Hub</p>
         </div>
       </div>
@@ -64,11 +64,11 @@ export function HubSidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
                 isActive
-                  ? "bg-accent/15 text-accent font-semibold"
+                  ? "bg-rose/15 text-rose font-semibold"
                   : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
               )}
             >
-              <Icon className={cn("h-4 w-4", isActive ? "text-accent" : "")} />
+              <Icon className={cn("h-4 w-4", isActive ? "text-rose" : "")} />
               {item.label}
             </Link>
           );
@@ -80,7 +80,7 @@ export function HubSidebar() {
       {/* User section */}
       <div className="p-3 space-y-1">
         <div className="flex items-center gap-3 px-3 py-2">
-          <div className="w-7 h-7 rounded-full bg-accent/20 text-accent flex items-center justify-center text-xs font-bold">
+          <div className="w-7 h-7 rounded-full bg-rose/20 text-rose flex items-center justify-center text-xs font-bold">
             EF
           </div>
           <div className="text-xs">

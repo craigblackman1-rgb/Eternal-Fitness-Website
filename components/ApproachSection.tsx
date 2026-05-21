@@ -22,20 +22,22 @@ const bottomCards = [
   {
     title: "Qualified in cancer rehabilitation and clinical exercise",
     desc: "Level 4 Personal Trainer, Exercise Referral Specialist, Cancer Rehabilitation Specialist. Trained to work with GP-referred clients, chronic conditions, post-treatment recovery, and complex medical needs — rare qualifications in any fitness setting.",
+    image: "/images/hero-about.jpg",
   },
   {
     title: "No judgement. No agenda.",
     desc: "No weigh-ins, no before-and-after photos, no expectation of what fitness should look like. Just you and me, and a programme built for your body.",
+    image: "/images/hero-pricing.jpg",
   },
 ];
 
 const ApproachSection = () => {
   return (
-    <section className="py-20 md:py-28 px-6 md:px-12 bg-background">
+    <section className="py-20 md:py-28 px-6 md:px-12 bg-off-white">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-12">
           <div>
-            <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
+            <span className="inline-flex items-center gap-2 bg-teal text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
               ✦ The Approach
             </span>
             <h2 className="text-3xl md:text-4xl text-foreground">
@@ -49,23 +51,28 @@ const ApproachSection = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
           {approaches.map((item) => (
-            <div key={item.title} className="bg-muted rounded-2xl overflow-hidden shadow-md">
+            <div key={item.title} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-muted">
               <div className="aspect-[4/3] overflow-hidden relative">
                 <Image src={item.image} alt={item.title} fill className="object-cover hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, 33vw" />
               </div>
               <div className="p-5">
-                <h4 className="text-foreground text-lg mb-1">{item.title}</h4>
-                <p className="text-muted-foreground text-base">{item.subtitle}</p>
+                <h4 className="text-foreground text-base font-semibold mb-1">{item.title}</h4>
+                <p className="text-muted-foreground text-sm leading-relaxed">{item.subtitle}</p>
               </div>
             </div>
           ))}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {bottomCards.map((card) => (
-            <div key={card.title} className="bg-muted rounded-2xl p-6 shadow-md">
-              <h4 className="text-foreground text-lg mb-2">{card.title}</h4>
-              <p className="text-muted-foreground text-base">{card.desc}</p>
+          {bottomCards.map((card, idx) => (
+            <div key={card.title} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-muted flex">
+              <div className="relative w-40 h-40 flex-shrink-0">
+                <Image src={card.image} alt={card.title} fill className="object-cover" sizes="160px" />
+              </div>
+              <div className="p-6 flex flex-col justify-center">
+                <h4 className="text-foreground text-base font-semibold mb-2">{card.title}</h4>
+                <p className="text-muted-foreground text-sm leading-relaxed">{card.desc}</p>
+              </div>
             </div>
           ))}
         </div>

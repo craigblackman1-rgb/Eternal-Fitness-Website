@@ -123,7 +123,7 @@ export function ExerciseBrowser({
               onClick={() => setArchetypeFilter(a)}
               className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                 archetypeFilter === a
-                  ? "bg-accent text-accent-foreground"
+                  ? "bg-rose text-white"
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
             >
@@ -198,7 +198,7 @@ export function ExerciseBrowser({
           {filtered.map((ex) => (
             <Card
               key={ex.id}
-              className="cursor-pointer transition-colors hover:border-accent/50"
+              className="cursor-pointer transition-colors hover:border-rose/50"
               onClick={() => setExpanded(expanded === ex.id ? null : ex.id)}
             >
               <CardHeader className="pb-2">
@@ -239,7 +239,7 @@ export function ExerciseBrowser({
                         key={tier}
                         className={`text-[10px] ${
                           ex.intensity_tiers.includes(tier)
-                            ? "text-accent font-medium"
+                            ? "text-rose font-medium"
                             : "text-muted-foreground/30"
                         }`}
                       >
@@ -264,7 +264,7 @@ export function ExerciseBrowser({
                         href={ex.media.video_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-accent hover:underline"
+                        className="flex items-center gap-1 text-rose hover:underline"
                       >
                         <Video className="h-3 w-3" />
                         Watch demo video

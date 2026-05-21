@@ -84,12 +84,12 @@ export default function ContactPageClient() {
             Whether you have a question, want to learn more, or are ready to book your free consultation — I would love to hear from you.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <a
-              href="#form"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
-            >
-              Send a Message <ArrowUpRight className="w-4 h-4" />
-            </a>
+              <a
+                href="#form"
+                className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
+              >
+                Send a Message <ArrowUpRight className="w-4 h-4" />
+              </a>
             <a
               href="#map"
               className="inline-flex items-center gap-2 border border-primary-foreground/40 text-primary-foreground px-7 py-3 rounded-full font-medium hover:bg-primary-foreground/10 transition-colors"
@@ -104,7 +104,7 @@ export default function ContactPageClient() {
       <section id="form" className="py-20 md:py-28 px-6 md:px-12 bg-background">
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-center mb-6">
-            <span className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-1.5 rounded-full text-sm font-medium">
+            <span className="inline-flex items-center gap-2 bg-rose/10 text-rose px-4 py-1.5 rounded-full text-sm font-medium">
               ✦ Contact
             </span>
           </div>
@@ -118,7 +118,7 @@ export default function ContactPageClient() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="firstName" className="block text-sm font-medium text-foreground mb-1.5">
-                    First Name <span className="text-accent">*</span>
+                    First Name <span className="text-rose">*</span>
                   </label>
                   <input
                     id="firstName"
@@ -127,7 +127,7 @@ export default function ContactPageClient() {
                     value={form.firstName}
                     onChange={handleChange}
                     placeholder="First name"
-                    className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent/30"
+                    className="w-full px-4 py-3 rounded-xl border border-muted bg-white text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-rose/30"
                   />
                 </div>
                 <div>
@@ -141,14 +141,14 @@ export default function ContactPageClient() {
                     value={form.lastName}
                     onChange={handleChange}
                     placeholder="Last name"
-                    className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent/30"
+                    className="w-full px-4 py-3 rounded-xl border border-muted bg-white text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-rose/30"
                   />
                 </div>
               </div>
 
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1.5">
-                  Email <span className="text-accent">*</span>
+                  Email <span className="text-rose">*</span>
                 </label>
                 <input
                   id="email"
@@ -157,7 +157,7 @@ export default function ContactPageClient() {
                   value={form.email}
                   onChange={handleChange}
                   placeholder="you@example.com"
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent/30"
+                  className="w-full px-4 py-3 rounded-xl border border-muted bg-white text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-rose/30"
                 />
               </div>
 
@@ -172,13 +172,13 @@ export default function ContactPageClient() {
                   value={form.phone}
                   onChange={handleChange}
                   placeholder="07xxx xxx xxx"
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent/30"
+                  className="w-full px-4 py-3 rounded-xl border border-muted bg-white text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-rose/30"
                 />
               </div>
 
               <div>
                 <label htmlFor="message" className="block text-sm font-medium text-foreground mb-1.5">
-                  Message <span className="text-accent">*</span>
+                  Message <span className="text-rose">*</span>
                 </label>
                 <textarea
                   id="message"
@@ -187,7 +187,7 @@ export default function ContactPageClient() {
                   value={form.message}
                   onChange={handleChange}
                   placeholder="Tell me a bit about yourself and what you are looking for..."
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent/30 resize-none"
+                  className="w-full px-4 py-3 rounded-xl border border-muted bg-white text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-rose/30 resize-none"
                 />
               </div>
 
@@ -198,20 +198,20 @@ export default function ContactPageClient() {
                   type="checkbox"
                   checked={form.agree}
                   onChange={handleChange}
-                  className="mt-1 h-4 w-4 rounded border-border accent-accent"
+                  className="mt-1 h-4 w-4 rounded border-muted accent-rose"
                 />
                 <label htmlFor="agree" className="text-sm text-muted-foreground">
                   I agree to the{" "}
-                  <a href="/terms" className="text-accent underline hover:text-accent/80 transition-colors">
+                  <a href="/terms" className="text-rose underline hover:text-rose/80 transition-colors">
                     privacy policy
                   </a>{" "}
-                  and consent to being contacted about my enquiry. <span className="text-accent">*</span>
+                  and consent to being contacted about my enquiry. <span className="text-rose">*</span>
                 </label>
               </div>
 
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity w-full justify-center"
+                className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity w-full justify-center"
               >
                 Send Message <ArrowUpRight className="w-4 h-4" />
               </button>
@@ -221,12 +221,12 @@ export default function ContactPageClient() {
             <div className="space-y-8">
               {/* Phone */}
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
-                  <Phone className="w-5 h-5 text-accent" />
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-rose/10 flex items-center justify-center">
+                  <Phone className="w-5 h-5 text-rose" />
                 </div>
                 <div>
                   <h3 className="text-foreground font-medium mb-1">Phone</h3>
-                  <a href="tel:07517658128" className="text-muted-foreground font-body hover:text-accent transition-colors">
+                  <a href="tel:07517658128" className="text-muted-foreground font-body hover:text-rose transition-colors">
                     07517 658 128
                   </a>
                 </div>
@@ -234,12 +234,12 @@ export default function ContactPageClient() {
 
               {/* Email */}
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-accent" />
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-rose/10 flex items-center justify-center">
+                  <Mail className="w-5 h-5 text-rose" />
                 </div>
                 <div>
                   <h3 className="text-foreground font-medium mb-1">Email</h3>
-                  <a href="mailto:esther.fair@eternal-fitness.co.uk" className="text-muted-foreground font-body hover:text-accent transition-colors">
+                  <a href="mailto:esther.fair@eternal-fitness.co.uk" className="text-muted-foreground font-body hover:text-rose transition-colors">
                     esther.fair@eternal-fitness.co.uk
                   </a>
                 </div>
@@ -247,8 +247,8 @@ export default function ContactPageClient() {
 
               {/* Studio Location */}
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
-                  <MapPin className="w-5 h-5 text-accent" />
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-rose/10 flex items-center justify-center">
+                  <MapPin className="w-5 h-5 text-rose" />
                 </div>
                 <div>
                   <h3 className="text-foreground font-medium mb-1">Studio Location</h3>
@@ -260,14 +260,14 @@ export default function ContactPageClient() {
               </div>
 
               {/* Not sure where to start? */}
-              <div className="bg-card border border-border rounded-2xl p-6 mt-4">
+              <div className="bg-white border border-muted rounded-2xl p-6 mt-4">
                 <h3 className="text-foreground font-medium mb-2">Not sure where to start?</h3>
                 <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
                   That is completely normal. Send me a message or give me a call and we can have an informal chat — no pressure, no commitment. I will help you figure out whether personal training is the right next step.
                 </p>
                 <a
                   href="tel:07517658128"
-                  className="inline-flex items-center gap-2 text-accent font-medium text-sm hover:underline"
+                  className="inline-flex items-center gap-2 text-rose font-medium text-sm hover:underline"
                 >
                   Call me now <ArrowUpRight className="w-3.5 h-3.5" />
                 </a>
@@ -281,7 +281,7 @@ export default function ContactPageClient() {
                     href="https://www.facebook.com/profile.php?id=61576413498498"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent hover:bg-accent/20 transition-colors"
+                    className="w-10 h-10 rounded-full bg-rose/10 flex items-center justify-center text-rose hover:bg-rose/20 transition-colors"
                     aria-label="Facebook"
                   >
                     <SocialIcon name="facebook" />
@@ -315,10 +315,10 @@ export default function ContactPageClient() {
       </section>
 
       {/* Map */}
-      <section id="map" className="py-20 md:py-28 px-6 md:px-12 bg-card">
+      <section id="map" className="py-20 md:py-28 px-6 md:px-12 bg-white">
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-center mb-6">
-            <span className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-1.5 rounded-full text-sm font-medium">
+            <span className="inline-flex items-center gap-2 bg-rose/10 text-rose px-4 py-1.5 rounded-full text-sm font-medium">
               ✦ Location
             </span>
           </div>
@@ -328,7 +328,7 @@ export default function ContactPageClient() {
           <p className="text-muted-foreground font-body text-center max-w-xl mx-auto mb-12">
             Based in Worthing, West Sussex. The private studio is easily accessible by car and public transport.
           </p>
-          <div className="rounded-2xl overflow-hidden border border-border shadow-sm">
+          <div className="rounded-2xl overflow-hidden border border-muted shadow-sm">
             <iframe
               title="Eternal Fitness location in Worthing, West Sussex"
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d40625.88654390968!2d-0.4005!3d50.8148!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4875a3a3a3a3a3a3%3A0x0!2sWorthing%2C+West+Sussex!5e0!3m2!1sen!2suk!4v1700000000000!5m2!1sen!2suk"

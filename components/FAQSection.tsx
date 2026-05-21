@@ -35,7 +35,7 @@ const FAQSection = () => {
     <section id="faq" className="py-20 md:py-28 px-6 md:px-12 bg-background">
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 md:gap-20 items-start">
         <div>
-          <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
+          <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
             ✦ Questions
           </span>
           <h2 className="font-display text-3xl md:text-5xl text-foreground leading-tight mb-4">Common questions</h2>
@@ -43,10 +43,10 @@ const FAQSection = () => {
             Here are the questions I get asked most often. For the full list, visit the FAQs page.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Link href="/faqs" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
+            <Link href="/faqs" className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
               All FAQs <ArrowUpRight className="w-4 h-4" />
             </Link>
-            <Link href="/contact" className="inline-flex items-center gap-2 border border-border text-foreground px-6 py-3 rounded-full font-medium hover:bg-muted transition-colors">
+            <Link href="/contact" className="inline-flex items-center gap-2 border border-muted text-foreground px-6 py-3 rounded-full font-medium hover:bg-white transition-colors">
               Ask a Question
             </Link>
           </div>
@@ -54,7 +54,7 @@ const FAQSection = () => {
 
         <Accordion type="single" collapsible defaultValue="item-0" className="w-full">
           {faqs.map((faq, i) => (
-            <AccordionItem key={i} value={`item-${i}`} className="border-border">
+            <AccordionItem key={i} value={`item-${i}`} className="border-muted">
               <AccordionTrigger className="font-body text-foreground text-left text-base py-5 hover:no-underline">
                 {faq.question}
               </AccordionTrigger>

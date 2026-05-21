@@ -32,7 +32,7 @@ const ConsultationDialog = ({ open, onOpenChange }: ConsultationDialogProps) => 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-background border-border">
+      <DialogContent className="sm:max-w-md bg-white border-muted">
         <DialogHeader>
           <DialogTitle className="text-2xl text-foreground">
             Book Your Free Consultation
@@ -46,28 +46,28 @@ const ConsultationDialog = ({ open, onOpenChange }: ConsultationDialogProps) => 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">First Name</label>
-              <Input required name="firstName" placeholder="Jane" maxLength={100} className="bg-muted border-border text-foreground placeholder:text-muted-foreground" />
+              <Input required name="firstName" placeholder="Jane" maxLength={100} className="bg-white border-muted text-foreground placeholder:text-muted-foreground" />
             </div>
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">Last Name</label>
-              <Input required name="lastName" placeholder="Smith" maxLength={100} className="bg-muted border-border text-foreground placeholder:text-muted-foreground" />
+              <Input required name="lastName" placeholder="Smith" maxLength={100} className="bg-white border-muted text-foreground placeholder:text-muted-foreground" />
             </div>
           </div>
           <div>
             <label className="text-sm font-medium text-foreground mb-1.5 block">Email</label>
-            <Input required type="email" name="email" placeholder="jane@example.com" maxLength={255} className="bg-muted border-border text-foreground placeholder:text-muted-foreground" />
+            <Input required type="email" name="email" placeholder="jane@example.com" maxLength={255} className="bg-white border-muted text-foreground placeholder:text-muted-foreground" />
           </div>
           <div>
             <label className="text-sm font-medium text-foreground mb-1.5 block">Phone</label>
-            <Input required type="tel" name="phone" placeholder="07xxx xxx xxx" maxLength={20} className="bg-muted border-border text-foreground placeholder:text-muted-foreground" />
+            <Input required type="tel" name="phone" placeholder="07xxx xxx xxx" maxLength={20} className="bg-white border-muted text-foreground placeholder:text-muted-foreground" />
           </div>
           <div>
             <label className="text-sm font-medium text-foreground mb-1.5 block">
               Tell us about your goals <span className="text-muted-foreground font-normal">(optional)</span>
             </label>
-            <Textarea name="goals" placeholder="E.g. I want to improve my mobility and build strength after an injury..." maxLength={1000} rows={3} className="bg-muted border-border text-foreground placeholder:text-muted-foreground resize-none" />
+            <Textarea name="goals" placeholder="E.g. I want to improve my mobility and build strength after an injury..." maxLength={1000} rows={3} className="bg-white border-muted text-foreground placeholder:text-muted-foreground resize-none" />
           </div>
-          <button type="submit" disabled={loading} className="w-full inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity disabled:opacity-60">
+          <button type="submit" disabled={loading} className="w-full inline-flex items-center justify-center gap-2 bg-rose text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity disabled:opacity-60">
             {loading ? "Sending..." : "Request Consultation"}
             {!loading && <ArrowUpRight className="w-4 h-4" />}
           </button>

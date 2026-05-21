@@ -50,7 +50,7 @@ export default function TermsPageClient() {
             These Terms and Conditions are governed by the laws of England and Wales and apply to all personal training services provided by Eternal Fitness.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <a href="/contact" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
+            <a href="/contact" className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
               Book a Free Consultation
             </a>
             <a href="#who-we-are" className="inline-flex items-center gap-2 border border-primary-foreground/40 text-primary-foreground px-7 py-3 rounded-full font-medium hover:bg-primary-foreground/10 transition-colors">
@@ -73,7 +73,7 @@ export default function TermsPageClient() {
                   href={`#${item.id}`}
                   className={`px-4 py-2 rounded-lg text-sm font-body transition-colors ${
                     activeId === item.id
-                      ? "bg-accent text-accent-foreground font-medium"
+                       ? "bg-rose text-white font-medium"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >

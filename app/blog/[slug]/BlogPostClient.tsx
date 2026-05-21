@@ -91,7 +91,7 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
             Practical articles on training, health, and moving well — written for people whose situations are rarely straightforward.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <button onClick={openDialog} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity">
+            <button onClick={openDialog} className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity">
               Book an Initial Consultation
             </button>
             <Link href="/about" className="inline-flex items-center gap-2 border border-primary-foreground/30 text-primary-foreground px-6 py-3 rounded-full text-sm font-semibold hover:bg-primary-foreground/10 transition-colors">
@@ -111,7 +111,7 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
                 <img src={post.image_url || categoryImages[post.category] || "/images/hero-gym.jpg"} alt={post.title} className="w-full aspect-[16/9] object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                  <span className="inline-block bg-accent text-accent-foreground text-xs font-semibold px-3 py-1 rounded-full mb-3">{post.category}</span>
+                  <span className="inline-block bg-rose text-white text-xs font-semibold px-3 py-1 rounded-full mb-3">{post.category}</span>
                   <h2 className="text-xl md:text-2xl lg:text-3xl text-white mb-3">{post.title}</h2>
                   <div className="flex items-center gap-4 text-white/70 text-sm">
                     <span>{post.author_name}</span>
@@ -132,13 +132,13 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
                     prose-h5:font-semibold prose-h5:text-base prose-h5:mt-6 prose-h5:mb-2
                     prose-h6:font-medium prose-h6:text-base prose-h6:mt-4 prose-h6:mb-2
                     prose-p:font-normal prose-p:text-foreground/90 prose-p:leading-relaxed prose-p:mb-4
-                    prose-a:text-accent prose-a:underline prose-a:underline-offset-2 hover:prose-a:text-accent/80
+                    prose-a:text-rose prose-a:underline prose-a:underline-offset-2 hover:prose-a:text-rose/80
                     prose-strong:text-foreground prose-strong:font-semibold
                     prose-em:text-foreground/80 prose-em:italic
                     prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-2
                     prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-2
                     prose-li:font-normal prose-li:text-foreground/90 prose-li:leading-relaxed
-                    prose-blockquote:border-l-4 prose-blockquote:border-accent prose-blockquote:bg-muted/30 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:my-6 prose-blockquote:italic prose-blockquote:text-foreground/80
+                    prose-blockquote:border-l-4 prose-blockquote:border-rose prose-blockquote:bg-rose/30 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:my-6 prose-blockquote:italic prose-blockquote:text-foreground/80
                     prose-img:rounded-xl prose-img:my-6 prose-img:shadow-md
                     prose-hr:border-border prose-hr:my-8"
                   dangerouslySetInnerHTML={{ __html: processedContent }}
@@ -156,7 +156,7 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
                   {post.author_avatar ? (
                     <img src={post.author_avatar} alt={post.author_name} className="w-16 h-16 rounded-xl object-cover" />
                   ) : (
-                    <div className="w-16 h-16 rounded-xl bg-accent/20 flex items-center justify-center text-accent text-xl font-bold">
+                    <div className="w-16 h-16 rounded-xl bg-rose/20 flex items-center justify-center text-rose text-xl font-bold">
                       {post.author_name.charAt(0)}
                     </div>
                   )}
@@ -191,7 +191,7 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
                   <ul className="space-y-2">
                     {tocItems.map((item) => (
                       <li key={item.id}>
-                        <a href={`#${item.id}`} className={`text-sm hover:text-accent transition-colors ${item.level === "h3" ? "text-muted-foreground pl-4" : "text-foreground font-medium"}`}>
+                        <a href={`#${item.id}`} className={`text-sm hover:text-rose transition-colors ${item.level === "h3" ? "text-muted-foreground pl-4" : "text-foreground font-medium"}`}>
                           {item.text}
                         </a>
                       </li>
@@ -211,7 +211,7 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
                           <img src={rp.image_url || categoryImages[rp.category] || "/images/hero-gym.jpg"} alt={rp.title} className="w-full h-full object-cover" />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold text-foreground group-hover:text-accent transition-colors line-clamp-2">{rp.title}</p>
+                          <p className="text-sm font-semibold text-foreground group-hover:text-rose transition-colors line-clamp-2">{rp.title}</p>
                           <p className="text-xs text-muted-foreground mt-0.5">{rp.category}</p>
                         </div>
                       </Link>
@@ -227,11 +227,11 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
                   <div className="space-y-4">
                     {recentPosts.map((rp) => (
                       <Link key={rp.id} href={`/blog/${rp.slug}`} className="flex items-center gap-3 group">
-                        <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-muted">
+                        <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-white">
                           <img src={rp.image_url || categoryImages[rp.category] || "/images/hero-gym.jpg"} alt={rp.title} className="w-full h-full object-cover" />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold text-foreground group-hover:text-accent transition-colors line-clamp-2">{rp.title}</p>
+                          <p className="text-sm font-semibold text-foreground group-hover:text-rose transition-colors line-clamp-2">{rp.title}</p>
                           <p className="text-xs text-muted-foreground mt-0.5">{rp.author_name}</p>
                         </div>
                       </Link>
@@ -253,11 +253,11 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
                         <span>{featuredPost.category}</span>
                       </div>
                       <div className="flex items-center gap-2 mb-2">
-                        <div className="w-6 h-6 rounded-full bg-accent/30 flex items-center justify-center text-white text-[10px] font-bold">{featuredPost.author_name.charAt(0)}</div>
+                        <div className="w-6 h-6 rounded-full bg-rose/30 flex items-center justify-center text-white text-[10px] font-bold">{featuredPost.author_name.charAt(0)}</div>
                         <span className="text-xs text-white/80">{featuredPost.author_name}</span>
                       </div>
                       <h5 className="text-base font-bold text-white">{featuredPost.title}</h5>
-                      <span className="inline-block bg-accent text-accent-foreground text-xs font-semibold px-2.5 py-1 rounded-full mt-2">{featuredPost.category}</span>
+                      <span className="inline-block bg-rose text-white text-xs font-semibold px-2.5 py-1 rounded-full mt-2">{featuredPost.category}</span>
                     </div>
                   </Link>
                 </div>
@@ -273,25 +273,25 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between mb-10">
               <h2 className="text-3xl md:text-4xl text-foreground">Popular Posts</h2>
-              <Link href="/blog" className="inline-flex items-center gap-1 bg-accent text-accent-foreground px-4 py-2 rounded-full text-sm font-medium hover:opacity-90 transition-opacity">
+              <Link href="/blog" className="inline-flex items-center gap-1 bg-rose text-white px-4 py-2 rounded-full text-sm font-medium hover:opacity-90 transition-opacity">
                 View All <ArrowUpRight className="w-4 h-4" />
               </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {popularPosts.map((pp) => (
                 <div key={pp.id} className="group">
-                  <Link href={`/blog/${pp.slug}`} className="block rounded-2xl overflow-hidden mb-4 aspect-[4/3] bg-muted shadow-md">
+                  <Link href={`/blog/${pp.slug}`} className="block rounded-2xl overflow-hidden mb-4 aspect-[4/3] bg-white shadow-sm">
                     <img src={pp.image_url || categoryImages[pp.category] || "/images/hero-gym.jpg"} alt={pp.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   </Link>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
                     <span>{formatDate(pp.published_at)}</span>
-                    <span className="text-accent font-medium">{pp.category}</span>
+                    <span className="text-rose font-medium">{pp.category}</span>
                   </div>
                   <Link href={`/blog/${pp.slug}`}>
-                    <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-accent transition-colors">{pp.title}</h3>
+                    <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-rose transition-colors">{pp.title}</h3>
                   </Link>
                   {pp.excerpt && <p className="text-muted-foreground text-base mb-3 line-clamp-3">{pp.excerpt}</p>}
-                  <Link href={`/blog/${pp.slug}`} className="text-accent text-sm font-semibold hover:underline">Read More...</Link>
+                  <Link href={`/blog/${pp.slug}`} className="text-rose text-sm font-semibold hover:underline">Read More...</Link>
                 </div>
               ))}
             </div>
@@ -309,7 +309,7 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
             Want a simple plan based on your body and goals? Book a free consultation and I will map out a safe, personalised approach that feels good and fits your week.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <button onClick={openDialog} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
+            <button onClick={openDialog} className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
               Book Now <ArrowUpRight className="w-4 h-4" />
             </button>
             <a href="tel:07517658128" className="inline-flex items-center gap-2 border border-primary-foreground/30 text-primary-foreground px-6 py-3 rounded-full font-medium hover:bg-primary-foreground/10 transition-colors">

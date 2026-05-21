@@ -98,7 +98,7 @@ export default function PricingPageClient() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button
               onClick={openDialog}
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
             >
               Book a Free Consultation
             </button>
@@ -116,7 +116,7 @@ export default function PricingPageClient() {
       <section className="py-20 md:py-28 px-6 md:px-12 bg-background">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div>
-            <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
+            <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
               What You Are Investing In
             </span>
             <h2 className="text-3xl md:text-5xl text-foreground leading-tight mb-10">
@@ -125,8 +125,8 @@ export default function PricingPageClient() {
             <div className="space-y-8">
               {valueProps.map((prop, i) => (
                 <div key={i} className="flex gap-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <prop.icon className="w-5 h-5 text-primary" />
+                  <div className="w-12 h-12 rounded-full bg-rose/10 flex items-center justify-center shrink-0">
+                    <prop.icon className="w-5 h-5 text-rose" />
                   </div>
                   <div>
                     <h4 className="text-foreground text-base mb-1">{prop.title}</h4>
@@ -146,7 +146,7 @@ export default function PricingPageClient() {
       <section id="pricing" className="py-20 md:py-28 px-6 md:px-12 bg-section-dark">
         <div className="max-w-6xl mx-auto">
           <div className="mb-12">
-            <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
+            <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
               Pricing
             </span>
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
@@ -167,12 +167,12 @@ export default function PricingPageClient() {
                 key={i}
                 className={`relative rounded-2xl p-8 flex flex-col ${
                   plan.popular
-                    ? "bg-background border-2 border-accent"
-                    : "bg-background border border-border"
+                    ? "bg-white border-2 border-rose"
+                    : "bg-white border border-muted"
                 }`}
               >
                 {plan.popular && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-medium px-4 py-1 rounded-full whitespace-nowrap">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-rose text-white text-xs font-medium px-4 py-1 rounded-full whitespace-nowrap">
                     Most Popular
                   </span>
                 )}
@@ -187,7 +187,7 @@ export default function PricingPageClient() {
                 <ul className="space-y-3 mb-8 flex-1">
                   {plan.features.map((feature, j) => (
                     <li key={j} className="flex items-start gap-2 text-sm font-body text-muted-foreground">
-                      <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                      <Check className="w-4 h-4 text-rose shrink-0 mt-0.5" />
                       {feature}
                     </li>
                   ))}
@@ -196,8 +196,8 @@ export default function PricingPageClient() {
                   onClick={openDialog}
                   className={`w-full py-3 rounded-full font-medium text-sm transition-opacity hover:opacity-90 ${
                     plan.popular
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-foreground"
+                      ? "bg-rose text-white"
+                      : "bg-white text-foreground"
                   }`}
                 >
                   {plan.cta}
@@ -211,7 +211,7 @@ export default function PricingPageClient() {
               <strong className="text-primary-foreground">Not sure which to choose?</strong> Start with the free consultation. I will give you an honest recommendation based on your situation — not the most expensive option.
             </p>
             <p className="text-primary-foreground/60 font-body text-sm mt-3">
-              <Link href="/personal-training" className="text-primary hover:underline">See my specialist areas</Link> &middot; <Link href="/faqs" className="text-primary hover:underline">Read the FAQs</Link>
+              <Link href="/personal-training" className="text-rose hover:underline">See my specialist areas</Link> &middot; <Link href="/faqs" className="text-rose hover:underline">Read the FAQs</Link>
             </p>
           </div>
         </div>

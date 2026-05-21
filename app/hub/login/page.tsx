@@ -34,7 +34,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30">
+    <div className="flex min-h-screen items-center justify-center bg-white">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex items-center gap-2">
@@ -42,7 +42,7 @@ export default function LoginPage() {
               <circle cx="16" cy="16" r="16" fill="#087E8B"/>
               <path d="M10 22V12l6-4 6 4v10h-4v-6h-4v6h-4z" fill="white"/>
             </svg>
-            <span className="text-xl font-bold text-accent">Eternal Fitness</span>
+            <span className="text-xl font-bold text-rose">Eternal Fitness</span>
           </div>
           <CardTitle>Hub Login</CardTitle>
           <CardDescription>Sign in to manage clients and training blocks</CardDescription>

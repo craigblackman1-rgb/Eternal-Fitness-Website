@@ -6,7 +6,7 @@
   :root {
     /* ===== FIGMA CORE COLORS (EXACT HEX VALUES) ===== */
     --color-white: #FFFFFF;
-    --color-rose: #FF5A5F;
+    --color-rose: #C1839F;
     --color-rose-secondary: #C1839F;
     --color-black: #000000;
     --color-teal: #087E8B;
@@ -27,6 +27,10 @@
     --color-black-56: rgba(0, 0, 0, 0.56);
     --color-gray-40: rgba(162, 170, 181, 0.40);
 
+    /* Section backgrounds — alternating rhythm for premium feel */
+    --bg-section-primary: #FFFFFF;
+    --bg-section-alt: #F5F5F5;
+
     /* ===== SEMANTIC TAILWIND COLORS ===== */
     --background: 0 0% 100%;
     --foreground: 0 0% 12%;
@@ -46,7 +50,7 @@
     --muted: 220 13% 91%;
     --muted-foreground: 219 10% 40%;
 
-    --accent: 358 100% 67.5%;
+    --accent: 318 86% 63%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 358 100% 67.5%;

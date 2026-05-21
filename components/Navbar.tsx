@@ -86,14 +86,14 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
         {onBookConsultation ? (
           <button
             onClick={onBookConsultation}
-            className="hidden md:inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
+            className="hidden md:inline-flex items-center gap-2 bg-rose text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
           >
             Contact Us <ArrowUpRight className="w-4 h-4" />
           </button>
         ) : (
           <Link
             href="/contact"
-            className="hidden md:inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
+            className="hidden md:inline-flex items-center gap-2 bg-rose text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
           >
             Contact Us <ArrowUpRight className="w-4 h-4" />
           </Link>
@@ -110,7 +110,7 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
 
         {/* Mobile menu */}
         {open && (
-          <div className="absolute top-full left-0 right-0 mt-3 bg-section-dark/95 backdrop-blur-xl rounded-2xl border border-white/10 md:hidden py-6 px-6 flex flex-col gap-4">
+          <div className="absolute top-full left-0 right-0 mt-3 bg-dark-navy/95 backdrop-blur-xl rounded-2xl border border-white/10 md:hidden py-6 px-6 flex flex-col gap-4">
             {navItems.map((item) => (
               <Link
                 key={item.label}
@@ -124,7 +124,7 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
             {onBookConsultation ? (
               <button
                 onClick={() => { setOpen(false); onBookConsultation(); }}
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-sm font-semibold w-fit"
+                className="inline-flex items-center gap-2 bg-rose text-white px-5 py-2.5 rounded-xl text-sm font-semibold w-fit"
               >
                 Contact Us <ArrowUpRight className="w-4 h-4" />
               </button>
@@ -132,7 +132,7 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
               <Link
                 href="/contact"
                 onClick={() => setOpen(false)}
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-sm font-semibold w-fit"
+                className="inline-flex items-center gap-2 bg-rose text-white px-5 py-2.5 rounded-xl text-sm font-semibold w-fit"
               >
                 Contact Us <ArrowUpRight className="w-4 h-4" />
               </Link>

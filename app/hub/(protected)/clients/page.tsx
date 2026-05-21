@@ -28,7 +28,7 @@ export default async function ClientsPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {clients.map((client) => (
             <Link key={client.id} href={`/hub/clients/${client.id}`}>
-              <Card className="transition-colors hover:bg-muted/50">
+              <Card className="transition-colors hover:bg-white/50">
                 <CardHeader>
                   <CardTitle className="text-lg">{client.name}</CardTitle>
                 </CardHeader>

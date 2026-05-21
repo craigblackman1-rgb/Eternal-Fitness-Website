@@ -100,7 +100,7 @@ export default function PersonalTrainingClient() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button
               onClick={openDialog}
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
             >
               Book a Free Consultation
             </button>
@@ -114,7 +114,7 @@ export default function PersonalTrainingClient() {
       {/* What to Expect */}
       <section id="what" className="py-20 md:py-28 px-6 md:px-12 bg-background">
         <div className="max-w-6xl mx-auto">
-          <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
+          <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
             What to Expect
           </span>
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -133,7 +133,7 @@ export default function PersonalTrainingClient() {
               </p>
               <button
                 onClick={openDialog}
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
+                className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
               >
                 Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
               </button>
@@ -147,10 +147,10 @@ export default function PersonalTrainingClient() {
       </section>
 
       {/* Specialist Areas */}
-      <section className="py-20 md:py-28 bg-muted">
+      <section className="py-20 md:py-28 bg-white">
         <div className="max-w-6xl mx-auto px-6 md:px-12">
           <div className="text-center mb-14">
-            <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
+            <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
               Specialist Areas
             </span>
             <h2 className="text-3xl md:text-4xl text-foreground mb-4">Who I Work With</h2>
@@ -160,7 +160,7 @@ export default function PersonalTrainingClient() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {specialistAreas.map((area) => (
-              <div key={area.title} className="bg-background rounded-2xl p-6 border border-border">
+              <div key={area.title} className="bg-white rounded-2xl p-6 border border-muted">
                 <h4 className="text-foreground text-base mb-2">{area.title}</h4>
                 <p className="text-muted-foreground font-body text-sm leading-relaxed">{area.desc}</p>
               </div>
@@ -174,7 +174,7 @@ export default function PersonalTrainingClient() {
         <div className="max-w-6xl mx-auto px-6 md:px-12">
           <div className="grid md:grid-cols-2 gap-12 items-start mb-12">
             <div>
-              <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
+              <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
                 What I Work On
               </span>
               <h2 className="text-3xl md:text-4xl text-primary-foreground leading-tight mb-4">
@@ -187,7 +187,7 @@ export default function PersonalTrainingClient() {
                 <button className="w-10 h-10 rounded-full border border-primary-foreground/30 flex items-center justify-center text-primary-foreground hover:bg-primary-foreground/10 transition-colors">
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <button className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-accent-foreground hover:opacity-90 transition-opacity">
+                <button className="w-10 h-10 rounded-full bg-rose flex items-center justify-center text-white hover:opacity-90 transition-opacity">
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
@@ -202,8 +202,8 @@ export default function PersonalTrainingClient() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {focusCards.map((card) => (
               <div key={card.title} className="bg-background/5 border border-primary-foreground/10 rounded-2xl p-6">
-                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mb-4">
-                  <span className="text-primary text-lg">✦</span>
+                <div className="w-12 h-12 rounded-full bg-rose/20 flex items-center justify-center mb-4">
+                  <span className="text-rose text-lg">✦</span>
                 </div>
                 <h4 className="text-primary-foreground text-lg mb-2">{card.title}</h4>
                 <p className="text-primary-foreground/70 font-body text-sm">{card.desc}</p>
@@ -216,7 +216,7 @@ export default function PersonalTrainingClient() {
       {/* How It Works */}
       <section className="py-20 md:py-28 px-6 md:px-12 bg-background">
         <div className="max-w-6xl mx-auto text-center">
-          <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
+          <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
             The Process
           </span>
           <h2 className="text-3xl md:text-4xl text-foreground mb-14">How It Works</h2>
@@ -224,9 +224,9 @@ export default function PersonalTrainingClient() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {steps.map((step) => (
               <div key={step.title} className="flex flex-col items-center text-center">
-                <div className="w-28 h-28 rounded-full border-4 border-muted bg-accent/10 flex items-center justify-center mb-6">
-                  <div className="w-20 h-20 rounded-full bg-accent flex items-center justify-center">
-                    <step.icon className="w-8 h-8 text-accent-foreground" />
+                <div className="w-28 h-28 rounded-full border-4 border-muted bg-rose/10 flex items-center justify-center mb-6">
+                  <div className="w-20 h-20 rounded-full bg-rose flex items-center justify-center">
+                    <step.icon className="w-8 h-8 text-white" />
                   </div>
                 </div>
                 <h4 className="text-foreground text-base mb-2">{step.title}</h4>
@@ -238,7 +238,7 @@ export default function PersonalTrainingClient() {
           <div className="mt-14">
             <button
               onClick={openDialog}
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-2 bg-rose text-white px-8 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
             >
               Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
             </button>
@@ -247,10 +247,10 @@ export default function PersonalTrainingClient() {
       </section>
 
       {/* Related Blog Articles */}
-      <section className="py-20 md:py-28 px-6 md:px-12 bg-muted">
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-white">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
-            <span className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
+            <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
               Learn More
             </span>
             <h2 className="text-3xl md:text-4xl text-foreground mb-4">Related Articles</h2>
@@ -261,47 +261,47 @@ export default function PersonalTrainingClient() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
             <Link href="/blog/exercise-illness" className="group">
-              <div className="bg-background rounded-2xl overflow-hidden shadow-md h-full flex flex-col">
-                <div className="bg-gradient-to-br from-accent/20 to-accent/10 h-40 flex items-center justify-center">
+              <div className="bg-white rounded-2xl overflow-hidden shadow-sm h-full flex flex-col">
+                <div className="bg-gradient-to-br from-rose/20 to-rose/10 h-40 flex items-center justify-center">
                   <span className="text-4xl">💪</span>
                 </div>
                 <div className="p-6 flex-1 flex flex-col">
-                  <h3 className="text-foreground font-bold mb-2 group-hover:text-accent transition-colors">Exercise & Illness</h3>
+                  <h3 className="text-foreground font-bold mb-2 group-hover:text-rose transition-colors">Exercise & Illness</h3>
                   <p className="text-muted-foreground text-sm mb-4 flex-1">Understanding how to stay active during health challenges and what's safe when managing chronic conditions.</p>
-                  <div className="text-accent text-sm font-semibold hover:underline">Read Article →</div>
+                  <div className="text-rose text-sm font-semibold hover:underline">Read Article →</div>
                 </div>
               </div>
             </Link>
 
             <Link href="/blog/menopause-and-exercise" className="group">
-              <div className="bg-background rounded-2xl overflow-hidden shadow-md h-full flex flex-col">
-                <div className="bg-gradient-to-br from-accent/20 to-accent/10 h-40 flex items-center justify-center">
+              <div className="bg-white rounded-2xl overflow-hidden shadow-sm h-full flex flex-col">
+                <div className="bg-gradient-to-br from-rose/20 to-rose/10 h-40 flex items-center justify-center">
                   <span className="text-4xl">🏃</span>
                 </div>
                 <div className="p-6 flex-1 flex flex-col">
-                  <h3 className="text-foreground font-bold mb-2 group-hover:text-accent transition-colors">Menopause & Exercise</h3>
+                  <h3 className="text-foreground font-bold mb-2 group-hover:text-rose transition-colors">Menopause & Exercise</h3>
                   <p className="text-muted-foreground text-sm mb-4 flex-1">How to train effectively through hormonal changes and manage strength, mobility, and energy during midlife transitions.</p>
-                  <div className="text-accent text-sm font-semibold hover:underline">Read Article →</div>
+                  <div className="text-rose text-sm font-semibold hover:underline">Read Article →</div>
                 </div>
               </div>
             </Link>
 
             <Link href="/blog/myth-buster-does-resistance-training-cause-high-blood-pressure" className="group">
-              <div className="bg-background rounded-2xl overflow-hidden shadow-md h-full flex flex-col">
-                <div className="bg-gradient-to-br from-accent/20 to-accent/10 h-40 flex items-center justify-center">
+              <div className="bg-white rounded-2xl overflow-hidden shadow-sm h-full flex flex-col">
+                <div className="bg-gradient-to-br from-rose/20 to-rose/10 h-40 flex items-center justify-center">
                   <span className="text-4xl">❤️</span>
                 </div>
                 <div className="p-6 flex-1 flex flex-col">
-                  <h3 className="text-foreground font-bold mb-2 group-hover:text-accent transition-colors">Resistance Training & Blood Pressure</h3>
+                  <h3 className="text-foreground font-bold mb-2 group-hover:text-rose transition-colors">Resistance Training & Blood Pressure</h3>
                   <p className="text-muted-foreground text-sm mb-4 flex-1">Safety considerations for people managing cardiovascular health and how resistance training can be part of a healthy approach.</p>
-                  <div className="text-accent text-sm font-semibold hover:underline">Read Article →</div>
+                  <div className="text-rose text-sm font-semibold hover:underline">Read Article →</div>
                 </div>
               </div>
             </Link>
           </div>
 
           <div className="text-center">
-            <Link href="/blog" className="inline-flex items-center gap-2 border border-border text-foreground px-6 py-3 rounded-full font-medium hover:bg-background transition-colors">
+            <Link href="/blog" className="inline-flex items-center gap-2 border border-muted text-foreground px-6 py-3 rounded-full font-medium hover:bg-white transition-colors">
               View All Articles <ArrowUpRight className="w-4 h-4" />
             </Link>
           </div>

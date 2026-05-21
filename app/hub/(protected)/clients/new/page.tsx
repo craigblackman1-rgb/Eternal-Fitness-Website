@@ -165,7 +165,7 @@ export default function NewClientPage() {
                 id="gp_clearance"
                 checked={profile.health.gp_clearance}
                 onChange={(e) => updateProfile("health", { gp_clearance: e.target.checked })}
-                className="h-4 w-4 rounded border-gray-300"
+                className="h-4 w-4 rounded border-gray-300 accent-rose"
               />
               <Label htmlFor="gp_clearance">GP clearance obtained</Label>
             </div>

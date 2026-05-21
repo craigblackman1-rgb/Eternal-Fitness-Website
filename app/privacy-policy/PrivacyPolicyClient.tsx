@@ -51,7 +51,7 @@ export default function PrivacyPolicyClient() {
             We are committed to protecting your personal information and your right to privacy. This policy explains what information we collect, how we use it, and your rights.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <a href="/contact" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
+            <a href="/contact" className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
               Book a Free Consultation
             </a>
             <a href="#information-collect" className="inline-flex items-center gap-2 border border-primary-foreground/40 text-primary-foreground px-7 py-3 rounded-full font-medium hover:bg-primary-foreground/10 transition-colors">
@@ -74,7 +74,7 @@ export default function PrivacyPolicyClient() {
                   href={`#${item.id}`}
                   className={`px-4 py-2 rounded-lg text-sm font-body transition-colors ${
                     activeId === item.id
-                      ? "bg-accent text-accent-foreground font-medium"
+                       ? "bg-rose text-white font-medium"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
@@ -155,7 +155,7 @@ export default function PrivacyPolicyClient() {
               <h2 className="text-2xl text-foreground mb-3">4. Do we use cookies and other tracking technologies?</h2>
               <p className="text-muted-foreground text-base leading-relaxed">
                 We may use cookies and similar tracking technologies (like web beacons and pixels) to access or store information. Specific information about how we use such technologies and how you can refuse certain cookies is set out in our{" "}
-                <a href="/cookies-policy" className="text-primary hover:underline">Cookie Policy</a>.
+                <a href="/cookies-policy" className="text-rose hover:underline">Cookie Policy</a>.
               </p>
             </div>
 
@@ -180,7 +180,7 @@ export default function PrivacyPolicyClient() {
               <h2 className="text-2xl text-foreground mb-3">7. Do we collect information from minors?</h2>
               <p className="text-muted-foreground text-base leading-relaxed">
                 We do not knowingly solicit data from or market to children under 18 years of age. By using the Sites, you represent that you are at least 18 or that you are the parent or guardian of such a minor and consent to such minor dependent&apos;s use of the Sites. If we learn that personal information from users less than 18 years of age has been collected, we will deactivate the account and take reasonable measures to promptly delete such data from our records. If you become aware of any data we may have collected from children under age 18, please contact us at{" "}
-                <a href="mailto:esther.fair@eternal-fitness.co.uk" className="text-primary hover:underline">esther.fair@eternal-fitness.co.uk</a>.
+                <a href="mailto:esther.fair@eternal-fitness.co.uk" className="text-rose hover:underline">esther.fair@eternal-fitness.co.uk</a>.
               </p>
             </div>
 
@@ -197,7 +197,7 @@ export default function PrivacyPolicyClient() {
               </p>
               <p className="text-muted-foreground text-base leading-relaxed">
                 <strong className="text-foreground">Cookies and similar technologies:</strong> Most web browsers are set to accept cookies by default. If you prefer, you can usually choose to set your browser to remove cookies and to reject cookies. If you choose to remove cookies or reject cookies, this could affect certain features or services of our Sites. For further information, please see our{" "}
-                <a href="/cookies-policy" className="text-primary hover:underline">Cookie Policy</a>.
+                <a href="/cookies-policy" className="text-rose hover:underline">Cookie Policy</a>.
               </p>
             </div>
 
@@ -229,12 +229,12 @@ export default function PrivacyPolicyClient() {
               <h2 className="text-2xl text-foreground mb-3">12. How can you contact us about this policy?</h2>
               <p className="text-muted-foreground text-base leading-relaxed mb-3">
                 If you have questions or comments about this policy, you may contact our Data Protection Officer (DPO), Esther Fair, by email at{" "}
-                <a href="mailto:esther.fair@eternal-fitness.co.uk" className="text-primary hover:underline">esther.fair@eternal-fitness.co.uk</a>.
+                <a href="mailto:esther.fair@eternal-fitness.co.uk" className="text-rose hover:underline">esther.fair@eternal-fitness.co.uk</a>.
               </p>
               <h4 className="text-foreground text-base mb-2">How can you review, update, or delete the data we collect from you?</h4>
               <p className="text-muted-foreground text-base leading-relaxed">
                 Based on the applicable laws of your country, you may have the right to request access to the personal information we collect from you, change that information, or delete it in some circumstances. To request to review, update, or delete your personal information, please{" "}
-                <a href="/contact" className="text-primary hover:underline">contact us</a>. We will respond to your request within 30 days.
+                <a href="/contact" className="text-rose hover:underline">contact us</a>. We will respond to your request within 30 days.
               </p>
             </div>
           </div>

@@ -91,8 +91,8 @@ export function IconShield({ className }: { className?: string }) {
 type FrameColor = "teal" | "rose" | "charcoal" | "muted";
 
 const frameStyles: Record<FrameColor, { bg: string; icon: string }> = {
-  teal:     { bg: "bg-primary/15", icon: "text-primary" },
-  rose:     { bg: "bg-accent/15",  icon: "text-accent" },
+  teal:     { bg: "bg-teal/15", icon: "text-teal" },
+  rose:     { bg: "bg-rose/15",  icon: "text-rose" },
   charcoal: { bg: "bg-foreground/10", icon: "text-foreground" },
   muted:    { bg: "bg-muted",    icon: "text-muted-foreground" },
 };
@@ -126,7 +126,7 @@ export function StatBlock({
   label: string;
   color?: FrameColor;
 }) {
-  const valueColor = color === "teal" ? "text-primary" : color === "rose" ? "text-accent" : "text-foreground";
+  const valueColor = color === "teal" ? "text-teal" : color === "rose" ? "text-rose" : "text-foreground";
   return (
     <div className="text-center">
       <p className={cn("text-4xl md:text-5xl font-bold tracking-tight", valueColor)}>{value}</p>
@@ -153,7 +153,7 @@ export function ProcessFlow({ steps }: { steps: ProcessStep[] }) {
       {steps.map((step, i) => (
         <div key={i} className="flex flex-col items-center text-center relative">
           {/* Step number badge */}
-          <div className="absolute -top-1 -right-1 lg:top-0 lg:right-4 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
+          <div className="absolute -top-1 -right-1 lg:top-0 lg:right-4 w-6 h-6 rounded-full bg-rose text-white text-xs font-bold flex items-center justify-center">
             {i + 1}
           </div>
           <IconFrame icon={step.icon} color={step.color} />
@@ -179,7 +179,7 @@ export function FeatureCard({
   color?: FrameColor;
 }) {
   return (
-    <div className="bg-muted rounded-2xl p-6 shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-muted hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
       <IconFrame icon={icon} color={color} size="md" />
       <h4 className="text-foreground font-semibold text-lg mt-4 mb-1.5">{title}</h4>
       <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>

@@ -22,13 +22,13 @@ export default async function AgreementsPage() {
 
       {/* Stats */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
-        <Card className="shadow-sm border-border/60">
+        <Card className="shadow-sm border-muted">
           <CardContent className="p-5">
             <p className="text-2xl font-bold tracking-tight text-foreground">{agreements?.length ?? 0}</p>
             <p className="text-sm text-muted-foreground">Total agreements</p>
           </CardContent>
         </Card>
-        <Card className="shadow-sm border-border/60">
+        <Card className="shadow-sm border-muted">
           <CardContent className="p-5">
             <p className="text-2xl font-bold tracking-tight text-foreground">
               {agreements?.filter((a) => a.parq_completed === "yes").length ?? 0}
@@ -36,7 +36,7 @@ export default async function AgreementsPage() {
             <p className="text-sm text-muted-foreground">PAR-Q on file</p>
           </CardContent>
         </Card>
-        <Card className="shadow-sm border-border/60">
+        <Card className="shadow-sm border-muted">
           <CardContent className="p-5">
             <p className="text-2xl font-bold tracking-tight text-foreground">
               {agreements?.filter((a) => a.medical_clearance === "yes").length ?? 0}
@@ -47,10 +47,10 @@ export default async function AgreementsPage() {
       </div>
 
       {/* Agreements list */}
-      <Card className="shadow-sm border-border/60">
+      <Card className="shadow-sm border-muted">
         <CardHeader className="flex flex-row items-center justify-between pb-4">
           <CardTitle className="text-lg flex items-center gap-2">
-            <FileSignature className="w-4 h-4 text-primary" />
+            <FileSignature className="w-4 h-4 text-rose" />
             All Agreements
           </CardTitle>
         </CardHeader>
@@ -67,7 +67,7 @@ export default async function AgreementsPage() {
               <p className="text-sm text-muted-foreground">No signed agreements yet</p>
               <p className="text-xs text-muted-foreground">
                 Agreements will appear here once clients sign at{" "}
-                <code className="text-primary">/agreement</code>
+                <code className="text-rose">/agreement</code>
               </p>
             </div>
           )}
@@ -77,7 +77,7 @@ export default async function AgreementsPage() {
               {agreements.map((agreement) => (
                 <div
                   key={agreement.id}
-                  className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-lg border border-border/60 hover:bg-muted/50 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-lg border border-muted hover:bg-muted/50 transition-colors"
                 >
                   {/* Client info */}
                   <div className="flex-1 min-w-0">
