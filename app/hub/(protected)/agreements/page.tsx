@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase-server";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -145,10 +146,12 @@ export default async function AgreementsPage() {
                         year: "numeric",
                       })}
                     </span>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full hover:bg-rose/10 hover:text-rose">
-                      <Eye className="w-4 h-4" />
-                      <span className="sr-only">View agreement</span>
-                    </Button>
+                    <Link href={`/hub/agreements/${agreement.id}`}>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full hover:bg-rose/10 hover:text-rose">
+                        <Eye className="w-4 h-4" />
+                        <span className="sr-only">View agreement for {agreement.client_name}</span>
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               ))}
