@@ -89,8 +89,8 @@ export default function BlogPageClient({ posts }: { posts: BlogPost[] }) {
           </div>
 
           <div className="flex flex-wrap gap-2 justify-center mb-12">
-            {categories.map((cat) => (
-              <button key={cat} onClick={() => setActiveCategory(cat)} className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${activeCategory === cat ? "bg-rose text-white" : "bg-white text-muted-foreground hover:bg-white/80"}`}>
+            {categories.map((cat, ci) => (
+              <button key={cat} onClick={() => setActiveCategory(cat)} className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${activeCategory === cat ? (ci % 2 === 0 ? "bg-teal text-white" : "bg-rose text-white") : "bg-white text-muted-foreground hover:bg-white/80"}`}>
                 {cat}
               </button>
             ))}
@@ -168,7 +168,7 @@ function FeaturedCard({ post, large }: { post: BlogPost; large?: boolean }) {
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 p-5">
         <div className="flex gap-2 mb-2">
-          <span className="bg-rose text-white text-xs font-semibold px-2.5 py-1 rounded-full">{post.category}</span>
+          <span className={`${post.category === 'Training' || post.category === 'Recovery' ? 'bg-teal' : 'bg-rose'} text-white text-xs font-semibold px-2.5 py-1 rounded-full`}>{post.category}</span>
         </div>
         <h3 className={`font-bold text-white ${large ? "text-xl" : "text-base"}`}>{post.title}</h3>
         {large && post.excerpt && <p className="text-white/70 text-base mt-2 line-clamp-2">{post.excerpt}</p>}

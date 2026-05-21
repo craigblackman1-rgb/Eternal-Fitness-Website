@@ -159,8 +159,8 @@ export default function PersonalTrainingClient() {
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {specialistAreas.map((area) => (
-              <div key={area.title} className="bg-white rounded-2xl p-6 border border-muted">
+            {specialistAreas.map((area, idx) => (
+              <div key={area.title} className={`bg-white rounded-2xl p-6 border ${idx % 2 === 0 ? 'border-teal/20' : 'border-muted'}`}>
                 <h4 className="text-foreground text-base mb-2">{area.title}</h4>
                 <p className="text-muted-foreground font-body text-sm leading-relaxed">{area.desc}</p>
               </div>
@@ -200,10 +200,10 @@ export default function PersonalTrainingClient() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {focusCards.map((card) => (
-              <div key={card.title} className="bg-background/5 border border-white/10 rounded-2xl p-6">
-                <div className="w-12 h-12 rounded-full bg-rose/20 flex items-center justify-center mb-4">
-                  <span className="text-rose text-lg">✦</span>
+            {focusCards.map((card, idx) => (
+              <div key={card.title} className={`bg-background/5 border border-white/10 rounded-2xl p-6 ${idx % 2 === 0 ? 'border-teal/20' : ''}`}>
+                <div className="w-12 h-12 rounded-full bg-teal/20 flex items-center justify-center mb-4">
+                  <span className="text-teal text-lg">✦</span>
                 </div>
                 <h4 className="text-white text-lg mb-2">{card.title}</h4>
                 <p className="text-white/70 font-body text-sm">{card.desc}</p>
@@ -224,8 +224,8 @@ export default function PersonalTrainingClient() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {steps.map((step) => (
               <div key={step.title} className="flex flex-col items-center text-center">
-                <div className="w-28 h-28 rounded-full border-4 border-muted bg-rose/10 flex items-center justify-center mb-6">
-                  <div className="w-20 h-20 rounded-full bg-rose flex items-center justify-center">
+                <div className="w-28 h-28 rounded-full border-4 border-muted bg-teal/10 flex items-center justify-center mb-6">
+                  <div className="w-20 h-20 rounded-full bg-teal flex items-center justify-center">
                     <step.icon className="w-8 h-8 text-white" />
                   </div>
                 </div>

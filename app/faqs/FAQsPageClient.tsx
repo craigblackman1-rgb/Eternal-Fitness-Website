@@ -181,9 +181,9 @@ export default function FAQsPageClient() {
 
           {/* Right — grouped FAQs */}
           <div className="space-y-12">
-            {faqGroups.map((group) => (
+            {faqGroups.map((group, gi) => (
               <div key={group.group}>
-                <h3 className="text-sm font-medium text-rose uppercase tracking-wider mb-4 pb-2 border-b border-muted">
+                <h3 className={`text-sm font-medium uppercase tracking-wider mb-4 pb-2 border-b border-muted ${gi % 2 === 0 ? 'text-teal' : 'text-rose'}`}>
                   {group.group}
                 </h3>
                 <Accordion type="single" collapsible className="w-full">

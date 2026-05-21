@@ -69,7 +69,7 @@ export default function AboutPageClient() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {qualifications.map((q) => (
               <div key={q.title} className="bg-white rounded-2xl p-6 border border-muted shadow-sm">
-                <div className="w-12 h-12 rounded-full bg-rose flex items-center justify-center mb-4"><q.icon className="w-5 h-5 text-white" /></div>
+                <div className="w-12 h-12 rounded-full bg-teal/15 flex items-center justify-center mb-4"><q.icon className="w-5 h-5 text-teal" /></div>
                 <h4 className="text-foreground text-lg mb-2">{q.title}</h4>
                 <p className="text-muted-foreground font-body text-base leading-relaxed">{q.desc}</p>
               </div>
@@ -88,9 +88,9 @@ export default function AboutPageClient() {
             <p className="text-muted-foreground font-body text-base leading-relaxed">I mention this not to boast, but because you might be wondering whether your situation is too complicated, too medically complex, or too much. It almost certainly is not. My Cancer Rehabilitation and Exercise Referral certifications equip me to work alongside your GP, specialist, and healthcare team. Every programme is built from scratch — with complete medical awareness and respect for whatever your body, health conditions, recovery status, or history looks like.</p>
           </div>
           <div className="flex justify-center">
-            <div className="flex items-center gap-3 bg-rose/10 rounded-2xl px-6 py-4 max-w-xl">
-              <Users className="w-5 h-5 text-rose shrink-0" />
-              <p className="text-foreground font-body text-base leading-relaxed">If you are wondering whether your medical situation, cancer recovery, disability, or complex needs mean you cannot train — <Link href="/contact" className="text-rose hover:underline">please get in touch</Link>. The answer is almost always yes, I can help. That is exactly what I <Link href="/personal-training" className="text-rose hover:underline">specialise in</Link>.</p>
+            <div className="flex items-center gap-3 bg-teal/10 rounded-2xl px-6 py-4 max-w-xl">
+              <Users className="w-5 h-5 text-teal shrink-0" />
+              <p className="text-foreground font-body text-base leading-relaxed">If you are wondering whether your medical situation, cancer recovery, disability, or complex needs mean you cannot train — <Link href="/contact" className="text-teal hover:underline">please get in touch</Link>. The answer is almost always yes, I can help. That is exactly what I <Link href="/personal-training" className="text-teal hover:underline">specialise in</Link>.</p>
             </div>
           </div>
         </div>

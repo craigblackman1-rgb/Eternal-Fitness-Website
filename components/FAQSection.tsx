@@ -43,7 +43,7 @@ const FAQSection = () => {
             Here are the questions I get asked most often. For the full list, visit the FAQs page.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Link href="/faqs" className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
+            <Link href="/faqs" className="inline-flex items-center gap-2 bg-teal text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
               All FAQs <ArrowUpRight className="w-4 h-4" />
             </Link>
             <Link href="/contact" className="inline-flex items-center gap-2 border border-muted text-foreground px-6 py-3 rounded-full font-medium hover:bg-white transition-colors">

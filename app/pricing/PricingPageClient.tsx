@@ -125,8 +125,8 @@ export default function PricingPageClient() {
             <div className="space-y-8">
               {valueProps.map((prop, i) => (
                 <div key={i} className="flex gap-4">
-                  <div className="w-12 h-12 rounded-full bg-rose/10 flex items-center justify-center shrink-0">
-                    <prop.icon className="w-5 h-5 text-rose" />
+                  <div className={`w-12 h-12 rounded-full ${i === 1 ? 'bg-teal/10' : 'bg-rose/10'} flex items-center justify-center shrink-0`}>
+                    <prop.icon className={`w-5 h-5 ${i === 1 ? 'text-teal' : 'text-rose'}`} />
                   </div>
                   <div>
                     <h4 className="text-foreground text-base mb-1">{prop.title}</h4>
@@ -187,7 +187,7 @@ export default function PricingPageClient() {
                 <ul className="space-y-3 mb-8 flex-1">
                   {plan.features.map((feature, j) => (
                     <li key={j} className="flex items-start gap-2 text-sm font-body text-muted-foreground">
-                      <Check className="w-4 h-4 text-rose shrink-0 mt-0.5" />
+                      <Check className={`w-4 h-4 ${plan.popular ? 'text-teal' : 'text-rose'} shrink-0 mt-0.5`} />
                       {feature}
                     </li>
                   ))}

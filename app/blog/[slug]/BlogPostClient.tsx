@@ -111,7 +111,7 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
                 <img src={post.image_url || categoryImages[post.category] || "/images/hero-gym.jpg"} alt={post.title} className="w-full aspect-[16/9] object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                  <span className="inline-block bg-rose text-white text-xs font-semibold px-3 py-1 rounded-full mb-3">{post.category}</span>
+                  <span className={`inline-block ${post.category === 'Training' || post.category === 'Recovery' ? 'bg-teal' : 'bg-rose'} text-white text-xs font-semibold px-3 py-1 rounded-full mb-3`}>{post.category}</span>
                   <h2 className="text-xl md:text-2xl lg:text-3xl text-white mb-3">{post.title}</h2>
                   <div className="flex items-center gap-4 text-white/70 text-sm">
                     <span>{post.author_name}</span>

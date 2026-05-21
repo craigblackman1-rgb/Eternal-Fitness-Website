@@ -221,12 +221,12 @@ export default function ContactPageClient() {
             <div className="space-y-8">
               {/* Phone */}
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-rose/10 flex items-center justify-center">
-                  <Phone className="w-5 h-5 text-rose" />
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center">
+                  <Phone className="w-5 h-5 text-teal" />
                 </div>
                 <div>
                   <h3 className="text-foreground font-medium mb-1">Phone</h3>
-                  <a href="tel:07517658128" className="text-muted-foreground font-body hover:text-rose transition-colors">
+                  <a href="tel:07517658128" className="text-muted-foreground font-body hover:text-teal transition-colors">
                     07517 658 128
                   </a>
                 </div>
@@ -234,12 +234,12 @@ export default function ContactPageClient() {
 
               {/* Email */}
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-rose/10 flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-rose" />
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center">
+                  <Mail className="w-5 h-5 text-teal" />
                 </div>
                 <div>
                   <h3 className="text-foreground font-medium mb-1">Email</h3>
-                  <a href="mailto:esther.fair@eternal-fitness.co.uk" className="text-muted-foreground font-body hover:text-rose transition-colors">
+                  <a href="mailto:esther.fair@eternal-fitness.co.uk" className="text-muted-foreground font-body hover:text-teal transition-colors">
                     esther.fair@eternal-fitness.co.uk
                   </a>
                 </div>
@@ -247,8 +247,8 @@ export default function ContactPageClient() {
 
               {/* Studio Location */}
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-rose/10 flex items-center justify-center">
-                  <MapPin className="w-5 h-5 text-rose" />
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center">
+                  <MapPin className="w-5 h-5 text-teal" />
                 </div>
                 <div>
                   <h3 className="text-foreground font-medium mb-1">Studio Location</h3>

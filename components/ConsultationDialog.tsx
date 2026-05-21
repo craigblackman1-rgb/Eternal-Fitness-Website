@@ -67,7 +67,7 @@ const ConsultationDialog = ({ open, onOpenChange }: ConsultationDialogProps) => 
             </label>
             <Textarea name="goals" placeholder="E.g. I want to improve my mobility and build strength after an injury..." maxLength={1000} rows={3} className="bg-white border-muted text-foreground placeholder:text-muted-foreground resize-none" />
           </div>
-          <button type="submit" disabled={loading} className="w-full inline-flex items-center justify-center gap-2 bg-rose text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity disabled:opacity-60">
+          <button type="submit" disabled={loading} className="w-full inline-flex items-center justify-center gap-2 bg-teal text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity disabled:opacity-60">
             {loading ? "Sending..." : "Request Consultation"}
             {!loading && <ArrowUpRight className="w-4 h-4" />}
           </button>
