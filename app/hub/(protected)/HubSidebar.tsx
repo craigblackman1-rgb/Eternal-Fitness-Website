@@ -13,7 +13,6 @@ import {
   LogOut,
   ClipboardList,
   FileSignature,
-  BarChart3,
 } from "lucide-react";
 
 const navItems = [
@@ -22,7 +21,6 @@ const navItems = [
   { href: "/hub/exercises", label: "Exercise Library", icon: BookText },
   { href: "/hub/tracker", label: "Medical Tracker", icon: ClipboardList },
   { href: "/hub/agreements", label: "Agreements", icon: FileSignature },
-  { href: "/hub/seo-audit", label: "SEO Audit", icon: BarChart3 },
 ];
 
 export function HubSidebar() {
