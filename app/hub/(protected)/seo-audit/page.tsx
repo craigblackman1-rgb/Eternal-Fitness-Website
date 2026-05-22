@@ -200,7 +200,7 @@ export default function SEOAuditPage() {
           <IssueCard
             title="Privacy Policy Is Outdated (2020) and References California"
             impact="medium"
-            description='The privacy policy is dated "December 06, 2020" and includes a section on "California residents\' rights" which is irrelevant for a UK-based business. It also references cookie policy at /cookies-policy which may not exist on the new site.'
+            description="The privacy policy is dated December 06, 2020 and includes a section on California residents rights which is irrelevant for a UK-based business. It also references cookie policy at /cookies-policy which may not exist on the new site."
             fix="Update the privacy policy with current date, remove California section, add UK GDPR-specific language, and verify /cookies-policy page exists or remove the reference."
           />
 
@@ -770,7 +770,7 @@ export default function SEOAuditPage() {
           <IssueCard
             title="Privacy Policy Is Outdated (2020) and References California"
             impact="medium"
-            description='The privacy policy is dated "December 06, 2020" and includes a section on "California residents\' rights" which is irrelevant for a UK-based business. Also references /cookies-policy which may not exist.'
+            description="The privacy policy is dated December 06, 2020 and includes a section on California residents rights which is irrelevant for a UK-based business. Also references /cookies-policy which may not exist."
             fix="Update the privacy policy with current date, remove California section, add UK GDPR-specific language, and verify /cookies-policy page exists or remove the reference."
           />
 
