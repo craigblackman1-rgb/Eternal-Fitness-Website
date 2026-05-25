@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,8 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   ArrowLeft, Calendar, Mail, Phone, MapPin, FileText, CheckCircle, AlertCircle,
-  Printer, Send, Edit3, Save, X, Copy, Download,
+  Printer, Send, Edit3, Save, X, Copy,
 } from "lucide-react";
+import AgreementPrintView from "./AgreementPrintView";
 
 interface AgreementData {
   id: string;
@@ -69,8 +70,9 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [emailing, setEmailing] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<"idle" | "success" | "error">("idle");
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [printView, setPrintView] = useState(false);
-  const printRef = useRef<HTMLDivElement>(null);
 
   const [trainerForm, setTrainerForm] = useState({
     trainerNotes: data.trainer_notes || "",
@@ -149,25 +151,32 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
 
   const handlePrint = () => {
     setPrintView(true);
-    setTimeout(() => {
-      window.print();
-      setTimeout(() => setPrintView(false), 500);
-    }, 100);
   };
 
-  const handleEmail = () => {
+  const handleEmail = async () => {
     if (!data.client_email) return;
-    const subject = encodeURIComponent(`Your Signed Personal Training Agreement — Eternal Fitness`);
-    const body = encodeURIComponent(
-      `Dear ${data.client_name},\n\n` +
-      `Thank you for signing your personal training agreement with Eternal Fitness.\n\n` +
-      `A copy of your signed agreement is held securely on file. You can request access to your data at any time.\n\n` +
-      `If you have any questions, please don't hesitate to get in touch.\n\n` +
-      `Kind regards,\n` +
-      `Esther Fair\n` +
-      `Eternal Fitness`
-    );
-    window.location.href = `mailto:${data.client_email}?subject=${subject}&body=${body}`;
+    setEmailing(true);
+    setEmailStatus("idle");
+    setEmailError(null);
+
+    try {
+      const response = await fetch(`/api/agreements/${data.id}/email`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || "Failed to send email");
+      }
+
+      setEmailStatus("success");
+      setTimeout(() => setEmailStatus("idle"), 5000);
+    } catch (err) {
+      setEmailStatus("error");
+      setEmailError(err instanceof Error ? err.message : "Failed to send email");
+    } finally {
+      setEmailing(false);
+    }
   };
 
   const handleCopyEmail = () => {
@@ -183,110 +192,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
   );
 
   if (printView) {
-    return (
-      <div ref={printRef} className="max-w-4xl mx-auto bg-white p-8 print:p-0">
-        <header className="border-b-4 border-[#087E8B] pb-4 mb-6">
-          <h1 className="text-2xl font-bold text-[#1E1E1E]">
-            Eternal <span className="text-[#C1839F]">♥</span> Fitness
-          </h1>
-          <h2 className="text-xl font-bold text-[#087E8B] mt-2">
-            Personal Training Agreement — Signed Copy
-          </h2>
-          <p className="text-sm text-[#525A61] mt-1 italic">
-            Signed by {data.client_name} on {formatDate(data.client_signature_date)}
-          </p>
-        </header>
-
-        <div className="space-y-6 text-sm text-[#1E1E1E]">
-          <section>
-            <h3 className="text-base font-bold mb-3 pb-2 border-b border-[#D9D9D9]">Client Details</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <div><p className="text-xs text-[#525A61] uppercase">Full name</p><p className="font-medium">{data.client_name}</p></div>
-              <div><p className="text-xs text-[#525A61] uppercase">Date of birth</p><p>{formatDate(data.client_dob)}</p></div>
-              <div><p className="text-xs text-[#525A61] uppercase">Email</p><p>{data.client_email}</p></div>
-              <div><p className="text-xs text-[#525A61] uppercase">Phone</p><p>{data.client_phone}</p></div>
-              <div className="col-span-2"><p className="text-xs text-[#525A61] uppercase">Address</p><p>{data.client_address}</p></div>
-              <div><p className="text-xs text-[#525A61] uppercase">Start date</p><p>{formatDate(data.start_date)}</p></div>
-            </div>
-          </section>
-
-          <section>
-            <h3 className="text-base font-bold mb-3 pb-2 border-b border-[#D9D9D9]">Signatures</h3>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="p-3 border rounded">
-                <p className="font-semibold mb-2">Client</p>
-                <p className="text-xs text-[#525A61] uppercase">Name (print)</p><p className="font-medium">{data.client_name_print}</p>
-                <p className="text-xs text-[#525A61] uppercase mt-2">Date</p><p>{formatDate(data.client_signature_date)}</p>
-                {data.client_typed_signature && <p className="italic font-serif text-lg mt-2">{data.client_typed_signature}</p>}
-                {data.client_signature_data && <img src={data.client_signature_data} alt="Signature" className="h-12 mt-2" />}
-              </div>
-              <div className="p-3 border rounded bg-gray-50">
-                <p className="font-semibold mb-2">Trainer (auto-signed)</p>
-                <p className="text-xs text-[#525A61] uppercase">Name</p><p className="font-medium">{data.trainer_name_print}</p>
-                <p className="text-xs text-[#525A61] uppercase mt-2">Date</p><p>{formatDate(data.trainer_signature_date)}</p>
-                <p className="italic font-serif text-lg mt-2">{data.trainer_typed_signature}</p>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <h3 className="text-base font-bold mb-3 pb-2 border-b border-[#D9D9D9]">PAR-Q & Medical Clearance</h3>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="p-3 border rounded">
-                <p className="font-semibold mb-2">PAR-Q</p>
-                <p className="text-xs text-[#525A61] uppercase">Completed</p><p className="font-medium uppercase">{data.parq_completed || "—"}</p>
-                <p className="text-xs text-[#525A61] uppercase mt-2">Date</p><p>{formatDate(data.parq_date)}</p>
-                <p className="text-xs text-[#525A61] uppercase mt-2">Filed by</p><p>{data.parq_filed_by || "—"}</p>
-              </div>
-              <div className="p-3 border rounded">
-                <p className="font-semibold mb-2">Medical Clearance</p>
-                <p className="text-xs text-[#525A61] uppercase">Required</p><p className="font-medium uppercase">{data.medical_clearance || "—"}</p>
-                <p className="text-xs text-[#525A61] uppercase mt-2">Date</p><p>{formatDate(data.medical_clearance_date)}</p>
-                <p className="text-xs text-[#525A61] uppercase mt-2">From</p><p>{data.medical_clearance_from || "—"}</p>
-              </div>
-            </div>
-          </section>
-
-          {data.trainer_notes || data.trainer_observations || data.exercise_modifications || data.watch_for ? (
-            <section>
-              <h3 className="text-base font-bold mb-3 pb-2 border-b border-[#D9D9D9]">Trainer Information</h3>
-              <div className="space-y-3">
-                {data.package_type && <div><p className="text-xs text-[#525A61] uppercase">Package</p><p className="font-medium">{data.package_type}</p></div>}
-                {data.sessions_purchased && <div><p className="text-xs text-[#525A61] uppercase">Sessions</p><p>{data.sessions_purchased} sessions × {data.session_duration}min</p></div>}
-                {data.payment_status && <div><p className="text-xs text-[#525A61] uppercase">Payment</p><p className="font-medium uppercase">{data.payment_status}</p></div>}
-                {data.sessions_used !== null && data.sessions_used !== undefined && <div><p className="text-xs text-[#525A61] uppercase">Sessions used / remaining</p><p>{data.sessions_used} / {data.sessions_remaining}</p></div>}
-                {data.risk_level && <div><p className="text-xs text-[#525A61] uppercase">Risk level</p><p className="font-medium uppercase">{data.risk_level}</p></div>}
-                {data.trainer_notes && <div><p className="text-xs text-[#525A61] uppercase">Trainer notes</p><p className="whitespace-pre-wrap">{data.trainer_notes}</p></div>}
-                {data.trainer_observations && <div><p className="text-xs text-[#525A61] uppercase">Observations</p><p className="whitespace-pre-wrap">{data.trainer_observations}</p></div>}
-                {data.exercise_modifications && <div><p className="text-xs text-[#525A61] uppercase">Exercise modifications</p><p className="whitespace-pre-wrap">{data.exercise_modifications}</p></div>}
-                {data.watch_for && <div><p className="text-xs text-[#525A61] uppercase">Watch for</p><p className="whitespace-pre-wrap">{data.watch_for}</p></div>}
-              </div>
-            </section>
-          ) : null}
-
-          <section>
-            <h3 className="text-base font-bold mb-3 pb-2 border-b border-[#D9D9D9]">Agreement Terms</h3>
-            <p className="text-[#525A61] italic">
-              The full terms of this agreement are as presented at the time of signing, covering:
-              the trainer&apos;s commitments, client&apos;s responsibilities, medical clearance requirements,
-              payment terms, risk and liability, data protection, and general terms.
-            </p>
-            <div className="flex items-center gap-2 mt-3">
-              {data.agreed_to_terms ? (
-                <CheckCircle className="w-4 h-4 text-green-600" />
-              ) : (
-                <AlertCircle className="w-4 h-4 text-red-600" />
-              )}
-              <p className="text-sm">Terms accepted: <span className="font-semibold">{data.agreed_to_terms ? "Yes" : "No"}</span></p>
-            </div>
-          </section>
-        </div>
-
-        <footer className="border-t border-[#D9D9D9] mt-8 pt-4 text-center text-xs text-[#525A61]">
-          <p>Eternal <span className="text-[#C1839F]">♥</span> Fitness · Personal Training Agreement · Signed copy · Confidential — held securely on file</p>
-        </footer>
-      </div>
-    );
+    return <AgreementPrintView agreement={data} onClose={() => setPrintView(false)} />;
   }
 
   return (
@@ -317,10 +223,22 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
             size="sm"
             className="gap-1.5"
             onClick={handleEmail}
-            disabled={!data.client_email}
+            disabled={!data.client_email || emailing}
           >
-            <Send className="w-4 h-4" />
-            Email
+            {emailing ? (
+              <>
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Sending...
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4" />
+                Email PDF
+              </>
+            )}
           </Button>
           <Button
             variant={editingTrainer ? "default" : "outline"}
@@ -370,6 +288,20 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
         <div className="bg-red-50 border border-red-200 rounded-md p-3 flex items-center gap-2">
           <AlertCircle className="w-4 h-4 text-red-600" />
           <p className="text-sm text-red-800">{saveError}</p>
+        </div>
+      )}
+
+      {/* Email feedback */}
+      {emailStatus === "success" && (
+        <div className="bg-green-50 border border-green-200 rounded-md p-3 flex items-center gap-2">
+          <CheckCircle className="w-4 h-4 text-green-600" />
+          <p className="text-sm text-green-800">Agreement emailed to {data.client_email} with PDF attachment</p>
+        </div>
+      )}
+      {emailStatus === "error" && (
+        <div className="bg-red-50 border border-red-200 rounded-md p-3 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-red-600" />
+          <p className="text-sm text-red-800">{emailError}</p>
         </div>
       )}
 
