@@ -163,41 +163,55 @@ export default function AgreementPage() {
     );
 
   if (isSubmitted) {
+    const formatDate = (d: string) => {
+      if (!d) return "—";
+      const date = new Date(d + "T00:00:00");
+      return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+    };
+
     return (
       <div className="min-h-screen bg-[#F1F1F1] py-8 px-4">
-        <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8 text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#087E8B] flex items-center justify-center">
-            <svg
-              className="w-8 h-8 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+        <div
+          ref={agreementRef}
+          className="max-w-4xl mx-auto bg-white rounded-lg shadow-md print:shadow-none print:rounded-none"
+          role="document"
+          aria-label="Signed Personal Training Agreement"
+        >
+          {/* Header */}
+          <header className="border-b-4 border-[#087E8B] px-6 pt-8 pb-6 print:pb-4">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#1E1E1E]">
+              Eternal <span className="text-[#C1839F]">♥</span> Fitness
+            </h1>
+            <h2 className="text-xl sm:text-2xl font-bold text-[#087E8B] mt-2">
+              Personal Training Agreement — Signed Copy
+            </h2>
+            <p className="text-[#525A61] mt-2 text-sm italic">
+              Signed on {formatDate(formData.clientSignatureDate)}
+            </p>
+          </header>
+
+          {/* Success banner - hidden on print */}
+          <div className="px-6 py-4 bg-green-50 border-b border-green-200 print:hidden">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#087E8B] flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-green-800 font-semibold text-sm">Agreement saved successfully</p>
+                <p className="text-green-700 text-xs">A copy is held securely on file. Use the button below to print.</p>
+              </div>
+            </div>
           </div>
-          <h1 className="text-2xl font-bold text-[#1E1E1E] mb-2">
-            Agreement Signed Successfully
-          </h1>
-          <p className="text-[#525A61] mb-6">
-            Thank you, {formData.clientName}. Your personal training agreement has been completed and saved.
-          </p>
-          <p className="text-sm text-[#525A61] mb-6">
-            A copy of this agreement is held securely on file. You can request access to your data at any time.
-          </p>
-          <div className="flex gap-3 justify-center">
+
+          {/* Print actions - hidden on print */}
+          <div className="px-6 py-4 flex gap-3 print:hidden">
             <Button
               onClick={handlePrint}
-              variant="secondary"
               className="bg-[#087E8B] text-white hover:bg-[#087E8B]/90"
             >
-              Print a copy
+              Print this agreement
             </Button>
             <Button
               onClick={() => {
@@ -211,6 +225,169 @@ export default function AgreementPage() {
               Start again
             </Button>
           </div>
+
+          {/* Completed form content */}
+          <div className="px-6 py-6 space-y-8 text-sm text-[#1E1E1E]">
+            {/* Section A: Parties */}
+            <section>
+              <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
+                A. Parties to this agreement
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Client full name</p>
+                  <p className="mt-1 font-medium">{formData.clientName}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Date of birth</p>
+                  <p className="mt-1">{formatDate(formData.clientDob)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Agreement start date</p>
+                  <p className="mt-1">{formatDate(formData.startDate)}</p>
+                </div>
+                <div className="sm:col-span-2">
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Address</p>
+                  <p className="mt-1">{formData.clientAddress}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Email</p>
+                  <p className="mt-1">{formData.clientEmail}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Phone</p>
+                  <p className="mt-1">{formData.clientPhone}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Trainer</p>
+                  <p className="mt-1">{formData.trainerName}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Business</p>
+                  <p className="mt-1">{formData.businessName}</p>
+                </div>
+              </div>
+            </section>
+
+            {/* Sections 1-7: Terms (abbreviated for print) */}
+            <section>
+              <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
+                1–7. Agreement Terms
+              </h2>
+              <p className="text-[#525A61] italic">
+                The full terms of this agreement are as presented at the time of signing, covering:
+              </p>
+              <ul className="mt-2 list-disc list-inside space-y-1 text-[#525A61]">
+                <li>The trainer&apos;s commitments to you (Section 1)</li>
+                <li>The client&apos;s responsibilities (Section 2)</li>
+                <li>Medical clearance requirements (Section 3)</li>
+                <li>Payment terms (Section 4)</li>
+                <li>Risk, liability, and safety (Section 5)</li>
+                <li>Data protection and privacy (Section 6)</li>
+                <li>General terms (Section 7)</li>
+              </ul>
+            </section>
+
+            {/* Section 8: Signatures */}
+            <section>
+              <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
+                8. Agreement and signatures
+              </h2>
+
+              <div className="bg-[#F1F1F1] rounded-md p-4 mb-6">
+                <p className="text-sm text-[#1E1E1E] mb-3">
+                  By signing below, both parties confirmed that they had read and understood this agreement in full. The client confirmed that they had completed the PAR-Q honestly and accepted all terms set out in this agreement.
+                </p>
+                <p className="text-sm font-semibold text-[#1E1E1E] mb-2">The client confirmed specifically that:</p>
+                <ul className="text-sm list-disc list-inside space-y-1 text-[#1E1E1E]">
+                  <li>They had disclosed all relevant medical conditions, medications, and health information on the PAR-Q</li>
+                  <li>They understood that medical clearance may be required before sessions begin</li>
+                  <li>They would inform the trainer immediately of any change to their health, medication, or medical advice</li>
+                  <li>They understood the risks of exercise as described in Section 5</li>
+                  <li>They had not been told by any medical professional that they must not exercise — or if they had, they had disclosed this</li>
+                </ul>
+              </div>
+
+              {/* Client signature */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Client full name (print)</p>
+                  <p className="mt-1 font-medium">{formData.clientNamePrint}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Date</p>
+                  <p className="mt-1">{formatDate(formData.clientSignatureDate)}</p>
+                </div>
+                <div className="sm:col-span-2">
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide mb-2">Client signature</p>
+                  {formData.clientTypedSignature ? (
+                    <p className="italic font-serif text-lg text-[#1E1E1E]">{formData.clientTypedSignature}</p>
+                  ) : formData.clientSignature ? (
+                    <img src={formData.clientSignature} alt="Client signature" className="h-16 border-b border-[#D9D9D9]" />
+                  ) : (
+                    <p className="text-[#525A61] italic">Signed</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Trainer signature */}
+              <div className="bg-[#F1F1F1] rounded-md p-4 mb-8">
+                <p className="text-sm text-[#525A61] mb-3">
+                  Trainer signature applied automatically upon client submission.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Trainer name (print)</p>
+                    <p className="mt-1 font-medium">Esther Fair</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Trainer signature</p>
+                    <p className="mt-1 italic font-serif text-lg text-[#1E1E1E]">Esther Fair</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* PAR-Q and Medical clearance filing */}
+              <div className="bg-[#F1F1F1] rounded-md p-4 space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">PAR-Q completed</p>
+                    <p className="mt-1 font-medium uppercase">{formData.parqCompleted || "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Date</p>
+                    <p className="mt-1">{formatDate(formData.parqDate)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Filed by</p>
+                    <p className="mt-1">{formData.parqFiledBy || "—"}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Medical clearance</p>
+                    <p className="mt-1 font-medium uppercase">{formData.medicalClearance || "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Date</p>
+                    <p className="mt-1">{formatDate(formData.medicalClearanceDate)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">From</p>
+                    <p className="mt-1">{formData.medicalClearanceFrom || "—"}</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* Footer */}
+          <footer className="border-t border-[#D9D9D9] px-6 py-4 text-center text-xs text-[#525A61] print:border-t-0">
+            <p>
+              Eternal <span className="text-[#C1839F]">♥</span> Fitness · Personal Training Agreement · Signed copy · Confidential — held securely on file
+            </p>
+          </footer>
         </div>
       </div>
     );

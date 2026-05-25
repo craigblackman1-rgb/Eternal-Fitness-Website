@@ -269,26 +269,96 @@ export default function ParqPage() {
   );
 
   if (isSubmitted) {
+    const formatDate = (d: string) => {
+      if (!d) return "—";
+      const date = new Date(d + "T00:00:00");
+      return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+    };
+
+    const questionTexts: Record<string, string> = {
+      q1: "Has your doctor ever told you that you have a heart condition or cardiovascular disease?",
+      q2: "Do you feel pain, pressure, tightness, or heaviness in your chest during physical activity?",
+      q3: "Do you experience chest pain or discomfort at rest or when NOT exercising?",
+      q4: "Do you ever feel dizzy, faint, or lose consciousness during or after exercise?",
+      q5: "Do you experience unexplained shortness of breath at rest or with minimal exertion?",
+      q6: "Do you experience palpitations, irregular heartbeat, or a racing heart?",
+      q7: "Do you have high blood pressure or are you being treated for it?",
+      q8: "Do you have high cholesterol or are you being treated for it?",
+      q9: "Have you had a stroke or TIA (transient ischaemic attack)?",
+      q10: "Do you have diabetes (Type 1 or Type 2)?",
+      q11: "Do you smoke or have you smoked in the last 5 years?",
+      q12: "Do you have any bone, joint, or muscle condition that could be affected by exercise?",
+      q13: "Have you had any surgery in the last 5 years?",
+      q14: "Do you have any implanted medical devices?",
+      q15: "Have you ever had a spinal injury, spinal surgery, or been told to avoid spinal loading or high-impact activity?",
+      q16: "Do you have any neurological condition?",
+      q17: "Do you experience chronic pain that affects your ability to exercise?",
+      q18: "Do you have any condition affecting your vision, hearing, or other senses that your trainer should be aware of?",
+      q19: "Are you taking any blood-thinning medication (anticoagulants)?",
+      q20: "Do you have any blood disorder or condition affecting your blood?",
+      q21: "Are you receiving any injection-based medication on a regular basis?",
+      q22: "Are you taking any statin medication?",
+      q23: "Are you taking any other prescription medication not listed above?",
+      q24: "Do you have any diagnosed medical condition not already disclosed above?",
+      q25: "Have you been advised by any doctor, consultant, or medical professional to avoid or restrict certain types of exercise?",
+      q26: "Have you had any major illness, hospital admission, or operation in the last 5 years?",
+      q27: "Are you currently pregnant or have you given birth in the last 6 months?",
+      q28: "Do you have any dietary restrictions, allergies, or eating disorder history your trainer should be aware of?",
+      q29: "Do you have any other reason — physical, medical, or personal — why you feel you may not be able to participate safely in an exercise programme?",
+    };
+
+    const sections = [
+      { label: "Section 2 — Cardiovascular and General Health", questions: ["q1","q2","q3","q4","q5","q6","q7","q8","q9","q10","q11"] },
+      { label: "Section 3 — Musculoskeletal, Neurological, and Surgical History", questions: ["q12","q13","q14","q15","q16","q17","q18"] },
+      { label: "Section 4 — Blood Conditions, Medications, and Diagnosed Conditions", questions: ["q19","q20","q21","q22","q23","q24","q25","q26"] },
+      { label: "Section 6 — Additional Questions", questions: ["q27","q28","q29"] },
+    ];
+
     return (
       <div className="min-h-screen bg-[#F1F1F1] py-8 px-4">
-        <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8 text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#087E8B] flex items-center justify-center">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+        <div
+          ref={formRef}
+          className="max-w-4xl mx-auto bg-white rounded-lg shadow-md print:shadow-none print:rounded-none"
+          role="document"
+          aria-label="Signed PAR-Q Form"
+        >
+          {/* Header */}
+          <header className="border-b-4 border-[#087E8B] px-6 pt-8 pb-6 print:pb-4">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#1E1E1E]">
+              Eternal <span className="text-[#C1839F]">♥</span> Fitness
+            </h1>
+            <h2 className="text-xl sm:text-2xl font-bold text-[#087E8B] mt-2">
+              PAR-Q · Physical Activity Readiness Questionnaire — Signed Copy
+            </h2>
+            <p className="text-[#525A61] mt-2 text-sm italic">
+              Completed by {formData.fullName} on {formatDate(formData.clientSignatureDate)}
+            </p>
+            <div className="bg-[#F1F1F1] rounded-md p-4 mt-4">
+              <p className="text-sm text-[#1E1E1E] leading-relaxed">
+                All information provided is treated as strictly confidential and held securely in accordance with UK data protection legislation (UK GDPR / Data Protection Act 2018).
+              </p>
+            </div>
+          </header>
+
+          {/* Success banner - hidden on print */}
+          <div className="px-6 py-4 bg-green-50 border-b border-green-200 print:hidden">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#087E8B] flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-green-800 font-semibold text-sm">PAR-Q form saved successfully</p>
+                <p className="text-green-700 text-xs">Esther will review your responses before your first session. Use the button below to print.</p>
+              </div>
+            </div>
           </div>
-          <h1 className="text-2xl font-bold text-[#1E1E1E] mb-2">
-            PAR-Q Form Submitted Successfully
-          </h1>
-          <p className="text-[#525A61] mb-6">
-            Thank you, {formData.fullName}. Your health screening form has been completed and saved.
-          </p>
-          <p className="text-sm text-[#525A61] mb-6">
-            This information is held securely on file. Esther will review your responses before your first session.
-          </p>
-          <div className="flex gap-3 justify-center">
-            <Button onClick={handlePrint} variant="secondary" className="bg-[#087E8B] text-white hover:bg-[#087E8B]/90">
-              Print a copy
+
+          {/* Print actions - hidden on print */}
+          <div className="px-6 py-4 flex gap-3 print:hidden">
+            <Button onClick={handlePrint} className="bg-[#087E8B] text-white hover:bg-[#087E8B]/90">
+              Print this form
             </Button>
             <Button
               onClick={() => {
@@ -304,6 +374,237 @@ export default function ParqPage() {
               Start again
             </Button>
           </div>
+
+          {/* Completed form content */}
+          <div className="px-6 py-6 space-y-8 text-sm text-[#1E1E1E]">
+            {/* Section 1: Personal Details */}
+            <section>
+              <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
+                Section 1 — Personal Details
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Full name</p>
+                  <p className="mt-1 font-medium">{formData.fullName}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Date of birth</p>
+                  <p className="mt-1">{formatDate(formData.dateOfBirth)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Email</p>
+                  <p className="mt-1">{formData.email}</p>
+                </div>
+                <div className="sm:col-span-2">
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Address</p>
+                  <p className="mt-1">{formData.address}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Phone</p>
+                  <p className="mt-1">{formData.phone}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Emergency contact</p>
+                  <p className="mt-1">{formData.emergencyContactName} — {formData.emergencyContactPhone}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">GP name</p>
+                  <p className="mt-1">{formData.gpName}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">GP surgery</p>
+                  <p className="mt-1">{formData.gpSurgery}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">GP phone</p>
+                  <p className="mt-1">{formData.gpPhone || "—"}</p>
+                </div>
+              </div>
+            </section>
+
+            {/* Sections 2, 3, 4, 6: Questions */}
+            {sections.map(({ label, questions }) => (
+              <section key={label}>
+                <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
+                  {label}
+                </h2>
+                <div className="space-y-3">
+                  {questions.map((q) => (
+                    <div key={q} className="bg-[#F1F1F1] rounded-md p-3 flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <p className="text-sm text-[#1E1E1E] font-medium">{questionTexts[q]}</p>
+                      </div>
+                      <div className="flex-shrink-0">
+                        <span className={cn(
+                          "inline-block px-3 py-1 rounded-full text-xs font-bold uppercase",
+                          formData[q as keyof ParqFormData] === "yes"
+                            ? "bg-red-100 text-red-800"
+                            : formData[q as keyof ParqFormData] === "no"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-600"
+                        )}>
+                          {formData[q as keyof ParqFormData] || "—"}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ))}
+
+            {/* Section 5: Full Details */}
+            <section>
+              <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
+                Section 5 — Full Details
+              </h2>
+              <div className="space-y-4">
+                {[
+                  { label: "Diagnosed medical conditions", value: formData.conditions },
+                  { label: "All current prescription medications", value: formData.medications },
+                  { label: "Implanted medical devices", value: formData.devices },
+                  { label: "Exercise restrictions", value: formData.exerciseRestrictions },
+                  { label: "Surgeries or hospital admissions (last 5 years)", value: formData.surgeries },
+                  { label: "Any other information", value: formData.otherInfo },
+                ].map(({ label, value }) => (
+                  <div key={label}>
+                    <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">{label}</p>
+                    <p className="mt-1 whitespace-pre-wrap">{value || "—"}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Section 6b: Lifestyle */}
+            <section>
+              <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
+                Section 6 — Lifestyle and Physical Activity
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Current exercise or sport</p>
+                  <p className="mt-1 whitespace-pre-wrap">{formData.currentExercise || "—"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Training goals</p>
+                  <p className="mt-1 whitespace-pre-wrap">{formData.trainingGoals || "—"}</p>
+                </div>
+              </div>
+            </section>
+
+            {/* Section 7: Medical Clearance */}
+            <section>
+              <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
+                Section 7 — Medical Clearance Record
+              </h2>
+              <div className="bg-[#F1F1F1] rounded-md p-4">
+                <p className="text-sm text-[#525A61] italic">To be completed by the trainer.</p>
+              </div>
+            </section>
+
+            {/* Section 8: Annual Review */}
+            <section>
+              <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
+                Section 8 — Annual Review Record
+              </h2>
+              <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-4">
+                <p className="text-sm text-amber-900 font-semibold">This form must be reviewed every 12 months or following any change in health status.</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse" role="table" aria-label="Annual review record">
+                  <thead>
+                    <tr className="bg-[#087E8B] text-white">
+                      <th className="text-left p-3 font-semibold" scope="col">Review date</th>
+                      <th className="text-left p-3 font-semibold" scope="col">Changes to health, medications, or conditions</th>
+                      <th className="text-left p-3 font-semibold" scope="col">Client signature</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[0, 1, 2, 3].map((i) => (
+                      <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-[#F1F1F1]"}>
+                        <td className="p-3 border-t border-[#D9D9D9] h-12">&nbsp;</td>
+                        <td className="p-3 border-t border-[#D9D9D9]">&nbsp;</td>
+                        <td className="p-3 border-t border-[#D9D9D9]">&nbsp;</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            {/* Section 9: Declaration and Signature */}
+            <section>
+              <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
+                Section 9 — Declaration and Signature
+              </h2>
+
+              <div className="bg-[#F1F1F1] rounded-md p-4 mb-6 space-y-3">
+                <div className="flex items-start gap-3">
+                  <span className="text-green-600 mt-0.5">✓</span>
+                  <p className="text-sm text-[#1E1E1E]">
+                    I confirm that the information I have provided in this form is accurate and complete to the best of my knowledge.
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="text-green-600 mt-0.5">✓</span>
+                  <p className="text-sm text-[#1E1E1E]">
+                    I understand that where my trainer determines medical clearance is required, no training sessions will commence until that clearance has been received in writing.
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="text-green-600 mt-0.5">✓</span>
+                  <p className="text-sm text-[#1E1E1E]">
+                    I consent to my trainer contacting my GP for the purpose of requesting medical clearance where this is deemed necessary for my safety.
+                  </p>
+                </div>
+              </div>
+
+              {/* Client signature */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Client full name (print)</p>
+                  <p className="mt-1 font-medium">{formData.clientNamePrint}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Date</p>
+                  <p className="mt-1">{formatDate(formData.clientSignatureDate)}</p>
+                </div>
+                <div className="sm:col-span-2">
+                  <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide mb-2">Client signature</p>
+                  {formData.clientTypedSignature ? (
+                    <p className="italic font-serif text-lg text-[#1E1E1E]">{formData.clientTypedSignature}</p>
+                  ) : formData.clientSignature ? (
+                    <img src={formData.clientSignature} alt="Client signature" className="h-16 border-b border-[#D9D9D9]" />
+                  ) : (
+                    <p className="text-[#525A61] italic">Signed</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Trainer signature */}
+              <div className="bg-[#F1F1F1] rounded-md p-4 mb-8">
+                <p className="text-sm text-[#525A61] mb-3">
+                  Trainer signature applied automatically upon client submission.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Trainer name (print)</p>
+                    <p className="mt-1 font-medium">Esther Fair</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#525A61] font-medium uppercase tracking-wide">Trainer signature</p>
+                    <p className="mt-1 italic font-serif text-lg text-[#1E1E1E]">Esther Fair</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* Footer */}
+          <footer className="border-t border-[#D9D9D9] px-6 py-4 text-center text-xs text-[#525A61] print:border-t-0">
+            <p>
+              Eternal <span className="text-[#C1839F]">♥</span> Fitness · PAR-Q / Medical Health Screening · Confidential — held securely on file
+            </p>
+          </footer>
         </div>
       </div>
     );
