@@ -74,9 +74,7 @@ export async function POST(request: Request) {
       client_signature_date: clientSignatureDate || null,
       client_signature_data: clientSignature || null,
       client_typed_signature: clientTypedSignature || null,
-    })
-    .select()
-    .single();
+    });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

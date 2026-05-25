@@ -70,9 +70,7 @@ export async function POST(request: Request) {
       medical_clearance_date: medicalClearanceDate || null,
       medical_clearance_from: medicalClearanceFrom || null,
       agreed_to_terms: agreedToTerms || false,
-    })
-    .select()
-    .single();
+    });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
