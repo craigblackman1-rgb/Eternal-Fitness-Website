@@ -368,7 +368,7 @@ export function DocumentEditor({ client, documentType, onSave }: DocumentEditorP
 
           <div className="space-y-2">
             <Label>Clearance Required</Label>
-            <Select value={clearanceRequired} onValueChange={setClearanceRequired}>
+            <Select value={clearanceRequired} onValueChange={(v) => setClearanceRequired(v as "Y" | "N" | "NA")}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
