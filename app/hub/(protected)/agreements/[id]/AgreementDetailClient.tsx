@@ -594,10 +594,10 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
                     {section.qs.map(({ q, t }) => (
                       <div key={q} className="flex items-center justify-between bg-muted/30 rounded-md p-2.5">
                         <span className="text-sm">{t}</span>
-                        <Select value={parqForm[q] || ""} onValueChange={(v) => handleParqChange(q, v)}>
+                        <Select value={parqForm[q] || "unanswered"} onValueChange={(v) => handleParqChange(q, v === "unanswered" ? "" : v)}>
                           <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">—</SelectItem>
+                            <SelectItem value="unanswered">—</SelectItem>
                             <SelectItem value="yes">Yes</SelectItem>
                             <SelectItem value="no">No</SelectItem>
                           </SelectContent>
