@@ -52,10 +52,10 @@ export default function NewClientPage() {
       client: { ...profile.client, name: name.trim() },
     };
 
-    const { error } = await supabase.from("clients").insert({
+    const { data, error } = await supabase.from("clients").insert({
       name: name.trim(),
       profile: fullProfile,
-    });
+    }).select("client_number").single();
 
     if (error) {
       toast.error(`Failed to save client: ${error.message}`);
@@ -64,7 +64,7 @@ export default function NewClientPage() {
     }
 
     toast.success("Client created");
-    router.push("/hub/clients");
+    router.push(`/hub/clients/${data.client_number}`);
   };
 
   return (

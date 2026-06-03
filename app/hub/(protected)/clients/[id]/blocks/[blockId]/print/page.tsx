@@ -30,7 +30,7 @@ export default async function BlockPrintPage({
   if (!block) notFound();
 
   const [clientRes, sessionsRes] = await Promise.all([
-    supabase.from("clients").select("name, profile").eq("id", params.id).single(),
+    supabase.from("clients").select("name, profile, client_number").eq("client_number", parseInt(params.id)).single(),
     supabase
       .from("sessions")
       .select("*")
@@ -65,7 +65,7 @@ export default async function BlockPrintPage({
 
       <div className="no-print flex items-center gap-4 mb-6">
         <Link
-          href={`/hub/clients/${params.id}/blocks/${params.blockId}`}
+          href={`/hub/clients/${client?.client_number || params.id}/blocks/${params.blockId}`}
           className="text-muted-foreground hover:text-foreground"
         >
           <ChevronLeft className="h-5 w-5" />

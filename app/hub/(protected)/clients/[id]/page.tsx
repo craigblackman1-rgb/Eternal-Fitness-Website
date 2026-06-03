@@ -8,7 +8,7 @@ import { ChevronLeft, FileText, Pencil, Plus, Heart, Target, ClipboardList } fro
 
 export default async function ClientDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
-  const { data: client } = await supabase.from("clients").select("*").eq("id", params.id).single();
+  const { data: client } = await supabase.from("clients").select("*").eq("client_number", parseInt(params.id)).single();
   const { data: blocks } = await supabase.from("blocks").select("*").eq("client_id", params.id).order("block_number", { ascending: false });
 
   if (!client) notFound();
@@ -37,13 +37,13 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Link href={`/hub/clients/${params.id}/edit`}>
+          <Link href={`/hub/clients/${client.client_number}/edit`}>
             <Button variant="outline" className="rounded-full gap-1.5 border-border/60">
               <Pencil className="h-4 w-4" />
               Edit
             </Button>
           </Link>
-          <Link href={`/hub/clients/${params.id}/blocks/new`}>
+                  <Link href={`/hub/clients/${client.client_number}/blocks/new`}>
             <Button className="rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white">
               <Plus className="h-4 w-4" />
               New Block
@@ -70,7 +70,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                   {blocks.map((block) => (
                     <Link
                       key={block.id}
-                      href={`/hub/clients/${params.id}/blocks/${block.id}`}
+                      href={`/hub/clients/${client.client_number}/blocks/${block.id}`}
                       className="flex items-center justify-between rounded-xl border border-border/60 p-4 transition-all hover:bg-off-white hover:border-rose/20 group"
                     >
                       <div className="flex items-center gap-3">
@@ -100,7 +100,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                     <FileText className="w-7 h-7 text-rose/40" />
                   </div>
                   <p className="text-sm text-muted-foreground">No blocks yet</p>
-                  <Link href={`/hub/clients/${params.id}/blocks/new`}>
+          <Link href={`/hub/clients/${client.client_number}/blocks/new`}>
                     <Button variant="outline" size="sm" className="rounded-full">
                       Generate First Block
                     </Button>

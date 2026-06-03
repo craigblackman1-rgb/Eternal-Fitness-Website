@@ -34,7 +34,7 @@ export default async function ClientsPage() {
             const goals = client.profile?.goals?.primary;
 
             return (
-              <Link key={client.id} href={`/hub/clients/${client.id}`}>
+              <Link key={client.id} href={`/hub/clients/${client.client_number}`}>
                 <Card className="transition-all duration-150 hover:shadow-md hover:border-rose/20 border-border/60 rounded-2xl group h-full">
                   <CardContent className="p-5">
                     <div className="flex items-start gap-4">

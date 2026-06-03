@@ -35,8 +35,8 @@ export default async function BlockViewPage({
 
   const { data: client } = await supabase
     .from("clients")
-    .select("name")
-    .eq("id", params.id)
+    .select("name, client_number")
+    .eq("client_number", parseInt(params.id))
     .single();
 
   const { data: sessions } = await supabase
@@ -51,7 +51,7 @@ export default async function BlockViewPage({
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link href={`/hub/clients/${params.id}`} className="text-muted-foreground hover:text-foreground transition-colors">
+        <Link href={`/hub/clients/${client?.client_number || params.id}`} className="text-muted-foreground hover:text-foreground transition-colors">
           <ChevronLeft className="h-5 w-5" />
         </Link>
         <div className="flex items-center gap-4 flex-1">
@@ -71,14 +71,14 @@ export default async function BlockViewPage({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}/print`}>
+          <Link href={`/hub/clients/${client?.client_number || params.id}/blocks/${params.blockId}/print`}>
             <Button variant="outline" className="rounded-full gap-1.5 border-border/60">
               <Printer className="h-4 w-4" />
               Print
             </Button>
           </Link>
           {block.status === "draft" && (
-            <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}/review`}>
+            <Link href={`/hub/clients/${client?.client_number || params.id}/blocks/${params.blockId}/review`}>
               <Button className="rounded-full bg-rose hover:bg-rose/90 text-white">Review & Approve</Button>
             </Link>
           )}
@@ -87,7 +87,7 @@ export default async function BlockViewPage({
             blockNumber={block.block_number}
             clientName={client?.name || "Client"}
           />
-          <DeleteBlockButton clientId={params.id} blockId={params.blockId} />
+          <DeleteBlockButton clientId={client?.client_number || params.id} blockId={params.blockId} />
         </div>
       </div>
 
@@ -142,7 +142,7 @@ export default async function BlockViewPage({
                     {session.data?.focus_label || session.data?.client_intro || "—"}
                   </TableCell>
                   <TableCell>
-                    <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}/sessions/${session.session_number}`}>
+                    <Link href={`/hub/clients/${client?.client_number || params.id}/blocks/${params.blockId}/sessions/${session.session_number}`}>
                       <Button variant="ghost" size="icon" className="rounded-full hover:bg-rose/10 hover:text-rose">
                         <Eye className="h-4 w-4" />
                       </Button>

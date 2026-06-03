@@ -25,17 +25,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "clientId is required" }, { status: 400 });
   }
 
-  const { data: client } = await supabase.from("clients").select("*").eq("id", clientId).single();
+  const { data: client } = await supabase.from("clients").select("*").eq("client_number", parseInt(clientId)).single();
   if (!client) {
     return NextResponse.json({ error: "Client not found" }, { status: 404 });
   }
 
-  const profile = client.profile as ClientProfile;
-
   const { data: existingBlocks } = await supabase
     .from("blocks")
     .select("block_number")
-    .eq("client_id", clientId)
+    .eq("client_id", client.id)
     .order("block_number", { ascending: false })
     .limit(1);
 
@@ -52,7 +50,7 @@ export async function POST(request: Request) {
   const { data: block, error: blockError } = await supabase
     .from("blocks")
     .insert({
-      client_id: clientId,
+      client_id: client.id,
       block_number: blockNumber,
       status: "draft",
       block_note: blockNote || null,

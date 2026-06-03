@@ -53,12 +53,12 @@ export default async function DashboardPage() {
 
   const { data: clients } = await supabase
     .from("clients")
-    .select("id, name, profile, created_at")
+    .select("id, name, profile, created_at, client_number")
     .order("created_at", { ascending: false });
 
   const { data: blocks } = await supabase
     .from("blocks")
-    .select("id, client_id, block_number, status, created_at")
+    .select("id, client_id, block_number, status, created_at, clients!inner(client_number)")
     .order("created_at", { ascending: false })
     .limit(10);
 
@@ -124,7 +124,7 @@ export default async function DashboardPage() {
                   return (
                     <Link
                       key={client.id}
-                      href={`/hub/clients/${client.id}`}
+                      href={`/hub/clients/${client.client_number}`}
                       className="flex items-center gap-3 rounded-xl p-3 transition-colors hover:bg-off-white group"
                     >
                       <div className="w-10 h-10 rounded-full bg-rose/15 text-rose flex items-center justify-center text-xs font-bold shrink-0">
@@ -179,7 +179,7 @@ export default async function DashboardPage() {
                   {blocks.slice(0, 5).map((block) => (
                     <Link
                       key={block.id}
-                      href={`/hub/clients/${block.client_id}/blocks/${block.id}`}
+                      href={`/hub/clients/${(block as any).clients?.client_number || block.client_id}/blocks/${block.id}`}
                       className="flex items-center gap-3 rounded-xl p-2.5 transition-colors hover:bg-off-white group"
                     >
                       <StatusDot status={block.status} />

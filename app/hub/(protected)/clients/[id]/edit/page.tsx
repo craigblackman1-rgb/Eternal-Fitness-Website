@@ -36,7 +36,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
       const { data, error } = await supabase
         .from("clients")
         .select("*")
-        .eq("id", params.id)
+        .eq("client_number", parseInt(params.id))
         .single();
       if (error || !data) {
         toast.error("Failed to load client");
@@ -75,7 +75,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
     const { error } = await supabase
       .from("clients")
       .update({ name: name.trim(), profile: fullProfile })
-      .eq("id", params.id);
+      .eq("client_number", parseInt(params.id));
 
     if (error) {
       toast.error(`Failed to save: ${error.message}`);
