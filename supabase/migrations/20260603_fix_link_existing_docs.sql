@@ -46,7 +46,6 @@ DROP VIEW IF EXISTS client_documents_summary;
 CREATE VIEW client_documents_summary AS
 SELECT 
   c.id as client_id,
-  c.client_number,
   c.name as client_name,
   c.display_code,
   sa.id as agreement_id, sa.status as agreement_status,
