@@ -30,6 +30,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Client not found" }, { status: 404 });
   }
 
+  const profile = (client.profile as unknown) as ClientProfile;
+  if (!profile || !profile.logistics) {
+    return NextResponse.json({ error: "Client profile is incomplete" }, { status: 400 });
+  }
+
   const { data: existingBlocks } = await supabase
     .from("blocks")
     .select("block_number")
