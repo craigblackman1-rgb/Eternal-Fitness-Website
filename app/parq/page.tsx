@@ -7,6 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import {
+  section2Questions,
+  section3Questions,
+  section4Questions,
+  section6bQuestions,
+  questionTextMap,
+  parqSections,
+} from "@/lib/parq-data";
 
 interface ParqFormData {
   fullName: string;
@@ -275,43 +283,11 @@ export default function ParqPage() {
       return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     };
 
-    const questionTexts: Record<string, string> = {
-      q1: "Has your doctor ever told you that you have a heart condition or cardiovascular disease?",
-      q2: "Do you feel pain, pressure, tightness, or heaviness in your chest during physical activity?",
-      q3: "Do you experience chest pain or discomfort at rest or when NOT exercising?",
-      q4: "Do you ever feel dizzy, faint, or lose consciousness during or after exercise?",
-      q5: "Do you experience unexplained shortness of breath at rest or with minimal exertion?",
-      q6: "Do you experience palpitations, irregular heartbeat, or a racing heart?",
-      q7: "Do you have high blood pressure or are you being treated for it?",
-      q8: "Do you have high cholesterol or are you being treated for it?",
-      q9: "Have you had a stroke or TIA (transient ischaemic attack)?",
-      q10: "Do you have diabetes (Type 1 or Type 2)?",
-      q11: "Do you smoke or have you smoked in the last 5 years?",
-      q12: "Do you have any bone, joint, or muscle condition that could be affected by exercise?",
-      q13: "Have you had any surgery in the last 5 years?",
-      q14: "Do you have any implanted medical devices?",
-      q15: "Have you ever had a spinal injury, spinal surgery, or been told to avoid spinal loading or high-impact activity?",
-      q16: "Do you have any neurological condition?",
-      q17: "Do you experience chronic pain that affects your ability to exercise?",
-      q18: "Do you have any condition affecting your vision, hearing, or other senses that your trainer should be aware of?",
-      q19: "Are you taking any blood-thinning medication (anticoagulants)?",
-      q20: "Do you have any blood disorder or condition affecting your blood?",
-      q21: "Are you receiving any injection-based medication on a regular basis?",
-      q22: "Are you taking any statin medication?",
-      q23: "Are you taking any other prescription medication not listed above?",
-      q24: "Do you have any diagnosed medical condition not already disclosed above?",
-      q25: "Have you been advised by any doctor, consultant, or medical professional to avoid or restrict certain types of exercise?",
-      q26: "Have you had any major illness, hospital admission, or operation in the last 5 years?",
-      q27: "Are you currently pregnant or have you given birth in the last 6 months?",
-      q28: "Do you have any dietary restrictions, allergies, or eating disorder history your trainer should be aware of?",
-      q29: "Do you have any other reason — physical, medical, or personal — why you feel you may not be able to participate safely in an exercise programme?",
-    };
-
     const sections = [
-      { label: "Section 2 — Cardiovascular and General Health", questions: ["q1","q2","q3","q4","q5","q6","q7","q8","q9","q10","q11"] },
-      { label: "Section 3 — Musculoskeletal, Neurological, and Surgical History", questions: ["q12","q13","q14","q15","q16","q17","q18"] },
-      { label: "Section 4 — Blood Conditions, Medications, and Diagnosed Conditions", questions: ["q19","q20","q21","q22","q23","q24","q25","q26"] },
-      { label: "Section 6 — Additional Questions", questions: ["q27","q28","q29"] },
+      { label: "Section 2 — Cardiovascular and General Health", questions: section2Questions.map(q => q.q) },
+      { label: "Section 3 — Musculoskeletal, Neurological, and Surgical History", questions: section3Questions.map(q => q.q) },
+      { label: "Section 4 — Blood Conditions, Medications, and Diagnosed Conditions", questions: section4Questions.map(q => q.q) },
+      { label: "Section 6 — Additional Questions", questions: section6bQuestions.map(q => q.q) },
     ];
 
     return (
@@ -432,7 +408,7 @@ export default function ParqPage() {
                   {questions.map((q) => (
                     <div key={q} className="bg-[#F1F1F1] rounded-md p-3 flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <p className="text-sm text-[#1E1E1E] font-medium">{questionTexts[q]}</p>
+                        <p className="text-sm text-[#1E1E1E] font-medium">{questionTextMap[q]}</p>
                       </div>
                       <div className="flex-shrink-0">
                         <span className={cn(
@@ -722,19 +698,7 @@ export default function ParqPage() {
               </h2>
               <p className="text-sm text-[#525A61] mb-4 italic">Circle YES or NO for every question. If you answer YES to any question, your trainer will discuss this with you before your programme begins.</p>
               <div className="space-y-4">
-                {[
-                  { q: "q1", text: "Has your doctor ever told you that you have a heart condition or cardiovascular disease?" },
-                  { q: "q2", text: "Do you feel pain, pressure, tightness, or heaviness in your chest during physical activity?" },
-                  { q: "q3", text: "Do you experience chest pain or discomfort at rest or when NOT exercising?" },
-                  { q: "q4", text: "Do you ever feel dizzy, faint, or lose consciousness during or after exercise?" },
-                  { q: "q5", text: "Do you experience unexplained shortness of breath at rest or with minimal exertion?" },
-                  { q: "q6", text: "Do you experience palpitations, irregular heartbeat, or a racing heart?" },
-                  { q: "q7", text: "Do you have high blood pressure or are you being treated for it?" },
-                  { q: "q8", text: "Do you have high cholesterol or are you being treated for it?" },
-                  { q: "q9", text: "Have you had a stroke or TIA (transient ischaemic attack)?" },
-                  { q: "q10", text: "Do you have diabetes (Type 1 or Type 2)?", note: "If yes, please give full details in Section 5." },
-                  { q: "q11", text: "Do you smoke or have you smoked in the last 5 years?" },
-                ].map(({ q, text, note }) => (
+                {section2Questions.map(({ q, text, note }) => (
                   <div key={q} className="bg-[#F1F1F1] rounded-md p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
@@ -754,15 +718,7 @@ export default function ParqPage() {
                 Section 3 — Musculoskeletal, Neurological, and Surgical History
               </h2>
               <div className="space-y-4">
-                {[
-                  { q: "q12", text: "Do you have any bone, joint, or muscle condition that could be affected by exercise?", note: "E.g. arthritis, osteoporosis, previous fractures, joint replacements." },
-                  { q: "q13", text: "Have you had any surgery in the last 5 years?", note: "If yes, please give details including dates in Section 5." },
-                  { q: "q14", text: "Do you have any implanted medical devices?", note: "E.g. pacemaker, defibrillator, neurostimulator, cochlear implant, spinal shunt, lumbar peritoneal shunt, VP shunt, insulin pump, or any other surgically implanted device. Please give full details in Section 5." },
-                  { q: "q15", text: "Have you ever had a spinal injury, spinal surgery, or been told to avoid spinal loading or high-impact activity?", note: "If yes, give full details in Section 5 including any restrictions given by your consultant." },
-                  { q: "q16", text: "Do you have any neurological condition?", note: "E.g. epilepsy, multiple sclerosis, Parkinson's disease, or any condition affecting balance, coordination, or sensation." },
-                  { q: "q17", text: "Do you experience chronic pain that affects your ability to exercise?" },
-                  { q: "q18", text: "Do you have any condition affecting your vision, hearing, or other senses that your trainer should be aware of?", note: "If yes, please give full details in Section 5." },
-                ].map(({ q, text, note }) => (
+                {section3Questions.map(({ q, text, note }) => (
                   <div key={q} className="bg-[#F1F1F1] rounded-md p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
@@ -786,16 +742,7 @@ export default function ParqPage() {
                 <p className="text-sm text-amber-800 mt-1">Some medications and blood conditions significantly affect how your body responds to exercise and your risk of injury. Please disclose ALL medications, supplements, and diagnosed conditions — even if you do not think they are relevant.</p>
               </div>
               <div className="space-y-4">
-                {[
-                  { q: "q19", text: "Are you taking any blood-thinning medication (anticoagulants)?", note: "E.g. Warfarin, Apixaban, Rivaroxaban, Dabigatran, Clopidogrel, prescribed Aspirin. If yes — this significantly affects your risk of bruising and bleeding from falls or impacts. Your trainer must know." },
-                  { q: "q20", text: "Do you have any blood disorder or condition affecting your blood?", note: "E.g. polycythaemia rubra vera, haemophilia, anaemia, thrombocytopenia, leukaemia, sickle cell. If yes, give full details in Section 5." },
-                  { q: "q21", text: "Are you receiving any injection-based medication on a regular basis?", note: "E.g. insulin, Peg Interferon, biological therapy, B12. If yes, specify in Section 5 — some injection medications cause significant fatigue on injection day." },
-                  { q: "q22", text: "Are you taking any statin medication?", note: "E.g. Simvastatin, Atorvastatin, Rosuvastatin. Statins can cause muscle pain (myopathy). Please inform your trainer of any unusual muscle pain during or after sessions." },
-                  { q: "q23", text: "Are you taking any other prescription medication not listed above?", note: "If yes, list all medications in Section 5 including dosage and what they are prescribed for." },
-                  { q: "q24", text: "Do you have any diagnosed medical condition not already disclosed above?", note: "If yes, give full details in Section 5." },
-                  { q: "q25", text: "Have you been advised by any doctor, consultant, or medical professional to avoid or restrict certain types of exercise?", note: "If yes, describe the restrictions exactly and state who gave them in Section 5. Verbal restrictions are equally important to document." },
-                  { q: "q26", text: "Have you had any major illness, hospital admission, or operation in the last 5 years?", note: "If yes, give details in Section 5 including dates and treating hospital or consultant." },
-                ].map(({ q, text, note }) => (
+                {section4Questions.map(({ q, text, note }) => (
                   <div key={q} className="bg-[#F1F1F1] rounded-md p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
@@ -876,11 +823,7 @@ export default function ParqPage() {
                   <Textarea id="trainingGoals" value={formData.trainingGoals} onChange={(e) => handleChange("trainingGoals", e.target.value)} className={textareaClass("trainingGoals")} placeholder="E.g. Regain strength after cancer treatment, improve mobility and confidence" />
                 </div>
                 <div className="space-y-4">
-                  {[
-                    { q: "q27", text: "Are you currently pregnant or have you given birth in the last 6 months?" },
-                    { q: "q28", text: "Do you have any dietary restrictions, allergies, or eating disorder history your trainer should be aware of?", note: "Your trainer will treat all disclosures in confidence." },
-                    { q: "q29", text: "Do you have any other reason — physical, medical, or personal — why you feel you may not be able to participate safely in an exercise programme?" },
-                  ].map(({ q, text, note }) => (
+                  {section6bQuestions.map(({ q, text, note }) => (
                     <div key={q} className="bg-[#F1F1F1] rounded-md p-4">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
