@@ -245,6 +245,7 @@ export interface MedicalClearanceTracker {
 export interface ClientDocumentsSummary {
   client_id: string;
   client_name: string;
+  display_code: string | null;
   agreement_id: string | null;
   agreement_status: DocumentStatus | null;
   agreement_sent_date: string | null;
@@ -266,6 +267,7 @@ export interface ClientDocumentsSummary {
   contract_signed_date: string | null;
   annual_review_due_date: string | null;
   last_session_delivered: string | null;
+  tracker_notes: string | null;
   last_updated: string;
 }
 

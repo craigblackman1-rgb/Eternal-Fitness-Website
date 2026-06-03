@@ -53,7 +53,7 @@ export function DocumentEditor({ client, documentType, onSave }: DocumentEditorP
   );
   const [clearanceRequired, setClearanceRequired] = useState(client.clearance_required || "NA");
   const [annualReviewDueDate, setAnnualReviewDueDate] = useState(client.annual_review_due_date || "");
-  const [trackerNotes, setTrackerNotes] = useState("");
+  const [trackerNotes, setTrackerNotes] = useState(client.tracker_notes || "");
 
   const handleSaveAgreement = async () => {
     setLoading(true);
@@ -72,27 +72,38 @@ export function DocumentEditor({ client, documentType, onSave }: DocumentEditorP
 
         if (error) throw error;
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from("signed_agreements")
           .insert({
             client_id: client.client_id,
             client_name: client.client_name,
+            trainer_name: "Esther Fair",
+            business_name: "Eternal Fitness",
+            trainer_name_print: "Esther Fair",
+            trainer_typed_signature: "Esther Fair",
             status: agreementStatus || "draft",
             sent_date: agreementSentDate || null,
             received_date: agreementReceivedDate || null,
             requires_update: agreementRequiresUpdate,
             update_notes: agreementUpdateNotes || null,
-          });
+            parq_completed: "",
+            medical_clearance: "",
+            agreed_to_terms: false,
+          })
+          .select()
+          .single();
 
         if (error) throw error;
+        console.log("Created agreement:", data);
       }
 
       toast({
-        title: "Agreement updated",
+        title: "Agreement saved",
         description: "The agreement has been saved successfully.",
       });
       onSave();
     } catch (error: any) {
+      console.error("Agreement save error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to save agreement",
@@ -120,7 +131,7 @@ export function DocumentEditor({ client, documentType, onSave }: DocumentEditorP
 
         if (error) throw error;
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from("signed_parq")
           .insert({
             client_id: client.client_id,
@@ -130,17 +141,25 @@ export function DocumentEditor({ client, documentType, onSave }: DocumentEditorP
             received_date: parqReceivedDate || null,
             requires_update: parqRequiresUpdate,
             update_notes: parqUpdateNotes || null,
-          });
+            q1: "", q2: "", q3: "", q4: "", q5: "", q6: "", q7: "", q8: "", q9: "", q10: "", q11: "",
+            q12: "", q13: "", q14: "", q15: "", q16: "", q17: "", q18: "",
+            q19: "", q20: "", q21: "", q22: "", q23: "", q24: "", q25: "", q26: "",
+            q27: "", q28: "", q29: "",
+          })
+          .select()
+          .single();
 
         if (error) throw error;
+        console.log("Created PAR-Q:", data);
       }
 
       toast({
-        title: "PAR-Q updated",
+        title: "PAR-Q saved",
         description: "The PAR-Q form has been saved successfully.",
       });
       onSave();
     } catch (error: any) {
+      console.error("PAR-Q save error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to save PAR-Q",
