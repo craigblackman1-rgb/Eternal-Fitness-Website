@@ -37,6 +37,7 @@ ADD COLUMN IF NOT EXISTS update_notes TEXT;
 -- Create a unified client documents view for easy querying
 -- Uses latest document per client to avoid duplicate rows
 DROP VIEW IF EXISTS client_documents_summary;
+DROP VIEW IF EXISTS client_documents_summary;
 
 CREATE VIEW client_documents_summary AS
 SELECT 
@@ -98,6 +99,7 @@ ORDER BY c.name;
 
 -- Clients table - already has RLS, ensure it's restrictive
 DROP POLICY IF EXISTS "Users can read clients" ON clients;
+DROP POLICY IF EXISTS "Authenticated users can read clients" ON clients;
 CREATE POLICY "Authenticated users can read clients"
   ON clients FOR SELECT
   TO authenticated
@@ -108,6 +110,7 @@ DROP POLICY IF EXISTS "Anyone can insert signed agreements" ON signed_agreements
 DROP POLICY IF EXISTS "Authenticated users can read signed agreements" ON signed_agreements;
 DROP POLICY IF EXISTS "Authenticated users can update signed agreements" ON signed_agreements;
 DROP POLICY IF EXISTS "Authenticated users can delete signed agreements" ON signed_agreements;
+DROP POLICY IF EXISTS "Authenticated users can insert signed agreements" ON signed_agreements;
 
 CREATE POLICY "Authenticated users can insert signed agreements"
   ON signed_agreements FOR INSERT
@@ -134,6 +137,7 @@ DROP POLICY IF EXISTS "Anyone can insert signed PAR-Q forms" ON signed_parq;
 DROP POLICY IF EXISTS "Authenticated users can read signed PAR-Q forms" ON signed_parq;
 DROP POLICY IF EXISTS "Authenticated users can update signed PAR-Q forms" ON signed_parq;
 DROP POLICY IF EXISTS "Authenticated users can delete signed PAR-Q forms" ON signed_parq;
+DROP POLICY IF EXISTS "Authenticated users can insert signed PAR-Q forms" ON signed_parq;
 
 CREATE POLICY "Authenticated users can insert signed PAR-Q forms"
   ON signed_parq FOR INSERT
