@@ -209,7 +209,7 @@ export function DocumentEditor({ client, documentType, onSave }: DocumentEditorP
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Status</Label>
-            <Select value={agreementStatus} onValueChange={setAgreementStatus}>
+            <Select value={agreementStatus} onValueChange={(v) => setAgreementStatus(v as DocumentStatus | "")}>
               <SelectTrigger>
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
@@ -281,7 +281,7 @@ export function DocumentEditor({ client, documentType, onSave }: DocumentEditorP
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Status</Label>
-            <Select value={parqStatus} onValueChange={setParqStatus}>
+            <Select value={parqStatus} onValueChange={(v) => setParqStatus(v as DocumentStatus | "")}>
               <SelectTrigger>
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
@@ -353,7 +353,7 @@ export function DocumentEditor({ client, documentType, onSave }: DocumentEditorP
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Clearance Status</Label>
-            <Select value={clearanceStatus} onValueChange={setClearanceStatus}>
+            <Select value={clearanceStatus} onValueChange={(v) => setClearanceStatus(v as ClearanceStatus | "")}>
               <SelectTrigger>
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
