@@ -1,8 +1,19 @@
 -- Add Colin Farley PAR-Q and Agreement
 -- Created from PDF submission on 03 June 2026
 
--- Insert PAR-Q form data
+-- Step 1: Create client record
+INSERT INTO clients (name, age, gender, profile, client_number)
+VALUES (
+  'Colin Wesley Farley',
+  65,
+  'Male',
+  '{}'::jsonb,
+  (SELECT COALESCE(MAX(client_number), 0) + 1 FROM clients)
+);
+
+-- Step 2: Insert PAR-Q form data linked to client
 INSERT INTO signed_parq (
+  client_id,
   full_name,
   date_of_birth,
   address,
@@ -30,6 +41,7 @@ INSERT INTO signed_parq (
   client_signature_data,
   client_typed_signature
 ) VALUES (
+  (SELECT id FROM clients WHERE name = 'Colin Wesley Farley'),
   'Colin Wesley Farley',
   '1961-03-04',
   '140 New Road, Worthing, BN13 3HS',
@@ -59,8 +71,9 @@ Betahistine 16mg (once daily)',
   'CWF'
 );
 
--- Insert corresponding agreement record so it appears in hub agreements
+-- Step 3: Insert corresponding agreement record linked to client
 INSERT INTO signed_agreements (
+  client_id,
   client_name,
   client_dob,
   client_address,
@@ -83,6 +96,7 @@ INSERT INTO signed_agreements (
   agreed_to_terms,
   signed_at
 ) VALUES (
+  (SELECT id FROM clients WHERE name = 'Colin Wesley Farley'),
   'Colin Wesley Farley',
   '1961-03-04',
   '140 New Road, Worthing, BN13 3HS',
