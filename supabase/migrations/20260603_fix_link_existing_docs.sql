@@ -1,9 +1,19 @@
 -- Simple migration: Link existing docs and add display codes
 
--- 1. Add display_code column
+-- 1. Add display_code and client_number columns
 ALTER TABLE clients ADD COLUMN IF NOT EXISTS display_code TEXT;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS client_number INTEGER;
 
--- 2. Generate simple display codes (first letter of each word)
+-- 2. Assign sequential client numbers
+WITH numbered AS (
+  SELECT id, ROW_NUMBER() OVER (ORDER BY created_at) as rn
+  FROM clients
+)
+UPDATE clients SET client_number = numbered.rn
+FROM numbered WHERE clients.id = numbered.id
+AND clients.client_number IS NULL;
+
+-- 3. Generate simple display codes (first letter of each word)
 UPDATE clients SET display_code = UPPER(
   LEFT(name, 1) || COALESCE(NULLIF(SPLIT_PART(name, ' ', 2), ''), '')
 ) WHERE display_code IS NULL;
@@ -36,6 +46,7 @@ DROP VIEW IF EXISTS client_documents_summary;
 CREATE VIEW client_documents_summary AS
 SELECT 
   c.id as client_id,
+  c.client_number,
   c.name as client_name,
   c.display_code,
   sa.id as agreement_id, sa.status as agreement_status,
