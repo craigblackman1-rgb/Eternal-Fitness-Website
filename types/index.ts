@@ -122,3 +122,153 @@ export interface DBSession {
   phase: Phase;
   data: Session;
 }
+
+export type DocumentStatus = "draft" | "sent" | "received" | "signed" | "expired" | "needs_update";
+export type ClearanceStatus = "CLEARED" | "PENDING" | "NOT YET REQUESTED" | "NOT REQUIRED";
+export type ClearanceRequired = "Y" | "N" | "NA";
+
+export interface ClientDocument {
+  id: string;
+  client_id: string;
+  status: DocumentStatus;
+  sent_date: string | null;
+  received_date: string | null;
+  signed_at: string | null;
+  requires_update: boolean;
+  update_notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SignedAgreement extends ClientDocument {
+  client_name: string;
+  client_dob: string | null;
+  client_address: string | null;
+  client_email: string | null;
+  client_phone: string | null;
+  trainer_name: string;
+  business_name: string;
+  start_date: string | null;
+  client_name_print: string | null;
+  client_signature_date: string | null;
+  client_signature_data: string | null;
+  client_typed_signature: string | null;
+  trainer_name_print: string;
+  trainer_signature_date: string | null;
+  trainer_signature_data: string | null;
+  trainer_typed_signature: string;
+  parq_completed: string;
+  parq_date: string | null;
+  parq_filed_by: string | null;
+  medical_clearance: string;
+  medical_clearance_date: string | null;
+  medical_clearance_from: string | null;
+  agreed_to_terms: boolean;
+}
+
+export interface SignedPARQ extends ClientDocument {
+  full_name: string;
+  date_of_birth: string | null;
+  address: string | null;
+  email: string | null;
+  phone: string | null;
+  emergency_contact_name: string | null;
+  emergency_contact_phone: string | null;
+  gp_name: string | null;
+  gp_surgery: string | null;
+  gp_phone: string | null;
+  q1: string;
+  q2: string;
+  q3: string;
+  q4: string;
+  q5: string;
+  q6: string;
+  q7: string;
+  q8: string;
+  q9: string;
+  q10: string;
+  q11: string;
+  q12: string;
+  q13: string;
+  q14: string;
+  q15: string;
+  q16: string;
+  q17: string;
+  q18: string;
+  q19: string;
+  q20: string;
+  q21: string;
+  q22: string;
+  q23: string;
+  q24: string;
+  q25: string;
+  q26: string;
+  conditions: string | null;
+  medications: string | null;
+  devices: string | null;
+  exercise_restrictions: string | null;
+  surgeries: string | null;
+  other_info: string | null;
+  current_exercise: string | null;
+  training_goals: string | null;
+  q27: string;
+  q28: string;
+  q29: string;
+  client_name_print: string | null;
+  client_signature_date: string | null;
+  client_signature_data: string | null;
+  client_typed_signature: string | null;
+}
+
+export interface MedicalClearanceTracker {
+  id: string;
+  client_id: string | null;
+  client_name: string;
+  date_of_birth: string | null;
+  parq_received_date: string | null;
+  contract_signed_date: string | null;
+  clearance_required: ClearanceRequired;
+  conditions_requiring_clearance: string | null;
+  clearance_from: string | null;
+  specialist_name: string | null;
+  gp_letter_requested_date: string | null;
+  gp_letter_received_date: string | null;
+  clearance_status: ClearanceStatus;
+  clearance_filed: string;
+  annual_review_due_date: string | null;
+  last_session_delivered: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ClientDocumentsSummary {
+  client_id: string;
+  client_name: string;
+  agreement_id: string | null;
+  agreement_status: DocumentStatus | null;
+  agreement_sent_date: string | null;
+  agreement_received_date: string | null;
+  agreement_signed_at: string | null;
+  agreement_requires_update: boolean | null;
+  agreement_update_notes: string | null;
+  parq_id: string | null;
+  parq_status: DocumentStatus | null;
+  parq_sent_date: string | null;
+  parq_received_date: string | null;
+  parq_signed_at: string | null;
+  parq_requires_update: boolean | null;
+  parq_update_notes: string | null;
+  tracker_id: string | null;
+  clearance_status: ClearanceStatus | null;
+  clearance_required: ClearanceRequired | null;
+  tracker_parq_received: string | null;
+  contract_signed_date: string | null;
+  annual_review_due_date: string | null;
+  last_session_delivered: string | null;
+  last_updated: string;
+}
+
+export interface ClientWithDocuments extends DBClient {
+  documents: ClientDocumentsSummary;
+}
