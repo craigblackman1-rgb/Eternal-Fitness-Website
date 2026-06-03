@@ -13,20 +13,29 @@ SET display_code = UPPER(
 )
 WHERE display_code IS NULL;
 
--- Make display codes unique where possible, add number suffix for duplicates
-WITH duplicates AS (
-  SELECT display_code, COUNT(*) as cnt
-  FROM clients
-  GROUP BY display_code
-  HAVING COUNT(*) > 1
-)
-UPDATE clients c
-SET display_code = c.display_code || '_' || ROW_NUMBER() OVER (
-  PARTITION BY c.display_code 
-  ORDER BY c.created_at
-)::TEXT
-FROM duplicates d
-WHERE c.display_code = d.display_code;
+-- Handle duplicates using a procedural approach
+DO $$
+DECLARE
+  dup RECORD;
+  client RECORD;
+  cnt INTEGER;
+BEGIN
+  FOR dup IN 
+    SELECT display_code FROM clients GROUP BY display_code HAVING COUNT(*) > 1
+  LOOP
+    cnt := 0;
+    FOR client IN
+      SELECT id FROM clients 
+      WHERE display_code = dup.display_code 
+      ORDER BY created_at
+    LOOP
+      cnt := cnt + 1;
+      IF cnt > 1 THEN
+        UPDATE clients SET display_code = display_code || cnt WHERE id = client.id;
+      END IF;
+    END LOOP;
+  END LOOP;
+END $$;
 
 CREATE INDEX IF NOT EXISTS idx_clients_display_code ON clients(display_code);
 
