@@ -81,6 +81,15 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
   const [emailError, setEmailError] = useState<string | null>(null);
   const [printView, setPrintView] = useState(false);
 
+  // PAR-Q editing state
+  const [editingParq, setEditingParq] = useState(false);
+  const [parqSaving, setParqSaving] = useState(false);
+  const [parqSaveSuccess, setParqSaveSuccess] = useState(false);
+  const [parqSaveError, setParqSaveError] = useState<string | null>(null);
+  const [parqId, setParqId] = useState<string | null>(null);
+  const [parqForm, setParqForm] = useState<Record<string, string>>({});
+  const [parqLoaded, setParqLoaded] = useState(false);
+
   const [trainerForm, setTrainerForm] = useState({
     trainerNotes: data.trainer_notes || "",
     packageType: data.package_type || "",
@@ -189,6 +198,87 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
   const handleCopyEmail = () => {
     if (!data.client_email) return;
     navigator.clipboard.writeText(data.client_email);
+  };
+
+  useEffect(() => {
+    if (editingParq && !parqLoaded) {
+      loadParqData();
+    }
+  }, [editingParq]);
+
+  const loadParqData = async () => {
+    try {
+      const res = await fetch(`/api/parq?client_name=${encodeURIComponent(data.client_name)}`);
+      if (res.ok) {
+        const parqData = await res.json();
+        if (parqData) {
+          setParqId(parqData.id);
+          const form: Record<string, string> = {};
+          for (let i = 1; i <= 29; i++) form[`q${i}`] = parqData[`q${i}`] || "";
+          form.full_name = parqData.full_name || "";
+          form.date_of_birth = parqData.date_of_birth || "";
+          form.address = parqData.address || "";
+          form.email = parqData.email || "";
+          form.phone = parqData.phone || "";
+          form.emergency_contact_name = parqData.emergency_contact_name || "";
+          form.emergency_contact_phone = parqData.emergency_contact_phone || "";
+          form.gp_name = parqData.gp_name || "";
+          form.gp_surgery = parqData.gp_surgery || "";
+          form.gp_phone = parqData.gp_phone || "";
+          form.conditions = parqData.conditions || "";
+          form.medications = parqData.medications || "";
+          form.devices = parqData.devices || "";
+          form.exercise_restrictions = parqData.exercise_restrictions || "";
+          form.surgeries = parqData.surgeries || "";
+          form.other_info = parqData.other_info || "";
+          form.current_exercise = parqData.current_exercise || "";
+          form.training_goals = parqData.training_goals || "";
+          form.client_name_print = parqData.client_name_print || "";
+          form.client_signature_date = parqData.client_signature_date || "";
+          form.client_typed_signature = parqData.client_typed_signature || "";
+          setParqForm(form);
+          setParqLoaded(true);
+        }
+      }
+    } catch (err) {
+      console.error("Error loading PAR-Q:", err);
+    }
+  };
+
+  const handleParqChange = (field: string, value: string) => {
+    setParqForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSaveParq = async () => {
+    setParqSaving(true);
+    setParqSaveError(null);
+    setParqSaveSuccess(false);
+
+    try {
+      const body = {
+        id: parqId,
+        client_name: data.client_name,
+        ...parqForm,
+      };
+      const res = await fetch("/api/parq", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to save PAR-Q");
+      }
+
+      setParqSaveSuccess(true);
+      setTimeout(() => setParqSaveSuccess(false), 3000);
+      setEditingParq(false);
+    } catch (err) {
+      setParqSaveError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setParqSaving(false);
+    }
   };
 
   const Field = ({ label, value }: { label: string; value: React.ReactNode }) => (
@@ -387,27 +477,179 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
 
       {/* PAR-Q and Medical Clearance */}
       <Card className="shadow-sm border-border/60">
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-3 flex flex-row items-start justify-between">
           <CardTitle className="text-base flex items-center gap-2">
             PAR-Q & Medical Clearance
           </CardTitle>
+          <Button
+            variant={editingParq ? "default" : "outline"}
+            size="sm"
+            className="gap-1.5 shrink-0"
+            onClick={() => {
+              if (editingParq) {
+                setEditingParq(false);
+                setParqSaveError(null);
+              } else {
+                setEditingParq(true);
+                setParqLoaded(false);
+              }
+            }}
+          >
+            <Edit3 className="w-4 h-4" />
+            {editingParq ? "Cancel" : "Edit PAR-Q"}
+          </Button>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="space-y-3 p-4 rounded-lg border border-border/60">
-              <p className="text-sm font-semibold text-foreground">PAR-Q</p>
-              <Field label="Completed" value={data.parq_completed === "yes" ? "Yes" : data.parq_completed === "no" ? "No" : "Not specified"} />
-              <Field label="Date" value={formatDate(data.parq_date)} />
-              <Field label="Filed by" value={data.parq_filed_by} />
-            </div>
+          {!editingParq ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-3 p-4 rounded-lg border border-border/60">
+                <p className="text-sm font-semibold text-foreground">PAR-Q</p>
+                <Field label="Completed" value={data.parq_completed === "yes" ? "Yes" : data.parq_completed === "no" ? "No" : "Not specified"} />
+                <Field label="Date" value={formatDate(data.parq_date)} />
+                <Field label="Filed by" value={data.parq_filed_by} />
+              </div>
 
-            <div className="space-y-3 p-4 rounded-lg border border-border/60">
-              <p className="text-sm font-semibold text-foreground">Medical Clearance</p>
-              <Field label="Required" value={data.medical_clearance === "yes" ? "Yes" : data.medical_clearance === "na" ? "N/A" : "Not specified"} />
-              <Field label="Date" value={formatDate(data.medical_clearance_date)} />
-              <Field label="From" value={data.medical_clearance_from} />
+              <div className="space-y-3 p-4 rounded-lg border border-border/60">
+                <p className="text-sm font-semibold text-foreground">Medical Clearance</p>
+                <Field label="Required" value={data.medical_clearance === "yes" ? "Yes" : data.medical_clearance === "na" ? "N/A" : "Not specified"} />
+                <Field label="Date" value={formatDate(data.medical_clearance_date)} />
+                <Field label="From" value={data.medical_clearance_from} />
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-6">
+              {parqSaveSuccess && (
+                <div className="bg-green-50 border border-green-200 rounded-md p-3 flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <p className="text-sm text-green-800">PAR-Q saved successfully</p>
+                </div>
+              )}
+              {parqSaveError && (
+                <div className="bg-red-50 border border-red-200 rounded-md p-3 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-600" />
+                  <p className="text-sm text-red-800">{parqSaveError}</p>
+                </div>
+              )}
+
+              {/* Section 1 */}
+              <div>
+                <h4 className="text-sm font-semibold mb-3 pb-2 border-b">Section 1 — Personal Details</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2"><Label>Full name</Label><Input value={parqForm.full_name || ""} onChange={(e) => handleParqChange("full_name", e.target.value)} className="mt-1" /></div>
+                  <div><Label>Date of birth</Label><Input type="date" value={parqForm.date_of_birth || ""} onChange={(e) => handleParqChange("date_of_birth", e.target.value)} className="mt-1" /></div>
+                  <div><Label>Email</Label><Input value={parqForm.email || ""} onChange={(e) => handleParqChange("email", e.target.value)} className="mt-1" /></div>
+                  <div className="col-span-2"><Label>Address</Label><Input value={parqForm.address || ""} onChange={(e) => handleParqChange("address", e.target.value)} className="mt-1" /></div>
+                  <div><Label>Phone</Label><Input value={parqForm.phone || ""} onChange={(e) => handleParqChange("phone", e.target.value)} className="mt-1" /></div>
+                  <div><Label>Emergency contact</Label><Input value={parqForm.emergency_contact_name || ""} onChange={(e) => handleParqChange("emergency_contact_name", e.target.value)} className="mt-1" /></div>
+                  <div><Label>Emergency phone</Label><Input value={parqForm.emergency_contact_phone || ""} onChange={(e) => handleParqChange("emergency_contact_phone", e.target.value)} className="mt-1" /></div>
+                  <div><Label>GP name</Label><Input value={parqForm.gp_name || ""} onChange={(e) => handleParqChange("gp_name", e.target.value)} className="mt-1" /></div>
+                  <div><Label>GP surgery</Label><Input value={parqForm.gp_surgery || ""} onChange={(e) => handleParqChange("gp_surgery", e.target.value)} className="mt-1" /></div>
+                  <div><Label>GP phone</Label><Input value={parqForm.gp_phone || ""} onChange={(e) => handleParqChange("gp_phone", e.target.value)} className="mt-1" /></div>
+                </div>
+              </div>
+
+              {/* Sections 2-4, 6: Yes/No questions */}
+              {[
+                { label: "Section 2 — Cardiovascular and General Health", qs: [
+                  { q: "q1", t: "Heart condition or cardiovascular disease" },
+                  { q: "q2", t: "Chest pain/pressure during activity" },
+                  { q: "q3", t: "Chest pain at rest" },
+                  { q: "q4", t: "Dizzy, faint, or lose consciousness" },
+                  { q: "q5", t: "Unexplained shortness of breath" },
+                  { q: "q6", t: "High cholesterol or treated" },
+                  { q: "q7", t: "Palpitations or irregular heartbeat" },
+                  { q: "q8", t: "High blood pressure or treated" },
+                  { q: "q9", t: "Stroke or TIA" },
+                  { q: "q10", t: "Diabetes" },
+                  { q: "q11", t: "Smoke or smoked in last 5 years" },
+                ]},
+                { label: "Section 3 — Musculoskeletal, Neurological, Surgical", qs: [
+                  { q: "q12", t: "Bone, joint, or muscle condition" },
+                  { q: "q13", t: "Surgery in last 5 years" },
+                  { q: "q14", t: "Implanted medical devices" },
+                  { q: "q15", t: "Spinal injury/surgery" },
+                  { q: "q16", t: "Neurological condition" },
+                  { q: "q17", t: "Chronic pain affecting exercise" },
+                  { q: "q18", t: "Vision, hearing, or other sense condition" },
+                ]},
+                { label: "Section 4 — Blood, Medications, Diagnosed Conditions", qs: [
+                  { q: "q19", t: "Blood-thinning medication" },
+                  { q: "q20", t: "Blood disorder" },
+                  { q: "q21", t: "Injection-based medication regularly" },
+                  { q: "q22", t: "Statin medication" },
+                  { q: "q23", t: "Other prescription medication" },
+                  { q: "q24", t: "Diagnosed condition not disclosed" },
+                  { q: "q25", t: "Advised to restrict exercise" },
+                  { q: "q26", t: "Major illness/hospital admission in last 5 years" },
+                ]},
+                { label: "Section 6 — Additional Questions", qs: [
+                  { q: "q27", t: "Pregnant or given birth in last 6 months" },
+                  { q: "q28", t: "Dietary restrictions or allergies" },
+                  { q: "q29", t: "Other reason unable to participate safely" },
+                ]},
+              ].map((section) => (
+                <div key={section.label}>
+                  <h4 className="text-sm font-semibold mb-3 pb-2 border-b">{section.label}</h4>
+                  <div className="space-y-2">
+                    {section.qs.map(({ q, t }) => (
+                      <div key={q} className="flex items-center justify-between bg-muted/30 rounded-md p-2.5">
+                        <span className="text-sm">{t}</span>
+                        <Select value={parqForm[q] || ""} onValueChange={(v) => handleParqChange(q, v)}>
+                          <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">—</SelectItem>
+                            <SelectItem value="yes">Yes</SelectItem>
+                            <SelectItem value="no">No</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              {/* Section 5 */}
+              <div>
+                <h4 className="text-sm font-semibold mb-3 pb-2 border-b">Section 5 — Full Details</h4>
+                <div className="space-y-3">
+                  <div><Label>Diagnosed medical conditions</Label><Textarea value={parqForm.conditions || ""} onChange={(e) => handleParqChange("conditions", e.target.value)} className="mt-1" rows={2} /></div>
+                  <div><Label>Prescription medications</Label><Textarea value={parqForm.medications || ""} onChange={(e) => handleParqChange("medications", e.target.value)} className="mt-1" rows={3} /></div>
+                  <div><Label>Implanted devices</Label><Textarea value={parqForm.devices || ""} onChange={(e) => handleParqChange("devices", e.target.value)} className="mt-1" rows={2} /></div>
+                  <div><Label>Exercise restrictions</Label><Textarea value={parqForm.exercise_restrictions || ""} onChange={(e) => handleParqChange("exercise_restrictions", e.target.value)} className="mt-1" rows={2} /></div>
+                  <div><Label>Surgeries (last 5 years)</Label><Textarea value={parqForm.surgeries || ""} onChange={(e) => handleParqChange("surgeries", e.target.value)} className="mt-1" rows={2} /></div>
+                  <div><Label>Other information</Label><Textarea value={parqForm.other_info || ""} onChange={(e) => handleParqChange("other_info", e.target.value)} className="mt-1" rows={2} /></div>
+                </div>
+              </div>
+
+              {/* Section 6b */}
+              <div>
+                <h4 className="text-sm font-semibold mb-3 pb-2 border-b">Section 6 — Lifestyle</h4>
+                <div className="space-y-3">
+                  <div><Label>Current exercise</Label><Textarea value={parqForm.current_exercise || ""} onChange={(e) => handleParqChange("current_exercise", e.target.value)} className="mt-1" rows={2} /></div>
+                  <div><Label>Training goals</Label><Textarea value={parqForm.training_goals || ""} onChange={(e) => handleParqChange("training_goals", e.target.value)} className="mt-1" rows={2} /></div>
+                </div>
+              </div>
+
+              {/* Signature */}
+              <div>
+                <h4 className="text-sm font-semibold mb-3 pb-2 border-b">Section 9 — Declaration</h4>
+                <div className="grid grid-cols-3 gap-3">
+                  <div><Label>Client name (print)</Label><Input value={parqForm.client_name_print || ""} onChange={(e) => handleParqChange("client_name_print", e.target.value)} className="mt-1" /></div>
+                  <div><Label>Signature date</Label><Input type="date" value={parqForm.client_signature_date || ""} onChange={(e) => handleParqChange("client_signature_date", e.target.value)} className="mt-1" /></div>
+                  <div><Label>Typed signature</Label><Input value={parqForm.client_typed_signature || ""} onChange={(e) => handleParqChange("client_typed_signature", e.target.value)} className="mt-1" /></div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <Button onClick={handleSaveParq} disabled={parqSaving} className="gap-1.5 bg-rose hover:bg-rose/90 text-white">
+                  {parqSaving ? "Saving..." : <><Save className="w-4 h-4" /> Save PAR-Q</>}
+                </Button>
+                <Button variant="outline" onClick={() => { setEditingParq(false); setParqSaveError(null); }} className="gap-1.5">
+                  <X className="w-4 h-4" /> Cancel
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

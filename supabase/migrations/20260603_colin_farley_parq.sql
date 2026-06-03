@@ -1,15 +1,15 @@
--- Add Colin Farley PAR-Q and Agreement
+-- Add Colin Farley client record, PAR-Q, and Agreement
 -- Created from PDF submission on 03 June 2026
 
--- Step 1: Create client record
+-- Step 1: Create client record (skip if already exists)
 INSERT INTO clients (name, age, gender, profile, client_number)
-VALUES (
+SELECT
   'Colin Wesley Farley',
   65,
   'Male',
   '{}'::jsonb,
-  (SELECT COALESCE(MAX(client_number), 0) + 1 FROM clients)
-);
+  COALESCE((SELECT MAX(client_number) FROM clients), 0) + 1
+WHERE NOT EXISTS (SELECT 1 FROM clients WHERE name = 'Colin Wesley Farley');
 
 -- Step 2: Insert PAR-Q form data linked to client
 INSERT INTO signed_parq (
@@ -39,9 +39,10 @@ INSERT INTO signed_parq (
   client_name_print,
   client_signature_date,
   client_signature_data,
-  client_typed_signature
-) VALUES (
-  (SELECT id FROM clients WHERE name = 'Colin Wesley Farley'),
+  client_typed_signature,
+  status
+) SELECT
+  c.id,
   'Colin Wesley Farley',
   '1961-03-04',
   '140 New Road, Worthing, BN13 3HS',
@@ -68,7 +69,12 @@ Betahistine 16mg (once daily)',
   'Colin Weslet Farley',
   NULL,
   NULL,
-  'CWF'
+  'CWF',
+  'signed'
+FROM clients c
+WHERE c.name = 'Colin Wesley Farley'
+AND NOT EXISTS (
+  SELECT 1 FROM signed_parq sp WHERE sp.full_name = 'Colin Wesley Farley'
 );
 
 -- Step 3: Insert corresponding agreement record linked to client
@@ -94,9 +100,10 @@ INSERT INTO signed_agreements (
   parq_filed_by,
   medical_clearance,
   agreed_to_terms,
-  signed_at
-) VALUES (
-  (SELECT id FROM clients WHERE name = 'Colin Wesley Farley'),
+  signed_at,
+  status
+) SELECT
+  c.id,
   'Colin Wesley Farley',
   '1961-03-04',
   '140 New Road, Worthing, BN13 3HS',
@@ -117,5 +124,10 @@ INSERT INTO signed_agreements (
   'Esther Fair',
   '',
   TRUE,
-  NOW()
+  NOW(),
+  'signed'
+FROM clients c
+WHERE c.name = 'Colin Wesley Farley'
+AND NOT EXISTS (
+  SELECT 1 FROM signed_agreements sa WHERE sa.client_name = 'Colin Wesley Farley'
 );
