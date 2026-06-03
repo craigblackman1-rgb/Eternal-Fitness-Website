@@ -35,12 +35,15 @@ ADD COLUMN IF NOT EXISTS requires_update BOOLEAN DEFAULT FALSE,
 ADD COLUMN IF NOT EXISTS update_notes TEXT;
 
 -- Create a unified client documents view for easy querying
-CREATE OR REPLACE VIEW client_documents_summary AS
+-- Uses latest document per client to avoid duplicate rows
+DROP VIEW IF EXISTS client_documents_summary;
+
+CREATE VIEW client_documents_summary AS
 SELECT 
   c.id as client_id,
   c.name as client_name,
   
-  -- Agreement data
+  -- Agreement data (latest)
   sa.id as agreement_id,
   sa.status as agreement_status,
   sa.sent_date as agreement_sent_date,
@@ -49,7 +52,7 @@ SELECT
   sa.requires_update as agreement_requires_update,
   sa.update_notes as agreement_update_notes,
   
-  -- PAR-Q data
+  -- PAR-Q data (latest)
   sp.id as parq_id,
   sp.status as parq_status,
   sp.sent_date as parq_sent_date,
@@ -75,9 +78,20 @@ SELECT
   ) as last_updated
 
 FROM clients c
-LEFT JOIN signed_agreements sa ON c.id = sa.client_id
-LEFT JOIN signed_parq sp ON c.id = sp.client_id
-LEFT JOIN client_tracker ct ON c.id = ct.client_id;
+LEFT JOIN LATERAL (
+  SELECT * FROM signed_agreements 
+  WHERE client_id = c.id 
+  ORDER BY created_at DESC 
+  LIMIT 1
+) sa ON true
+LEFT JOIN LATERAL (
+  SELECT * FROM signed_parq 
+  WHERE client_id = c.id 
+  ORDER BY created_at DESC 
+  LIMIT 1
+) sp ON true
+LEFT JOIN client_tracker ct ON c.id = ct.client_id
+ORDER BY c.name;
 
 -- Update RLS policies to ensure documents are not publicly accessible
 -- Only authenticated users can access client documents
