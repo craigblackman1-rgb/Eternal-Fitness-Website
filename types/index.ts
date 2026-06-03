@@ -243,6 +243,7 @@ export interface MedicalClearanceTracker {
 }
 
 export interface ClientDocumentsSummary {
+  client_number: number | null;
   client_id: string;
   client_name: string;
   display_code: string | null;

@@ -135,7 +135,7 @@ export default function ClientDocumentsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Code</TableHead>
+                  <TableHead className="w-12 text-center">ID</TableHead>
                   <TableHead>Client Name</TableHead>
                   <TableHead>Agreement</TableHead>
                   <TableHead>PAR-Q</TableHead>
@@ -147,7 +147,7 @@ export default function ClientDocumentsPage() {
               <TableBody>
                 {filteredClients.map((client) => (
                   <TableRow key={client.client_id}>
-                    <TableCell className="font-mono font-bold">{client.display_code || "—"}</TableCell>
+                    <TableCell className="font-bold text-center text-lg">{client.client_number}</TableCell>
                     <TableCell className="font-medium">{client.client_name}</TableCell>
                     <TableCell>
                       <StatusBadge status={client.agreement_status} type="document" />
@@ -195,7 +195,7 @@ export default function ClientDocumentsPage() {
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
-              <span className="font-mono bg-gray-100 px-2 py-1 rounded text-sm">{selectedClient?.display_code}</span>
+              <span className="bg-primary text-primary-foreground font-bold w-8 h-8 rounded-full flex items-center justify-center">{selectedClient?.client_number}</span>
               {selectedClient?.client_name} — Documents
             </DialogTitle>
             <DialogDescription>
@@ -210,7 +210,7 @@ export default function ClientDocumentsPage() {
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
-              <span className="font-mono bg-gray-100 px-2 py-1 rounded text-sm">{selectedClient?.display_code}</span>
+              <span className="bg-primary text-primary-foreground font-bold w-8 h-8 rounded-full flex items-center justify-center">{selectedClient?.client_number}</span>
               Edit {editDocumentType === "agreement" ? "Agreement" : editDocumentType === "parq" ? "PAR-Q" : "Medical Tracker"} — {selectedClient?.client_name}
             </DialogTitle>
             <DialogDescription>
