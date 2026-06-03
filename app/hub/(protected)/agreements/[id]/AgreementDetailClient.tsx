@@ -89,6 +89,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
   const [parqId, setParqId] = useState<string | null>(null);
   const [parqForm, setParqForm] = useState<Record<string, string>>({});
   const [parqLoaded, setParqLoaded] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const [trainerForm, setTrainerForm] = useState({
     trainerNotes: data.trainer_notes || "",
@@ -198,6 +199,32 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
   const handleCopyEmail = () => {
     if (!data.client_email) return;
     navigator.clipboard.writeText(data.client_email);
+  };
+
+  const handleCopyParqEditLink = async () => {
+    if (!parqId) {
+      // Fetch PAR-Q ID first
+      try {
+        const res = await fetch(`/api/parq?client_name=${encodeURIComponent(data.client_name)}`);
+        if (res.ok) {
+          const parqData = await res.json();
+          if (parqData?.id) {
+            setParqId(parqData.id);
+            const url = `${window.location.origin}/parq/edit/${parqData.id}`;
+            await navigator.clipboard.writeText(url);
+            setLinkCopied(true);
+            setTimeout(() => setLinkCopied(false), 3000);
+          }
+        }
+      } catch (err) {
+        console.error("Error copying link:", err);
+      }
+    } else {
+      const url = `${window.location.origin}/parq/edit/${parqId}`;
+      await navigator.clipboard.writeText(url);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 3000);
+    }
   };
 
   useEffect(() => {
@@ -481,23 +508,34 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
           <CardTitle className="text-base flex items-center gap-2">
             PAR-Q & Medical Clearance
           </CardTitle>
-          <Button
-            variant={editingParq ? "default" : "outline"}
-            size="sm"
-            className="gap-1.5 shrink-0"
-            onClick={() => {
-              if (editingParq) {
-                setEditingParq(false);
-                setParqSaveError(null);
-              } else {
-                setEditingParq(true);
-                setParqLoaded(false);
-              }
-            }}
-          >
-            <Edit3 className="w-4 h-4" />
-            {editingParq ? "Cancel" : "Edit PAR-Q"}
-          </Button>
+          <div className="flex gap-2 shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={handleCopyParqEditLink}
+            >
+              <Copy className="w-4 h-4" />
+              {linkCopied ? "Link copied!" : "Send edit link"}
+            </Button>
+            <Button
+              variant={editingParq ? "default" : "outline"}
+              size="sm"
+              className="gap-1.5"
+              onClick={() => {
+                if (editingParq) {
+                  setEditingParq(false);
+                  setParqSaveError(null);
+                } else {
+                  setEditingParq(true);
+                  setParqLoaded(false);
+                }
+              }}
+            >
+              <Edit3 className="w-4 h-4" />
+              {editingParq ? "Cancel" : "Edit PAR-Q"}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {!editingParq ? (
