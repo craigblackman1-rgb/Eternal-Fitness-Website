@@ -68,7 +68,11 @@ SELECT
   ct.last_session_delivered,
   
   -- Latest document timestamps
-  GREATEST(sa.updated_at, sp.updated_at, ct.updated_at) as last_updated
+  GREATEST(
+    COALESCE(sa.created_at, '1970-01-01'::timestamptz),
+    COALESCE(sp.created_at, '1970-01-01'::timestamptz),
+    COALESCE(ct.updated_at, '1970-01-01'::timestamptz)
+  ) as last_updated
 
 FROM clients c
 LEFT JOIN signed_agreements sa ON c.id = sa.client_id
