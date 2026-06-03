@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Printer, X } from "lucide-react";
+import { parqSections } from "@/lib/parq-data";
 
 interface AgreementData {
   id: string;
@@ -84,38 +85,6 @@ const formatDate = (d: string | null) => {
   if (!d) return "—";
   const date = new Date(d + "T00:00:00");
   return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-};
-
-const questionTexts: Record<string, string> = {
-  q1: "Heart condition or cardiovascular disease",
-  q2: "Chest pain/pressure/tightness during activity",
-  q3: "Chest pain or discomfort at rest",
-  q4: "Dizzy, faint, or lose consciousness",
-  q5: "Unexplained shortness of breath",
-  q6: "High cholesterol or treated",
-  q7: "Palpitations or irregular heartbeat",
-  q8: "High blood pressure or treated",
-  q9: "Stroke or TIA",
-  q10: "Diabetes (Type 1 or Type 2)",
-  q11: "Smoke or smoked in last 5 years",
-  q12: "Bone, joint, or muscle condition",
-  q13: "Surgery in last 5 years",
-  q14: "Implanted medical devices",
-  q15: "Spinal injury/surgery",
-  q16: "Neurological condition",
-  q17: "Chronic pain affecting exercise",
-  q18: "Vision, hearing, or other sense condition",
-  q19: "Blood-thinning medication",
-  q20: "Blood disorder",
-  q21: "Injection-based medication regularly",
-  q22: "Statin medication",
-  q23: "Other prescription medication",
-  q24: "Diagnosed condition not disclosed",
-  q25: "Advised to restrict exercise",
-  q26: "Major illness/hospital admission in last 5 years",
-  q27: "Pregnant or given birth in last 6 months",
-  q28: "Dietary restrictions or allergies",
-  q29: "Other reason unable to participate safely",
 };
 
 export default function AgreementPrintView({ agreement, onClose }: { agreement: AgreementData; onClose: () => void }) {
@@ -300,18 +269,13 @@ export default function AgreementPrintView({ agreement, onClose }: { agreement: 
               </div>
 
               {/* Questions */}
-              {[
-                { label: "Cardiovascular and General Health", qs: ["q1","q2","q3","q4","q5","q6","q7","q8","q9","q10","q11"] },
-                { label: "Musculoskeletal, Neurological, Surgical", qs: ["q12","q13","q14","q15","q16","q17","q18"] },
-                { label: "Blood, Medications, Diagnosed Conditions", qs: ["q19","q20","q21","q22","q23","q24","q25","q26"] },
-                { label: "Additional Questions", qs: ["q27","q28","q29"] },
-              ].map((section) => (
+              {parqSections.map((section) => (
                 <div key={section.label} className="mb-4">
                   <h4 className="text-sm font-semibold text-[#087E8B] mb-2">{section.label}</h4>
                   <div className="space-y-1">
-                    {section.qs.map((q) => (
+                    {section.questions.map(({ q, text }) => (
                       <div key={q} className="flex items-center justify-between text-sm bg-[#F1F1F1] rounded px-3 py-1.5">
-                        <span className="text-[#1E1E1E]">{questionTexts[q]}</span>
+                        <span className="text-[#1E1E1E]">{text}</span>
                         <span className={`ml-4 font-bold text-xs ${ynClass(parqData[q as keyof ParqData] as string)}`}>{yn(parqData[q as keyof ParqData] as string)}</span>
                       </div>
                     ))}

@@ -21,6 +21,7 @@ import {
   Printer, Send, Edit3, Save, X, Copy,
 } from "lucide-react";
 import AgreementPrintView from "./AgreementPrintView";
+import { parqSections } from "@/lib/parq-data";
 
 interface AgreementData {
   id: string;
@@ -587,59 +588,26 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
               </div>
 
               {/* Sections 2-4, 6: Yes/No questions */}
-              {[
-                { label: "Section 2 — Cardiovascular and General Health", qs: [
-                  { q: "q1", t: "Heart condition or cardiovascular disease" },
-                  { q: "q2", t: "Chest pain/pressure during activity" },
-                  { q: "q3", t: "Chest pain at rest" },
-                  { q: "q4", t: "Dizzy, faint, or lose consciousness" },
-                  { q: "q5", t: "Unexplained shortness of breath" },
-                  { q: "q6", t: "High cholesterol or treated" },
-                  { q: "q7", t: "Palpitations or irregular heartbeat" },
-                  { q: "q8", t: "High blood pressure or treated" },
-                  { q: "q9", t: "Stroke or TIA" },
-                  { q: "q10", t: "Diabetes" },
-                  { q: "q11", t: "Smoke or smoked in last 5 years" },
-                ]},
-                { label: "Section 3 — Musculoskeletal, Neurological, Surgical", qs: [
-                  { q: "q12", t: "Bone, joint, or muscle condition" },
-                  { q: "q13", t: "Surgery in last 5 years" },
-                  { q: "q14", t: "Implanted medical devices" },
-                  { q: "q15", t: "Spinal injury/surgery" },
-                  { q: "q16", t: "Neurological condition" },
-                  { q: "q17", t: "Chronic pain affecting exercise" },
-                  { q: "q18", t: "Vision, hearing, or other sense condition" },
-                ]},
-                { label: "Section 4 — Blood, Medications, Diagnosed Conditions", qs: [
-                  { q: "q19", t: "Blood-thinning medication" },
-                  { q: "q20", t: "Blood disorder" },
-                  { q: "q21", t: "Injection-based medication regularly" },
-                  { q: "q22", t: "Statin medication" },
-                  { q: "q23", t: "Other prescription medication" },
-                  { q: "q24", t: "Diagnosed condition not disclosed" },
-                  { q: "q25", t: "Advised to restrict exercise" },
-                  { q: "q26", t: "Major illness/hospital admission in last 5 years" },
-                ]},
-                { label: "Section 6 — Additional Questions", qs: [
-                  { q: "q27", t: "Pregnant or given birth in last 6 months" },
-                  { q: "q28", t: "Dietary restrictions or allergies" },
-                  { q: "q29", t: "Other reason unable to participate safely" },
-                ]},
-              ].map((section) => (
+              {parqSections.map((section) => (
                 <div key={section.label}>
                   <h4 className="text-sm font-semibold mb-3 pb-2 border-b">{section.label}</h4>
                   <div className="space-y-2">
-                    {section.qs.map(({ q, t }) => (
-                      <div key={q} className="flex items-center justify-between bg-muted/30 rounded-md p-2.5">
-                        <span className="text-sm">{t}</span>
-                        <Select value={parqForm[q] || "unanswered"} onValueChange={(v) => handleParqChange(q, v === "unanswered" ? "" : v)}>
-                          <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="unanswered">—</SelectItem>
-                            <SelectItem value="yes">Yes</SelectItem>
-                            <SelectItem value="no">No</SelectItem>
-                          </SelectContent>
-                        </Select>
+                    {section.questions.map(({ q, text, note }) => (
+                      <div key={q} className="bg-muted/30 rounded-md p-2.5">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1">
+                            <span className="text-sm">{text}</span>
+                            {note && <p className="text-xs text-muted-foreground italic mt-0.5">{note}</p>}
+                          </div>
+                          <Select value={parqForm[q] || "unanswered"} onValueChange={(v) => handleParqChange(q, v === "unanswered" ? "" : v)}>
+                            <SelectTrigger className="w-24 shrink-0"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="unanswered">—</SelectItem>
+                              <SelectItem value="yes">Yes</SelectItem>
+                              <SelectItem value="no">No</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                     ))}
                   </div>

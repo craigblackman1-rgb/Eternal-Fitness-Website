@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import {
+  section2Questions, section3Questions, section4Questions, section6bQuestions,
+} from "@/lib/parq-data";
 
 interface ParqData {
   id: string;
@@ -102,16 +105,16 @@ function toFormData(parq: ParqData): ParqFormData {
     gpName: parq.gp_name || "",
     gpSurgery: parq.gp_surgery || "",
     gpPhone: parq.gp_phone || "",
-    q1: parq.q1 as ParqFormData["q1"], q2: parq.q2 as ParqFormData["q2"], q3: parq.q3 as ParqFormData["q3"],
-    q4: parq.q4 as ParqFormData["q4"], q5: parq.q5 as ParqFormData["q5"], q6: parq.q6 as ParqFormData["q6"],
-    q7: parq.q7 as ParqFormData["q7"], q8: parq.q8 as ParqFormData["q8"], q9: parq.q9 as ParqFormData["q9"],
-    q10: parq.q10 as ParqFormData["q10"], q11: parq.q11 as ParqFormData["q11"],
-    q12: parq.q12 as ParqFormData["q12"], q13: parq.q13 as ParqFormData["q13"], q14: parq.q14 as ParqFormData["q14"],
-    q15: parq.q15 as ParqFormData["q15"], q16: parq.q16 as ParqFormData["q16"], q17: parq.q17 as ParqFormData["q17"],
-    q18: parq.q18 as ParqFormData["q18"],
-    q19: parq.q19 as ParqFormData["q19"], q20: parq.q20 as ParqFormData["q20"], q21: parq.q21 as ParqFormData["q21"],
-    q22: parq.q22 as ParqFormData["q22"], q23: parq.q23 as ParqFormData["q23"], q24: parq.q24 as ParqFormData["q24"],
-    q25: parq.q25 as ParqFormData["q25"], q26: parq.q26 as ParqFormData["q26"],
+    q1: (parq.q1 || "") as ParqFormData["q1"], q2: (parq.q2 || "") as ParqFormData["q2"], q3: (parq.q3 || "") as ParqFormData["q3"],
+    q4: (parq.q4 || "") as ParqFormData["q4"], q5: (parq.q5 || "") as ParqFormData["q5"], q6: (parq.q6 || "") as ParqFormData["q6"],
+    q7: (parq.q7 || "") as ParqFormData["q7"], q8: (parq.q8 || "") as ParqFormData["q8"], q9: (parq.q9 || "") as ParqFormData["q9"],
+    q10: (parq.q10 || "") as ParqFormData["q10"], q11: (parq.q11 || "") as ParqFormData["q11"],
+    q12: (parq.q12 || "") as ParqFormData["q12"], q13: (parq.q13 || "") as ParqFormData["q13"], q14: (parq.q14 || "") as ParqFormData["q14"],
+    q15: (parq.q15 || "") as ParqFormData["q15"], q16: (parq.q16 || "") as ParqFormData["q16"], q17: (parq.q17 || "") as ParqFormData["q17"],
+    q18: (parq.q18 || "") as ParqFormData["q18"],
+    q19: (parq.q19 || "") as ParqFormData["q19"], q20: (parq.q20 || "") as ParqFormData["q20"], q21: (parq.q21 || "") as ParqFormData["q21"],
+    q22: (parq.q22 || "") as ParqFormData["q22"], q23: (parq.q23 || "") as ParqFormData["q23"], q24: (parq.q24 || "") as ParqFormData["q24"],
+    q25: (parq.q25 || "") as ParqFormData["q25"], q26: (parq.q26 || "") as ParqFormData["q26"],
     conditions: parq.conditions || "",
     medications: parq.medications || "",
     devices: parq.devices || "",
@@ -120,21 +123,28 @@ function toFormData(parq: ParqData): ParqFormData {
     otherInfo: parq.other_info || "",
     currentExercise: parq.current_exercise || "",
     trainingGoals: parq.training_goals || "",
-    q27: parq.q27 as ParqFormData["q27"], q28: parq.q28 as ParqFormData["q28"], q29: parq.q29 as ParqFormData["q29"],
+    q27: (parq.q27 || "") as ParqFormData["q27"], q28: (parq.q28 || "") as ParqFormData["q28"], q29: (parq.q29 || "") as ParqFormData["q29"],
     clientNamePrint: parq.client_name_print || "",
     clientSignatureDate: parq.client_signature_date || "",
     clientTypedSignature: parq.client_typed_signature || "",
   };
 }
 
+interface ValidationErrors {
+  [key: string]: string;
+}
+
 const yesNoOptions: ("yes" | "no")[] = ["yes", "no"];
 
 export default function ParqEditClient({ parq }: { parq: ParqData }) {
   const [formData, setFormData] = useState<ParqFormData>(toFormData(parq));
+  const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [confirmedAccurate, setConfirmedAccurate] = useState(true);
+  const [confirmedClearance, setConfirmedClearance] = useState(true);
+  const [consentGpContact, setConsentGpContact] = useState(true);
   const formRef = useRef<HTMLDivElement>(null);
 
   const handleChange = (field: keyof ParqFormData, value: string) => {
@@ -148,8 +158,13 @@ export default function ParqEditClient({ parq }: { parq: ParqData }) {
     }
   };
 
+  const anyYesInSection2 = formData.q1 === "yes" || formData.q2 === "yes" || formData.q3 === "yes" || formData.q4 === "yes" || formData.q5 === "yes" || formData.q6 === "yes" || formData.q7 === "yes" || formData.q8 === "yes" || formData.q9 === "yes" || formData.q10 === "yes" || formData.q11 === "yes";
+  const anyYesInSection3 = formData.q12 === "yes" || formData.q13 === "yes" || formData.q14 === "yes" || formData.q15 === "yes" || formData.q16 === "yes" || formData.q17 === "yes" || formData.q18 === "yes";
+  const anyYesInSection4 = formData.q19 === "yes" || formData.q20 === "yes" || formData.q21 === "yes" || formData.q22 === "yes" || formData.q23 === "yes" || formData.q24 === "yes" || formData.q25 === "yes" || formData.q26 === "yes";
+  const hasAnyYes = anyYesInSection2 || anyYesInSection3 || anyYesInSection4;
+
   const validate = (): boolean => {
-    const newErrors: Record<string, string> = {};
+    const newErrors: ValidationErrors = {};
     const requiredFields: (keyof ParqFormData)[] = [
       "fullName", "dateOfBirth", "address", "email", "phone",
       "emergencyContactName", "emergencyContactPhone",
@@ -169,12 +184,21 @@ export default function ParqEditClient({ parq }: { parq: ParqData }) {
       if (!formData[q]) newErrors[q] = "Required";
     });
 
-    if (!formData.clientNamePrint) newErrors.clientNamePrint = "Required";
-    if (!formData.clientSignatureDate) newErrors.clientSignatureDate = "Required";
-    if (!formData.clientTypedSignature) newErrors.clientTypedSignature = "Required";
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
+    if (hasAnyYes) {
+      const section5Fields: (keyof ParqFormData)[] = ["conditions", "medications"];
+      section5Fields.forEach((field) => {
+        if (!formData[field]) newErrors[field] = "Required when YES answers are given";
+      });
     }
+
+    const hasClientSignature = formData.clientTypedSignature;
+    if (!hasClientSignature) newErrors.clientTypedSignature = "A signature is required";
+    if (!formData.clientNamePrint) newErrors.clientNamePrint = "This field is required";
+    if (!formData.clientSignatureDate) newErrors.clientSignatureDate = "This field is required";
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = "Please enter a valid email address";
+    if (!confirmedAccurate) newErrors.confirmedAccurate = "You must confirm this declaration";
+    if (!confirmedClearance) newErrors.confirmedClearance = "You must confirm this declaration";
+    if (!consentGpContact) newErrors.consentGpContact = "You must confirm this consent";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -187,7 +211,6 @@ export default function ParqEditClient({ parq }: { parq: ParqData }) {
       document.querySelector("[data-error-first]")?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
-
     setIsSubmitting(true);
     try {
       const response = await fetch("/api/parq", {
@@ -225,12 +248,10 @@ export default function ParqEditClient({ parq }: { parq: ParqData }) {
           client_typed_signature: formData.clientTypedSignature,
         }),
       });
-
       if (!response.ok) {
         const err = await response.json();
         throw new Error(err.error || "Failed to save");
       }
-
       setIsSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -254,18 +275,11 @@ export default function ParqEditClient({ parq }: { parq: ParqData }) {
       errors[field] && "border-red-500 focus-visible:ring-red-500"
     );
 
-  const YesNoGroup = ({ field, label }: { field: keyof ParqFormData; label: string }) => (
+  const YesNoGroup = ({ field }: { field: keyof ParqFormData }) => (
     <div className="flex items-center gap-4">
       {yesNoOptions.map((opt) => (
         <label key={opt} className="flex items-center gap-2 text-sm cursor-pointer">
-          <input
-            type="radio"
-            name={field}
-            value={opt}
-            checked={formData[field] === opt}
-            onChange={() => handleChange(field, opt)}
-            className="h-4 w-4 text-[#087E8B] focus:ring-[#087E8B]"
-          />
+          <input type="radio" name={field} value={opt} checked={formData[field] === opt} onChange={() => handleChange(field, opt)} className="h-4 w-4 text-[#087E8B] focus:ring-[#087E8B]" />
           {opt.toUpperCase()}
         </label>
       ))}
@@ -278,14 +292,10 @@ export default function ParqEditClient({ parq }: { parq: ParqData }) {
       <div className="min-h-screen bg-[#F1F1F1] flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 text-center">
           <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
           </div>
           <h2 className="text-xl font-bold text-[#1E1E1E] mb-2">PAR-Q Updated</h2>
-          <p className="text-[#525A61] text-sm">
-            Your PAR-Q form has been updated successfully. Esther will review your changes before your next session.
-          </p>
+          <p className="text-[#525A61] text-sm">Your PAR-Q form has been updated successfully. Esther will review your changes before your next session.</p>
         </div>
       </div>
     );
@@ -294,20 +304,18 @@ export default function ParqEditClient({ parq }: { parq: ParqData }) {
   return (
     <div className="min-h-screen bg-[#F1F1F1]">
       <div className="max-w-4xl mx-auto py-8 px-4">
-        <div ref={formRef} className="bg-white rounded-lg shadow-md">
+        <div ref={formRef} className="bg-white rounded-lg shadow-md print:shadow-none print:rounded-none" role="document" aria-label="PAR-Q Physical Activity Readiness Questionnaire">
           {/* Header */}
-          <header className="border-b-4 border-[#087E8B] px-6 pt-8 pb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#1E1E1E]">
-              Eternal <span className="text-[#C1839F]">♥</span> Fitness
-            </h1>
-            <h2 className="text-xl sm:text-2xl font-bold text-[#087E8B] mt-2">
-              PAR-Q · Physical Activity Readiness Questionnaire
-            </h2>
+          <header className="border-b-4 border-[#087E8B] px-6 pt-8 pb-6 print:pb-4">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#1E1E1E]">Eternal <span className="text-[#C1839F]">♥</span> Fitness</h1>
+            <h2 className="text-xl sm:text-2xl font-bold text-[#087E8B] mt-2">PAR-Q · Physical Activity Readiness Questionnaire</h2>
+            <p className="text-[#525A61] mt-2 text-sm italic" role="note">Medical Health Screening · Strictly Confidential</p>
             <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mt-4">
               <p className="text-sm text-amber-900 font-semibold">Update your PAR-Q</p>
-              <p className="text-sm text-amber-800 mt-1">
-                Please review your answers and complete any missing information. All fields marked with * are required.
-              </p>
+              <p className="text-sm text-amber-800 mt-1">Please review your answers and complete any missing information. All fields marked with * are required.</p>
+            </div>
+            <div className="bg-[#F1F1F1] rounded-md p-4 mt-4">
+              <p className="text-sm text-[#1E1E1E] leading-relaxed">All information provided is treated as strictly confidential and held securely in accordance with UK data protection legislation (UK GDPR / Data Protection Act 2018). Information will not be shared with third parties without your written consent.</p>
             </div>
           </header>
 
@@ -318,215 +326,270 @@ export default function ParqEditClient({ parq }: { parq: ParqData }) {
                 <p className="text-red-700 text-sm mt-1">{submitError}</p>
               </div>
             )}
-
             {Object.keys(errors).length > 0 && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-4" role="alert">
-                <h3 className="text-red-800 font-semibold text-sm mb-2">Please correct the following errors:</h3>
+              <div className="bg-red-50 border border-red-200 rounded-md p-4" role="alert" aria-labelledby="error-summary-heading">
+                <h3 id="error-summary-heading" className="text-red-800 font-semibold text-sm mb-2">Please correct the following errors:</h3>
                 <ul className="list-disc list-inside text-red-700 text-sm space-y-1">
                   {Object.entries(errors).map(([field, message]) => (
-                    <li key={field}>
-                      <a href={`#field-${field}`} className="underline hover:text-red-900">{message}</a>
-                    </li>
+                    <li key={field}><a href={`#field-${field}`} className="underline hover:text-red-900 focus:outline-none focus:ring-2 focus:ring-red-500 rounded">{message}</a></li>
                   ))}
                 </ul>
               </div>
             )}
 
             {/* Section 1 */}
-            <section>
-              <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
-                Section 1 — Personal Details
-              </h2>
+            <section aria-labelledby="personal-details-heading">
+              <h2 id="personal-details-heading" className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">Section 1 — Personal Details</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2" data-error-first>
-                  <Label htmlFor="fullName" className="text-[#1E1E1E] font-medium">Full name <span className="text-red-600">*</span></Label>
-                  <Input id="fullName" type="text" value={formData.fullName} onChange={(e) => handleChange("fullName", e.target.value)} className={inputClass("fullName")} />
-                  {errors.fullName && <p className="text-red-600 text-xs mt-1">{errors.fullName}</p>}
+                  <Label htmlFor="fullName" className="text-[#1E1E1E] font-medium">Full name <span className="text-red-600" aria-hidden="true">*</span></Label>
+                  <Input id="fullName" type="text" value={formData.fullName} onChange={(e) => handleChange("fullName", e.target.value)} className={inputClass("fullName")} required aria-required="true" aria-invalid={!!errors.fullName} />
+                  {errors.fullName && <p className="text-red-600 text-xs mt-1" role="alert">{errors.fullName}</p>}
                 </div>
                 <div>
-                  <Label htmlFor="dateOfBirth" className="text-[#1E1E1E] font-medium">Date of birth <span className="text-red-600">*</span></Label>
-                  <Input id="dateOfBirth" type="date" value={formData.dateOfBirth} onChange={(e) => handleChange("dateOfBirth", e.target.value)} className={inputClass("dateOfBirth")} />
+                  <Label htmlFor="dateOfBirth" className="text-[#1E1E1E] font-medium">Date of birth <span className="text-red-600" aria-hidden="true">*</span></Label>
+                  <Input id="dateOfBirth" type="date" value={formData.dateOfBirth} onChange={(e) => handleChange("dateOfBirth", e.target.value)} className={inputClass("dateOfBirth")} required aria-required="true" />
                 </div>
                 <div>
-                  <Label htmlFor="email" className="text-[#1E1E1E] font-medium">Email <span className="text-red-600">*</span></Label>
-                  <Input id="email" type="email" value={formData.email} onChange={(e) => handleChange("email", e.target.value)} className={inputClass("email")} />
-                  {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
+                  <Label htmlFor="email" className="text-[#1E1E1E] font-medium">Email address <span className="text-red-600" aria-hidden="true">*</span></Label>
+                  <Input id="email" type="email" value={formData.email} onChange={(e) => handleChange("email", e.target.value)} className={inputClass("email")} required aria-required="true" aria-invalid={!!errors.email} />
+                  {errors.email && <p className="text-red-600 text-xs mt-1" role="alert">{errors.email}</p>}
                 </div>
                 <div className="sm:col-span-2">
-                  <Label htmlFor="address" className="text-[#1E1E1E] font-medium">Address <span className="text-red-600">*</span></Label>
-                  <Input id="address" type="text" value={formData.address} onChange={(e) => handleChange("address", e.target.value)} className={inputClass("address")} />
+                  <Label htmlFor="address" className="text-[#1E1E1E] font-medium">Address <span className="text-red-600" aria-hidden="true">*</span></Label>
+                  <Input id="address" type="text" value={formData.address} onChange={(e) => handleChange("address", e.target.value)} className={inputClass("address")} required aria-required="true" />
                 </div>
                 <div>
-                  <Label htmlFor="phone" className="text-[#1E1E1E] font-medium">Phone <span className="text-red-600">*</span></Label>
-                  <Input id="phone" type="tel" value={formData.phone} onChange={(e) => handleChange("phone", e.target.value)} className={inputClass("phone")} />
+                  <Label htmlFor="phone" className="text-[#1E1E1E] font-medium">Phone number <span className="text-red-600" aria-hidden="true">*</span></Label>
+                  <Input id="phone" type="tel" value={formData.phone} onChange={(e) => handleChange("phone", e.target.value)} className={inputClass("phone")} required aria-required="true" />
                 </div>
                 <div>
-                  <Label htmlFor="emergencyContactName" className="text-[#1E1E1E] font-medium">Emergency contact <span className="text-red-600">*</span></Label>
-                  <Input id="emergencyContactName" type="text" value={formData.emergencyContactName} onChange={(e) => handleChange("emergencyContactName", e.target.value)} className={inputClass("emergencyContactName")} />
+                  <Label htmlFor="emergencyContactName" className="text-[#1E1E1E] font-medium">Emergency contact name <span className="text-red-600" aria-hidden="true">*</span></Label>
+                  <Input id="emergencyContactName" type="text" value={formData.emergencyContactName} onChange={(e) => handleChange("emergencyContactName", e.target.value)} className={inputClass("emergencyContactName")} required aria-required="true" />
                 </div>
                 <div>
-                  <Label htmlFor="emergencyContactPhone" className="text-[#1E1E1E] font-medium">Emergency phone <span className="text-red-600">*</span></Label>
-                  <Input id="emergencyContactPhone" type="tel" value={formData.emergencyContactPhone} onChange={(e) => handleChange("emergencyContactPhone", e.target.value)} className={inputClass("emergencyContactPhone")} />
+                  <Label htmlFor="emergencyContactPhone" className="text-[#1E1E1E] font-medium">Emergency contact phone <span className="text-red-600" aria-hidden="true">*</span></Label>
+                  <Input id="emergencyContactPhone" type="tel" value={formData.emergencyContactPhone} onChange={(e) => handleChange("emergencyContactPhone", e.target.value)} className={inputClass("emergencyContactPhone")} required aria-required="true" />
                 </div>
                 <div>
-                  <Label htmlFor="gpName" className="text-[#1E1E1E] font-medium">GP name <span className="text-red-600">*</span></Label>
-                  <Input id="gpName" type="text" value={formData.gpName} onChange={(e) => handleChange("gpName", e.target.value)} className={inputClass("gpName")} />
+                  <Label htmlFor="gpName" className="text-[#1E1E1E] font-medium">GP name <span className="text-red-600" aria-hidden="true">*</span></Label>
+                  <Input id="gpName" type="text" value={formData.gpName} onChange={(e) => handleChange("gpName", e.target.value)} className={inputClass("gpName")} required aria-required="true" />
                 </div>
                 <div>
-                  <Label htmlFor="gpSurgery" className="text-[#1E1E1E] font-medium">GP surgery <span className="text-red-600">*</span></Label>
-                  <Input id="gpSurgery" type="text" value={formData.gpSurgery} onChange={(e) => handleChange("gpSurgery", e.target.value)} className={inputClass("gpSurgery")} />
+                  <Label htmlFor="gpSurgery" className="text-[#1E1E1E] font-medium">GP surgery name and address <span className="text-red-600" aria-hidden="true">*</span></Label>
+                  <Input id="gpSurgery" type="text" value={formData.gpSurgery} onChange={(e) => handleChange("gpSurgery", e.target.value)} className={inputClass("gpSurgery")} required aria-required="true" />
                 </div>
                 <div>
-                  <Label htmlFor="gpPhone" className="text-[#1E1E1E] font-medium">GP phone</Label>
+                  <Label htmlFor="gpPhone" className="text-[#1E1E1E] font-medium">GP phone number</Label>
                   <Input id="gpPhone" type="tel" value={formData.gpPhone} onChange={(e) => handleChange("gpPhone", e.target.value)} className={inputClass("gpPhone")} />
                 </div>
               </div>
             </section>
 
-            {/* Sections 2-4, 6: Yes/No */}
-            {[
-              { label: "Section 2 — Cardiovascular and General Health", qs: [
-                { q: "q1", t: "Heart condition or cardiovascular disease" },
-                { q: "q2", t: "Chest pain/pressure during activity" },
-                { q: "q3", t: "Chest pain at rest" },
-                { q: "q4", t: "Dizzy, faint, or lose consciousness" },
-                { q: "q5", t: "Unexplained shortness of breath" },
-                { q: "q6", t: "High cholesterol or treated" },
-                { q: "q7", t: "Palpitations or irregular heartbeat" },
-                { q: "q8", t: "High blood pressure or treated" },
-                { q: "q9", t: "Stroke or TIA" },
-                { q: "q10", t: "Diabetes" },
-                { q: "q11", t: "Smoke or smoked in last 5 years" },
-              ]},
-              { label: "Section 3 — Musculoskeletal, Neurological, Surgical", qs: [
-                { q: "q12", t: "Bone, joint, or muscle condition" },
-                { q: "q13", t: "Surgery in last 5 years" },
-                { q: "q14", t: "Implanted medical devices" },
-                { q: "q15", t: "Spinal injury/surgery" },
-                { q: "q16", t: "Neurological condition" },
-                { q: "q17", t: "Chronic pain affecting exercise" },
-                { q: "q18", t: "Vision, hearing, or other sense condition" },
-              ]},
-              { label: "Section 4 — Blood, Medications, Diagnosed Conditions", qs: [
-                { q: "q19", t: "Blood-thinning medication" },
-                { q: "q20", t: "Blood disorder" },
-                { q: "q21", t: "Injection-based medication regularly" },
-                { q: "q22", t: "Statin medication" },
-                { q: "q23", t: "Other prescription medication" },
-                { q: "q24", t: "Diagnosed condition not disclosed" },
-                { q: "q25", t: "Advised to restrict exercise" },
-                { q: "q26", t: "Major illness/hospital admission in last 5 years" },
-              ]},
-            ].map((section) => (
-              <section key={section.label}>
-                <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">{section.label}</h2>
-                <div className="space-y-4">
-                  {section.qs.map(({ q, t }) => (
-                    <div key={q} className="bg-[#F1F1F1] rounded-md p-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <p className="text-sm text-[#1E1E1E] font-medium">{t}</p>
-                        </div>
-                        <YesNoGroup field={q as keyof ParqFormData} label={t} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            ))}
-
-            {/* Section 5 */}
-            <section>
-              <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
-                Section 5 — Full Details
-              </h2>
-              <div className="space-y-6">
-                <div>
-                  <Label htmlFor="conditions" className="text-[#1E1E1E] font-medium mb-2 block">Diagnosed medical conditions</Label>
-                  <Textarea id="conditions" value={formData.conditions} onChange={(e) => handleChange("conditions", e.target.value)} className={textareaClass("conditions")} placeholder="E.g. Type 2 Diabetes — diagnosed March 2023" />
-                </div>
-                <div>
-                  <Label htmlFor="medications" className="text-[#1E1E1E] font-medium mb-2 block">All current prescription medications</Label>
-                  <Textarea id="medications" value={formData.medications} onChange={(e) => handleChange("medications", e.target.value)} className={textareaClass("medications")} placeholder="E.g. Metformin 500mg — twice daily" />
-                </div>
-                <div>
-                  <Label htmlFor="devices" className="text-[#1E1E1E] font-medium mb-2 block">Implanted medical devices</Label>
-                  <Textarea id="devices" value={formData.devices} onChange={(e) => handleChange("devices", e.target.value)} className={textareaClass("devices")} placeholder="E.g. None" />
-                </div>
-                <div>
-                  <Label htmlFor="exerciseRestrictions" className="text-[#1E1E1E] font-medium mb-2 block">Exercise restrictions</Label>
-                  <Textarea id="exerciseRestrictions" value={formData.exerciseRestrictions} onChange={(e) => handleChange("exerciseRestrictions", e.target.value)} className={textareaClass("exerciseRestrictions")} placeholder="E.g. Avoid heavy spinal loading" />
-                </div>
-                <div>
-                  <Label htmlFor="surgeries" className="text-[#1E1E1E] font-medium mb-2 block">Surgeries (last 5 years)</Label>
-                  <Textarea id="surgeries" value={formData.surgeries} onChange={(e) => handleChange("surgeries", e.target.value)} className={textareaClass("surgeries")} placeholder="E.g. June 2024 — Knee arthroscopy" />
-                </div>
-                <div>
-                  <Label htmlFor="otherInfo" className="text-[#1E1E1E] font-medium mb-2 block">Any other information</Label>
-                  <Textarea id="otherInfo" value={formData.otherInfo} onChange={(e) => handleChange("otherInfo", e.target.value)} className={textareaClass("otherInfo")} placeholder="E.g. None" />
-                </div>
-              </div>
-            </section>
-
-            {/* Section 6 */}
-            <section>
-              <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
-                Section 6 — Lifestyle and Physical Activity
-              </h2>
-              <div className="space-y-6">
-                <div>
-                  <Label htmlFor="currentExercise" className="text-[#1E1E1E] font-medium mb-2 block">Current exercise or sport</Label>
-                  <Textarea id="currentExercise" value={formData.currentExercise} onChange={(e) => handleChange("currentExercise", e.target.value)} className={textareaClass("currentExercise")} placeholder="E.g. Walking 20 minutes daily" />
-                </div>
-                <div>
-                  <Label htmlFor="trainingGoals" className="text-[#1E1E1E] font-medium mb-2 block">Training goals</Label>
-                  <Textarea id="trainingGoals" value={formData.trainingGoals} onChange={(e) => handleChange("trainingGoals", e.target.value)} className={textareaClass("trainingGoals")} placeholder="E.g. Regain strength, improve mobility" />
-                </div>
-                {[
-                  { q: "q27", t: "Pregnant or given birth in last 6 months" },
-                  { q: "q28", t: "Dietary restrictions, allergies, or eating disorder" },
-                  { q: "q29", t: "Other reason unable to participate safely" },
-                ].map(({ q, t }) => (
+            {/* Section 2 */}
+            <section aria-labelledby="cardio-heading">
+              <h2 id="cardio-heading" className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">Section 2 — Cardiovascular and General Health</h2>
+              <p className="text-sm text-[#525A61] mb-4 italic">Circle YES or NO for every question. If you answer YES to any question, your trainer will discuss this with you before your programme begins.</p>
+              <div className="space-y-4">
+                {section2Questions.map(({ q, text, note }) => (
                   <div key={q} className="bg-[#F1F1F1] rounded-md p-4">
                     <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1"><p className="text-sm text-[#1E1E1E] font-medium">{t}</p></div>
-                      <YesNoGroup field={q as keyof ParqFormData} label={t} />
+                      <div className="flex-1">
+                        <p className="text-sm text-[#1E1E1E] font-medium">Q{q.replace("q", "")}. {text}</p>
+                        {note && <p className="text-xs text-[#525A61] mt-1 italic">{note}</p>}
+                      </div>
+                      <YesNoGroup field={q as keyof ParqFormData} />
                     </div>
                   </div>
                 ))}
               </div>
             </section>
 
-            {/* Section 9 */}
-            <section>
-              <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
-                Section 9 — Declaration and Signature
-              </h2>
-              <div className="bg-[#F1F1F1] rounded-md p-4 mb-6 space-y-3">
-                <div className="flex items-start gap-3">
-                  <span className="text-green-600 mt-0.5">✓</span>
-                  <p className="text-sm text-[#1E1E1E]">I confirm that the information I have provided is accurate and complete to the best of my knowledge.</p>
+            {/* Section 3 */}
+            <section aria-labelledby="musculo-heading">
+              <h2 id="musculo-heading" className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">Section 3 — Musculoskeletal, Neurological, and Surgical History</h2>
+              <div className="space-y-4">
+                {section3Questions.map(({ q, text, note }) => (
+                  <div key={q} className="bg-[#F1F1F1] rounded-md p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <p className="text-sm text-[#1E1E1E] font-medium">Q{q.replace("q", "")}. {text}</p>
+                        {note && <p className="text-xs text-[#525A61] mt-1 italic">{note}</p>}
+                      </div>
+                      <YesNoGroup field={q as keyof ParqFormData} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Section 4 */}
+            <section aria-labelledby="blood-heading">
+              <h2 id="blood-heading" className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">Section 4 — Blood Conditions, Medications, and Diagnosed Conditions</h2>
+              <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-4">
+                <p className="text-sm text-amber-900 font-semibold">This section is critical for your safety — please complete in full.</p>
+                <p className="text-sm text-amber-800 mt-1">Some medications and blood conditions significantly affect how your body responds to exercise and your risk of injury. Please disclose ALL medications, supplements, and diagnosed conditions — even if you do not think they are relevant.</p>
+              </div>
+              <div className="space-y-4">
+                {section4Questions.map(({ q, text, note }) => (
+                  <div key={q} className="bg-[#F1F1F1] rounded-md p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <p className="text-sm text-[#1E1E1E] font-medium">Q{q.replace("q", "")}. {text}</p>
+                        {note && <p className="text-xs text-[#525A61] mt-1 italic">{note}</p>}
+                      </div>
+                      <YesNoGroup field={q as keyof ParqFormData} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Section 5 */}
+            <section aria-labelledby="details-heading">
+              <h2 id="details-heading" className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">Section 5 — Full Details</h2>
+              <p className="text-sm text-[#525A61] mb-4 italic">Complete this section for every YES answer — reference the question number. You must complete this section for every YES answer above.</p>
+              <div className="space-y-6">
+                <div data-error-first>
+                  <Label htmlFor="conditions" className="text-[#1E1E1E] font-medium mb-2 block">Diagnosed medical conditions <span className="text-[#525A61] font-normal text-sm">(list each condition, date of diagnosis, and name of treating doctor or consultant)</span></Label>
+                  <Textarea id="conditions" value={formData.conditions} onChange={(e) => handleChange("conditions", e.target.value)} className={textareaClass("conditions")} placeholder="E.g. Type 2 Diabetes — diagnosed March 2023 — Dr. Smith, Worthing Hospital" />
+                  {errors.conditions && <p className="text-red-600 text-xs mt-1" role="alert">{errors.conditions}</p>}
                 </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-green-600 mt-0.5">✓</span>
-                  <p className="text-sm text-[#1E1E1E]">I understand that where medical clearance is required, no training sessions will commence until that clearance has been received in writing.</p>
+                <div>
+                  <Label htmlFor="medications" className="text-[#1E1E1E] font-medium mb-2 block">All current prescription medications <span className="text-[#525A61] font-normal text-sm">(list each medication, dosage, and what it is prescribed for)</span></Label>
+                  <Textarea id="medications" value={formData.medications} onChange={(e) => handleChange("medications", e.target.value)} className={textareaClass("medications")} placeholder="E.g. Metformin 500mg — twice daily — Type 2 Diabetes" />
+                  {errors.medications && <p className="text-red-600 text-xs mt-1" role="alert">{errors.medications}</p>}
+                </div>
+                <div>
+                  <Label htmlFor="devices" className="text-[#1E1E1E] font-medium mb-2 block">Implanted medical devices <span className="text-[#525A61] font-normal text-sm">(describe each device, when inserted, and any restrictions)</span></Label>
+                  <Textarea id="devices" value={formData.devices} onChange={(e) => handleChange("devices", e.target.value)} className={textareaClass("devices")} placeholder="E.g. None" />
+                </div>
+                <div>
+                  <Label htmlFor="exerciseRestrictions" className="text-[#1E1E1E] font-medium mb-2 block">Exercise restrictions <span className="text-[#525A61] font-normal text-sm">(list any specific restrictions given by a medical professional and who gave them)</span></Label>
+                  <Textarea id="exerciseRestrictions" value={formData.exerciseRestrictions} onChange={(e) => handleChange("exerciseRestrictions", e.target.value)} className={textareaClass("exerciseRestrictions")} placeholder="E.g. Avoid heavy spinal loading — Mr. Jones, Orthopaedic Consultant" />
+                </div>
+                <div>
+                  <Label htmlFor="surgeries" className="text-[#1E1E1E] font-medium mb-2 block">Surgeries or hospital admissions in the last 5 years <span className="text-[#525A61] font-normal text-sm">(list each with date, procedure, and hospital)</span></Label>
+                  <Textarea id="surgeries" value={formData.surgeries} onChange={(e) => handleChange("surgeries", e.target.value)} className={textareaClass("surgeries")} placeholder="E.g. June 2024 — Knee arthroscopy — St. Richard's Hospital, Chichester" />
+                </div>
+                <div>
+                  <Label htmlFor="otherInfo" className="text-[#1E1E1E] font-medium mb-2 block">Any other information <span className="text-[#525A61] font-normal text-sm">(anything you think your trainer should know)</span></Label>
+                  <Textarea id="otherInfo" value={formData.otherInfo} onChange={(e) => handleChange("otherInfo", e.target.value)} className={textareaClass("otherInfo")} placeholder="E.g. None" />
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            </section>
+
+            {/* Section 6 */}
+            <section aria-labelledby="lifestyle-heading">
+              <h2 id="lifestyle-heading" className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">Section 6 — Lifestyle and Physical Activity</h2>
+              <div className="space-y-6">
                 <div>
-                  <Label htmlFor="clientNamePrint" className="text-[#1E1E1E] font-medium">Client name (print) <span className="text-red-600">*</span></Label>
-                  <Input id="clientNamePrint" type="text" value={formData.clientNamePrint} onChange={(e) => handleChange("clientNamePrint", e.target.value)} className={inputClass("clientNamePrint")} />
-                  {errors.clientNamePrint && <p className="text-red-600 text-xs mt-1">{errors.clientNamePrint}</p>}
+                  <Label htmlFor="currentExercise" className="text-[#1E1E1E] font-medium mb-2 block">What types of exercise or sport do you currently do? <span className="text-[#525A61] font-normal text-sm">(include frequency and duration)</span></Label>
+                  <Textarea id="currentExercise" value={formData.currentExercise} onChange={(e) => handleChange("currentExercise", e.target.value)} className={textareaClass("currentExercise")} placeholder="E.g. Walking 20 minutes daily, light stretching twice a week" />
                 </div>
                 <div>
-                  <Label htmlFor="clientSignatureDate" className="text-[#1E1E1E] font-medium">Date <span className="text-red-600">*</span></Label>
-                  <Input id="clientSignatureDate" type="date" value={formData.clientSignatureDate} onChange={(e) => handleChange("clientSignatureDate", e.target.value)} className={inputClass("clientSignatureDate")} />
-                  {errors.clientSignatureDate && <p className="text-red-600 text-xs mt-1">{errors.clientSignatureDate}</p>}
+                  <Label htmlFor="trainingGoals" className="text-[#1E1E1E] font-medium mb-2 block">What are your goals for working with a personal trainer?</Label>
+                  <Textarea id="trainingGoals" value={formData.trainingGoals} onChange={(e) => handleChange("trainingGoals", e.target.value)} className={textareaClass("trainingGoals")} placeholder="E.g. Regain strength after cancer treatment, improve mobility and confidence" />
+                </div>
+                <div className="space-y-4">
+                  {section6bQuestions.map(({ q, text, note }) => (
+                    <div key={q} className="bg-[#F1F1F1] rounded-md p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <p className="text-sm text-[#1E1E1E] font-medium">Q{q.replace("q", "")}. {text}</p>
+                          {note && <p className="text-xs text-[#525A61] mt-1 italic">{note}</p>}
+                        </div>
+                        <YesNoGroup field={q as keyof ParqFormData} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Section 7 */}
+            <section aria-labelledby="clearance-heading">
+              <h2 id="clearance-heading" className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">Section 7 — Medical Clearance Record</h2>
+              <p className="text-sm text-[#525A61] mb-4 italic">To be completed by the trainer.</p>
+              <div className="bg-[#F1F1F1] rounded-md p-4">
+                <p className="text-sm text-[#1E1E1E] mb-3">If the client has answered YES to any question in Sections 2, 3, or 4, the trainer will assess whether medical clearance is required before commencing exercise. Where clearance is required, no sessions should be delivered until a signed letter from the GP or relevant consultant has been received and placed on file.</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-[#1E1E1E] font-medium text-sm">Medical clearance required?</Label>
+                    <p className="text-sm text-[#525A61] mt-1 italic">{hasAnyYes ? "To be assessed by trainer" : "Not required — no YES answers"}</p>
+                  </div>
+                  <div>
+                    <Label className="text-[#1E1E1E] font-medium text-sm">GP / consultant letter received?</Label>
+                    <p className="text-sm text-[#525A61] mt-1 italic">To be completed by trainer</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Section 8 */}
+            <section aria-labelledby="review-heading">
+              <h2 id="review-heading" className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">Section 8 — Annual Review Record</h2>
+              <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-4">
+                <p className="text-sm text-amber-900 font-semibold">This form must be reviewed every 12 months or following any change in health status.</p>
+                <p className="text-sm text-amber-800 mt-1">You must inform your trainer immediately of any change to your health, new diagnosis, new medication, or any hospital admission. Do not wait until your next session.</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse" role="table" aria-label="Annual review record">
+                  <thead>
+                    <tr className="bg-[#087E8B] text-white">
+                      <th className="text-left p-3 font-semibold" scope="col">Review date</th>
+                      <th className="text-left p-3 font-semibold" scope="col">Changes to health, medications, or conditions</th>
+                      <th className="text-left p-3 font-semibold" scope="col">Client signature</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[0, 1, 2, 3].map((i) => (
+                      <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-[#F1F1F1]"}>
+                        <td className="p-3 border-t border-[#D9D9D9] h-12">&nbsp;</td>
+                        <td className="p-3 border-t border-[#D9D9D9]">&nbsp;</td>
+                        <td className="p-3 border-t border-[#D9D9D9]">&nbsp;</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            {/* Section 9 */}
+            <section aria-labelledby="declaration-heading">
+              <h2 id="declaration-heading" className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">Section 9 — Declaration and Signature</h2>
+              <div className="bg-[#F1F1F1] rounded-md p-4 mb-6 space-y-4">
+                <div className="flex items-start gap-3">
+                  <input type="checkbox" id="confirmedAccurate" checked={confirmedAccurate} onChange={(e) => setConfirmedAccurate(e.target.checked)} className="mt-1 h-4 w-4 rounded border-[#D9D9D9] text-[#087E8B] focus:ring-[#087E8B] focus:ring-offset-0 cursor-pointer" aria-required="true" aria-invalid={!!errors.confirmedAccurate} />
+                  <Label htmlFor="confirmedAccurate" className="text-sm text-[#1E1E1E] cursor-pointer">I confirm that the information I have provided in this form is accurate and complete to the best of my knowledge. I understand that withholding or providing inaccurate health information may put my safety at risk. <span className="text-red-600" aria-hidden="true">*</span></Label>
+                </div>
+                {errors.confirmedAccurate && <p className="text-red-600 text-xs mt-1 ml-7" role="alert">{errors.confirmedAccurate}</p>}
+                <div className="flex items-start gap-3">
+                  <input type="checkbox" id="confirmedClearance" checked={confirmedClearance} onChange={(e) => setConfirmedClearance(e.target.checked)} className="mt-1 h-4 w-4 rounded border-[#D9D9D9] text-[#087E8B] focus:ring-[#087E8B] focus:ring-offset-0 cursor-pointer" aria-required="true" aria-invalid={!!errors.confirmedClearance} />
+                  <Label htmlFor="confirmedClearance" className="text-sm text-[#1E1E1E] cursor-pointer">I understand that where my trainer determines medical clearance is required, no training sessions will commence until that clearance has been received in writing. I agree to cooperate with requests for medical clearance and to inform my trainer of any change to my health status before my next session. <span className="text-red-600" aria-hidden="true">*</span></Label>
+                </div>
+                {errors.confirmedClearance && <p className="text-red-600 text-xs mt-1 ml-7" role="alert">{errors.confirmedClearance}</p>}
+                <div className="flex items-start gap-3">
+                  <input type="checkbox" id="consentGpContact" checked={consentGpContact} onChange={(e) => setConsentGpContact(e.target.checked)} className="mt-1 h-4 w-4 rounded border-[#D9D9D9] text-[#087E8B] focus:ring-[#087E8B] focus:ring-offset-0 cursor-pointer" aria-required="true" aria-invalid={!!errors.consentGpContact} />
+                  <Label htmlFor="consentGpContact" className="text-sm text-[#1E1E1E] cursor-pointer">I consent to my trainer contacting my GP for the purpose of requesting medical clearance where this is deemed necessary for my safety, and I understand my trainer will inform me before doing so. <span className="text-red-600" aria-hidden="true">*</span></Label>
+                </div>
+                {errors.consentGpContact && <p className="text-red-600 text-xs mt-1 ml-7" role="alert">{errors.consentGpContact}</p>}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                <div>
+                  <Label htmlFor="clientNamePrint" className="text-[#1E1E1E] font-medium mb-2 block">Client full name (print) <span className="text-red-600" aria-hidden="true">*</span></Label>
+                  <Input id="clientNamePrint" type="text" value={formData.clientNamePrint} onChange={(e) => handleChange("clientNamePrint", e.target.value)} className={inputClass("clientNamePrint")} required aria-required="true" />
+                  {errors.clientNamePrint && <p className="text-red-600 text-xs mt-1" role="alert">{errors.clientNamePrint}</p>}
                 </div>
                 <div>
-                  <Label htmlFor="clientTypedSignature" className="text-[#1E1E1E] font-medium">Type your full name as signature <span className="text-red-600">*</span></Label>
-                  <Input id="clientTypedSignature" type="text" value={formData.clientTypedSignature} onChange={(e) => handleChange("clientTypedSignature", e.target.value)} className={inputClass("clientTypedSignature")} placeholder="Type your full name" />
-                  {errors.clientTypedSignature && <p className="text-red-600 text-xs mt-1">{errors.clientTypedSignature}</p>}
+                  <Label htmlFor="clientSignatureDate" className="text-[#1E1E1E] font-medium mb-2 block">Date <span className="text-red-600" aria-hidden="true">*</span></Label>
+                  <Input id="clientSignatureDate" type="date" value={formData.clientSignatureDate} onChange={(e) => handleChange("clientSignatureDate", e.target.value)} className={inputClass("clientSignatureDate")} required aria-required="true" />
+                  {errors.clientSignatureDate && <p className="text-red-600 text-xs mt-1" role="alert">{errors.clientSignatureDate}</p>}
+                </div>
+                <div className="sm:col-span-2">
+                  <Label htmlFor="clientTypedSignature" className="text-[#1E1E1E] font-medium mb-2 block">Type your full name as signature <span className="text-red-600" aria-hidden="true">*</span></Label>
+                  <Input id="clientTypedSignature" type="text" value={formData.clientTypedSignature} onChange={(e) => handleChange("clientTypedSignature", e.target.value)} className={inputClass("clientTypedSignature")} placeholder="Type your full name" required aria-required="true" />
+                  {errors.clientTypedSignature && <p className="text-red-600 text-xs mt-1" role="alert">{errors.clientTypedSignature}</p>}
                 </div>
               </div>
             </section>
@@ -538,8 +601,8 @@ export default function ParqEditClient({ parq }: { parq: ParqData }) {
             </div>
           </form>
 
-          <footer className="border-t border-[#D9D9D9] px-6 py-4 text-center text-xs text-[#525A61]">
-            <p>Eternal <span className="text-[#C1839F]">♥</span> Fitness · PAR-Q / Medical Health Screening · Confidential</p>
+          <footer className="border-t border-[#D9D9D9] px-6 py-4 text-center text-xs text-[#525A61] print:border-t-0">
+            <p>Eternal <span className="text-[#C1839F]">♥</span> Fitness · PAR-Q / Medical Health Screening · Confidential — held securely on file</p>
           </footer>
         </div>
       </div>

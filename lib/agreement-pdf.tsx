@@ -1,4 +1,5 @@
 import { Document, Page, Text, View, StyleSheet, Font } from "@react-pdf/renderer";
+import { parqSections } from "./parq-data";
 
 Font.register({
   family: "Inter",
@@ -136,38 +137,6 @@ const fmt = (d: string | null) => {
 };
 
 const yn = (v: string) => v === "yes" ? "YES" : v === "no" ? "NO" : "—";
-
-const questionTexts: Record<string, string> = {
-  q1: "Heart condition or cardiovascular disease",
-  q2: "Chest pain/pressure during activity",
-  q3: "Chest pain at rest",
-  q4: "Dizzy, faint, or lose consciousness",
-  q5: "Unexplained shortness of breath",
-  q6: "High cholesterol or treated",
-  q7: "Palpitations or irregular heartbeat",
-  q8: "High blood pressure or treated",
-  q9: "Stroke or TIA",
-  q10: "Diabetes",
-  q11: "Smoke or smoked in last 5 years",
-  q12: "Bone, joint, or muscle condition",
-  q13: "Surgery in last 5 years",
-  q14: "Implanted medical devices",
-  q15: "Spinal injury/surgery",
-  q16: "Neurological condition",
-  q17: "Chronic pain affecting exercise",
-  q18: "Vision, hearing, or other sense condition",
-  q19: "Blood-thinning medication",
-  q20: "Blood disorder",
-  q21: "Injection-based medication regularly",
-  q22: "Statin medication",
-  q23: "Other prescription medication",
-  q24: "Diagnosed condition not disclosed",
-  q25: "Advised to restrict exercise",
-  q26: "Major illness/hospital admission in last 5 years",
-  q27: "Pregnant or given birth in last 6 months",
-  q28: "Dietary restrictions or allergies",
-  q29: "Other reason unable to participate safely",
-};
 
 const Field = ({ label, value }: { label: string; value: string }) => (
   <View style={styles.field}>
@@ -312,24 +281,13 @@ export const AgreementPDF = ({ agreement, parqData }: { agreement: AgreementData
           </View>
 
           {/* Questions */}
-          <Text style={styles.parqSectionLabel}>Cardiovascular and General Health</Text>
-          {["q1","q2","q3","q4","q5","q6","q7","q8","q9","q10","q11"].map((q) => (
-            <ParqQuestion key={q} text={questionTexts[q]} answer={parqData[q as keyof ParqData] as string} />
-          ))}
-
-          <Text style={styles.parqSectionLabel}>Musculoskeletal, Neurological, Surgical</Text>
-          {["q12","q13","q14","q15","q16","q17","q18"].map((q) => (
-            <ParqQuestion key={q} text={questionTexts[q]} answer={parqData[q as keyof ParqData] as string} />
-          ))}
-
-          <Text style={styles.parqSectionLabel}>Blood, Medications, Diagnosed Conditions</Text>
-          {["q19","q20","q21","q22","q23","q24","q25","q26"].map((q) => (
-            <ParqQuestion key={q} text={questionTexts[q]} answer={parqData[q as keyof ParqData] as string} />
-          ))}
-
-          <Text style={styles.parqSectionLabel}>Additional Questions</Text>
-          {["q27","q28","q29"].map((q) => (
-            <ParqQuestion key={q} text={questionTexts[q]} answer={parqData[q as keyof ParqData] as string} />
+          {parqSections.map((section) => (
+            <View key={section.label}>
+              <Text style={styles.parqSectionLabel}>{section.label}</Text>
+              {section.questions.map(({ q, text }) => (
+                <ParqQuestion key={q} text={text} answer={parqData[q as keyof ParqData] as string} />
+              ))}
+            </View>
           ))}
 
           {/* Full Details */}
