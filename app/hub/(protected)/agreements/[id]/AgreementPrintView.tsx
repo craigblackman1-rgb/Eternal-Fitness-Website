@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Printer, X } from "lucide-react";
 
@@ -52,18 +52,89 @@ interface AgreementData {
   client_status: string | null;
 }
 
+interface ParqData {
+  full_name: string;
+  date_of_birth: string | null;
+  address: string | null;
+  email: string | null;
+  phone: string | null;
+  emergency_contact_name: string | null;
+  emergency_contact_phone: string | null;
+  gp_name: string | null;
+  gp_surgery: string | null;
+  gp_phone: string | null;
+  q1: string; q2: string; q3: string; q4: string; q5: string; q6: string; q7: string; q8: string; q9: string; q10: string; q11: string;
+  q12: string; q13: string; q14: string; q15: string; q16: string; q17: string; q18: string;
+  q19: string; q20: string; q21: string; q22: string; q23: string; q24: string; q25: string; q26: string;
+  q27: string; q28: string; q29: string;
+  conditions: string | null;
+  medications: string | null;
+  devices: string | null;
+  exercise_restrictions: string | null;
+  surgeries: string | null;
+  other_info: string | null;
+  current_exercise: string | null;
+  training_goals: string | null;
+  client_name_print: string | null;
+  client_signature_date: string | null;
+  client_typed_signature: string | null;
+}
+
 const formatDate = (d: string | null) => {
   if (!d) return "—";
   const date = new Date(d + "T00:00:00");
   return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 };
 
+const questionTexts: Record<string, string> = {
+  q1: "Heart condition or cardiovascular disease",
+  q2: "Chest pain/pressure/tightness during activity",
+  q3: "Chest pain or discomfort at rest",
+  q4: "Dizzy, faint, or lose consciousness",
+  q5: "Unexplained shortness of breath",
+  q6: "High cholesterol or treated",
+  q7: "Palpitations or irregular heartbeat",
+  q8: "High blood pressure or treated",
+  q9: "Stroke or TIA",
+  q10: "Diabetes (Type 1 or Type 2)",
+  q11: "Smoke or smoked in last 5 years",
+  q12: "Bone, joint, or muscle condition",
+  q13: "Surgery in last 5 years",
+  q14: "Implanted medical devices",
+  q15: "Spinal injury/surgery",
+  q16: "Neurological condition",
+  q17: "Chronic pain affecting exercise",
+  q18: "Vision, hearing, or other sense condition",
+  q19: "Blood-thinning medication",
+  q20: "Blood disorder",
+  q21: "Injection-based medication regularly",
+  q22: "Statin medication",
+  q23: "Other prescription medication",
+  q24: "Diagnosed condition not disclosed",
+  q25: "Advised to restrict exercise",
+  q26: "Major illness/hospital admission in last 5 years",
+  q27: "Pregnant or given birth in last 6 months",
+  q28: "Dietary restrictions or allergies",
+  q29: "Other reason unable to participate safely",
+};
+
 export default function AgreementPrintView({ agreement, onClose }: { agreement: AgreementData; onClose: () => void }) {
   const printRef = useRef<HTMLDivElement>(null);
+  const [parqData, setParqData] = useState<ParqData | null>(null);
+
+  useEffect(() => {
+    fetch(`/api/parq?client_name=${encodeURIComponent(agreement.client_name)}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d) setParqData(d); })
+      .catch(() => {});
+  }, [agreement.client_name]);
 
   const handlePrint = () => {
     window.print();
   };
+
+  const yn = (v: string) => v === "yes" ? "YES" : v === "no" ? "NO" : "—";
+  const ynClass = (v: string) => v === "yes" ? "text-red-600 font-bold" : v === "no" ? "text-green-600" : "text-gray-400";
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 overflow-auto print:bg-none print:fixed print:inset-0 print:z-auto">
@@ -205,8 +276,88 @@ export default function AgreementPrintView({ agreement, onClose }: { agreement: 
                 </div>
               </div>
             </div>
+          </section>
 
-            {/* PAR-Q and Medical clearance filing */}
+          {/* PAR-Q Full Answers */}
+          {parqData && (
+            <section className="mb-6 print:break-inside-avoid">
+              <h3 className="text-lg font-bold text-[#1E1E1E] mb-3 pb-2 border-b border-[#D9D9D9]">
+                PAR-Q — Physical Activity Readiness Questionnaire
+              </h3>
+
+              {/* Personal Details */}
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold text-[#087E8B] mb-2">Personal Details</h4>
+                <div className="grid grid-cols-2 gap-2 text-sm bg-[#F1F1F1] rounded-md p-3">
+                  <div><p className="text-xs text-[#525A61] uppercase">Name</p><p className="font-medium">{parqData.full_name}</p></div>
+                  <div><p className="text-xs text-[#525A61] uppercase">Date of birth</p><p>{formatDate(parqData.date_of_birth)}</p></div>
+                  <div className="col-span-2"><p className="text-xs text-[#525A61] uppercase">Address</p><p>{parqData.address || "—"}</p></div>
+                  <div><p className="text-xs text-[#525A61] uppercase">Phone</p><p>{parqData.phone || "—"}</p></div>
+                  <div><p className="text-xs text-[#525A61] uppercase">Email</p><p>{parqData.email || "—"}</p></div>
+                  <div><p className="text-xs text-[#525A61] uppercase">Emergency contact</p><p>{parqData.emergency_contact_name || "—"} ({parqData.emergency_contact_phone || "—"})</p></div>
+                  <div><p className="text-xs text-[#525A61] uppercase">GP</p><p>{parqData.gp_name || "—"} — {parqData.gp_surgery || "—"}</p></div>
+                </div>
+              </div>
+
+              {/* Questions */}
+              {[
+                { label: "Cardiovascular and General Health", qs: ["q1","q2","q3","q4","q5","q6","q7","q8","q9","q10","q11"] },
+                { label: "Musculoskeletal, Neurological, Surgical", qs: ["q12","q13","q14","q15","q16","q17","q18"] },
+                { label: "Blood, Medications, Diagnosed Conditions", qs: ["q19","q20","q21","q22","q23","q24","q25","q26"] },
+                { label: "Additional Questions", qs: ["q27","q28","q29"] },
+              ].map((section) => (
+                <div key={section.label} className="mb-4">
+                  <h4 className="text-sm font-semibold text-[#087E8B] mb-2">{section.label}</h4>
+                  <div className="space-y-1">
+                    {section.qs.map((q) => (
+                      <div key={q} className="flex items-center justify-between text-sm bg-[#F1F1F1] rounded px-3 py-1.5">
+                        <span className="text-[#1E1E1E]">{questionTexts[q]}</span>
+                        <span className={`ml-4 font-bold text-xs ${ynClass(parqData[q as keyof ParqData] as string)}`}>{yn(parqData[q as keyof ParqData] as string)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              {/* Full Details */}
+              {(parqData.conditions || parqData.medications || parqData.devices || parqData.exercise_restrictions || parqData.surgeries || parqData.other_info) && (
+                <div className="mb-4">
+                  <h4 className="text-sm font-semibold text-[#087E8B] mb-2">Full Details</h4>
+                  <div className="space-y-2 text-sm">
+                    {parqData.conditions && <div className="bg-[#F1F1F1] rounded p-2"><p className="text-xs text-[#525A61] uppercase">Medical conditions</p><p className="whitespace-pre-wrap">{parqData.conditions}</p></div>}
+                    {parqData.medications && <div className="bg-[#F1F1F1] rounded p-2"><p className="text-xs text-[#525A61] uppercase">Medications</p><p className="whitespace-pre-wrap">{parqData.medications}</p></div>}
+                    {parqData.devices && <div className="bg-[#F1F1F1] rounded p-2"><p className="text-xs text-[#525A61] uppercase">Implanted devices</p><p className="whitespace-pre-wrap">{parqData.devices}</p></div>}
+                    {parqData.exercise_restrictions && <div className="bg-[#F1F1F1] rounded p-2"><p className="text-xs text-[#525A61] uppercase">Exercise restrictions</p><p className="whitespace-pre-wrap">{parqData.exercise_restrictions}</p></div>}
+                    {parqData.surgeries && <div className="bg-[#F1F1F1] rounded p-2"><p className="text-xs text-[#525A61] uppercase">Surgeries</p><p className="whitespace-pre-wrap">{parqData.surgeries}</p></div>}
+                    {parqData.other_info && <div className="bg-[#F1F1F1] rounded p-2"><p className="text-xs text-[#525A61] uppercase">Other information</p><p className="whitespace-pre-wrap">{parqData.other_info}</p></div>}
+                  </div>
+                </div>
+              )}
+
+              {/* Lifestyle */}
+              {(parqData.current_exercise || parqData.training_goals) && (
+                <div className="mb-4">
+                  <h4 className="text-sm font-semibold text-[#087E8B] mb-2">Lifestyle and Physical Activity</h4>
+                  <div className="space-y-2 text-sm">
+                    {parqData.current_exercise && <div className="bg-[#F1F1F1] rounded p-2"><p className="text-xs text-[#525A61] uppercase">Current exercise</p><p className="whitespace-pre-wrap">{parqData.current_exercise}</p></div>}
+                    {parqData.training_goals && <div className="bg-[#F1F1F1] rounded p-2"><p className="text-xs text-[#525A61] uppercase">Training goals</p><p className="whitespace-pre-wrap">{parqData.training_goals}</p></div>}
+                  </div>
+                </div>
+              )}
+
+              {/* Signature */}
+              <div className="bg-[#F1F1F1] rounded-md p-3 text-sm">
+                <div className="grid grid-cols-3 gap-4">
+                  <div><p className="text-xs text-[#525A61] uppercase">Client name (print)</p><p className="font-medium">{parqData.client_name_print || "—"}</p></div>
+                  <div><p className="text-xs text-[#525A61] uppercase">Date</p><p>{formatDate(parqData.client_signature_date)}</p></div>
+                  <div><p className="text-xs text-[#525A61] uppercase">Signature</p><p className="italic font-serif">{parqData.client_typed_signature || "—"}</p></div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* PAR-Q and Medical clearance filing */}
+          <section className="mb-6">
             <div className="bg-[#F1F1F1] rounded-md p-4">
               <div className="grid grid-cols-3 gap-4 text-sm mb-4">
                 <div><p className="text-xs text-[#525A61] uppercase">PAR-Q completed</p><p className="font-medium uppercase">{agreement.parq_completed || "—"}</p></div>

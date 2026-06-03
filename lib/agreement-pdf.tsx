@@ -41,6 +41,13 @@ const styles = StyleSheet.create({
   watchText: { fontSize: 8, color: "#DC2626" },
   check: { color: "#16A34A", marginRight: 4 },
   cross: { color: "#DC2626", marginRight: 4 },
+  parqRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 3, paddingHorizontal: 6, backgroundColor: "#F1F1F1", borderRadius: 3, marginBottom: 2 },
+  parqText: { fontSize: 8, color: "#1E1E1E", width: "75%" },
+  parqYes: { fontSize: 8, color: "#DC2626", fontWeight: "bold" },
+  parqNo: { fontSize: 8, color: "#16A34A" },
+  parqDash: { fontSize: 8, color: "#9CA3AF" },
+  parqSectionLabel: { fontSize: 9, fontWeight: "bold", color: "#087E8B", marginTop: 8, marginBottom: 3 },
+  parqDetailBox: { backgroundColor: "#F1F1F1", borderRadius: 4, padding: 6, marginBottom: 4 },
 });
 
 interface AgreementData {
@@ -90,6 +97,34 @@ interface AgreementData {
   client_status: string | null;
 }
 
+interface ParqData {
+  full_name: string;
+  date_of_birth: string | null;
+  address: string | null;
+  email: string | null;
+  phone: string | null;
+  emergency_contact_name: string | null;
+  emergency_contact_phone: string | null;
+  gp_name: string | null;
+  gp_surgery: string | null;
+  gp_phone: string | null;
+  q1: string; q2: string; q3: string; q4: string; q5: string; q6: string; q7: string; q8: string; q9: string; q10: string; q11: string;
+  q12: string; q13: string; q14: string; q15: string; q16: string; q17: string; q18: string;
+  q19: string; q20: string; q21: string; q22: string; q23: string; q24: string; q25: string; q26: string;
+  q27: string; q28: string; q29: string;
+  conditions: string | null;
+  medications: string | null;
+  devices: string | null;
+  exercise_restrictions: string | null;
+  surgeries: string | null;
+  other_info: string | null;
+  current_exercise: string | null;
+  training_goals: string | null;
+  client_name_print: string | null;
+  client_signature_date: string | null;
+  client_typed_signature: string | null;
+}
+
 const fmt = (d: string | null) => {
   if (!d) return "—";
   try {
@@ -98,6 +133,40 @@ const fmt = (d: string | null) => {
   } catch {
     return d;
   }
+};
+
+const yn = (v: string) => v === "yes" ? "YES" : v === "no" ? "NO" : "—";
+
+const questionTexts: Record<string, string> = {
+  q1: "Heart condition or cardiovascular disease",
+  q2: "Chest pain/pressure during activity",
+  q3: "Chest pain at rest",
+  q4: "Dizzy, faint, or lose consciousness",
+  q5: "Unexplained shortness of breath",
+  q6: "High cholesterol or treated",
+  q7: "Palpitations or irregular heartbeat",
+  q8: "High blood pressure or treated",
+  q9: "Stroke or TIA",
+  q10: "Diabetes",
+  q11: "Smoke or smoked in last 5 years",
+  q12: "Bone, joint, or muscle condition",
+  q13: "Surgery in last 5 years",
+  q14: "Implanted medical devices",
+  q15: "Spinal injury/surgery",
+  q16: "Neurological condition",
+  q17: "Chronic pain affecting exercise",
+  q18: "Vision, hearing, or other sense condition",
+  q19: "Blood-thinning medication",
+  q20: "Blood disorder",
+  q21: "Injection-based medication regularly",
+  q22: "Statin medication",
+  q23: "Other prescription medication",
+  q24: "Diagnosed condition not disclosed",
+  q25: "Advised to restrict exercise",
+  q26: "Major illness/hospital admission in last 5 years",
+  q27: "Pregnant or given birth in last 6 months",
+  q28: "Dietary restrictions or allergies",
+  q29: "Other reason unable to participate safely",
 };
 
 const Field = ({ label, value }: { label: string; value: string }) => (
@@ -114,7 +183,14 @@ const FieldThird = ({ label, value }: { label: string; value: string }) => (
   </View>
 );
 
-export const AgreementPDF = ({ agreement }: { agreement: AgreementData }) => (
+const ParqQuestion = ({ text, answer }: { text: string; answer: string }) => (
+  <View style={styles.parqRow}>
+    <Text style={styles.parqText}>{text}</Text>
+    <Text style={answer === "yes" ? styles.parqYes : answer === "no" ? styles.parqNo : styles.parqDash}>{yn(answer)}</Text>
+  </View>
+);
+
+export const AgreementPDF = ({ agreement, parqData }: { agreement: AgreementData; parqData?: ParqData | null }) => (
   <Document>
     <Page size="A4" style={styles.page}>
       {/* Header */}
@@ -217,6 +293,77 @@ export const AgreementPDF = ({ agreement }: { agreement: AgreementData }) => (
           </View>
         </View>
       </View>
+
+      {/* PAR-Q Full Answers */}
+      {parqData && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>PAR-Q — Physical Activity Readiness Questionnaire</Text>
+
+          {/* Personal Details */}
+          <View style={styles.bgGray}>
+            <View style={styles.grid2}>
+              <Field label="Name" value={parqData.full_name} />
+              <Field label="Date of birth" value={fmt(parqData.date_of_birth)} />
+              <Field label="Address" value={parqData.address || ""} />
+              <Field label="Phone" value={parqData.phone || ""} />
+              <Field label="Emergency contact" value={`${parqData.emergency_contact_name || "—"} (${parqData.emergency_contact_phone || "—"})`} />
+              <Field label="GP" value={`${parqData.gp_name || "—"} — ${parqData.gp_surgery || "—"}`} />
+            </View>
+          </View>
+
+          {/* Questions */}
+          <Text style={styles.parqSectionLabel}>Cardiovascular and General Health</Text>
+          {["q1","q2","q3","q4","q5","q6","q7","q8","q9","q10","q11"].map((q) => (
+            <ParqQuestion key={q} text={questionTexts[q]} answer={parqData[q as keyof ParqData] as string} />
+          ))}
+
+          <Text style={styles.parqSectionLabel}>Musculoskeletal, Neurological, Surgical</Text>
+          {["q12","q13","q14","q15","q16","q17","q18"].map((q) => (
+            <ParqQuestion key={q} text={questionTexts[q]} answer={parqData[q as keyof ParqData] as string} />
+          ))}
+
+          <Text style={styles.parqSectionLabel}>Blood, Medications, Diagnosed Conditions</Text>
+          {["q19","q20","q21","q22","q23","q24","q25","q26"].map((q) => (
+            <ParqQuestion key={q} text={questionTexts[q]} answer={parqData[q as keyof ParqData] as string} />
+          ))}
+
+          <Text style={styles.parqSectionLabel}>Additional Questions</Text>
+          {["q27","q28","q29"].map((q) => (
+            <ParqQuestion key={q} text={questionTexts[q]} answer={parqData[q as keyof ParqData] as string} />
+          ))}
+
+          {/* Full Details */}
+          {(parqData.conditions || parqData.medications || parqData.devices || parqData.exercise_restrictions || parqData.surgeries || parqData.other_info) && (
+            <>
+              <Text style={styles.parqSectionLabel}>Full Details</Text>
+              {parqData.conditions && <View style={styles.parqDetailBox}><Text style={styles.fieldLabel}>Medical conditions</Text><Text style={styles.fieldValue}>{parqData.conditions}</Text></View>}
+              {parqData.medications && <View style={styles.parqDetailBox}><Text style={styles.fieldLabel}>Medications</Text><Text style={styles.fieldValue}>{parqData.medications}</Text></View>}
+              {parqData.devices && <View style={styles.parqDetailBox}><Text style={styles.fieldLabel}>Implanted devices</Text><Text style={styles.fieldValue}>{parqData.devices || "—"}</Text></View>}
+              {parqData.exercise_restrictions && <View style={styles.parqDetailBox}><Text style={styles.fieldLabel}>Exercise restrictions</Text><Text style={styles.fieldValue}>{parqData.exercise_restrictions}</Text></View>}
+              {parqData.surgeries && <View style={styles.parqDetailBox}><Text style={styles.fieldLabel}>Surgeries</Text><Text style={styles.fieldValue}>{parqData.surgeries}</Text></View>}
+              {parqData.other_info && <View style={styles.parqDetailBox}><Text style={styles.fieldLabel}>Other information</Text><Text style={styles.fieldValue}>{parqData.other_info}</Text></View>}
+            </>
+          )}
+
+          {/* Lifestyle */}
+          {(parqData.current_exercise || parqData.training_goals) && (
+            <>
+              <Text style={styles.parqSectionLabel}>Lifestyle and Physical Activity</Text>
+              {parqData.current_exercise && <View style={styles.parqDetailBox}><Text style={styles.fieldLabel}>Current exercise</Text><Text style={styles.fieldValue}>{parqData.current_exercise}</Text></View>}
+              {parqData.training_goals && <View style={styles.parqDetailBox}><Text style={styles.fieldLabel}>Training goals</Text><Text style={styles.fieldValue}>{parqData.training_goals}</Text></View>}
+            </>
+          )}
+
+          {/* Signature */}
+          <View style={styles.bgLight}>
+            <View style={styles.row}>
+              <FieldThird label="Client name (print)" value={parqData.client_name_print || ""} />
+              <FieldThird label="Date" value={fmt(parqData.client_signature_date)} />
+              <FieldThird label="Signature" value={parqData.client_typed_signature || ""} />
+            </View>
+          </View>
+        </View>
+      )}
 
       {/* Trainer Information */}
       {(agreement.trainer_notes || agreement.trainer_observations || agreement.exercise_modifications || agreement.watch_for || agreement.package_type || agreement.risk_level) && (

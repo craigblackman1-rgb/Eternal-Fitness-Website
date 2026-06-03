@@ -21,6 +21,15 @@ export async function POST(request: Request, { params }: { params: { id: string 
     return NextResponse.json({ error: "No client email on file" }, { status: 400 });
   }
 
+  // Fetch PAR-Q data
+  const { data: parqData } = await supabase
+    .from("signed_parq")
+    .select("*")
+    .eq("full_name", agreement.client_name)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
   const resendApiKey = process.env.RESEND_API_KEY;
   if (!resendApiKey) {
     return NextResponse.json(
@@ -30,7 +39,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   }
 
   try {
-    const pdfDoc = <AgreementPDF agreement={agreement} />;
+    const pdfDoc = <AgreementPDF agreement={agreement} parqData={parqData} />;
     const pdfBuffer = await renderToBuffer(pdfDoc);
 
     const resend = new Resend(resendApiKey);
