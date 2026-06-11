@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,7 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CheckSquare, AlertCircle, Clock, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CheckSquare, AlertCircle, Clock, Zap, Check } from "lucide-react";
 
 interface Task {
   id: string;
@@ -57,9 +58,7 @@ const tasks: Task[] = [
   { id: "CONT-005", priority: "MEDIUM", category: "Content", task: "Confirm pricing copy everywhere", status: "Not Started", hours: 1, owner: "Craig", notes: "£480 (12), £840 (24)" },
   { id: "IMG-004", priority: "MEDIUM", category: "Images", task: "Verify coach photos have consent", status: "Not Started", hours: 1, owner: "Craig", notes: "john, patricia, sarah" },
   { id: "IMG-005", priority: "MEDIUM", category: "Images", task: "Check studio/equipment photos", status: "Not Started", hours: 1, owner: "Craig", notes: "Real studio, not stock" },
-  { id: "TECH-006", priority: "MEDIUM", category: "Technical", task: "Validate sitemap.ts and robots.ts", status: "Not Started", hours: 0.5, owner: "Craig", notes: "Ensure proper indexing" },
   { id: "TECH-007", priority: "MEDIUM", category: "Technical", task: "Test 404 error page", status: "Not Started", hours: 0.5, owner: "Craig", notes: "Styling and helpfulness" },
-  { id: "TECH-008", priority: "MEDIUM", category: "Technical", task: "Check cache headers", status: "Not Started", hours: 1, owner: "Craig", notes: "Next.js cache-control" },
 
   { id: "HUB-001", priority: "LOW", category: "Hub", task: "Test client dashboard", status: "Not Started", hours: 1.5, owner: "Craig", notes: "View plans and sessions" },
   { id: "HUB-002", priority: "LOW", category: "Hub", task: "Test training block creation", status: "Not Started", hours: 1.5, owner: "Craig", notes: "End-to-end workflow" },
@@ -71,7 +70,6 @@ const tasks: Task[] = [
   { id: "COMP-003", priority: "LOW", category: "Compliance", task: "Check Cookies Policy", status: "Not Started", hours: 1, owner: "Craig", notes: "GDPR compliance" },
   { id: "COMP-004", priority: "LOW", category: "Compliance", task: "Verify Agreement version", status: "Not Started", hours: 0.5, owner: "Craig", notes: "PDF generation" },
   { id: "COMP-005", priority: "LOW", category: "Compliance", task: "Verify PAR-Q form", status: "Not Started", hours: 0.5, owner: "Craig", notes: "Latest version" },
-  { id: "PERF-001", priority: "LOW", category: "Performance", task: "Page speed audit", status: "Not Started", hours: 1, owner: "Craig", notes: "Identify largest assets" },
   { id: "PERF-002", priority: "LOW", category: "Performance", task: "Check N+1 queries", status: "Not Started", hours: 2, owner: "Craig", notes: "Hub API profiling" },
   { id: "PERF-003", priority: "LOW", category: "Performance", task: "Verify API response times", status: "Not Started", hours: 1.5, owner: "Craig", notes: "<500ms target" },
   { id: "MAINT-001", priority: "LOW", category: "Maintenance", task: "Review bug backlog", status: "Not Started", hours: 1, owner: "Craig", notes: "Response time <48hrs" },
@@ -121,16 +119,39 @@ const priorityConfig = {
 export default function SiteReviewPage() {
   const [priorityFilter, setPriorityFilter] = useState("ALL");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
-  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState("NOT_COMPLETE");
+  const [taskStatuses, setTaskStatuses] = useState<Record<string, string>>({});
+  const [showCompleted, setShowCompleted] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("task-statuses");
+    if (saved) {
+      setTaskStatuses(JSON.parse(saved));
+    }
+  }, []);
+
+  const updateTaskStatus = (taskId: string, newStatus: string) => {
+    const updated = { ...taskStatuses, [taskId]: newStatus };
+    setTaskStatuses(updated);
+    localStorage.setItem("task-statuses", JSON.stringify(updated));
+  };
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
+      const customStatus = taskStatuses[task.id];
       if (priorityFilter !== "ALL" && task.priority !== priorityFilter) return false;
       if (categoryFilter !== "ALL" && task.category !== categoryFilter) return false;
-      if (statusFilter !== "ALL" && task.status !== statusFilter) return false;
+
+      if (statusFilter === "NOT_COMPLETE") {
+        return customStatus !== "Complete";
+      } else if (statusFilter !== "ALL" && task.status !== statusFilter) {
+        return false;
+      }
       return true;
     });
-  }, [priorityFilter, categoryFilter, statusFilter]);
+  }, [priorityFilter, categoryFilter, statusFilter, taskStatuses]);
+
+  const completedCount = Object.values(taskStatuses).filter((s) => s === "Complete").length;
 
   const stats = {
     total: tasks.length,
@@ -151,13 +172,21 @@ export default function SiteReviewPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-6 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Tasks</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{stats.total}</div>
+          </CardContent>
+        </Card>
+        <Card className="border-green-200 bg-green-50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-green-700">Completed</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-green-700">{completedCount}</div>
           </CardContent>
         </Card>
         <Card className="border-red-200 bg-red-50">
@@ -202,7 +231,7 @@ export default function SiteReviewPage() {
 
         {/* Tasks Tab */}
         <TabsContent value="tasks" className="space-y-4">
-          <div className="flex gap-3 flex-wrap">
+          <div className="flex gap-3 flex-wrap items-center">
             <Select value={priorityFilter} onValueChange={setPriorityFilter}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Filter by priority" />
@@ -230,43 +259,80 @@ export default function SiteReviewPage() {
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-40">
-                <SelectValue placeholder="Filter by status" />
+                <SelectValue placeholder="Show" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">All Statuses</SelectItem>
-                {statuses.map((status) => (
-                  <SelectItem key={status} value={status}>{status}</SelectItem>
-                ))}
+                <SelectItem value="NOT_COMPLETE">Active Tasks</SelectItem>
+                <SelectItem value="ALL">All Tasks</SelectItem>
               </SelectContent>
             </Select>
+
+            <Button
+              variant={showCompleted ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowCompleted(!showCompleted)}
+              className="ml-auto"
+            >
+              <Check className="h-4 w-4 mr-2" />
+              Completed ({completedCount})
+            </Button>
           </div>
 
           <div className="space-y-3">
-            {filteredTasks.map((task) => (
-              <Card key={task.id} className="hover:border-rose/50 transition-colors">
-                <CardContent className="p-4">
-                  <div className="flex gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-start gap-3">
-                        <div className="flex gap-2 items-start pt-0.5">
-                          <Badge className={priorityConfig[task.priority as keyof typeof priorityConfig].color}>
-                            {task.priority}
-                          </Badge>
-                          <Badge variant="outline">{task.category}</Badge>
+            {filteredTasks.map((task) => {
+              const currentStatus = taskStatuses[task.id] || "Not Started";
+              return (
+                <Card key={task.id} className={`transition-colors ${currentStatus === "Complete" ? "border-green-200 bg-green-50" : "hover:border-rose/50"}`}>
+                  <CardContent className="p-4">
+                    <div className="flex gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-start gap-3">
+                          <div className="flex gap-2 items-start pt-0.5">
+                            <Badge className={priorityConfig[task.priority as keyof typeof priorityConfig].color}>
+                              {task.priority}
+                            </Badge>
+                            <Badge variant="outline">{task.category}</Badge>
+                            {currentStatus === "Complete" && <Badge className="bg-green-100 text-green-800">Done</Badge>}
+                          </div>
+                        </div>
+                        <p className="font-medium text-foreground mt-2">{task.id}: {task.task}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{task.notes}</p>
+                        <div className="flex gap-4 mt-3 text-xs text-muted-foreground flex-wrap items-center">
+                          <span>Hours: <span className="font-medium text-foreground">{task.hours}h</span></span>
+                          <span>Owner: <span className="font-medium text-foreground">{task.owner}</span></span>
+                          <div className="flex gap-2 ml-auto">
+                            <Button
+                              size="sm"
+                              variant={currentStatus === "Not Started" ? "default" : "outline"}
+                              onClick={() => updateTaskStatus(task.id, "Not Started")}
+                              className="h-7 text-xs"
+                            >
+                              Not Started
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={currentStatus === "In Progress" ? "default" : "outline"}
+                              onClick={() => updateTaskStatus(task.id, "In Progress")}
+                              className="h-7 text-xs"
+                            >
+                              In Progress
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={currentStatus === "Complete" ? "default" : "outline"}
+                              onClick={() => updateTaskStatus(task.id, "Complete")}
+                              className={`h-7 text-xs ${currentStatus === "Complete" ? "bg-green-600 hover:bg-green-700" : ""}`}
+                            >
+                              Complete
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                      <p className="font-medium text-foreground mt-2">{task.id}: {task.task}</p>
-                      <p className="text-sm text-muted-foreground mt-1">{task.notes}</p>
-                      <div className="flex gap-4 mt-3 text-xs text-muted-foreground">
-                        <span>Status: <span className="font-medium text-foreground">{task.status}</span></span>
-                        <span>Hours: <span className="font-medium text-foreground">{task.hours}h</span></span>
-                        <span>Owner: <span className="font-medium text-foreground">{task.owner}</span></span>
-                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </TabsContent>
 
