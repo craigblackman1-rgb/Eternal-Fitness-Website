@@ -16,7 +16,7 @@ const CTASection = ({ onBookConsultation }: CTASectionProps) => {
         </div>
         <div className="bg-rose flex items-center px-8 md:px-16 py-12 md:py-0">
           <div>
-            <h2 className="font-display text-3xl md:text-4xl text-white leading-tight mb-4">
+            <h2 className="text-3xl md:text-4xl text-white leading-tight mb-4">
               Ready to Find Out If This Is Right for You?
             </h2>
             <p className="text-white/80 font-body text-base mb-8 max-w-md">

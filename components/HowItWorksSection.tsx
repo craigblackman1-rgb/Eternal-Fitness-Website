@@ -62,6 +62,54 @@ const stats = [
   },
 ];
 
+function StepCard({
+  step,
+  delay,
+}: {
+  step: (typeof processSteps)[0];
+  delay: number;
+}) {
+  const isTeal = step.color === "teal";
+  return (
+    <AnimateIn delay={delay}>
+      <div
+        className={`relative bg-white/[0.04] border border-white/[0.07] rounded-2xl p-7 md:p-8 overflow-hidden hover:bg-white/[0.07] transition-colors duration-300 ${
+          isTeal
+            ? "border-l-[3px] border-l-teal"
+            : "border-l-[3px] border-l-rose"
+        }`}
+      >
+        {/* Large decorative step number */}
+        <span
+          className={`absolute top-4 right-5 text-[96px] font-bold leading-none select-none pointer-events-none tabular-nums ${
+            isTeal ? "text-teal/10" : "text-rose/15"
+          }`}
+        >
+          {step.step}
+        </span>
+
+        <IconFrame icon={step.icon} color={step.color} size="md" />
+
+        <div className="mt-5 relative">
+          <p
+            className={`text-xs font-semibold uppercase tracking-widest mb-2 ${
+              isTeal ? "text-teal" : "text-rose"
+            }`}
+          >
+            Step {step.step}
+          </p>
+          <h4 className="text-white text-xl font-semibold leading-snug mb-3">
+            {step.title}
+          </h4>
+          <p className="text-white/50 text-sm leading-relaxed max-w-xs">
+            {step.description}
+          </p>
+        </div>
+      </div>
+    </AnimateIn>
+  );
+}
+
 export default function HowItWorksSection() {
   return (
     <section className="py-20 md:py-28 px-6 md:px-12 bg-dark-navy">
@@ -74,7 +122,9 @@ export default function HowItWorksSection() {
               How It Works
             </p>
             <h2 className="text-3xl md:text-4xl text-white">
-              From First Conversation to<br />Lasting Progress
+              From First Conversation to
+              <br />
+              Lasting Progress
             </h2>
           </div>
           <p className="text-white/50 font-body text-base max-w-sm md:pb-1">
@@ -83,44 +133,19 @@ export default function HowItWorksSection() {
           </p>
         </AnimateIn>
 
-        {/* Process steps — staggered grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
-          {processSteps.map((step, i) => (
-            <AnimateIn
-              key={step.step}
-              delay={i * 90}
-              className={i % 2 === 1 ? "lg:mt-14" : ""}
-            >
-              <div className="group relative bg-white/[0.04] border border-white/[0.08] rounded-2xl p-6 h-full hover:bg-white/[0.07] hover:border-white/[0.14] transition-all duration-400">
-
-                {/* Ghost step number watermark */}
-                <span className="absolute top-3 right-4 text-[88px] leading-none font-bold text-white/[0.04] select-none pointer-events-none tabular-nums">
-                  {step.step}
-                </span>
-
-                <IconFrame icon={step.icon} color={step.color} size="md" />
-
-                <div className="mt-5 relative">
-                  <p
-                    className={`text-xs font-semibold uppercase tracking-widest mb-2 ${
-                      step.color === "teal" ? "text-teal" : "text-rose"
-                    }`}
-                  >
-                    Step {step.step}
-                  </p>
-                  <h4 className="text-white font-semibold text-lg leading-snug mb-3">
-                    {step.title}
-                  </h4>
-                  <p className="text-white/50 text-sm leading-relaxed">
-                    {step.description}
-                  </p>
-                </div>
-              </div>
-            </AnimateIn>
-          ))}
+        {/* Two-column masonry — right column drops down for visual rhythm */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
+          <div className="flex flex-col gap-5 lg:gap-6">
+            <StepCard step={processSteps[0]} delay={0} />
+            <StepCard step={processSteps[2]} delay={200} />
+          </div>
+          <div className="flex flex-col gap-5 lg:gap-6 lg:pt-20">
+            <StepCard step={processSteps[1]} delay={100} />
+            <StepCard step={processSteps[3]} delay={300} />
+          </div>
         </div>
 
-        {/* Stats — editorial, left-aligned */}
+        {/* Stats — left-aligned editorial treatment */}
         <AnimateIn className="mt-16 md:mt-20 pt-12 border-t border-white/10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
             {stats.map((stat) => (

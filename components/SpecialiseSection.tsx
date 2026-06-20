@@ -29,12 +29,46 @@ const SpecialiseSection = () => {
   return (
     <section className="py-20 md:py-28 bg-white">
       <div className="max-w-6xl mx-auto px-6 md:px-12">
-        <AnimateIn className="text-center mb-14">
-          <p className="text-rose text-xs font-semibold uppercase tracking-widest mb-4">Specialist Areas</p>
-          <h2 className="text-3xl md:text-4xl text-foreground mb-3">Who I Work With</h2>
-          <p className="text-muted-foreground font-body text-base max-w-2xl mx-auto">
-            Cancer rehabilitation (active treatment, in remission, post-surgery). Chronic health conditions (fibromyalgia, ME/CFS, autoimmune, diabetes, heart conditions). Disability and adaptive training. Neurological conditions (Parkinson's, MS, stroke recovery). GP-referred exercise programmes. Post-surgical and injury recovery. Mobility and fatigue management. Complex medical needs. If your situation is not listed — please still get in touch. The answer is almost always yes.
-          </p>
+        <AnimateIn className="mb-14">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8">
+            <div>
+              <p className="text-rose text-xs font-semibold uppercase tracking-widest mb-4">Specialist Areas</p>
+              <h2 className="text-4xl md:text-5xl text-foreground">Who I Work With</h2>
+            </div>
+            <p className="text-muted-foreground font-body text-base max-w-xs md:pb-1">
+              If your situation is not listed — please still get in touch. The answer is almost always yes.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2.5">
+            {[
+              "Cancer rehabilitation",
+              "Active treatment support",
+              "Post-surgery recovery",
+              "Fibromyalgia & ME/CFS",
+              "Autoimmune conditions",
+              "Type 2 diabetes",
+              "Heart conditions",
+              "COPD",
+              "Disability & adaptive training",
+              "Parkinson's disease",
+              "Multiple sclerosis",
+              "Stroke recovery",
+              "GP-referred exercise",
+              "Injury rehabilitation",
+              "Mobility & fatigue management",
+              "Post-natal recovery",
+              "Long COVID",
+              "Chronic pain",
+              "Mental health support",
+            ].map((condition) => (
+              <span
+                key={condition}
+                className="inline-flex items-center px-3.5 py-1.5 rounded-full text-sm font-medium bg-muted text-foreground border border-border"
+              >
+                {condition}
+              </span>
+            ))}
+          </div>
         </AnimateIn>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">

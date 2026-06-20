@@ -64,14 +64,13 @@ const ApproachSection = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {bottomCards.map((card, idx) => (
-            <div key={card.title} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-muted flex">
-              <div className="relative w-40 h-40 flex-shrink-0">
-                <Image src={card.image} alt={card.title} fill className="object-cover" sizes="160px" />
-              </div>
-              <div className="p-6 flex flex-col justify-center">
-                <h4 className="text-foreground text-base font-semibold mb-2">{card.title}</h4>
-                <p className="text-muted-foreground text-sm leading-relaxed">{card.desc}</p>
+          {bottomCards.map((card) => (
+            <div key={card.title} className="relative rounded-2xl overflow-hidden group shadow-md aspect-[16/9]">
+              <Image src={card.image} alt={card.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, 50vw" />
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <h4 className="text-white font-semibold text-base mb-1.5">{card.title}</h4>
+                <p className="text-white/70 text-sm leading-relaxed">{card.desc}</p>
               </div>
             </div>
           ))}
