@@ -75,6 +75,7 @@
     --sidebar-ring: 344 71% 63%;
 
     --font-display: var(--font-dm-sans), 'DM Sans', sans-serif;
+    --font-serif: var(--font-dm-serif-display), 'DM Serif Display', Georgia, serif;
     --font-body: var(--font-dm-sans), 'DM Sans', sans-serif;
 
     --radius-xs: 4px;
@@ -125,6 +126,23 @@
   }
 }
 
+@layer utilities {
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-in-ready {
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    }
+    .animate-in-ready.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-in-ready { opacity: 1; transform: none; }
+  }
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -134,8 +152,8 @@
     @apply bg-background text-foreground font-body;
   }
 
-  h1 { font-family: var(--font-display); @apply font-extrabold; }
-  h2 { font-family: var(--font-display); @apply font-bold; }
+  h1 { font-family: var(--font-serif); font-weight: 400; }
+  h2 { font-family: var(--font-serif); font-weight: 400; }
   h3 { font-family: var(--font-display); @apply font-bold; }
   h4 { font-family: var(--font-display); @apply font-semibold; }
   h5 { font-family: var(--font-display); @apply font-semibold; }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans } from "next/font/google";
+import { DM_Sans, DM_Serif_Display } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 
@@ -7,6 +7,13 @@ const dmSans = DM_Sans({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800"],
   variable: "--font-dm-sans",
+});
+
+const dmSerifDisplay = DM_Serif_Display({
+  subsets: ["latin"],
+  weight: ["400"],
+  style: ["normal", "italic"],
+  variable: "--font-dm-serif-display",
 });
 
 const SITE_URL = "https://eternalfitness.co.uk";
@@ -49,7 +56,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-      <html lang="en" className={dmSans.variable}>
+      <html lang="en" className={`${dmSans.variable} ${dmSerifDisplay.variable}`}>
         <body>
         <Providers>{children}</Providers>
       </body>

@@ -1,4 +1,5 @@
 import { ProcessFlow, StatBlock, IconConsultation, IconAssessment, IconHeartPulse, IconTrending } from "@/components/InfographicSystem";
+import { AnimateIn } from "@/components/AnimateIn";
 
 const processSteps = [
   {
@@ -37,11 +38,9 @@ export default function HowItWorksSection() {
   return (
     <section className="py-20 md:py-28 px-6 md:px-12 bg-off-white">
       <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-14">
+        <AnimateIn className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-14">
           <div>
-            <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
-              ✦ How It Works
-            </span>
+            <p className="text-rose text-xs font-semibold uppercase tracking-widest mb-4">How It Works</p>
             <h2 className="text-3xl md:text-4xl text-foreground">
               From First Conversation to<br />Lasting Progress
             </h2>
@@ -49,7 +48,7 @@ export default function HowItWorksSection() {
           <p className="text-muted-foreground font-body text-base max-w-sm md:pt-8">
             My process is simple by design. No friction, no guesswork, no hidden stages. You know exactly what happens at every step.
           </p>
-        </div>
+        </AnimateIn>
 
         <ProcessFlow steps={processSteps} />
 

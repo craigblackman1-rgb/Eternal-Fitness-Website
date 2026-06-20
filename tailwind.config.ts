@@ -15,6 +15,7 @@ export default {
     extend: {
       fontFamily: {
         display: ["var(--font-dm-sans)", "DM Sans", "sans-serif"],
+        serif: ["var(--font-dm-serif-display)", "DM Serif Display", "Georgia", "serif"],
         body: ["var(--font-dm-sans)", "DM Sans", "sans-serif"],
       },
       colors: {

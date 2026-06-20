@@ -1,4 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
+import { AnimateIn } from "@/components/AnimateIn";
 
 const reviewSchema = {
   "@context": "https://schema.org",
@@ -32,11 +33,15 @@ const testimonials = [
     quote: "I was so nervous about starting, but from the first session Esther put me at ease. She listened, adapted everything to my condition, and I have never felt stronger or more confident in my own body.",
     name: "Mary C",
     detail: "Worthing",
+    accentClass: "bg-rose",
+    quoteColor: "text-rose/50",
   },
   {
     quote: "As someone who has dealt with chronic pain for years, I was sceptical that exercise could help. The personalised approach at Eternal Fitness has genuinely changed my quality of life. I cannot recommend it enough.",
     name: "Angela M",
     detail: "West Sussex",
+    accentClass: "bg-teal",
+    quoteColor: "text-teal/50",
   },
 ];
 
@@ -48,38 +53,55 @@ const TestimonialsSection = () => {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(reviewSchema) }}
       />
 
-      <section className="py-20 md:py-28 px-6 md:px-12 bg-off-white">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 md:gap-20 items-start">
-          <div>
-            <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
-              ✦ Client Stories
-            </span>
-            <h2 className="text-3xl md:text-4xl text-foreground mb-4">What Clients Say</h2>
-            <p className="text-muted-foreground font-body text-base mb-8">
-              Progress looks different for everyone. For some it is lifting more, for others it is walking without pain, sleeping better, or simply feeling at home in their own body. Those are the results that matter here.
-            </p>
-            <a href="/faqs" className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-dark-navy">
+        <div className="max-w-6xl mx-auto">
+
+          {/* Header */}
+          <AnimateIn className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14 md:mb-16">
+            <div>
+              <p className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-4">Client Stories</p>
+              <h2 className="text-3xl md:text-4xl text-white">What Clients Say</h2>
+            </div>
+            <a
+              href="/faqs"
+              className="inline-flex items-center gap-2 border border-white/20 text-white/70 px-6 py-3 rounded-full text-sm font-medium hover:bg-white/5 hover:text-white transition-colors w-fit"
+            >
               Read the FAQs <ArrowUpRight className="w-4 h-4" />
             </a>
-          </div>
+          </AnimateIn>
 
-          <div className="space-y-6">
+          {/* Testimonials */}
+          <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/10">
             {testimonials.map((t, idx) => (
-              <div key={t.name} className="bg-white rounded-2xl p-6 shadow-sm border border-muted">
-                <div className={`${idx === 1 ? 'text-teal' : 'text-rose'} text-3xl mb-3 font-display`}>&quot;</div>
-                <p className="text-foreground font-body text-base leading-relaxed mb-5">{t.quote}</p>
+              <AnimateIn
+                key={t.name}
+                delay={idx * 120}
+                className={`py-10 ${idx === 0 ? "md:pr-14" : "md:pl-14"}`}
+              >
+                <div className={`text-5xl leading-none mb-6 ${t.quoteColor} font-serif`}>&ldquo;</div>
+                <p className="text-white/85 text-xl md:text-2xl leading-relaxed mb-8 font-serif italic">
+                  {t.quote}
+                </p>
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full ${idx === 1 ? 'bg-teal' : 'bg-rose'} flex items-center justify-center text-white text-sm font-bold`}>
+                  <div className={`w-10 h-10 rounded-full ${t.accentClass} flex items-center justify-center text-white text-sm font-bold shrink-0`}>
                     {t.name[0]}
                   </div>
                   <div>
-                    <p className="text-foreground font-semibold text-sm">{t.name}</p>
-                    <p className="text-muted-foreground text-xs">{t.detail}</p>
+                    <p className="text-white font-semibold text-sm">{t.name}</p>
+                    <p className="text-white/40 text-xs">{t.detail}</p>
                   </div>
                 </div>
-              </div>
+              </AnimateIn>
             ))}
           </div>
+
+          {/* Closing line */}
+          <div className="mt-14 pt-10 border-t border-white/10">
+            <p className="text-white/30 text-xs text-center uppercase tracking-widest">
+              Progress looks different for everyone — strength, mobility, sleep, or simply feeling at home in your body
+            </p>
+          </div>
+
         </div>
       </section>
     </>
