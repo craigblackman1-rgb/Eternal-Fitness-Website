@@ -60,10 +60,16 @@ const SpecialiseSection = () => {
               "Long COVID",
               "Chronic pain",
               "Mental health support",
-            ].map((condition) => (
+            ].map((condition, ci) => (
               <span
                 key={condition}
-                className="inline-flex items-center px-3.5 py-1.5 rounded-full text-sm font-medium bg-muted text-foreground border border-border"
+                className={`inline-flex items-center px-3.5 py-1.5 rounded-full text-sm font-medium ${
+                  ci % 3 === 0
+                    ? "bg-rose/10 text-rose"
+                    : ci % 3 === 1
+                    ? "bg-teal/10 text-teal"
+                    : "bg-muted text-foreground border border-border"
+                }`}
               >
                 {condition}
               </span>

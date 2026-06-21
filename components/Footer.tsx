@@ -23,7 +23,7 @@ const Footer = () => {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
       />
 
-      <footer id="contact" className="bg-white border-t border-border">
+      <footer id="contact" className="bg-cream border-t border-border">
         <div className="max-w-6xl mx-auto px-6 md:px-12 py-16">
           {/* 4-column grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
@@ -37,10 +37,10 @@ const Footer = () => {
               </p>
               <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-3">Get in touch</h4>
               <div className="space-y-2">
-                <a href="tel:07517658128" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                <a href="tel:07517658128" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-rose transition-colors">
                   <Phone className="w-4 h-4 text-teal" /> 07517 658 128
                 </a>
-                <a href="mailto:esther.fair@eternal-fitness.co.uk" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                <a href="mailto:esther.fair@eternal-fitness.co.uk" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-rose transition-colors">
                   <Mail className="w-4 h-4 text-teal" /> esther.fair@eternal-fitness.co.uk
                 </a>
               </div>
@@ -50,11 +50,11 @@ const Footer = () => {
             <div>
               <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-4">Services</h4>
               <ul className="space-y-2 text-xs text-muted-foreground">
-                <li><Link href="/personal-training" className="hover:text-foreground transition-colors">Personal Training in Worthing</Link></li>
-                <li className="hover:text-foreground transition-colors cursor-pointer">Cancer Rehabilitation</li>
-                <li className="hover:text-foreground transition-colors cursor-pointer">Exercise Referral</li>
-                <li className="hover:text-foreground transition-colors cursor-pointer">Adaptive and Disability Training</li>
-                <li className="hover:text-foreground transition-colors cursor-pointer">Injury Recovery</li>
+                <li><Link href="/personal-training" className="hover:text-rose transition-colors">Personal Training in Worthing</Link></li>
+                <li className="hover:text-rose transition-colors cursor-pointer">Cancer Rehabilitation</li>
+                <li className="hover:text-rose transition-colors cursor-pointer">Exercise Referral</li>
+                <li className="hover:text-rose transition-colors cursor-pointer">Adaptive and Disability Training</li>
+                <li className="hover:text-rose transition-colors cursor-pointer">Injury Recovery</li>
               </ul>
             </div>
 
@@ -62,11 +62,11 @@ const Footer = () => {
             <div>
               <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-4">Information</h4>
               <ul className="space-y-2 text-xs text-muted-foreground">
-                <li><Link href="/about" className="hover:text-foreground transition-colors">About Me</Link></li>
-                <li><Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
-                <li><Link href="/faqs" className="hover:text-foreground transition-colors">FAQs</Link></li>
-                <li><Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
-                <li><Link href="/terms" className="hover:text-foreground transition-colors">Terms and Conditions</Link></li>
+                <li><Link href="/about" className="hover:text-rose transition-colors">About Me</Link></li>
+                <li><Link href="/pricing" className="hover:text-rose transition-colors">Pricing</Link></li>
+                <li><Link href="/faqs" className="hover:text-rose transition-colors">FAQs</Link></li>
+                <li><Link href="/contact" className="hover:text-rose transition-colors">Contact</Link></li>
+                <li><Link href="/terms" className="hover:text-rose transition-colors">Terms and Conditions</Link></li>
               </ul>
             </div>
 
@@ -79,7 +79,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"
-                  className="w-8 h-8 rounded-full bg-teal/10 border border-teal/22 flex items-center justify-center text-teal hover:bg-teal hover:text-white transition-colors"
+                  className="w-8 h-8 rounded-full bg-teal/10 border border-teal/20 flex items-center justify-center text-teal hover:bg-teal hover:text-white transition-all"
                 >
                   <Facebook className="w-3.5 h-3.5" />
                 </a>
@@ -88,7 +88,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
-                  className="w-8 h-8 rounded-full bg-teal/10 border border-teal/22 flex items-center justify-center text-teal hover:bg-teal hover:text-white transition-colors"
+                  className="w-8 h-8 rounded-full bg-teal/10 border border-teal/20 flex items-center justify-center text-teal hover:bg-teal hover:text-white transition-all"
                 >
                   <Instagram className="w-3.5 h-3.5" />
                 </a>
@@ -97,7 +97,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="LinkedIn"
-                  className="w-8 h-8 rounded-full bg-teal/10 border border-teal/22 flex items-center justify-center text-teal hover:bg-teal hover:text-white transition-colors"
+                  className="w-8 h-8 rounded-full bg-teal/10 border border-teal/20 flex items-center justify-center text-teal hover:bg-teal hover:text-white transition-all"
                 >
                   <Linkedin className="w-3.5 h-3.5" />
                 </a>
@@ -106,7 +106,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="YouTube"
-                  className="w-8 h-8 rounded-full bg-teal/10 border border-teal/22 flex items-center justify-center text-teal hover:bg-teal hover:text-white transition-colors"
+                  className="w-8 h-8 rounded-full bg-teal/10 border border-teal/20 flex items-center justify-center text-teal hover:bg-teal hover:text-white transition-all"
                 >
                   <Youtube className="w-3.5 h-3.5" />
                 </a>
@@ -118,8 +118,8 @@ const Footer = () => {
           <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
             <span>© 2026 Eternal Fitness · Esther Fair · Worthing, West Sussex</span>
             <div className="flex gap-6">
-              <Link href="/privacy-policy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="hover:text-foreground transition-colors">Terms and Conditions</Link>
+              <Link href="/privacy-policy" className="hover:text-rose transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-rose transition-colors">Terms and Conditions</Link>
             </div>
           </div>
         </div>

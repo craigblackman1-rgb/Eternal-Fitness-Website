@@ -62,7 +62,7 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      <nav className="absolute top-0 left-0 right-0 z-50 mx-6 md:mx-12 mt-5 flex items-center justify-between px-6 py-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-2xl">
+      <nav className="absolute top-0 left-0 right-0 z-50 mx-6 md:mx-12 mt-5 flex items-center justify-between px-6 py-3 rounded-2xl bg-white/8 border border-white/10 backdrop-blur-2xl shadow-glass">
         <Link href="/" className="flex items-center">
           <EternalFitnessLogo variant="light" className="h-7 md:h-8 w-auto" />
         </Link>

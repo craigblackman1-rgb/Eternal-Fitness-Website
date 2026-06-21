@@ -300,19 +300,19 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
       )}
 
       {/* CTA Section */}
-      <section className="bg-section-dark py-16 md:py-24 px-6 md:px-12">
+      <section className="bg-warm py-16 md:py-24 px-6 md:px-12">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="font-display text-3xl md:text-4xl text-white leading-tight mb-4">
+          <h2 className="font-display text-3xl md:text-4xl text-foreground leading-tight mb-4">
             Book a Personal Training Session in Worthing
           </h2>
-          <p className="text-white/60 text-base md:text-lg mb-8">
+          <p className="text-muted-foreground text-base md:text-lg mb-8">
             Want a simple plan based on your body and goals? Book a free consultation and I will map out a safe, personalised approach that feels good and fits your week.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <button onClick={openDialog} className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
               Book Now <ArrowUpRight className="w-4 h-4" />
             </button>
-            <a href="tel:07517658128" className="inline-flex items-center gap-2 border border-white/30 text-white px-6 py-3 rounded-full font-medium hover:bg-white/10 transition-colors">
+            <a href="tel:07517658128" className="inline-flex items-center gap-2 border border-border text-muted-foreground px-6 py-3 rounded-full font-medium hover:bg-rose hover:text-white transition-colors">
               Give Me a Call <ArrowUpRight className="w-4 h-4" />
             </a>
           </div>

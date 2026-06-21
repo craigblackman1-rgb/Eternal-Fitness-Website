@@ -56,7 +56,7 @@ export default function BlogPageClient({ posts }: { posts: BlogPost[] }) {
       {/* Hero */}
       <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
         <img src="/images/blog-hero.jpg" alt="Blog" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-hero-overlay/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-hero-overlay/55 via-hero-overlay/65 to-hero-overlay/75" />
         <Navbar onBookConsultation={openDialog} />
         <div className="relative z-10 text-center px-6 pt-20">
           <h1 className="text-4xl md:text-5xl lg:text-6xl text-white mb-4">My Blog</h1>
@@ -64,7 +64,7 @@ export default function BlogPageClient({ posts }: { posts: BlogPost[] }) {
             Dive into my blog for insights, tips, and advice to support your health and fitness journey.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <button onClick={openDialog} className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity">
+            <button onClick={openDialog} className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-rose/30">
               Book an Initial Consultation
             </button>
             <Link href="/about" className="inline-flex items-center gap-2 border border-white/30 text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-white/10 transition-colors">

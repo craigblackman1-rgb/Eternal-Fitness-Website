@@ -21,7 +21,7 @@ const cards = [
 
 const WhySection = () => {
   return (
-    <section id="why" className="py-20 md:py-28 px-6 md:px-12 bg-off-white">
+    <section id="why" className="py-20 md:py-28 px-6 md:px-12 bg-warm">
       <div className="max-w-6xl mx-auto">
         <AnimateIn className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-12">
           <div>

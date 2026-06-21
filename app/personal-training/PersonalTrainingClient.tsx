@@ -89,7 +89,7 @@ export default function PersonalTrainingClient() {
       {/* Hero */}
       <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
         <img src="/images/pt-hero.jpg" alt="Personal training in Worthing for health conditions and complex needs" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-hero-overlay/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-hero-overlay/55 via-hero-overlay/65 to-hero-overlay/75" />
         <div className="relative z-10 text-center max-w-3xl px-6">
           <h1 className="text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-5">
             Cancer Rehabilitation and Recovery Training in Worthing
@@ -100,7 +100,7 @@ export default function PersonalTrainingClient() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button
               onClick={openDialog}
-              className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity shadow-lg shadow-rose/30"
             >
               Book a Free Consultation
             </button>
@@ -170,21 +170,21 @@ export default function PersonalTrainingClient() {
       </section>
 
       {/* What I Work On */}
-      <section className="py-20 md:py-28 bg-section-dark">
+      <section className="py-20 md:py-28 bg-warm">
         <div className="max-w-6xl mx-auto px-6 md:px-12">
           <div className="grid md:grid-cols-2 gap-12 items-start mb-12">
             <div>
               <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
                 What I Work On
               </span>
-                <h2 className="text-3xl md:text-4xl text-white leading-tight mb-4">
+                <h2 className="text-3xl md:text-4xl text-foreground leading-tight mb-4">
                   Recovery and Rehabilitation for Real Life
                 </h2>
-                <p className="text-white/70 font-body text-base mb-6">
+                <p className="text-muted-foreground font-body text-base mb-6">
                   The focus is functional rehabilitation — building strength, mobility, endurance, and capability for real life during and after health conditions. Not aesthetics. Not performance metrics. Real outcomes: returning to activities after cancer treatment, climbing stairs without pain, managing fatigue, walking further, recovering independence, sleeping better, regaining confidence in your own body.
                 </p>
                 <div className="flex gap-2">
-                  <button className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white hover:bg-white/10 transition-colors">
+                  <button className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:bg-rose hover:text-white transition-colors">
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <button className="w-10 h-10 rounded-full bg-rose flex items-center justify-center text-white hover:opacity-90 transition-opacity">
@@ -194,19 +194,19 @@ export default function PersonalTrainingClient() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               {sessionImages.map((img, i) => (
-                <img key={i} src={img} alt="Personal training session Worthing" loading="lazy" className="rounded-2xl w-full h-52 object-cover" />
+                <img key={i} src={img} alt="Personal training session Worthing" loading="lazy" className="rounded-2xl w-full h-52 object-cover shadow-sm" />
               ))}
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {focusCards.map((card, idx) => (
-              <div key={card.title} className={`bg-background/5 border border-white/10 rounded-2xl p-6 ${idx % 2 === 0 ? 'border-teal/20' : ''}`}>
-                <div className="w-12 h-12 rounded-full bg-teal/20 flex items-center justify-center mb-4">
+              <div key={card.title} className="bg-white border border-border rounded-2xl p-6 shadow-sm">
+                <div className="w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center mb-4">
                   <span className="text-teal text-lg">✦</span>
                 </div>
-                <h4 className="text-white text-lg mb-2">{card.title}</h4>
-                <p className="text-white/70 font-body text-sm">{card.desc}</p>
+                <h4 className="text-foreground text-lg mb-2">{card.title}</h4>
+                <p className="text-muted-foreground font-body text-sm">{card.desc}</p>
               </div>
             ))}
           </div>

@@ -18,7 +18,7 @@ const HeroSection = ({ onBookConsultation }: HeroSectionProps) => {
         priority
         sizes="100vw"
       />
-      <div className="absolute inset-0 bg-hero-overlay/65" />
+      <div className="absolute inset-0 bg-gradient-to-b from-hero-overlay/55 via-hero-overlay/65 to-hero-overlay/75" />
 
       {/* Main content */}
       <div className="relative z-10 flex-1 flex items-center justify-center text-center px-6 pt-24">
@@ -32,7 +32,7 @@ const HeroSection = ({ onBookConsultation }: HeroSectionProps) => {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button
               onClick={onBookConsultation}
-              className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity shadow-lg shadow-rose/30"
             >
               Book a Free Consultation
             </button>
@@ -49,22 +49,22 @@ const HeroSection = ({ onBookConsultation }: HeroSectionProps) => {
       {/* Social proof bar */}
       <div className="relative z-10 px-6 pb-8 pt-12">
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 flex items-center gap-4 border border-white/10 shadow-md">
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-5 flex items-center gap-4 border border-white/10 shadow-lg">
             <div className="w-12 h-12 rounded-full bg-teal/20 border border-teal/40 flex items-center justify-center shrink-0">
               <span className="text-teal text-xl font-bold">4</span>
             </div>
             <div>
               <p className="text-white font-bold text-base">Level 4 Qualified</p>
-              <p className="text-white/60 text-xs leading-relaxed">The highest personal training qualification in the UK — plus exercise referral and cancer rehabilitation. That is what I bring to every session.</p>
+              <p className="text-white/60 text-xs leading-relaxed">The highest personal training qualification in the UK — plus exercise referral and cancer rehabilitation.</p>
             </div>
           </div>
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-md">
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-5 border border-white/10 shadow-lg">
             <p className="text-white/80 text-sm italic mb-2">
-              "As someone who has dealt with chronic pain for years, I was sceptical. But the personalised approach has genuinely changed my quality of life."
+              &ldquo;As someone who has dealt with chronic pain for years, I was sceptical. But the personalised approach has genuinely changed my quality of life.&rdquo;
             </p>
             <p className="text-white font-semibold text-xs">Angela M · <span className="text-white/50">Worthing client</span></p>
           </div>
-          <div className="bg-rose rounded-2xl p-5 flex flex-col justify-center shadow-md">
+          <div className="bg-rose rounded-2xl p-5 flex flex-col justify-center shadow-lg">
             <h4 className="text-white text-base font-semibold mb-1">Free Consultation</h4>
             <p className="text-white/80 text-xs leading-relaxed">Every new client starts with a free 30-minute conversation with me. No commitment, no sales pitch.</p>
           </div>

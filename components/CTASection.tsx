@@ -24,11 +24,11 @@ const CTASection = ({ onBookConsultation }: CTASectionProps) => {
             </p>
             <div className="flex flex-wrap gap-4">
               {onBookConsultation ? (
-                <button onClick={onBookConsultation} className="inline-flex items-center gap-2 bg-white text-rose px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-opacity">
+                <button onClick={onBookConsultation} className="inline-flex items-center gap-2 bg-white text-rose px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-opacity shadow-lg">
                   Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
                 </button>
               ) : (
-                <a href="/contact" className="inline-flex items-center gap-2 bg-white text-rose px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-opacity">
+                <a href="/contact" className="inline-flex items-center gap-2 bg-white text-rose px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-opacity shadow-lg">
                   Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
                 </a>
               )}

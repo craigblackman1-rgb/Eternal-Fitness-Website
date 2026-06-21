@@ -87,7 +87,7 @@ export default function PricingPageClient() {
       {/* Hero */}
       <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
         <img src="/images/pricing-hero.jpg" alt="Personal training pricing Worthing" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-hero-overlay/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-hero-overlay/55 via-hero-overlay/65 to-hero-overlay/75" />
         <div className="relative z-10 text-center max-w-3xl px-6">
           <h1 className="text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-5">
             Straightforward pricing. No contracts. No surprises.
@@ -98,7 +98,7 @@ export default function PricingPageClient() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button
               onClick={openDialog}
-              className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity shadow-lg shadow-rose/30"
             >
               Book a Free Consultation
             </button>
@@ -143,7 +143,7 @@ export default function PricingPageClient() {
       </section>
 
       {/* Pricing Cards */}
-      <section id="pricing" className="py-20 md:py-28 px-6 md:px-12 bg-section-dark">
+      <section id="pricing" className="py-20 md:py-28 px-6 md:px-12 bg-warm">
         <div className="max-w-6xl mx-auto">
           <div className="mb-12">
             <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
@@ -151,10 +151,10 @@ export default function PricingPageClient() {
             </span>
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
               <div>
-                <h2 className="text-3xl md:text-5xl text-white leading-tight mb-2">
+                <h2 className="text-3xl md:text-5xl text-foreground leading-tight mb-2">
                   Choose what works for you
                 </h2>
-                <p className="text-white/60 font-body text-lg">
+                <p className="text-muted-foreground font-body text-lg">
                   All sessions are 60 minutes, one-to-one, in a private studio in Worthing.
                 </p>
               </div>
@@ -165,10 +165,10 @@ export default function PricingPageClient() {
             {plans.map((plan, i) => (
               <div
                 key={i}
-                className={`relative rounded-2xl p-8 flex flex-col ${
+                className={`relative rounded-2xl p-8 flex flex-col shadow-sm ${
                   plan.popular
-                    ? "bg-white border-2 border-rose"
-                    : "bg-white border border-muted"
+                    ? "bg-white border-2 border-rose shadow-md"
+                    : "bg-white border border-border"
                 }`}
               >
                 {plan.popular && (
@@ -194,10 +194,10 @@ export default function PricingPageClient() {
                 </ul>
                 <button
                   onClick={openDialog}
-                  className={`w-full py-3 rounded-full font-medium text-sm transition-opacity hover:opacity-90 ${
+                  className={`w-full py-3 rounded-full font-medium text-sm transition-all hover:opacity-90 ${
                     plan.popular
-                      ? "bg-rose text-white"
-                      : "bg-white text-foreground"
+                      ? "bg-rose text-white shadow-sm"
+                      : "bg-white text-foreground border border-border"
                   }`}
                 >
                   {plan.cta}
@@ -206,11 +206,11 @@ export default function PricingPageClient() {
             ))}
           </div>
 
-          <div className="mt-8 bg-background/5 border border-white/10 rounded-2xl p-6 max-w-2xl">
-            <p className="text-white/70 font-body text-sm leading-relaxed">
-              <strong className="text-white">Not sure which to choose?</strong> Start with the free consultation. I will give you an honest recommendation based on your situation — not the most expensive option.
+          <div className="mt-8 bg-white border border-border rounded-2xl p-6 max-w-2xl shadow-sm">
+            <p className="text-muted-foreground font-body text-sm leading-relaxed">
+              <strong className="text-foreground">Not sure which to choose?</strong> Start with the free consultation. I will give you an honest recommendation based on your situation — not the most expensive option.
             </p>
-            <p className="text-white/60 font-body text-sm mt-3">
+            <p className="text-muted-foreground font-body text-sm mt-3">
               <Link href="/personal-training" className="text-rose hover:underline">See my specialist areas</Link> &middot; <Link href="/faqs" className="text-rose hover:underline">Read the FAQs</Link>
             </p>
           </div>

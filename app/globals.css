@@ -4,75 +4,77 @@
 
 @layer base {
   :root {
-    /* ===== FIGMA CORE COLORS (EXACT HEX VALUES) ===== */
+    /* ===== BRAND COLORS ===== */
     --color-white: #FFFFFF;
-    --color-rose: #C1839F;
-    --color-rose-secondary: #C1839F;
-    --color-black: #000000;
+    --color-coral: #E8635A;
     --color-teal: #087E8B;
-    --color-slate: #525A61;
-    --color-near-black: #3C3C3C;
-    --color-dark-navy: #282B38;
-    --color-light-gray: #D9D9D9;
-    --color-off-white: #F5F5F5;
+    --color-cream: #FCF8F4;
+    --color-warm: #F5EFEA;
+    --color-amber: #E8A87C;
+    --color-black: #000000;
+    --color-slate: #6B7280;
+    --color-charcoal: #2D3436;
+    --color-light-gray: #E5E5E5;
 
-    /* ===== FIGMA OPACITY COLORS (FOR SHADOWS/OVERLAYS) ===== */
+    /* Legacy aliases for hub/admin pages */
+    --color-off-white: var(--color-cream);
+    --color-dark-navy: #282B38;
+    --color-near-black: var(--color-charcoal);
+
+    /* ===== OPACITY UTILITY COLORS ===== */
     --color-white-5: rgba(255, 255, 255, 0.05);
     --color-white-9: rgba(255, 255, 255, 0.09);
     --color-white-24: rgba(255, 255, 255, 0.24);
     --color-white-30: rgba(255, 255, 255, 0.30);
-    --color-gray-50: rgba(156, 163, 175, 0.50);
     --color-black-5: rgba(0, 0, 0, 0.05);
     --color-black-40: rgba(0, 0, 0, 0.40);
     --color-black-56: rgba(0, 0, 0, 0.56);
-    --color-gray-40: rgba(162, 170, 181, 0.40);
 
-    /* Section backgrounds — alternating rhythm for premium feel */
+    /* Section backgrounds */
     --bg-section-primary: #FFFFFF;
-    --bg-section-alt: #F5F5F5;
+    --bg-section-alt: #F5EFEA;
 
     /* ===== SEMANTIC TAILWIND COLORS ===== */
     --background: 0 0% 100%;
-    --foreground: 0 0% 12%;
+    --foreground: 0 0% 18%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 12%;
+    --card-foreground: 0 0% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 12%;
+    --popover-foreground: 0 0% 18%;
 
-    --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 0%;
+    --primary: 4 76% 63%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 186 89% 29%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 13% 91%;
-    --muted-foreground: 219 10% 40%;
+    --muted: 30 20% 94%;
+    --muted-foreground: 218 7% 44%;
 
-    --accent: 318 86% 63%;
+    --accent: 4 76% 63%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 358 100% 67.5%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
+    --border: 30 15% 90%;
     --input: 0 0% 97%;
-    --ring: 344 71% 63%;
+    --ring: 4 76% 63%;
 
     --radius: 0.75rem;
 
     --hero-overlay: 0 0% 0%;
-    --section-dark: 196 19% 33%;
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 12%;
-    --sidebar-primary: 344 71% 63%;
+    --sidebar-foreground: 0 0% 18%;
+    --sidebar-primary: 4 76% 63%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 13% 91%;
-    --sidebar-accent-foreground: 0 0% 12%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 344 71% 63%;
+    --sidebar-accent: 30 20% 94%;
+    --sidebar-accent-foreground: 0 0% 18%;
+    --sidebar-border: 30 15% 90%;
+    --sidebar-ring: 4 76% 63%;
 
     --font-display: var(--font-dm-sans), 'DM Sans', sans-serif;
     --font-serif: var(--font-dm-serif-display), 'DM Serif Display', Georgia, serif;

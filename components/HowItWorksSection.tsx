@@ -71,48 +71,48 @@ function StepCard({
 }) {
   const isTeal = step.color === "teal";
   return (
-    <AnimateIn delay={delay}>
-      <div
-        className={`relative bg-white/[0.04] border border-white/[0.07] rounded-2xl p-7 md:p-8 overflow-hidden hover:bg-white/[0.07] transition-colors duration-300 ${
-          isTeal
-            ? "border-l-[3px] border-l-teal"
-            : "border-l-[3px] border-l-rose"
-        }`}
-      >
-        {/* Large decorative step number */}
-        <span
-          className={`absolute top-4 right-5 text-[96px] font-bold leading-none select-none pointer-events-none tabular-nums ${
-            isTeal ? "text-teal/10" : "text-rose/15"
-          }`}
-        >
-          {step.step}
-        </span>
-
-        <IconFrame icon={step.icon} color={step.color} size="md" />
-
-        <div className="mt-5 relative">
-          <p
-            className={`text-xs font-semibold uppercase tracking-widest mb-2 ${
-              isTeal ? "text-teal" : "text-rose"
+        <AnimateIn delay={delay}>
+          <div
+            className={`relative bg-white border border-border rounded-2xl p-7 md:p-8 overflow-hidden hover:shadow-md transition-all duration-300 ${
+              isTeal
+                ? "border-l-[3px] border-l-teal"
+                : "border-l-[3px] border-l-rose"
             }`}
           >
-            Step {step.step}
-          </p>
-          <h4 className="text-white text-xl font-semibold leading-snug mb-3">
-            {step.title}
-          </h4>
-          <p className="text-white/50 text-sm leading-relaxed max-w-xs">
-            {step.description}
-          </p>
-        </div>
-      </div>
-    </AnimateIn>
+            {/* Large decorative step number */}
+            <span
+              className={`absolute top-4 right-5 text-[96px] font-bold leading-none select-none pointer-events-none tabular-nums ${
+                isTeal ? "text-teal/8" : "text-rose/10"
+              }`}
+            >
+              {step.step}
+            </span>
+
+            <IconFrame icon={step.icon} color={step.color} size="md" />
+
+            <div className="mt-5 relative">
+              <p
+                className={`text-xs font-semibold uppercase tracking-widest mb-2 ${
+                  isTeal ? "text-teal" : "text-rose"
+                }`}
+              >
+                Step {step.step}
+              </p>
+              <h4 className="text-foreground text-xl font-semibold leading-snug mb-3">
+                {step.title}
+              </h4>
+              <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
+                {step.description}
+              </p>
+            </div>
+          </div>
+        </AnimateIn>
   );
 }
 
 export default function HowItWorksSection() {
   return (
-    <section className="py-20 md:py-28 px-6 md:px-12 bg-dark-navy">
+    <section className="py-20 md:py-28 px-6 md:px-12 bg-warm">
       <div className="max-w-6xl mx-auto">
 
         {/* Header */}
@@ -121,13 +121,13 @@ export default function HowItWorksSection() {
             <p className="text-teal text-xs font-semibold uppercase tracking-widest mb-4">
               How It Works
             </p>
-            <h2 className="text-3xl md:text-4xl text-white">
+            <h2 className="text-3xl md:text-4xl text-foreground">
               From First Conversation to
               <br />
               Lasting Progress
             </h2>
           </div>
-          <p className="text-white/50 font-body text-base max-w-sm md:pb-1">
+          <p className="text-muted-foreground font-body text-base max-w-sm md:pb-1">
             My process is simple by design. No friction, no guesswork, no
             hidden stages. You know exactly what happens at every step.
           </p>
@@ -146,7 +146,7 @@ export default function HowItWorksSection() {
         </div>
 
         {/* Stats — left-aligned editorial treatment */}
-        <AnimateIn className="mt-16 md:mt-20 pt-12 border-t border-white/10">
+        <AnimateIn className="mt-16 md:mt-20 pt-12 border-t border-border">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
             {stats.map((stat) => (
               <div key={stat.label} className="flex flex-col">
@@ -156,7 +156,7 @@ export default function HowItWorksSection() {
                       ? "bg-teal"
                       : stat.accent === "rose"
                       ? "bg-rose"
-                      : "bg-white/25"
+                      : "bg-foreground/20"
                   }`}
                 />
                 <p
@@ -165,12 +165,12 @@ export default function HowItWorksSection() {
                       ? "text-teal"
                       : stat.accent === "rose"
                       ? "text-rose"
-                      : "text-white"
+                      : "text-foreground"
                   }`}
                 >
                   {stat.value}
                 </p>
-                <p className="text-white/40 text-sm leading-relaxed max-w-[220px]">
+                <p className="text-muted-foreground text-sm leading-relaxed max-w-[220px]">
                   {stat.label}
                 </p>
               </div>

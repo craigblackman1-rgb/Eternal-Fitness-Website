@@ -75,7 +75,7 @@ export default function ContactPageClient() {
           alt="Contact Eternal Fitness in Worthing"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-hero-overlay/65" />
+        <div className="absolute inset-0 bg-gradient-to-b from-hero-overlay/55 via-hero-overlay/65 to-hero-overlay/75" />
         <div className="relative z-10 text-center max-w-3xl px-6">
           <h1 className="text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-5">
             Get in Touch
@@ -86,7 +86,7 @@ export default function ContactPageClient() {
           <div className="flex flex-wrap items-center justify-center gap-4">
               <a
                 href="#form"
-                className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
+                className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity shadow-lg shadow-rose/30"
               >
                 Send a Message <ArrowUpRight className="w-4 h-4" />
               </a>

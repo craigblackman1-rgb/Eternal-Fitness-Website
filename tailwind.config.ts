@@ -53,27 +53,41 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         "hero-overlay": "hsl(var(--hero-overlay))",
-        "section-dark": "hsl(var(--section-dark))",
         teal: {
           DEFAULT: "var(--color-teal)",
         },
+        coral: {
+          DEFAULT: "var(--color-coral)",
+        },
         rose: {
-          DEFAULT: "var(--color-rose)",
+          DEFAULT: "var(--color-coral)",
         },
         slate: {
           DEFAULT: "var(--color-slate)",
         },
-        "near-black": {
-          DEFAULT: "var(--color-near-black)",
+        cream: {
+          DEFAULT: "var(--color-cream)",
         },
-        "dark-navy": {
-          DEFAULT: "var(--color-dark-navy)",
+        warm: {
+          DEFAULT: "var(--color-warm)",
+        },
+        amber: {
+          DEFAULT: "var(--color-amber)",
+        },
+        charcoal: {
+          DEFAULT: "var(--color-charcoal)",
         },
         "light-gray": {
           DEFAULT: "var(--color-light-gray)",
         },
         "off-white": {
           DEFAULT: "var(--color-off-white)",
+        },
+        "dark-navy": {
+          DEFAULT: "var(--color-dark-navy)",
+        },
+        "near-black": {
+          DEFAULT: "var(--color-near-black)",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

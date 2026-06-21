@@ -53,25 +53,25 @@ const TestimonialsSection = () => {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(reviewSchema) }}
       />
 
-      <section className="py-20 md:py-28 px-6 md:px-12 bg-dark-navy">
+      <section className="py-20 md:py-28 px-6 md:px-12 bg-cream">
         <div className="max-w-6xl mx-auto">
 
           {/* Header */}
           <AnimateIn className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14 md:mb-16">
             <div>
-              <p className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-4">Client Stories</p>
-              <h2 className="text-3xl md:text-4xl text-white">What Clients Say</h2>
+              <p className="text-muted-foreground text-xs font-semibold uppercase tracking-widest mb-4">Client Stories</p>
+              <h2 className="text-3xl md:text-4xl text-foreground">What Clients Say</h2>
             </div>
             <a
               href="/faqs"
-              className="inline-flex items-center gap-2 border border-white/20 text-white/70 px-6 py-3 rounded-full text-sm font-medium hover:bg-white/5 hover:text-white transition-colors w-fit"
+              className="inline-flex items-center gap-2 border border-border text-muted-foreground px-6 py-3 rounded-full text-sm font-medium hover:bg-rose hover:text-white transition-colors w-fit"
             >
               Read the FAQs <ArrowUpRight className="w-4 h-4" />
             </a>
           </AnimateIn>
 
           {/* Testimonials */}
-          <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/10">
+          <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
             {testimonials.map((t, idx) => (
               <AnimateIn
                 key={t.name}
@@ -79,7 +79,7 @@ const TestimonialsSection = () => {
                 className={`py-10 ${idx === 0 ? "md:pr-14" : "md:pl-14"}`}
               >
                 <div className={`text-5xl leading-none mb-6 ${t.quoteColor} font-serif`}>&ldquo;</div>
-                <p className="text-white/85 text-xl md:text-2xl leading-relaxed mb-8 font-serif italic">
+                <p className="text-foreground/85 text-xl md:text-2xl leading-relaxed mb-8 font-serif italic">
                   {t.quote}
                 </p>
                 <div className="flex items-center gap-3">
@@ -87,8 +87,8 @@ const TestimonialsSection = () => {
                     {t.name[0]}
                   </div>
                   <div>
-                    <p className="text-white font-semibold text-sm">{t.name}</p>
-                    <p className="text-white/40 text-xs">{t.detail}</p>
+                    <p className="text-foreground font-semibold text-sm">{t.name}</p>
+                    <p className="text-muted-foreground text-xs">{t.detail}</p>
                   </div>
                 </div>
               </AnimateIn>
@@ -96,8 +96,8 @@ const TestimonialsSection = () => {
           </div>
 
           {/* Closing line */}
-          <div className="mt-14 pt-10 border-t border-white/10">
-            <p className="text-white/30 text-xs text-center uppercase tracking-widest">
+          <div className="mt-14 pt-10 border-t border-border">
+            <p className="text-muted-foreground/60 text-xs text-center uppercase tracking-widest">
               Progress looks different for everyone — strength, mobility, sleep, or simply feeling at home in your body
             </p>
           </div>
