@@ -18,7 +18,7 @@ const WhoSection = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-background rounded-2xl overflow-hidden shadow-sm border border-muted">
+          <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-border">
             <div className="aspect-video overflow-hidden relative">
               <Image src="/images/who-health.jpg" alt="Training with health conditions Worthing" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
             </div>
@@ -33,7 +33,7 @@ const WhoSection = () => {
             </div>
           </div>
 
-          <div className="bg-background rounded-2xl overflow-hidden shadow-sm border border-muted">
+          <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-border">
             <div className="aspect-video overflow-hidden relative">
               <Image src="/images/who-mobility.jpg" alt="Inclusive personal training Worthing" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
             </div>

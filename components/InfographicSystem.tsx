@@ -179,7 +179,7 @@ export function FeatureCard({
   color?: FrameColor;
 }) {
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-muted hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-border hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
       <IconFrame icon={icon} color={color} size="md" />
       <h4 className="text-foreground font-semibold text-lg mt-4 mb-1.5">{title}</h4>
       <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>

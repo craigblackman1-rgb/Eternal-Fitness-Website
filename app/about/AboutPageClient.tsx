@@ -68,7 +68,7 @@ export default function AboutPageClient() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {qualifications.map((q) => (
-              <div key={q.title} className="bg-white rounded-2xl p-6 border border-muted shadow-sm">
+              <div key={q.title} className="bg-white rounded-2xl p-6 border border-border shadow-sm">
                 <div className="w-12 h-12 rounded-full bg-teal/15 flex items-center justify-center mb-4"><q.icon className="w-5 h-5 text-teal" /></div>
                 <h4 className="text-foreground text-lg mb-2">{q.title}</h4>
                 <p className="text-muted-foreground font-body text-base leading-relaxed">{q.desc}</p>
@@ -105,7 +105,7 @@ export default function AboutPageClient() {
               <h2 className="text-3xl md:text-4xl text-foreground leading-tight mb-6">The Philosophy</h2>
               <p className="text-muted-foreground font-body text-base leading-relaxed mb-5">Eternal Fitness is not a weight loss service. It is not about transforming your body into something it is not. It is about rehabilitation and recovery — finding out what your body is capable of right now, with all the health conditions, medications, limitations, and recovery status it is currently dealing with — and building steadily from there.</p>
               <p className="text-muted-foreground font-body text-base leading-relaxed mb-6">The goal is not a six-week result. It is returning to activities after cancer treatment. Being able to move with less pain. Having better fatigue management. Managing your chronic condition without fear. Recovering full function after injury. Climbing stairs. Walking further. Moving through life with more ease, capability, and confidence than before. That takes time, consistency, and working with someone who genuinely understands medical complexity and adjusts when your health or capacity changes. That is what I do.</p>
-              <div className="bg-white rounded-2xl p-5 mb-6 border border-muted shadow-sm">
+              <div className="bg-white rounded-2xl p-6 mb-6 border border-border shadow-sm">
                 <h4 className="text-foreground mb-2">More Than a Workout</h4>
                 <p className="text-muted-foreground font-body text-base leading-relaxed">No weigh-ins. No before-and-after photos. No pressure to look a certain way. Just steady, meaningful progress — measured against your own baseline, not anyone else&apos;s.</p>
               </div>
@@ -147,7 +147,7 @@ export default function AboutPageClient() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {longTermCards.map((card) => (
-              <div key={card.title} className="border border-muted rounded-2xl overflow-hidden">
+              <div key={card.title} className="border border-border rounded-2xl overflow-hidden shadow-sm">
                 <div className="h-48 overflow-hidden"><img src={card.image} alt={card.title} loading="lazy" className="w-full h-full object-cover" /></div>
                 <div className="p-5">
                   <h4 className="text-foreground text-lg mb-2">{card.title}</h4>

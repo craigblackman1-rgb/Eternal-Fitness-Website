@@ -51,7 +51,7 @@ const ApproachSection = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
           {approaches.map((item) => (
-            <div key={item.title} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-muted">
+            <div key={item.title} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-border">
               <div className="aspect-[4/3] overflow-hidden relative">
                 <Image src={item.image} alt={item.title} fill className="object-cover hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, 33vw" />
               </div>

@@ -39,40 +39,38 @@ const SpecialiseSection = () => {
               If your situation is not listed — please still get in touch. The answer is almost always yes.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2.5">
+          <div className="grid sm:grid-cols-2 gap-x-8 gap-y-6">
             {[
-              "Cancer rehabilitation",
-              "Active treatment support",
-              "Post-surgery recovery",
-              "Fibromyalgia & ME/CFS",
-              "Autoimmune conditions",
-              "Type 2 diabetes",
-              "Heart conditions",
-              "COPD",
-              "Disability & adaptive training",
-              "Parkinson's disease",
-              "Multiple sclerosis",
-              "Stroke recovery",
-              "GP-referred exercise",
-              "Injury rehabilitation",
-              "Mobility & fatigue management",
-              "Post-natal recovery",
-              "Long COVID",
-              "Chronic pain",
-              "Mental health support",
-            ].map((condition, ci) => (
-              <span
-                key={condition}
-                className={`inline-flex items-center px-3.5 py-1.5 rounded-full text-sm font-medium ${
-                  ci % 3 === 0
-                    ? "bg-rose/10 text-rose"
-                    : ci % 3 === 1
-                    ? "bg-teal/10 text-teal"
-                    : "bg-muted text-foreground border border-border"
-                }`}
-              >
-                {condition}
-              </span>
+              {
+                group: "Cancer & Recovery",
+                items: ["Cancer rehabilitation", "Active treatment support", "Post-surgery recovery", "Injury rehabilitation"],
+              },
+              {
+                group: "Chronic Conditions",
+                items: ["Fibromyalgia & ME/CFS", "Autoimmune conditions", "Type 2 diabetes", "Heart conditions", "COPD", "Long COVID", "Chronic pain"],
+              },
+              {
+                group: "Neurological & Mobility",
+                items: ["Parkinson's disease", "Multiple sclerosis", "Stroke recovery", "Mobility & fatigue management"],
+              },
+              {
+                group: "Specialist Support",
+                items: ["Disability & adaptive training", "GP-referred exercise", "Post-natal recovery", "Mental health support"],
+              },
+            ].map((group) => (
+              <div key={group.group}>
+                <p className="text-sm font-semibold text-rose mb-3">{group.group}</p>
+                <div className="flex flex-wrap gap-2">
+                  {group.items.map((item) => (
+                    <span
+                      key={item}
+                      className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-muted text-foreground border border-border"
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </AnimateIn>
@@ -80,7 +78,7 @@ const SpecialiseSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
           {specialisms.map((item, idx) => (
             <AnimateIn key={item.label} delay={idx * 100} className={item.offset}>
-              <div className="relative rounded-xl overflow-hidden group shadow-md aspect-[3/4]">
+              <div className="relative rounded-2xl overflow-hidden group shadow-md aspect-[3/4]">
                 <Image src={item.src} alt={item.alt} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 100vw, 33vw" />
                 <div className="absolute inset-0 bg-gradient-to-t from-foreground/75 via-foreground/5 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-5">

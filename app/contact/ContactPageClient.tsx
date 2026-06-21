@@ -260,7 +260,7 @@ export default function ContactPageClient() {
               </div>
 
               {/* Not sure where to start? */}
-              <div className="bg-white border border-muted rounded-2xl p-6 mt-4">
+              <div className="bg-white border border-border rounded-2xl p-6 mt-4 shadow-sm">
                 <h3 className="text-foreground font-medium mb-2">Not sure where to start?</h3>
                 <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
                   That is completely normal. Send me a message or give me a call and we can have an informal chat — no pressure, no commitment. I will help you figure out whether personal training is the right next step.
@@ -328,7 +328,7 @@ export default function ContactPageClient() {
           <p className="text-muted-foreground font-body text-center max-w-xl mx-auto mb-12">
             Based in Worthing, West Sussex. The private studio is easily accessible by car and public transport.
           </p>
-          <div className="rounded-2xl overflow-hidden border border-muted shadow-sm">
+          <div className="rounded-2xl overflow-hidden border border-border shadow-sm">
             <iframe
               title="Eternal Fitness location in Worthing, West Sussex"
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d40625.88654390968!2d-0.4005!3d50.8148!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4875a3a3a3a3a3a3%3A0x0!2sWorthing%2C+West+Sussex!5e0!3m2!1sen!2suk!4v1700000000000!5m2!1sen!2suk"

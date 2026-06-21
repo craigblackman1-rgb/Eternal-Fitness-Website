@@ -160,7 +160,7 @@ export default function PersonalTrainingClient() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {specialistAreas.map((area, idx) => (
-              <div key={area.title} className={`bg-white rounded-2xl p-6 border ${idx % 2 === 0 ? 'border-teal/20' : 'border-muted'}`}>
+              <div key={area.title} className={`bg-white rounded-2xl p-6 border border-border shadow-sm ${idx % 2 === 0 ? '' : ''}`}>
                 <h4 className="text-foreground text-lg mb-2">{area.title}</h4>
                 <p className="text-muted-foreground font-body text-sm leading-relaxed">{area.desc}</p>
               </div>
