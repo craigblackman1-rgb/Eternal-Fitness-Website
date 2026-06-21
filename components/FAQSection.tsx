@@ -38,7 +38,7 @@ const FAQSection = () => {
           <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
             ✦ Questions
           </span>
-          <h2 className="font-display text-3xl md:text-5xl text-foreground leading-tight mb-4">Common questions</h2>
+          <h2 className="text-3xl md:text-4xl text-foreground leading-tight mb-4">Common questions</h2>
           <p className="text-muted-foreground font-body text-lg mb-8">
             Here are the questions I get asked most often. For the full list, visit the FAQs page.
           </p>

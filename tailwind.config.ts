@@ -56,11 +56,8 @@ export default {
         teal: {
           DEFAULT: "var(--color-teal)",
         },
-        coral: {
-          DEFAULT: "var(--color-coral)",
-        },
         rose: {
-          DEFAULT: "var(--color-coral)",
+          DEFAULT: "var(--color-rose)",
         },
         slate: {
           DEFAULT: "var(--color-slate)",

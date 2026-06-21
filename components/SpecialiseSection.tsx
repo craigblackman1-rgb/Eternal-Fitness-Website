@@ -32,8 +32,8 @@ const SpecialiseSection = () => {
         <AnimateIn className="mb-14">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8">
             <div>
-              <p className="text-rose text-xs font-semibold uppercase tracking-widest mb-4">Specialist Areas</p>
-              <h2 className="text-4xl md:text-5xl text-foreground">Who I Work With</h2>
+              <p className="text-rose text-sm font-semibold uppercase tracking-widest mb-4">Specialist Areas</p>
+              <h2 className="text-3xl md:text-4xl text-foreground">Who I Work With</h2>
             </div>
             <p className="text-muted-foreground font-body text-base max-w-xs md:pb-1">
               If your situation is not listed — please still get in touch. The answer is almost always yes.

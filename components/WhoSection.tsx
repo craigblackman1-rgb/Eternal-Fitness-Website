@@ -10,7 +10,7 @@ const WhoSection = () => {
             <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
               ✦ Who This Is For
             </span>
-            <h2 className="text-4xl md:text-5xl text-foreground">If You Have Been Told Fitness Is Not for You — It Is</h2>
+            <h2 className="text-3xl md:text-4xl text-foreground">If You Have Been Told Fitness Is Not for You — It Is</h2>
           </div>
           <p className="text-muted-foreground font-body text-base max-w-sm">
             I have worked with clients managing cancer, chronic illness, disability, visual impairment, neurological conditions, and complex mobility issues. I am here for the people other trainers cannot help.

@@ -59,7 +59,7 @@ const TestimonialsSection = () => {
           {/* Header */}
           <AnimateIn className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14 md:mb-16">
             <div>
-              <p className="text-muted-foreground text-xs font-semibold uppercase tracking-widest mb-4">Client Stories</p>
+              <p className="text-muted-foreground text-sm font-semibold uppercase tracking-widest mb-4">Client Stories</p>
               <h2 className="text-3xl md:text-4xl text-foreground">What Clients Say</h2>
             </div>
             <a
@@ -97,7 +97,7 @@ const TestimonialsSection = () => {
 
           {/* Closing line */}
           <div className="mt-14 pt-10 border-t border-border">
-            <p className="text-muted-foreground/60 text-xs text-center uppercase tracking-widest">
+            <p className="text-muted-foreground/60 text-sm text-center uppercase tracking-widest">
               Progress looks different for everyone — strength, mobility, sleep, or simply feeling at home in your body
             </p>
           </div>

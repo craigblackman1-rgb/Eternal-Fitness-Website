@@ -56,7 +56,7 @@ const ApproachSection = () => {
                 <Image src={item.image} alt={item.title} fill className="object-cover hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, 33vw" />
               </div>
               <div className="p-5">
-                <h4 className="text-foreground text-base font-semibold mb-1">{item.title}</h4>
+                <h4 className="text-foreground text-lg font-semibold mb-1">{item.title}</h4>
                 <p className="text-muted-foreground text-sm leading-relaxed">{item.subtitle}</p>
               </div>
             </div>

@@ -6,7 +6,7 @@
   :root {
     /* ===== BRAND COLORS ===== */
     --color-white: #FFFFFF;
-    --color-coral: #E8635A;
+    --color-rose: #C1839F;
     --color-teal: #087E8B;
     --color-cream: #FCF8F4;
     --color-warm: #F5EFEA;
@@ -44,8 +44,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 18%;
 
-    --primary: 4 76% 63%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
 
     --secondary: 186 89% 29%;
     --secondary-foreground: 0 0% 100%;
@@ -53,7 +53,7 @@
     --muted: 30 20% 94%;
     --muted-foreground: 218 7% 44%;
 
-    --accent: 4 76% 63%;
+    --accent: 318 86% 63%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 358 100% 67.5%;
@@ -61,7 +61,7 @@
 
     --border: 30 15% 90%;
     --input: 0 0% 97%;
-    --ring: 4 76% 63%;
+    --ring: 344 71% 63%;
 
     --radius: 0.75rem;
 
@@ -69,12 +69,12 @@
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 0 0% 18%;
-    --sidebar-primary: 4 76% 63%;
+    --sidebar-primary: 344 71% 63%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 30 20% 94%;
-    --sidebar-accent-foreground: 0 0% 18%;
-    --sidebar-border: 30 15% 90%;
-    --sidebar-ring: 4 76% 63%;
+    --sidebar-accent: 220 13% 91%;
+    --sidebar-accent-foreground: 0 0% 12%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 344 71% 63%;
 
     --font-display: var(--font-dm-sans), 'DM Sans', sans-serif;
     --font-serif: var(--font-dm-serif-display), 'DM Serif Display', Georgia, serif;

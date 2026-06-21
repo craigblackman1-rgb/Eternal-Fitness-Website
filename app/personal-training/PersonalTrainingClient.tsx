@@ -124,11 +124,11 @@ export default function PersonalTrainingClient() {
               </h2>
               <div className="flex gap-4 mb-6">
                 <img src="/images/approach-private.jpg" alt="Private one-to-one training session" loading="lazy" className="w-24 h-32 rounded-xl object-cover shrink-0" />
-                <p className="text-muted-foreground font-body text-sm leading-relaxed">
+                <p className="text-muted-foreground font-body text-base leading-relaxed">
                   Personal training at Eternal Fitness is not about pushing harder, going faster, or doing more. It is about rehabilitation, recovery, and what your body needs right now — whether managing a health condition, recovering from cancer treatment, or living with a disability — and building a sustainable programme around that. Sessions are private, one-to-one, and held in a small studio in Worthing where there is no gym floor, no other clients watching, and no comparison to anyone else.
                 </p>
               </div>
-              <p className="text-muted-foreground font-body text-sm leading-relaxed mb-6">
+              <p className="text-muted-foreground font-body text-base leading-relaxed mb-6">
                 My specialist training in cancer rehabilitation and exercise referral means I am trained to adapt to medical conditions, medication side-effects, fatigue cycles, and variable capacity. I work within your GP's or specialist's guidance. I do not guess — I ask, I listen, and I adjust every session based on your body's actual needs that day.
               </p>
               <button
@@ -161,7 +161,7 @@ export default function PersonalTrainingClient() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {specialistAreas.map((area, idx) => (
               <div key={area.title} className={`bg-white rounded-2xl p-6 border ${idx % 2 === 0 ? 'border-teal/20' : 'border-muted'}`}>
-                <h4 className="text-foreground text-base mb-2">{area.title}</h4>
+                <h4 className="text-foreground text-lg mb-2">{area.title}</h4>
                 <p className="text-muted-foreground font-body text-sm leading-relaxed">{area.desc}</p>
               </div>
             ))}

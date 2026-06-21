@@ -161,7 +161,7 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
                     </div>
                   )}
                   <div>
-                    <h4 className="font-bold text-foreground">{post.author_name}</h4>
+                    <h4 className="font-bold text-foreground text-base">{post.author_name}</h4>
                     <p className="text-muted-foreground text-sm mt-1">Personal Trainer, Worthing</p>
                   </div>
                 </div>
@@ -187,7 +187,7 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
               {/* Table of Contents */}
               {tocItems.length > 0 && (
                 <div>
-                  <h4 className="font-bold text-foreground mb-4">In this article</h4>
+                  <h4 className="font-bold text-foreground text-base mb-4">In this article</h4>
                   <ul className="space-y-2">
                     {tocItems.map((item) => (
                       <li key={item.id}>
@@ -203,7 +203,7 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
               {/* Related Posts */}
               {relatedPosts.length > 0 && (
                 <div>
-                  <h4 className="font-bold text-foreground mb-4">Related Articles</h4>
+                  <h4 className="font-bold text-foreground text-base mb-4">Related Articles</h4>
                   <div className="space-y-4">
                     {relatedPosts.map((rp) => (
                       <Link key={rp.id} href={`/blog/${rp.slug}`} className="flex items-center gap-3 group">
@@ -223,7 +223,7 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
               {/* Recent Posts */}
               {recentPosts.length > 0 && (
                 <div>
-                  <h4 className="font-bold text-foreground mb-4">Recent Articles</h4>
+                  <h4 className="font-bold text-foreground text-base mb-4">Recent Articles</h4>
                   <div className="space-y-4">
                     {recentPosts.map((rp) => (
                       <Link key={rp.id} href={`/blog/${rp.slug}`} className="flex items-center gap-3 group">
@@ -243,7 +243,7 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
               {/* Featured Post */}
               {featuredPost && (
                 <div>
-                  <h4 className="font-bold text-foreground mb-4">Featured Post</h4>
+                  <h4 className="font-bold text-foreground text-base mb-4">Featured Post</h4>
                   <Link href={`/blog/${featuredPost.slug}`} className="group block rounded-2xl overflow-hidden relative h-64 shadow-md">
                     <img src={featuredPost.image_url || categoryImages[featuredPost.category] || "/images/hero-gym.jpg"} alt={featuredPost.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
@@ -302,7 +302,7 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
       {/* CTA Section */}
       <section className="bg-warm py-16 md:py-24 px-6 md:px-12">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="font-display text-3xl md:text-4xl text-foreground leading-tight mb-4">
+          <h2 className="text-3xl md:text-4xl text-foreground leading-tight mb-4">
             Book a Personal Training Session in Worthing
           </h2>
           <p className="text-muted-foreground text-base md:text-lg mb-8">

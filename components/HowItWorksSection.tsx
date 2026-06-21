@@ -92,7 +92,7 @@ function StepCard({
 
             <div className="mt-5 relative">
               <p
-                className={`text-xs font-semibold uppercase tracking-widest mb-2 ${
+                className={`text-sm font-semibold uppercase tracking-widest mb-2 ${
                   isTeal ? "text-teal" : "text-rose"
                 }`}
               >
@@ -118,7 +118,7 @@ export default function HowItWorksSection() {
         {/* Header */}
         <AnimateIn className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16 md:mb-20">
           <div>
-            <p className="text-teal text-xs font-semibold uppercase tracking-widest mb-4">
+            <p className="text-teal text-sm font-semibold uppercase tracking-widest mb-4">
               How It Works
             </p>
             <h2 className="text-3xl md:text-4xl text-foreground">

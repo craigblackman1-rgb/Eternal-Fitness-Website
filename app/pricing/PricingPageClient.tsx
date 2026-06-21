@@ -119,7 +119,7 @@ export default function PricingPageClient() {
             <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
               What You Are Investing In
             </span>
-            <h2 className="text-3xl md:text-5xl text-foreground leading-tight mb-10">
+            <h2 className="text-3xl md:text-4xl text-foreground leading-tight mb-10">
               This is not a gym membership
             </h2>
             <div className="space-y-8">
@@ -151,10 +151,10 @@ export default function PricingPageClient() {
             </span>
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
               <div>
-                <h2 className="text-3xl md:text-5xl text-foreground leading-tight mb-2">
+                <h2 className="text-3xl md:text-4xl text-foreground leading-tight mb-2">
                   Choose what works for you
                 </h2>
-                <p className="text-muted-foreground font-body text-lg">
+                <p className="text-muted-foreground font-body text-base">
                   All sessions are 60 minutes, one-to-one, in a private studio in Worthing.
                 </p>
               </div>
