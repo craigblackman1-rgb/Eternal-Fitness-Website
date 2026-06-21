@@ -69,44 +69,19 @@ function StepCard({
   step: (typeof processSteps)[0];
   delay: number;
 }) {
-  const isTeal = step.color === "teal";
   return (
-        <AnimateIn delay={delay}>
-          <div
-            className={`relative bg-white border border-border rounded-2xl p-7 md:p-8 overflow-hidden hover:shadow-md transition-all duration-300 ${
-              isTeal
-                ? "border-l-[3px] border-l-teal"
-                : "border-l-[3px] border-l-rose"
-            }`}
-          >
-            {/* Large decorative step number */}
-            <span
-              className={`absolute top-4 right-5 text-[96px] font-bold leading-none select-none pointer-events-none tabular-nums ${
-                isTeal ? "text-teal/8" : "text-rose/10"
-              }`}
-            >
-              {step.step}
-            </span>
-
-            <IconFrame icon={step.icon} color={step.color} size="md" />
-
-            <div className="mt-5 relative">
-              <p
-                className={`text-sm font-semibold uppercase tracking-widest mb-2 ${
-                  isTeal ? "text-teal" : "text-rose"
-                }`}
-              >
-                Step {step.step}
-              </p>
-              <h4 className="text-foreground text-xl font-semibold leading-snug mb-3">
-                {step.title}
-              </h4>
-              <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
-                {step.description}
-              </p>
-            </div>
+    <AnimateIn delay={delay}>
+      <div className="bg-white rounded-2xl border border-border shadow-sm p-6 hover:shadow-md transition-all duration-300">
+        <div className="flex items-start gap-4">
+          <IconFrame icon={step.icon} color={step.color} size="md" />
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1">Step {step.step}</p>
+            <h4 className="text-foreground text-lg font-semibold leading-snug mb-2">{step.title}</h4>
+            <p className="text-muted-foreground text-sm leading-relaxed">{step.description}</p>
           </div>
-        </AnimateIn>
+        </div>
+      </div>
+    </AnimateIn>
   );
 }
 
@@ -145,13 +120,13 @@ export default function HowItWorksSection() {
           </div>
         </div>
 
-        {/* Stats — left-aligned editorial treatment */}
+        {/* Stats — card treatment */}
         <AnimateIn className="mt-16 md:mt-20 pt-12 border-t border-border">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {stats.map((stat) => (
-              <div key={stat.label} className="flex flex-col">
+              <div key={stat.label} className="bg-white rounded-2xl border border-border shadow-sm p-6 flex flex-col gap-3">
                 <div
-                  className={`w-8 h-0.5 mb-4 ${
+                  className={`w-10 h-1 rounded-full ${
                     stat.accent === "teal"
                       ? "bg-teal"
                       : stat.accent === "rose"
@@ -160,7 +135,7 @@ export default function HowItWorksSection() {
                   }`}
                 />
                 <p
-                  className={`text-4xl md:text-5xl font-bold tracking-tight leading-none mb-3 ${
+                  className={`text-3xl md:text-4xl font-bold tracking-tight leading-none ${
                     stat.accent === "teal"
                       ? "text-teal"
                       : stat.accent === "rose"
@@ -170,7 +145,7 @@ export default function HowItWorksSection() {
                 >
                   {stat.value}
                 </p>
-                <p className="text-muted-foreground text-sm leading-relaxed max-w-[220px]">
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   {stat.label}
                 </p>
               </div>

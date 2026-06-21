@@ -64,7 +64,7 @@ const SpecialiseSection = () => {
                   {group.items.map((item) => (
                     <span
                       key={item}
-                      className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-muted text-foreground border border-border"
+                      className="inline-flex items-center px-3.5 py-2 rounded-2xl text-sm font-medium bg-white text-foreground border border-border shadow-sm"
                     >
                       {item}
                     </span>
