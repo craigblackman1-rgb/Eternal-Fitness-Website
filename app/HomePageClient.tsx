@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import ConsultationDialog from "@/components/ConsultationDialog";
 import EternalFitnessLogo from "@/components/EternalFitnessLogo";
+import Footer from "@/components/Footer";
 import HeroCanvas from "@/components/home/HeroCanvas";
 import HomeMotion from "@/components/home/HomeMotion";
 import { useConsultationDialog } from "@/hooks/useConsultationDialog";
@@ -44,16 +45,16 @@ export default function HomePageClient() {
         <Link href="/" aria-label="Eternal Fitness home">
           <EternalFitnessLogo variant={lit || menuOpen ? "dark" : "light"} className="h-7 w-auto" />
         </Link>
-        <div className="nlinks">
+        <div className="nlinks hidden md:flex">
           {navItems.map((item) => (
             <Link key={item.label} href={item.to} className="nlink">{item.label}</Link>
           ))}
         </div>
-        <button className="ncta btn ndesktop" onClick={openDialog}>
+        <button className="ncta btn hidden md:inline-flex" onClick={openDialog}>
           Book Consultation <Arrow />
         </button>
         <button
-          className="nburger btn nmobile"
+          className="nburger btn md:hidden"
           aria-label={menuOpen ? "Close menu" : "Open menu"}
           onClick={() => setMenuOpen((v) => !v)}
         >
@@ -63,6 +64,7 @@ export default function HomePageClient() {
 
       {menuOpen && (
         <div
+          className="md:hidden"
           style={{
             position: "fixed", top: 72, left: 0, right: 0, zIndex: 999,
             background: "#fff", borderBottom: "1px solid #E4DDD7",
@@ -285,69 +287,7 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer id="contact" className="efooter">
-        <div className="ftop">
-          <div className="ftop-in">
-            <div className="fhero">ETERNAL<em>FITNESS</em></div>
-            <div className="fhero-side">
-              <div className="fhero-tag">Qualifications</div>
-              <div className="fhq">Level 4 Personal Trainer</div>
-              <div className="fhq">Cancer Rehabilitation Specialist</div>
-              <div className="fhq">Exercise Referral Specialist</div>
-            </div>
-          </div>
-        </div>
-        <div className="fgrid">
-          <div>
-            <p className="fdesc">Private, one-to-one personal training in Worthing for people with complex health needs. Level 4 qualified. GP-referred clients welcome.</p>
-            <div className="fh">Get in Touch</div>
-            <a href="tel:07517658128" className="fci">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 2 2 0 015 7.63h3a2 2 0 012 1.72c.127.96.361 1.9.7 2.81a2 2 0 01-.45 2.11L9.09 15.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.339 1.85.573 2.81.7A2 2 0 0122 16.92z" /></svg>
-              07517 658 128
-            </a>
-            <a href="mailto:esther.fair@eternal-fitness.co.uk" className="fci">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><polyline points="2,4 12,13 22,4" /></svg>
-              esther.fair@eternal-fitness.co.uk
-            </a>
-          </div>
-          <div>
-            <div className="fh">Services</div>
-            <Link href="/personal-training" className="fl">Personal Training in Worthing</Link>
-            <Link href="/personal-training" className="fl">Cancer Rehabilitation</Link>
-            <Link href="/personal-training" className="fl">Exercise Referral</Link>
-            <Link href="/personal-training" className="fl">Adaptive &amp; Disability Training</Link>
-            <Link href="/personal-training" className="fl">Injury Recovery</Link>
-          </div>
-          <div>
-            <div className="fh">Information</div>
-            <Link href="/about" className="fl">About Me</Link>
-            <Link href="/pricing" className="fl">Pricing</Link>
-            <Link href="/faqs" className="fl">FAQs</Link>
-            <Link href="/contact" className="fl">Contact</Link>
-            <Link href="/terms" className="fl">Terms and Conditions</Link>
-          </div>
-          <div>
-            <div className="fh">Follow</div>
-            <div style={{ display: "flex", gap: 10 }}>
-              <a href="https://www.facebook.com/EternalFitnessPersonalTraining/" target="_blank" rel="noopener noreferrer" className="fsp" aria-label="Facebook">
-                <svg width="9" height="16" viewBox="0 0 9.818 18" fill="currentColor"><path d="M6.373 18V9.789h2.895l.433-3.199H6.373V4.547c0-.927.27-1.558 1.666-1.558L9.818 2.988V.126C9.51.087 8.454 0 7.225 0 4.659 0 2.902 1.491 2.902 4.23V6.59H0v3.199h2.902V18z" /></svg>
-              </a>
-            </div>
-            <div style={{ marginTop: 28 }}>
-              <div className="fh">Location</div>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,.35)", lineHeight: 1.7 }}>Worthing<br />West Sussex</p>
-            </div>
-          </div>
-        </div>
-        <div className="fbot">
-          <span>© 2026 Eternal Fitness · Esther Fair · Worthing, West Sussex</span>
-          <div className="fbl">
-            <Link href="/privacy-policy">Privacy Policy</Link>
-            <Link href="/terms">Terms and Conditions</Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       <HomeMotion />
       <ConsultationDialog open={open} onOpenChange={setOpen} />

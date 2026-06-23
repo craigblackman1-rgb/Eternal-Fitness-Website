@@ -28,14 +28,12 @@
 /* ── Nav ──────────────────────────── */
 .efhome #nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: 72px; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; transition: background .3s, box-shadow .3s; }
 .efhome #nav.lit { background: rgba(255,255,255,.97); box-shadow: 0 1px 0 var(--hborder); }
-.efhome .nlinks { display: flex; gap: 28px; }
+.efhome .nlinks { gap: 28px; }
 .efhome .nlink { font-size: 14px; font-weight: 500; color: var(--ink); opacity: .6; letter-spacing: -.01em; transition: opacity .2s; }
 .efhome .nlink:hover { opacity: 1; }
 .efhome .ncta { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: #fff; padding: 10px 22px; border-radius: 999px; font-size: 14px; font-weight: 600; letter-spacing: -.01em; transition: background .2s; }
 .efhome .ncta:hover { background: var(--rose); }
 .efhome .nburger { background: transparent; color: var(--ink); }
-.efhome .ndesktop { display: inline-flex; }
-.efhome .nmobile  { display: none; }
 
 /* ── Wordmark ──────────────────────── */
 .efhome .wm { display: inline-flex; align-items: baseline; gap: 6px; }
@@ -173,31 +171,6 @@
 .efhome .ctac p { font-size: 16.5px; color: rgba(255,255,255,.75); line-height: 1.65; max-width: 500px; margin-bottom: 36px; }
 .efhome .ctabtns { display: flex; gap: 14px; flex-wrap: wrap; }
 
-/* ── Footer ───────────────────────── */
-.efhome .efooter { background: var(--ink); padding: 0; }
-.efhome .ftop { padding: 80px 80px 64px; border-bottom: 1px solid rgba(255,255,255,.07); }
-.efhome .ftop-in { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: 1fr auto; align-items: flex-end; gap: 40px; }
-.efhome .fhero { font-size: clamp(36px, 4.5vw, 64px); font-weight: 900; line-height: .88; letter-spacing: -.045em; color: #fff; }
-.efhome .fhero em { display: block; color: var(--rose); font-style: normal; }
-.efhome .fhero-side { text-align: right; padding-bottom: 6px; }
-.efhome .fhero-tag { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.22); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 12px; }
-.efhome .fhq { font-size: 13px; color: rgba(255,255,255,.38); display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-bottom: 6px; }
-.efhome .fhq::after { content: ''; display: block; width: 18px; height: 1px; background: var(--rose); opacity: .7; flex-shrink: 0; }
-.efhome .fgrid { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: 1.7fr 1fr 1fr .9fr; gap: 48px; padding: 56px 80px; border-bottom: 1px solid rgba(255,255,255,.07); }
-.efhome .fh { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.28); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 20px; }
-.efhome .fl { font-size: 13.5px; color: rgba(255,255,255,.5); margin-bottom: 10px; display: block; transition: color .2s; }
-.efhome .fl:hover { color: var(--rose); }
-.efhome .fdesc { font-size: 13px; color: rgba(255,255,255,.36); line-height: 1.7; margin-bottom: 24px; max-width: 280px; }
-.efhome .fci { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: rgba(255,255,255,.5); margin-bottom: 10px; transition: color .2s; }
-.efhome .fci:hover { color: #fff; }
-.efhome .fci svg { color: var(--rose); flex-shrink: 0; }
-.efhome .fsp { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.45); transition: all .2s; }
-.efhome .fsp:hover { background: var(--rose); border-color: var(--rose); color: #fff; }
-.efhome .fbot { max-width: var(--max); margin: 0 auto; padding: 22px 80px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-.efhome .fbot span, .efhome .fbot a { font-size: 12px; color: rgba(255,255,255,.2); transition: color .2s; }
-.efhome .fbot a:hover { color: rgba(255,255,255,.5); }
-.efhome .fbl { display: flex; gap: 20px; }
-
 /* ── Responsive ───────────────────── */
 @media (max-width: 1000px) {
   .efhome #hero { grid-template-columns: 1fr; }
@@ -213,18 +186,7 @@
   .efhome .spec-g { grid-template-columns: 1fr; }
   .efhome .spc:nth-child(2), .efhome .spc:nth-child(3) { margin-top: 0; }
   .efhome #nav { padding: 0 20px; }
-  .efhome .nlinks   { display: none; }
-  .efhome .ndesktop { display: none; }
-  .efhome .nmobile  { display: inline-flex; }
   .efhome .ctac { padding: 72px 28px; }
-  .efhome .ftop, .efhome .fgrid, .efhome .fbot { padding-left: 28px; padding-right: 28px; }
-  .efhome .ftop-in { grid-template-columns: 1fr; align-items: flex-start; }
-  .efhome .fhero-side { text-align: left; }
-  .efhome .fhq { justify-content: flex-start; }
-  .efhome .fgrid { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 560px) {
-  .efhome .fgrid { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
   .efhome .ttrack { animation: none; }
