@@ -54,7 +54,7 @@ export default function BlogPageClient({ posts }: { posts: BlogPost[] }) {
       <ConsultationDialog open={open} onOpenChange={setOpen} />
 
       {/* Hero */}
-      <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[50vh] pt-[72px] flex items-center justify-center overflow-hidden">
         <img src="/images/blog-hero.jpg" alt="Blog" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-hero-overlay/55 via-hero-overlay/65 to-hero-overlay/75" />
         <Navbar onBookConsultation={openDialog} />
@@ -75,22 +75,22 @@ export default function BlogPageClient({ posts }: { posts: BlogPost[] }) {
       </section>
 
       {/* Blog List */}
-      <section className="py-16 md:py-24 px-6 md:px-12">
-        <div className="max-w-6xl mx-auto">
+      <section className="ef-section px-6 md:px-12">
+        <div className="max-w-[1320px] mx-auto">
           <div className="text-center mb-12">
-            <span className="inline-block bg-rose/10 text-rose text-xs font-semibold px-4 py-1.5 rounded-full mb-4">My Blog</span>
-            <h2 className="text-3xl md:text-4xl text-foreground mb-4">Insights and Inspiration from My Blog</h2>
-            <p className="text-muted-foreground max-w-xl mx-auto text-base">Dive into my blog for insights, tips, and advice to elevate your health and fitness journey.</p>
+            <div className="ef-eyebrow ef-eyebrow-rose justify-center mb-5">My Blog</div>
+            <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-4">Insights and Inspiration from My Blog</h2>
+            <p className="ef-body max-w-xl mx-auto">Dive into my blog for insights, tips, and advice to elevate your health and fitness journey.</p>
           </div>
 
           <div className="relative max-w-md mx-auto mb-8">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input type="text" placeholder="Search for blogs" value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-11 pr-4 py-3 rounded-full border border-muted bg-white text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-rose" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#525A61]" />
+            <input type="text" placeholder="Search for blogs" value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-11 pr-4 py-3 rounded-full border border-[#E4DDD7] bg-white text-sm text-foreground placeholder:text-[#525A61]/50 focus:outline-none focus:ring-2 focus:ring-rose" />
           </div>
 
           <div className="flex flex-wrap gap-2 justify-center mb-12">
             {categories.map((cat, ci) => (
-              <button key={cat} onClick={() => setActiveCategory(cat)} className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${activeCategory === cat ? (ci % 2 === 0 ? "bg-teal text-white" : "bg-rose text-white") : "bg-white text-muted-foreground hover:bg-white/80"}`}>
+              <button key={cat} onClick={() => setActiveCategory(cat)} className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${activeCategory === cat ? (ci % 2 === 0 ? "bg-teal text-white" : "bg-rose text-white") : "bg-white text-[#525A61] hover:bg-white/80 border border-[#E4DDD7]"}`}>
                 {cat}
               </button>
             ))}
@@ -98,7 +98,7 @@ export default function BlogPageClient({ posts }: { posts: BlogPost[] }) {
 
           {filtered.length === 0 ? (
             <div className="text-center py-16">
-              <p className="text-muted-foreground text-lg">{posts.length === 0 ? "No blog posts yet. Check back soon!" : "No posts match your search."}</p>
+              <p className="ef-body text-lg">{posts.length === 0 ? "No blog posts yet. Check back soon!" : "No posts match your search."}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -112,12 +112,12 @@ export default function BlogPageClient({ posts }: { posts: BlogPost[] }) {
 
       {/* Featured */}
       {featured.length > 0 && (
-        <section className="py-16 md:py-24 px-6 md:px-12 bg-muted/50">
-          <div className="max-w-6xl mx-auto">
+        <section className="ef-section px-6 md:px-12 bg-warm">
+          <div className="max-w-[1320px] mx-auto">
             <div className="text-center mb-12">
-              <span className="inline-block bg-rose/10 text-rose text-xs font-semibold px-4 py-1.5 rounded-full mb-4">Featured Blogs</span>
-              <h2 className="text-3xl md:text-4xl text-foreground mb-4">Dive into My Top Posts</h2>
-              <p className="text-muted-foreground max-w-xl mx-auto text-base">Explore my curated selection of top posts, offering insights and valuable tips.</p>
+              <div className="ef-eyebrow ef-eyebrow-teal justify-center mb-5">Featured Blogs</div>
+              <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-4">Dive into My Top Posts</h2>
+              <p className="ef-body max-w-xl mx-auto">Explore my curated selection of top posts, offering insights and valuable tips.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="row-span-2"><FeaturedCard post={featured[0]} large /></div>
@@ -142,17 +142,17 @@ function BlogCard({ post }: { post: BlogPost }) {
   const date = new Date(post.published_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
   return (
     <Link href={`/blog/${post.slug}`} className="group block">
-      <div className="rounded-2xl overflow-hidden mb-4 aspect-[4/3] bg-white shadow-sm">
+      <div className="rounded-3xl overflow-hidden mb-4 aspect-[4/3] bg-white shadow-sm border border-[#E4DDD7]">
         <img src={post.image_url || categoryImages[post.category] || "/images/hero-gym.jpg"} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
       </div>
-      <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-rose transition-colors">{post.title}</h3>
-      {post.excerpt && <p className="text-muted-foreground text-base mb-4 line-clamp-2">{post.excerpt}</p>}
+      <h3 className="text-lg font-bold text-foreground tracking-tight mb-2 group-hover:text-rose transition-colors">{post.title}</h3>
+      {post.excerpt && <p className="ef-body text-base mb-4 line-clamp-2">{post.excerpt}</p>}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-rose/20 flex items-center justify-center text-rose text-xs font-bold">{post.author_name.charAt(0)}</div>
           <div>
             <p className="text-xs font-semibold text-foreground">{post.author_name}</p>
-            <p className="text-xs text-muted-foreground">{date}</p>
+            <p className="text-xs text-[#525A61]">{date}</p>
           </div>
         </div>
         <span className="inline-flex items-center gap-1 text-xs font-medium text-rose">Read <ArrowUpRight className="w-3 h-3" /></span>
@@ -163,14 +163,14 @@ function BlogCard({ post }: { post: BlogPost }) {
 
 function FeaturedCard({ post, large }: { post: BlogPost; large?: boolean }) {
   return (
-    <Link href={`/blog/${post.slug}`} className={`group block rounded-2xl overflow-hidden relative shadow-md ${large ? "h-full min-h-[400px]" : "h-48"}`}>
+    <Link href={`/blog/${post.slug}`} className={`group block rounded-3xl overflow-hidden relative shadow-md ${large ? "h-full min-h-[400px]" : "h-48"}`}>
       <img src={post.image_url || categoryImages[post.category] || "/images/hero-gym.jpg"} alt={post.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 p-5">
         <div className="flex gap-2 mb-2">
           <span className={`${post.category === 'Training' || post.category === 'Recovery' ? 'bg-teal' : 'bg-rose'} text-white text-xs font-semibold px-2.5 py-1 rounded-full`}>{post.category}</span>
         </div>
-        <h3 className={`font-bold text-white ${large ? "text-xl" : "text-base"}`}>{post.title}</h3>
+        <h3 className={`font-bold text-white tracking-tight ${large ? "text-xl" : "text-base"}`}>{post.title}</h3>
         {large && post.excerpt && <p className="text-white/70 text-base mt-2 line-clamp-2">{post.excerpt}</p>}
         {large && (
           <div className="flex items-center gap-2 mt-3">

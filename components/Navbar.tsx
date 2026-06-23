@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import EternalFitnessLogo from "@/components/EternalFitnessLogo";
@@ -33,7 +33,17 @@ const pageTitles: Record<string, string> = {
 
 const Navbar = ({ onBookConsultation }: NavbarProps) => {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 50);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const isLit = scrolled || open;
 
   const breadcrumbItems: Array<{ "@type": string; position: number; name: string; item: string }> = [
     { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
@@ -62,19 +72,29 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      <nav className="absolute top-0 left-0 right-0 z-50 mx-6 md:mx-12 mt-5 flex items-center justify-between px-6 py-3 rounded-2xl bg-white/8 border border-white/10 backdrop-blur-2xl shadow-glass">
-        <Link href="/" className="flex items-center">
-          <EternalFitnessLogo variant="light" className="h-7 md:h-8 w-auto" />
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 h-[72px] px-6 md:px-12 flex items-center justify-between transition-all duration-300 ${
+          isLit
+            ? "bg-[rgba(255,255,255,0.97)] border-b border-[#E4DDD7]"
+            : "bg-transparent"
+        }`}
+      >
+        <Link href="/" className="flex items-center" aria-label="Eternal Fitness home">
+          <EternalFitnessLogo variant={isLit ? "dark" : "light"} className="h-7 md:h-8 w-auto" />
         </Link>
 
         {/* Desktop nav */}
-        <ul className="hidden md:flex items-center gap-8 text-sm font-body text-white/80">
+        <ul className={`hidden md:flex items-center gap-8 text-sm font-medium ${isLit ? "text-[#3C3C3C]/70" : "text-white/80"}`}>
           {navItems.map((item) => (
             <li key={item.label}>
               <Link
                 href={item.to}
-                className={`hover:text-white transition-colors ${
-                  pathname === item.to ? "text-white font-medium" : ""
+                className={`transition-colors ${
+                  pathname === item.to
+                    ? `${isLit ? "text-[#3C3C3C]" : "text-white"} font-semibold`
+                    : isLit
+                      ? "hover:text-[#3C3C3C]"
+                      : "hover:text-white"
                 }`}
               >
                 {item.label}
@@ -83,63 +103,66 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
           ))}
         </ul>
 
-        {onBookConsultation ? (
-          <button
-            onClick={onBookConsultation}
-            className="hidden md:inline-flex items-center gap-2 bg-rose text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
-          >
-            Contact Us <ArrowUpRight className="w-4 h-4" />
-          </button>
-        ) : (
-          <Link
-            href="/contact"
-            className="hidden md:inline-flex items-center gap-2 bg-rose text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
-          >
-            Contact Us <ArrowUpRight className="w-4 h-4" />
-          </Link>
-        )}
+        {/* Desktop CTA */}
+        <div className="hidden md:block">
+          {onBookConsultation ? (
+            <button
+              onClick={onBookConsultation}
+              className="inline-flex items-center gap-2 bg-rose text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+            >
+              Contact Us <ArrowUpRight className="w-4 h-4" />
+            </button>
+          ) : (
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-2 bg-rose text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+            >
+              Contact Us <ArrowUpRight className="w-4 h-4" />
+            </Link>
+          )}
+        </div>
 
         {/* Mobile toggle */}
         <button
-          onClick={() => setOpen(!open)}
-          className="md:hidden text-white"
+          onClick={() => setOpen((v) => !v)}
+          className={`md:hidden ${isLit ? "text-[#3C3C3C]" : "text-white"}`}
           aria-label={open ? "Close menu" : "Open menu"}
         >
           {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
-
-        {/* Mobile menu */}
-        {open && (
-          <div className="absolute top-full left-0 right-0 mt-3 bg-dark-navy/95 backdrop-blur-xl rounded-2xl border border-white/10 md:hidden py-6 px-6 flex flex-col gap-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.to}
-                onClick={() => setOpen(false)}
-                className="text-white/80 hover:text-white text-sm font-body"
-              >
-                {item.label}
-              </Link>
-            ))}
-            {onBookConsultation ? (
-              <button
-                onClick={() => { setOpen(false); onBookConsultation(); }}
-                className="inline-flex items-center gap-2 bg-rose text-white px-5 py-2.5 rounded-xl text-sm font-semibold w-fit"
-              >
-                Contact Us <ArrowUpRight className="w-4 h-4" />
-              </button>
-            ) : (
-              <Link
-                href="/contact"
-                onClick={() => setOpen(false)}
-                className="inline-flex items-center gap-2 bg-rose text-white px-5 py-2.5 rounded-xl text-sm font-semibold w-fit"
-              >
-                Contact Us <ArrowUpRight className="w-4 h-4" />
-              </Link>
-            )}
-          </div>
-        )}
       </nav>
+
+      {/* Mobile menu */}
+      {open && (
+        <div className="fixed top-[72px] left-0 right-0 z-40 bg-white border-b border-[#E4DDD7] p-6 md:hidden flex flex-col gap-4 shadow-lg">
+          {navItems.map((item) => (
+            <Link
+              key={item.label}
+              href={item.to}
+              onClick={() => setOpen(false)}
+              className="text-[#3C3C3C]/80 hover:text-[#3C3C3C] text-sm font-medium"
+            >
+              {item.label}
+            </Link>
+          ))}
+          {onBookConsultation ? (
+            <button
+              onClick={() => { setOpen(false); onBookConsultation(); }}
+              className="inline-flex items-center gap-2 bg-rose text-white px-5 py-2.5 rounded-full text-sm font-semibold w-fit"
+            >
+              Contact Us <ArrowUpRight className="w-4 h-4" />
+            </button>
+          ) : (
+            <Link
+              href="/contact"
+              onClick={() => setOpen(false)}
+              className="inline-flex items-center gap-2 bg-rose text-white px-5 py-2.5 rounded-full text-sm font-semibold w-fit"
+            >
+              Contact Us <ArrowUpRight className="w-4 h-4" />
+            </Link>
+          )}
+        </div>
+      )}
     </>
   );
 };

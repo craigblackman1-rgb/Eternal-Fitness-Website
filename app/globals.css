@@ -161,3 +161,45 @@
   h5 { font-family: var(--font-display); @apply font-semibold; }
   h6 { font-family: var(--font-display); @apply font-medium; }
 }
+
+/* Inner-page design helpers — align with .efhome homepage system */
+.ef-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ef-eyebrow-rose { color: #C1839F; }
+.ef-eyebrow-rose::before { content: ''; display: block; width: 26px; height: 1px; background: #C1839F; }
+
+.ef-eyebrow-teal { color: #087E8B; }
+.ef-eyebrow-teal::before { content: ''; display: block; width: 26px; height: 1px; background: #087E8B; }
+
+.ef-eyebrow-white { color: rgba(255,255,255,0.65); }
+.ef-eyebrow-white::before { content: ''; display: block; width: 26px; height: 1px; background: rgba(255,255,255,0.45); }
+
+.ef-h2 { line-height: 1.1; letter-spacing: -0.02em; }
+.ef-body { color: #525A61; line-height: 1.65; }
+
+.ef-card {
+  background: #fff;
+  border: 1px solid #E4DDD7;
+  border-radius: 18px;
+  padding: 30px;
+}
+
+.ef-section {
+  padding-top: 100px;
+  padding-bottom: 100px;
+}
+
+@media (max-width: 768px) {
+  .ef-section {
+    padding-top: 72px;
+    padding-bottom: 72px;
+  }
+}

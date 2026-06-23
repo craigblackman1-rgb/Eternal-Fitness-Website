@@ -32,15 +32,15 @@ const Footer = () => {
               <Link href="/" className="inline-block mb-5">
                 <EternalFitnessLogo variant="dark" className="h-8 w-auto" />
               </Link>
-              <p className="text-muted-foreground text-sm leading-relaxed mb-6">
+              <p className="text-[#525A61] text-sm leading-[1.65] mb-6">
                 Private, one-to-one personal training in Worthing. Level 4 qualified. Exercise referral specialist. Cancer rehabilitation.
               </p>
-              <h4 className="text-sm font-semibold text-foreground mb-4">Get in touch</h4>
+              <h4 className="text-sm font-bold tracking-tight text-foreground mb-4">Get in touch</h4>
               <div className="space-y-3">
-                <a href="tel:07517658128" className="flex items-center gap-3 text-sm text-muted-foreground hover:text-rose transition-colors">
+                <a href="tel:07517658128" className="flex items-center gap-3 text-sm text-[#525A61] hover:text-rose transition-colors">
                   <Phone className="w-4 h-4 text-teal shrink-0" /> 07517 658 128
                 </a>
-                <a href="mailto:esther.fair@eternal-fitness.co.uk" className="flex items-center gap-3 text-sm text-muted-foreground hover:text-rose transition-colors">
+                <a href="mailto:esther.fair@eternal-fitness.co.uk" className="flex items-center gap-3 text-sm text-[#525A61] hover:text-rose transition-colors">
                   <Mail className="w-4 h-4 text-teal shrink-0" /> esther.fair@eternal-fitness.co.uk
                 </a>
               </div>
@@ -48,8 +48,8 @@ const Footer = () => {
 
             {/* Services */}
             <div>
-              <h4 className="text-sm font-semibold text-foreground mb-4">Services</h4>
-              <ul className="space-y-3 text-sm text-muted-foreground">
+              <h4 className="text-sm font-bold tracking-tight text-foreground mb-4">Services</h4>
+              <ul className="space-y-3 text-sm text-[#525A61]">
                 <li><Link href="/personal-training" className="hover:text-rose transition-colors">Personal Training</Link></li>
                 <li className="hover:text-rose transition-colors cursor-pointer">Cancer Rehabilitation</li>
                 <li className="hover:text-rose transition-colors cursor-pointer">Exercise Referral</li>
@@ -60,8 +60,8 @@ const Footer = () => {
 
             {/* Information */}
             <div>
-              <h4 className="text-sm font-semibold text-foreground mb-4">Information</h4>
-              <ul className="space-y-3 text-sm text-muted-foreground">
+              <h4 className="text-sm font-bold tracking-tight text-foreground mb-4">Information</h4>
+              <ul className="space-y-3 text-sm text-[#525A61]">
                 <li><Link href="/about" className="hover:text-rose transition-colors">About Me</Link></li>
                 <li><Link href="/pricing" className="hover:text-rose transition-colors">Pricing</Link></li>
                 <li><Link href="/faqs" className="hover:text-rose transition-colors">FAQs</Link></li>
@@ -72,7 +72,7 @@ const Footer = () => {
 
             {/* Follow */}
             <div>
-              <h4 className="text-sm font-semibold text-foreground mb-4">Follow me</h4>
+              <h4 className="text-sm font-bold tracking-tight text-foreground mb-4">Follow me</h4>
               <div className="flex gap-3 flex-wrap">
                 <a
                   href="https://www.facebook.com/EternalFitnessPersonalTraining/"
@@ -115,7 +115,7 @@ const Footer = () => {
           </div>
 
           {/* Bottom bar */}
-          <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted-foreground">
+          <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-[#525A61]">
             <span>© 2026 Eternal Fitness · Esther Fair · Worthing, West Sussex</span>
             <div className="flex gap-6">
               <Link href="/privacy-policy" className="hover:text-rose transition-colors">Privacy Policy</Link>

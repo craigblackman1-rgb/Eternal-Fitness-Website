@@ -16,10 +16,10 @@ const CTASection = ({ onBookConsultation }: CTASectionProps) => {
         </div>
         <div className="bg-rose flex items-center px-8 md:px-16 py-12 md:py-0">
           <div>
-            <p className="text-white/70 text-[11px] md:text-xs font-semibold uppercase tracking-[0.25em] mb-4">
+            <p className="ef-eyebrow ef-eyebrow-white mb-4">
               Free Consultation
             </p>
-            <h2 className="text-4xl md:text-5xl text-white leading-[1.1] mb-5">
+            <h2 className="text-4xl md:text-5xl text-white ef-h2 mb-5">
               Ready to Find Out If This Is Right for You?
             </h2>
             <p className="text-white/80 font-body text-base mb-8 max-w-md">

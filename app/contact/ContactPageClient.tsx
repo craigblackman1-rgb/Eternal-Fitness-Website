@@ -69,7 +69,7 @@ export default function ContactPageClient() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[70vh] pt-[72px] flex items-center justify-center overflow-hidden">
         <img
           src="/images/contact-hero.jpg"
           alt="Contact Eternal Fitness in Worthing"
@@ -101,14 +101,12 @@ export default function ContactPageClient() {
       </section>
 
       {/* Contact Form + Info */}
-      <section id="form" className="py-20 md:py-28 px-6 md:px-12 bg-background">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex justify-center mb-6">
-            <span className="inline-flex items-center gap-2 bg-rose/10 text-rose px-4 py-1.5 rounded-full text-sm font-medium">
-              ✦ Contact
-            </span>
+      <section id="form" className="ef-section px-6 md:px-12 bg-background">
+        <div className="max-w-[1320px] mx-auto">
+          <div className="ef-eyebrow ef-eyebrow-rose justify-center mb-5">
+            Contact
           </div>
-          <h2 className="text-3xl md:text-4xl text-foreground text-center mb-14">
+          <h2 className="text-3xl md:text-4xl text-foreground ef-h2 text-center mb-14">
             Send Me a Message
           </h2>
 
@@ -127,7 +125,7 @@ export default function ContactPageClient() {
                     value={form.firstName}
                     onChange={handleChange}
                     placeholder="First name"
-                    className="w-full px-4 py-3 rounded-xl border border-muted bg-white text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-rose/30"
+                    className="w-full px-4 py-3 rounded-xl border border-[#E4DDD7] bg-white text-foreground placeholder:text-[#525A61]/50 focus:outline-none focus:ring-2 focus:ring-rose/30"
                   />
                 </div>
                 <div>
@@ -141,7 +139,7 @@ export default function ContactPageClient() {
                     value={form.lastName}
                     onChange={handleChange}
                     placeholder="Last name"
-                    className="w-full px-4 py-3 rounded-xl border border-muted bg-white text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-rose/30"
+                    className="w-full px-4 py-3 rounded-xl border border-[#E4DDD7] bg-white text-foreground placeholder:text-[#525A61]/50 focus:outline-none focus:ring-2 focus:ring-rose/30"
                   />
                 </div>
               </div>
@@ -157,7 +155,7 @@ export default function ContactPageClient() {
                   value={form.email}
                   onChange={handleChange}
                   placeholder="you@example.com"
-                  className="w-full px-4 py-3 rounded-xl border border-muted bg-white text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-rose/30"
+                  className="w-full px-4 py-3 rounded-xl border border-[#E4DDD7] bg-white text-foreground placeholder:text-[#525A61]/50 focus:outline-none focus:ring-2 focus:ring-rose/30"
                 />
               </div>
 
@@ -172,7 +170,7 @@ export default function ContactPageClient() {
                   value={form.phone}
                   onChange={handleChange}
                   placeholder="07xxx xxx xxx"
-                  className="w-full px-4 py-3 rounded-xl border border-muted bg-white text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-rose/30"
+                  className="w-full px-4 py-3 rounded-xl border border-[#E4DDD7] bg-white text-foreground placeholder:text-[#525A61]/50 focus:outline-none focus:ring-2 focus:ring-rose/30"
                 />
               </div>
 
@@ -187,7 +185,7 @@ export default function ContactPageClient() {
                   value={form.message}
                   onChange={handleChange}
                   placeholder="Tell me a bit about yourself and what you are looking for..."
-                  className="w-full px-4 py-3 rounded-xl border border-muted bg-white text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-rose/30 resize-none"
+                  className="w-full px-4 py-3 rounded-xl border border-[#E4DDD7] bg-white text-foreground placeholder:text-[#525A61]/50 focus:outline-none focus:ring-2 focus:ring-rose/30 resize-none"
                 />
               </div>
 
@@ -198,9 +196,9 @@ export default function ContactPageClient() {
                   type="checkbox"
                   checked={form.agree}
                   onChange={handleChange}
-                  className="mt-1 h-4 w-4 rounded border-muted accent-rose"
+                  className="mt-1 h-4 w-4 rounded border-[#E4DDD7] accent-rose"
                 />
-                <label htmlFor="agree" className="text-sm text-muted-foreground">
+                <label htmlFor="agree" className="text-sm text-[#525A61]">
                   I agree to the{" "}
                   <a href="/terms" className="text-rose underline hover:text-rose/80 transition-colors">
                     privacy policy
@@ -225,8 +223,8 @@ export default function ContactPageClient() {
                   <Phone className="w-5 h-5 text-teal" />
                 </div>
                 <div>
-                  <h3 className="text-foreground font-medium mb-1">Phone</h3>
-                  <a href="tel:07517658128" className="text-muted-foreground font-body hover:text-teal transition-colors">
+                  <h3 className="text-foreground text-sm font-bold tracking-tight mb-1">Phone</h3>
+                  <a href="tel:07517658128" className="ef-body hover:text-teal transition-colors">
                     07517 658 128
                   </a>
                 </div>
@@ -238,8 +236,8 @@ export default function ContactPageClient() {
                   <Mail className="w-5 h-5 text-teal" />
                 </div>
                 <div>
-                  <h3 className="text-foreground font-medium mb-1">Email</h3>
-                  <a href="mailto:esther.fair@eternal-fitness.co.uk" className="text-muted-foreground font-body hover:text-teal transition-colors">
+                  <h3 className="text-foreground text-sm font-bold tracking-tight mb-1">Email</h3>
+                  <a href="mailto:esther.fair@eternal-fitness.co.uk" className="ef-body hover:text-teal transition-colors">
                     esther.fair@eternal-fitness.co.uk
                   </a>
                 </div>
@@ -251,18 +249,18 @@ export default function ContactPageClient() {
                   <MapPin className="w-5 h-5 text-teal" />
                 </div>
                 <div>
-                  <h3 className="text-foreground font-medium mb-1">Studio Location</h3>
-                  <p className="text-muted-foreground font-body">Worthing, West Sussex</p>
-                  <p className="text-muted-foreground/70 font-body text-sm mt-1">
+                  <h3 className="text-foreground text-sm font-bold tracking-tight mb-1">Studio Location</h3>
+                  <p className="ef-body">Worthing, West Sussex</p>
+                  <p className="ef-body text-sm mt-1 opacity-70">
                     Exact address shared after booking confirmation.
                   </p>
                 </div>
               </div>
 
               {/* Not sure where to start? */}
-              <div className="bg-white border border-border rounded-2xl p-6 mt-4 shadow-sm">
-                <h3 className="text-foreground font-medium mb-2">Not sure where to start?</h3>
-                <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+              <div className="ef-card">
+                <h3 className="text-foreground text-base font-bold tracking-tight mb-2">Not sure where to start?</h3>
+                <p className="ef-body text-sm mb-4">
                   That is completely normal. Send me a message or give me a call and we can have an informal chat — no pressure, no commitment. I will help you figure out whether personal training is the right next step.
                 </p>
                 <a
@@ -275,33 +273,33 @@ export default function ContactPageClient() {
 
               {/* Social Icons */}
               <div>
-                <h3 className="text-foreground font-medium mb-3">Follow Me</h3>
+                <h3 className="text-foreground text-sm font-bold tracking-tight mb-3">Follow Me</h3>
                 <div className="flex items-center gap-3">
                   <a
                     href="https://www.facebook.com/profile.php?id=61576413498498"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full bg-rose/10 flex items-center justify-center text-rose hover:bg-rose/20 transition-colors"
+                    className="w-10 h-10 rounded-full bg-rose/10 flex items-center justify-center text-rose hover:bg-rose hover:text-white transition-colors"
                     aria-label="Facebook"
                   >
                     <SocialIcon name="facebook" />
                   </a>
                   <span
-                    className="w-10 h-10 rounded-full bg-muted/40 flex items-center justify-center text-muted-foreground/40 cursor-default"
+                    className="w-10 h-10 rounded-full bg-[#E4DDD7]/50 flex items-center justify-center text-[#525A61]/40 cursor-default"
                     title="Instagram — coming soon"
                     aria-label="Instagram — coming soon"
                   >
                     <SocialIcon name="instagram" />
                   </span>
                   <span
-                    className="w-10 h-10 rounded-full bg-muted/40 flex items-center justify-center text-muted-foreground/40 cursor-default"
+                    className="w-10 h-10 rounded-full bg-[#E4DDD7]/50 flex items-center justify-center text-[#525A61]/40 cursor-default"
                     title="YouTube — coming soon"
                     aria-label="YouTube — coming soon"
                   >
                     <SocialIcon name="youtube" />
                   </span>
                   <span
-                    className="w-10 h-10 rounded-full bg-muted/40 flex items-center justify-center text-muted-foreground/40 cursor-default"
+                    className="w-10 h-10 rounded-full bg-[#E4DDD7]/50 flex items-center justify-center text-[#525A61]/40 cursor-default"
                     title="TikTok — coming soon"
                     aria-label="TikTok — coming soon"
                   >
@@ -315,20 +313,18 @@ export default function ContactPageClient() {
       </section>
 
       {/* Map */}
-      <section id="map" className="py-20 md:py-28 px-6 md:px-12 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex justify-center mb-6">
-            <span className="inline-flex items-center gap-2 bg-rose/10 text-rose px-4 py-1.5 rounded-full text-sm font-medium">
-              ✦ Location
-            </span>
+      <section id="map" className="ef-section px-6 md:px-12 bg-white">
+        <div className="max-w-[1320px] mx-auto">
+          <div className="ef-eyebrow ef-eyebrow-teal justify-center mb-5">
+            Location
           </div>
-          <h2 className="text-3xl md:text-4xl text-foreground text-center mb-6">
+          <h2 className="text-3xl md:text-4xl text-foreground ef-h2 text-center mb-6">
             Find the Studio
           </h2>
-          <p className="text-muted-foreground font-body text-center max-w-xl mx-auto mb-12">
+          <p className="ef-body text-center max-w-xl mx-auto mb-12">
             Based in Worthing, West Sussex. The private studio is easily accessible by car and public transport.
           </p>
-          <div className="rounded-2xl overflow-hidden border border-border shadow-sm">
+          <div className="rounded-3xl overflow-hidden border border-[#E4DDD7] shadow-sm">
             <iframe
               title="Eternal Fitness location in Worthing, West Sussex"
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d40625.88654390968!2d-0.4005!3d50.8148!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4875a3a3a3a3a3a3%3A0x0!2sWorthing%2C+West+Sussex!5e0!3m2!1sen!2suk!4v1700000000000!5m2!1sen!2suk"

@@ -129,7 +129,7 @@ export default function FAQsPageClient() {
       <Navbar onBookConsultation={openDialog} />
 
       {/* Hero */}
-      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[60vh] pt-[72px] flex items-center justify-center overflow-hidden">
         <img src="/images/hero-gym.jpg" alt="Frequently Asked Questions — Eternal Fitness Worthing" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-hero-overlay/55 via-hero-overlay/65 to-hero-overlay/75" />
         <div className="relative z-10 text-center max-w-2xl px-6">
@@ -154,21 +154,21 @@ export default function FAQsPageClient() {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="py-20 md:py-28 px-6 md:px-12 bg-background">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-[340px_1fr] gap-12 md:gap-20 items-start">
+      <section id="faq" className="ef-section px-6 md:px-12 bg-background">
+        <div className="max-w-[1320px] mx-auto grid md:grid-cols-[340px_1fr] gap-12 md:gap-20 items-start">
 
           {/* Left — intro */}
           <div className="md:sticky md:top-24">
-            <span className="inline-flex items-center gap-2 bg-rose/10 text-rose px-4 py-1.5 rounded-full text-sm font-medium mb-6">
-              ✦ Your Questions Answered
-            </span>
-            <h2 className="text-3xl md:text-4xl text-foreground leading-tight mb-4">
+            <div className="ef-eyebrow ef-eyebrow-rose mb-5">
+              Your Questions Answered
+            </div>
+            <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-4">
               No question is too complicated
             </h2>
-            <p className="text-muted-foreground font-body text-base mb-6">
+            <p className="ef-body mb-6">
               I work with people whose situations are rarely straightforward. If you are wondering whether your health, disability, or circumstances make you a difficult client — they almost certainly do not.
             </p>
-            <p className="text-muted-foreground font-body text-sm mb-8">
+            <p className="ef-body text-sm mb-8">
               The questions below cover the things people most commonly wonder about before getting in touch.
             </p>
             <button
@@ -183,16 +183,16 @@ export default function FAQsPageClient() {
           <div className="space-y-12">
             {faqGroups.map((group, gi) => (
               <div key={group.group}>
-                <h3 className={`text-sm font-medium uppercase tracking-wider mb-4 pb-2 border-b border-muted ${gi % 2 === 0 ? 'text-teal' : 'text-rose'}`}>
+                <h3 className={`text-[11px] font-bold tracking-[0.1em] uppercase mb-4 pb-2 border-b border-[#E4DDD7] ${gi % 2 === 0 ? 'text-teal' : 'text-rose'}`}>
                   {group.group}
                 </h3>
                 <Accordion type="single" collapsible className="w-full">
                   {group.faqs.map((faq, i) => (
-                    <AccordionItem key={i} value={`${group.group}-${i}`} className="border-muted">
+                    <AccordionItem key={i} value={`${group.group}-${i}`} className="border-[#E4DDD7]">
                       <AccordionTrigger className="font-body text-foreground text-left text-base py-5 hover:no-underline">
                         {faq.question}
                       </AccordionTrigger>
-                      <AccordionContent className="text-muted-foreground font-body text-sm leading-relaxed pb-5">
+                      <AccordionContent className="ef-body text-sm pb-5">
                         {faq.answer}
                       </AccordionContent>
                     </AccordionItem>

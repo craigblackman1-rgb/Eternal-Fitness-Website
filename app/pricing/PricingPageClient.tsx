@@ -85,7 +85,7 @@ export default function PricingPageClient() {
       <Navbar onBookConsultation={openDialog} />
 
       {/* Hero */}
-      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[70vh] pt-[72px] flex items-center justify-center overflow-hidden">
         <img src="/images/pricing-hero.jpg" alt="Personal training pricing Worthing" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-hero-overlay/55 via-hero-overlay/65 to-hero-overlay/75" />
         <div className="relative z-10 text-center max-w-3xl px-6">
@@ -113,13 +113,13 @@ export default function PricingPageClient() {
       </section>
 
       {/* What You Are Investing In */}
-      <section className="py-20 md:py-28 px-6 md:px-12 bg-background">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 md:gap-20 items-center">
+      <section className="ef-section px-6 md:px-12 bg-background">
+        <div className="max-w-[1320px] mx-auto grid md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div>
-            <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
+            <div className="ef-eyebrow ef-eyebrow-rose mb-5">
               What You Are Investing In
-            </span>
-            <h2 className="text-3xl md:text-4xl text-foreground leading-tight mb-10">
+            </div>
+            <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-10">
               This is not a gym membership
             </h2>
             <div className="space-y-8">
@@ -129,32 +129,32 @@ export default function PricingPageClient() {
                     <prop.icon className={`w-5 h-5 ${i === 1 ? 'text-teal' : 'text-rose'}`} />
                   </div>
                   <div>
-                    <h4 className="text-foreground text-base mb-1">{prop.title}</h4>
-                    <p className="text-muted-foreground font-body text-sm leading-relaxed">{prop.description}</p>
+                    <h4 className="text-foreground text-base font-bold tracking-tight mb-1">{prop.title}</h4>
+                    <p className="ef-body text-sm">{prop.description}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-          <div className="relative rounded-2xl overflow-hidden h-[500px]">
+          <div className="relative rounded-3xl overflow-hidden h-[500px] shadow-[0_32px_80px_rgba(0,0,0,0.12)]">
             <img src="/images/pricing-value.jpg" alt="One-to-one personal training session Worthing" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
           </div>
         </div>
       </section>
 
       {/* Pricing Cards */}
-      <section id="pricing" className="py-20 md:py-28 px-6 md:px-12 bg-warm">
-        <div className="max-w-6xl mx-auto">
+      <section id="pricing" className="ef-section px-6 md:px-12 bg-warm">
+        <div className="max-w-[1320px] mx-auto">
           <div className="mb-12">
-            <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-6">
+            <div className="ef-eyebrow ef-eyebrow-rose mb-5">
               Pricing
-            </span>
+            </div>
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
               <div>
-                <h2 className="text-3xl md:text-4xl text-foreground leading-tight mb-2">
+                <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-2">
                   Choose what works for you
                 </h2>
-                <p className="text-muted-foreground font-body text-base">
+                <p className="ef-body">
                   All sessions are 60 minutes, one-to-one, in a private studio in Worthing.
                 </p>
               </div>
@@ -165,28 +165,26 @@ export default function PricingPageClient() {
             {plans.map((plan, i) => (
               <div
                 key={i}
-                className={`relative rounded-2xl p-8 flex flex-col shadow-sm ${
-                  plan.popular
-                    ? "bg-white border-2 border-rose shadow-md"
-                    : "bg-white border border-border"
+                className={`relative ef-card flex flex-col ${
+                  plan.popular ? "border-rose border-2 shadow-md" : ""
                 }`}
               >
                 {plan.popular && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-rose text-white text-xs font-medium px-4 py-1 rounded-full whitespace-nowrap">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-rose text-white text-xs font-bold px-4 py-1 rounded-full whitespace-nowrap tracking-wide">
                     Most Popular
                   </span>
                 )}
                 <div className="mb-3">
-                  <p className="text-muted-foreground font-body text-sm mb-2">{plan.name}</p>
+                  <p className="ef-body text-sm mb-2">{plan.name}</p>
                   <div className="flex items-baseline gap-1 mb-1">
-                    <span className="text-4xl font-display text-foreground">{plan.price}</span>
+                    <span className="text-4xl font-display text-foreground font-bold tracking-tight">{plan.price}</span>
                   </div>
-                  <p className="text-muted-foreground text-sm font-body">{plan.per}</p>
+                  <p className="ef-body text-sm">{plan.per}</p>
                 </div>
-                <p className="text-muted-foreground font-body text-sm mb-6 leading-relaxed">{plan.description}</p>
+                <p className="ef-body text-sm mb-6">{plan.description}</p>
                 <ul className="space-y-3 mb-8 flex-1">
                   {plan.features.map((feature, j) => (
-                    <li key={j} className="flex items-start gap-2 text-sm font-body text-muted-foreground">
+                    <li key={j} className="flex items-start gap-2 text-sm font-body ef-body">
                       <Check className={`w-4 h-4 ${plan.popular ? 'text-teal' : 'text-rose'} shrink-0 mt-0.5`} />
                       {feature}
                     </li>
@@ -197,7 +195,7 @@ export default function PricingPageClient() {
                   className={`w-full py-3 rounded-full font-medium text-sm transition-all hover:opacity-90 ${
                     plan.popular
                       ? "bg-rose text-white shadow-sm"
-                      : "bg-white text-foreground border border-border"
+                      : "bg-white text-foreground border border-[#E4DDD7]"
                   }`}
                 >
                   {plan.cta}
@@ -206,11 +204,11 @@ export default function PricingPageClient() {
             ))}
           </div>
 
-          <div className="mt-8 bg-white border border-border rounded-2xl p-6 max-w-2xl shadow-sm">
-            <p className="text-muted-foreground font-body text-sm leading-relaxed">
+          <div className="mt-8 ef-card max-w-2xl">
+            <p className="ef-body text-sm">
               <strong className="text-foreground">Not sure which to choose?</strong> Start with the free consultation. I will give you an honest recommendation based on your situation — not the most expensive option.
             </p>
-            <p className="text-muted-foreground font-body text-sm mt-3">
+            <p className="ef-body text-sm mt-3">
               <Link href="/personal-training" className="text-rose hover:underline">See my specialist areas</Link> &middot; <Link href="/faqs" className="text-rose hover:underline">Read the FAQs</Link>
             </p>
           </div>
