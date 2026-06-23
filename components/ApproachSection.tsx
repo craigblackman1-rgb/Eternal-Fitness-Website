@@ -33,14 +33,14 @@ const bottomCards = [
 
 const ApproachSection = () => {
   return (
-    <section className="py-20 md:py-28 px-6 md:px-12 bg-warm">
+    <section className="py-24 md:py-32 px-6 md:px-12 bg-warm">
       <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-12">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-14">
           <div>
-            <span className="inline-flex items-center gap-2 bg-teal text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
-              ✦ The Approach
-            </span>
-            <h2 className="text-3xl md:text-4xl text-foreground">
+            <p className="text-teal text-[11px] md:text-xs font-semibold uppercase tracking-[0.25em] mb-4">
+              The Approach
+            </p>
+            <h2 className="text-4xl md:text-5xl text-foreground leading-[1.1]">
               This Is Not Like<br />Other Personal Training
             </h2>
           </div>

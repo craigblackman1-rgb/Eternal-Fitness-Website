@@ -21,14 +21,14 @@ const cards = [
 
 const WhySection = () => {
   return (
-    <section id="why" className="py-20 md:py-28 px-6 md:px-12 bg-warm">
+    <section id="why" className="py-24 md:py-32 px-6 md:px-12 bg-warm">
       <div className="max-w-6xl mx-auto">
-        <AnimateIn className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-12">
+        <AnimateIn className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-14">
           <div>
-            <span className="inline-flex items-center gap-2 bg-rose text-white px-4 py-1.5 rounded-xl text-sm font-semibold mb-4">
-              ✦ Why Eternal Fitness
-            </span>
-            <h2 className="text-3xl md:text-4xl text-foreground">Training That Meets You Where You Are</h2>
+            <p className="text-rose text-[11px] md:text-xs font-semibold uppercase tracking-[0.25em] mb-4">
+              Why Eternal Fitness
+            </p>
+            <h2 className="text-4xl md:text-5xl text-foreground leading-[1.1]">Training That Meets You Where You Are</h2>
           </div>
           <p className="text-muted-foreground font-body text-base max-w-md md:pt-8">
             Esther Fair is a Level 4 personal trainer, Exercise Referral Specialist, and Cancer Rehabilitation Specialist based in Worthing. She specialises in rehabilitation and recovery training for cancer treatment survivors, chronic health conditions, post-surgery recovery, disabilities, and anyone with complex medical needs who has been overlooked by mainstream fitness.

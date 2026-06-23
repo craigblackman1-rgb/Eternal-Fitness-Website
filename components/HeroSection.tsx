@@ -23,7 +23,10 @@ const HeroSection = ({ onBookConsultation }: HeroSectionProps) => {
       {/* Main content */}
       <div className="relative z-10 flex-1 flex items-center justify-center text-center px-6 pt-24">
         <div className="max-w-3xl">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-5">
+          <p className="text-rose text-[11px] md:text-xs font-semibold uppercase tracking-[0.25em] mb-5">
+            Clinical &amp; Adaptive Fitness · Worthing
+          </p>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl text-white leading-[1.05] mb-6">
             Rehabilitation and Recovery Training in Worthing for Complex Health Needs
           </h1>
           <p className="text-white/70 font-body text-base md:text-lg mb-8 max-w-xl mx-auto">

@@ -27,13 +27,13 @@ const specialisms = [
 
 const SpecialiseSection = () => {
   return (
-    <section className="py-20 md:py-28 bg-white">
+    <section className="py-24 md:py-32 bg-white">
       <div className="max-w-6xl mx-auto px-6 md:px-12">
         <AnimateIn className="mb-14">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8">
             <div>
-              <p className="text-rose text-sm font-semibold uppercase tracking-widest mb-4">Specialist Areas</p>
-              <h2 className="text-3xl md:text-4xl text-foreground">Who I Work With</h2>
+              <p className="text-rose text-[11px] md:text-xs font-semibold uppercase tracking-[0.25em] mb-4">Specialist Areas</p>
+              <h2 className="text-4xl md:text-5xl text-foreground leading-[1.1]">Who I Work With</h2>
             </div>
             <p className="text-muted-foreground font-body text-base max-w-xs md:pb-1">
               If your situation is not listed — please still get in touch. The answer is almost always yes.

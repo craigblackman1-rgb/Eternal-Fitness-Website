@@ -53,14 +53,14 @@ const TestimonialsSection = () => {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(reviewSchema) }}
       />
 
-      <section className="py-20 md:py-28 px-6 md:px-12 bg-cream">
+      <section className="py-24 md:py-32 px-6 md:px-12 bg-cream">
         <div className="max-w-6xl mx-auto">
 
           {/* Header */}
           <AnimateIn className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14 md:mb-16">
             <div>
-              <p className="text-muted-foreground text-sm font-semibold uppercase tracking-widest mb-4">Client Stories</p>
-              <h2 className="text-3xl md:text-4xl text-foreground">What Clients Say</h2>
+              <p className="text-muted-foreground text-[11px] md:text-xs font-semibold uppercase tracking-[0.25em] mb-4">Client Stories</p>
+              <h2 className="text-4xl md:text-5xl text-foreground leading-[1.1]">What Clients Say</h2>
             </div>
             <a
               href="/faqs"
