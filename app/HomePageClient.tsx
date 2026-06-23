@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import ConsultationDialog from "@/components/ConsultationDialog";
+import EternalFitnessLogo from "@/components/EternalFitnessLogo";
 import HeroCanvas from "@/components/home/HeroCanvas";
 import HomeMotion from "@/components/home/HomeMotion";
 import { useConsultationDialog } from "@/hooks/useConsultationDialog";
@@ -40,20 +41,19 @@ export default function HomePageClient() {
     <div className="efhome">
       {/* NAV */}
       <nav id="nav" className={lit || menuOpen ? "lit" : ""}>
-        <Link href="/" className="wm" aria-label="Eternal Fitness home">
-          <span className="wm-thin">Eternal</span>
-          <span className="wm-bold">Fitness</span>
+        <Link href="/" aria-label="Eternal Fitness home">
+          <EternalFitnessLogo variant={lit || menuOpen ? "dark" : "light"} className="h-7 w-auto" />
         </Link>
         <div className="nlinks">
           {navItems.map((item) => (
             <Link key={item.label} href={item.to} className="nlink">{item.label}</Link>
           ))}
         </div>
-        <button className="ncta btn" onClick={openDialog}>
+        <button className="ncta btn ndesktop" onClick={openDialog}>
           Book Consultation <Arrow />
         </button>
         <button
-          className="nburger btn"
+          className="nburger btn nmobile"
           aria-label={menuOpen ? "Close menu" : "Open menu"}
           onClick={() => setMenuOpen((v) => !v)}
         >

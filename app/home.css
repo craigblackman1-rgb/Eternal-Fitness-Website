@@ -33,7 +33,9 @@
 .efhome .nlink:hover { opacity: 1; }
 .efhome .ncta { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: #fff; padding: 10px 22px; border-radius: 999px; font-size: 14px; font-weight: 600; letter-spacing: -.01em; transition: background .2s; }
 .efhome .ncta:hover { background: var(--rose); }
-.efhome .nburger { display: none; background: transparent; color: var(--ink); }
+.efhome .nburger { background: transparent; color: var(--ink); }
+.efhome .ndesktop { display: inline-flex; }
+.efhome .nmobile  { display: none; }
 
 /* ── Wordmark ──────────────────────── */
 .efhome .wm { display: inline-flex; align-items: baseline; gap: 6px; }
@@ -175,7 +177,7 @@
 .efhome .efooter { background: var(--ink); padding: 0; }
 .efhome .ftop { padding: 80px 80px 64px; border-bottom: 1px solid rgba(255,255,255,.07); }
 .efhome .ftop-in { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: 1fr auto; align-items: flex-end; gap: 40px; }
-.efhome .fhero { font-size: clamp(56px, 8vw, 116px); font-weight: 900; line-height: .88; letter-spacing: -.045em; color: #fff; }
+.efhome .fhero { font-size: clamp(36px, 4.5vw, 64px); font-weight: 900; line-height: .88; letter-spacing: -.045em; color: #fff; }
 .efhome .fhero em { display: block; color: var(--rose); font-style: normal; }
 .efhome .fhero-side { text-align: right; padding-bottom: 6px; }
 .efhome .fhero-tag { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.22); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 12px; }
@@ -211,8 +213,9 @@
   .efhome .spec-g { grid-template-columns: 1fr; }
   .efhome .spc:nth-child(2), .efhome .spc:nth-child(3) { margin-top: 0; }
   .efhome #nav { padding: 0 20px; }
-  .efhome .nlinks { display: none; }
-  .efhome .nburger { display: inline-flex; }
+  .efhome .nlinks   { display: none; }
+  .efhome .ndesktop { display: none; }
+  .efhome .nmobile  { display: inline-flex; }
   .efhome .ctac { padding: 72px 28px; }
   .efhome .ftop, .efhome .fgrid, .efhome .fbot { padding-left: 28px; padding-right: 28px; }
   .efhome .ftop-in { grid-template-columns: 1fr; align-items: flex-start; }
