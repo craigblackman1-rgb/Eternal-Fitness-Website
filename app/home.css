@@ -5,14 +5,14 @@
    ────────────────────────────────────────────────────────────── */
 
 .efhome {
-  --ink: #131313;
-  --teal: #087E8B;     /* concept used a forest green here — mapped to EF teal */
-  --rose: #C1839F;
-  --cream: #F5F0EB;
+  --ink: var(--color-ink);
+  --teal: var(--color-teal);
+  --rose: var(--color-rose);
+  --cream: var(--color-warm);
   --white: #fff;
-  --body: #525A61;
-  --muted: #7E8088;
-  --hborder: #E4DDD7;
+  --body: var(--color-body);
+  --muted: var(--color-muted-text);
+  --hborder: var(--color-border-warm);
   --f: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
   --max: 1320px;
 
@@ -60,8 +60,8 @@
 .efhome .hbs { font-size: 11.5px; color: var(--muted); line-height: 1.4; }
 .efhome #hcanvas { display: block; }
 
-/* ── Buttons ──────────────────────── */
-.efhome .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 26px; border-radius: 999px; font-size: 14.5px; font-weight: 600; letter-spacing: -.01em; cursor: pointer; transition: all .2s; }
+/* ── Buttons — alias to shared .ef-btn-* system ──────────────── */
+.efhome .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 26px; border-radius: 999px; font-size: 14.5px; font-weight: 600; letter-spacing: -.01em; cursor: pointer; transition: all .2s; border: none; }
 .efhome .btn-dk { background: var(--ink); color: #fff; }
 .efhome .btn-dk:hover { background: var(--rose); }
 .efhome .btn-ol { background: transparent; color: var(--ink); border: 1.5px solid var(--hborder); }
@@ -91,7 +91,7 @@
 .efhome .stag-f::before { content: ''; display: block; width: 26px; height: 1px; background: var(--teal); }
 .efhome .stag-w { color: rgba(255,255,255,.65); }
 .efhome .stag-w::before { content: ''; display: block; width: 26px; height: 1px; background: rgba(255,255,255,.45); }
-.efhome h2.D { font-size: clamp(34px, 3.4vw, 50px); font-weight: 800; line-height: 1.06; letter-spacing: -.03em; color: var(--ink); }
+.efhome h2.D { font-family: var(--font-serif); font-size: clamp(34px, 3.4vw, 50px); font-weight: 700; line-height: 1.06; letter-spacing: -.03em; color: var(--ink); }
 .efhome h2.DL { color: #fff; }
 .efhome p.L { font-size: 16px; color: var(--body); line-height: 1.68; }
 .efhome p.LL { color: rgba(255,255,255,.62); }
@@ -167,7 +167,7 @@
 .efhome .ctabg img { width: 100%; height: 100%; object-fit: cover; }
 .efhome .ctabg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(105deg, rgba(8,126,139,.96) 0%, rgba(8,126,139,.8) 55%, rgba(8,126,139,.35) 100%); }
 .efhome .ctac { position: relative; z-index: 2; max-width: var(--max); margin: 0 auto; padding: 100px 80px; }
-.efhome .ctac h2 { font-size: clamp(34px, 3.8vw, 52px); font-weight: 800; color: #fff; line-height: 1.1; letter-spacing: -.03em; margin-bottom: 16px; max-width: 600px; }
+.efhome .ctac h2 { font-family: var(--font-serif); font-size: clamp(34px, 3.8vw, 52px); font-weight: 700; color: #fff; line-height: 1.1; letter-spacing: -.03em; margin-bottom: 16px; max-width: 600px; }
 .efhome .ctac p { font-size: 16.5px; color: rgba(255,255,255,.75); line-height: 1.65; max-width: 500px; margin-bottom: 36px; }
 .efhome .ctabtns { display: flex; gap: 14px; flex-wrap: wrap; }
 

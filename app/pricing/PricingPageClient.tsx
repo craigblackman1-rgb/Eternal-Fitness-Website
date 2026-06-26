@@ -62,18 +62,21 @@ const valueProps = [
     title: "One person. One trainer. One focus.",
     description:
       "Your health is not a short-term purchase — it is a long-term investment in your energy, confidence, and overall quality of life. Prioritising wellness now pays dividends for years to come.",
+    accent: "rose",
   },
   {
     icon: Dumbbell,
     title: "Qualified to work where others cannot",
     description:
       "My pricing reflects personalised coaching focused on real, sustainable change — not quick fixes. You are paying for private sessions, tailored programmes, and expert guidance designed around your goals.",
+    accent: "teal",
   },
   {
     icon: Target,
     title: "The first conversation is always free",
     description:
       "Most importantly, you are investing in a process that develops strength, consistency, and lasting habits. After your consultation, I will recommend the right level of support to help you progress safely and effectively.",
+    accent: "rose",
   },
 ];
 
@@ -96,16 +99,10 @@ export default function PricingPageClient() {
             My pricing reflects premium 1:1 support, tailored programming, and accountability that helps you build long-term results. I start with a free consultation so you only invest in what you actually need.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <button
-              onClick={openDialog}
-              className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity shadow-lg shadow-rose/30"
-            >
+            <button onClick={openDialog} className="ef-btn ef-btn-primary shadow-lg shadow-rose/30">
               Book a Free Consultation
             </button>
-            <a
-              href="#pricing"
-              className="inline-flex items-center gap-2 border border-white/40 text-white px-7 py-3 rounded-full font-medium hover:bg-white/10 transition-colors"
-            >
+            <a href="#pricing" className="ef-btn ef-btn-ghost-white">
               See Pricing
             </a>
           </div>
@@ -116,17 +113,13 @@ export default function PricingPageClient() {
       <section className="ef-section px-6 md:px-12 bg-background">
         <div className="max-w-[1320px] mx-auto grid md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div>
-            <div className="ef-eyebrow ef-eyebrow-rose mb-5">
-              What You Are Investing In
-            </div>
-            <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-10">
-              This is not a gym membership
-            </h2>
+            <div className="ef-eyebrow ef-eyebrow-rose mb-4">What You Are Investing In</div>
+            <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-10">This is not a gym membership</h2>
             <div className="space-y-8">
-              {valueProps.map((prop, i) => (
-                <div key={i} className="flex gap-4">
-                  <div className={`w-12 h-12 rounded-full ${i === 1 ? 'bg-teal/10' : 'bg-rose/10'} flex items-center justify-center shrink-0`}>
-                    <prop.icon className={`w-5 h-5 ${i === 1 ? 'text-teal' : 'text-rose'}`} />
+              {valueProps.map((prop) => (
+                <div key={prop.title} className="flex gap-4">
+                  <div className={`w-12 h-12 rounded-full ${prop.accent === "teal" ? "bg-teal/10" : "bg-rose/10"} flex items-center justify-center shrink-0`}>
+                    <prop.icon className={`w-5 h-5 ${prop.accent === "teal" ? "text-teal" : "text-rose"}`} />
                   </div>
                   <div>
                     <h4 className="text-foreground text-base font-bold tracking-tight mb-1">{prop.title}</h4>
@@ -146,28 +139,20 @@ export default function PricingPageClient() {
       <section id="pricing" className="ef-section px-6 md:px-12 bg-warm">
         <div className="max-w-[1320px] mx-auto">
           <div className="mb-12">
-            <div className="ef-eyebrow ef-eyebrow-rose mb-5">
-              Pricing
-            </div>
+            <div className="ef-eyebrow ef-eyebrow-rose mb-4">Pricing</div>
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
               <div>
-                <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-2">
-                  Choose what works for you
-                </h2>
-                <p className="ef-body">
-                  All sessions are 60 minutes, one-to-one, in a private studio in Worthing.
-                </p>
+                <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-2">Choose what works for you</h2>
+                <p className="ef-body">All sessions are 60 minutes, one-to-one, in a private studio in Worthing.</p>
               </div>
             </div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {plans.map((plan, i) => (
+            {plans.map((plan) => (
               <div
-                key={i}
-                className={`relative ef-card flex flex-col ${
-                  plan.popular ? "border-rose border-2 shadow-md" : ""
-                }`}
+                key={plan.name}
+                className={`relative ef-card flex flex-col ${plan.popular ? "border-rose border-2 shadow-md" : ""}`}
               >
                 {plan.popular && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-rose text-white text-xs font-bold px-4 py-1 rounded-full whitespace-nowrap tracking-wide">
@@ -183,20 +168,16 @@ export default function PricingPageClient() {
                 </div>
                 <p className="ef-body text-sm mb-6">{plan.description}</p>
                 <ul className="space-y-3 mb-8 flex-1">
-                  {plan.features.map((feature, j) => (
-                    <li key={j} className="flex items-start gap-2 text-sm font-body ef-body">
-                      <Check className={`w-4 h-4 ${plan.popular ? 'text-teal' : 'text-rose'} shrink-0 mt-0.5`} />
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-2 text-sm font-body ef-body">
+                      <Check className={`w-4 h-4 ${plan.popular ? "text-teal" : "text-rose"} shrink-0 mt-0.5`} />
                       {feature}
                     </li>
                   ))}
                 </ul>
                 <button
                   onClick={openDialog}
-                  className={`w-full py-3 rounded-full font-medium text-sm transition-all hover:opacity-90 ${
-                    plan.popular
-                      ? "bg-rose text-white shadow-sm"
-                      : "bg-white text-foreground border border-[#E4DDD7]"
-                  }`}
+                  className={`ef-btn justify-center w-full ${plan.popular ? "ef-btn-primary" : "ef-btn-outline"}`}
                 >
                   {plan.cta}
                 </button>
@@ -215,9 +196,7 @@ export default function PricingPageClient() {
         </div>
       </section>
 
-      {/* FAQ */}
       <FAQSection />
-
       <CTASection onBookConsultation={openDialog} />
       <Footer />
       <ConsultationDialog open={open} onOpenChange={setOpen} />

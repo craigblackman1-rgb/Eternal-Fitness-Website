@@ -75,7 +75,7 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 h-[72px] px-6 md:px-12 flex items-center justify-between transition-all duration-300 ${
           isLit
-            ? "bg-[rgba(255,255,255,0.97)] border-b border-[#E4DDD7]"
+            ? "bg-white/[0.97] border-b border-border-warm"
             : "bg-transparent"
         }`}
       >
@@ -84,16 +84,16 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
         </Link>
 
         {/* Desktop nav */}
-        <ul className={`hidden md:flex items-center gap-8 text-sm font-medium ${isLit ? "text-[#3C3C3C]/70" : "text-white/80"}`}>
+        <ul className={`hidden md:flex items-center gap-8 text-sm font-medium ${isLit ? "text-charcoal/70" : "text-white/80"}`}>
           {navItems.map((item) => (
             <li key={item.label}>
               <Link
                 href={item.to}
                 className={`transition-colors ${
                   pathname === item.to
-                    ? `${isLit ? "text-[#3C3C3C]" : "text-white"} font-semibold`
+                    ? `${isLit ? "text-charcoal" : "text-white"} font-semibold`
                     : isLit
-                      ? "hover:text-[#3C3C3C]"
+                      ? "hover:text-charcoal"
                       : "hover:text-white"
                 }`}
               >
@@ -108,16 +108,16 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
           {onBookConsultation ? (
             <button
               onClick={onBookConsultation}
-              className="inline-flex items-center gap-2 bg-rose text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+              className="ef-btn ef-btn-primary text-sm py-2.5 px-5"
             >
-              Contact Us <ArrowUpRight className="w-4 h-4" />
+              Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
             </button>
           ) : (
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 bg-rose text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+              className="ef-btn ef-btn-primary text-sm py-2.5 px-5"
             >
-              Contact Us <ArrowUpRight className="w-4 h-4" />
+              Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
             </Link>
           )}
         </div>
@@ -125,7 +125,7 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
         {/* Mobile toggle */}
         <button
           onClick={() => setOpen((v) => !v)}
-          className={`md:hidden ${isLit ? "text-[#3C3C3C]" : "text-white"}`}
+          className={`md:hidden ${isLit ? "text-charcoal" : "text-white"}`}
           aria-label={open ? "Close menu" : "Open menu"}
         >
           {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -134,13 +134,13 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
 
       {/* Mobile menu */}
       {open && (
-        <div className="fixed top-[72px] left-0 right-0 z-40 bg-white border-b border-[#E4DDD7] p-6 md:hidden flex flex-col gap-4 shadow-lg">
+        <div className="fixed top-[72px] left-0 right-0 z-40 bg-white border-b border-border-warm p-6 md:hidden flex flex-col gap-4 shadow-lg">
           {navItems.map((item) => (
             <Link
               key={item.label}
               href={item.to}
               onClick={() => setOpen(false)}
-              className="text-[#3C3C3C]/80 hover:text-[#3C3C3C] text-sm font-medium"
+              className="text-charcoal/80 hover:text-charcoal text-sm font-medium"
             >
               {item.label}
             </Link>
@@ -148,17 +148,17 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
           {onBookConsultation ? (
             <button
               onClick={() => { setOpen(false); onBookConsultation(); }}
-              className="inline-flex items-center gap-2 bg-rose text-white px-5 py-2.5 rounded-full text-sm font-semibold w-fit"
+              className="ef-btn ef-btn-primary text-sm w-fit"
             >
-              Contact Us <ArrowUpRight className="w-4 h-4" />
+              Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
             </button>
           ) : (
             <Link
               href="/contact"
               onClick={() => setOpen(false)}
-              className="inline-flex items-center gap-2 bg-rose text-white px-5 py-2.5 rounded-full text-sm font-semibold w-fit"
+              className="ef-btn ef-btn-primary text-sm w-fit"
             >
-              Contact Us <ArrowUpRight className="w-4 h-4" />
+              Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
             </Link>
           )}
         </div>

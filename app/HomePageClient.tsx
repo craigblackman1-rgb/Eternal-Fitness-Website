@@ -51,7 +51,7 @@ export default function HomePageClient() {
           ))}
         </div>
         <button className="ncta btn hidden md:inline-flex" onClick={openDialog}>
-          Book Consultation <Arrow />
+          Book a Free Consultation <Arrow />
         </button>
         <button
           className="nburger btn md:hidden"

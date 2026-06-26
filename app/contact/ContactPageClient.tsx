@@ -84,18 +84,10 @@ export default function ContactPageClient() {
             Whether you have a question, want to learn more, or are ready to book your free consultation — I would love to hear from you.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-              <a
-                href="#form"
-                className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity shadow-lg shadow-rose/30"
-              >
+              <a href="#form" className="ef-btn ef-btn-primary shadow-lg shadow-rose/30">
                 Send a Message <ArrowUpRight className="w-4 h-4" />
               </a>
-            <a
-              href="#map"
-              className="inline-flex items-center gap-2 border border-white/40 text-white px-7 py-3 rounded-full font-medium hover:bg-white/10 transition-colors"
-            >
-              Find the Studio
-            </a>
+              <a href="#map" className="ef-btn ef-btn-ghost-white">Find the Studio</a>
           </div>
         </div>
       </section>
@@ -125,7 +117,7 @@ export default function ContactPageClient() {
                     value={form.firstName}
                     onChange={handleChange}
                     placeholder="First name"
-                    className="w-full px-4 py-3 rounded-xl border border-[#E4DDD7] bg-white text-foreground placeholder:text-[#525A61]/50 focus:outline-none focus:ring-2 focus:ring-rose/30"
+                    className="w-full px-4 py-3 rounded-xl border border-border-warm bg-white text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-rose/30"
                   />
                 </div>
                 <div>
@@ -139,7 +131,7 @@ export default function ContactPageClient() {
                     value={form.lastName}
                     onChange={handleChange}
                     placeholder="Last name"
-                    className="w-full px-4 py-3 rounded-xl border border-[#E4DDD7] bg-white text-foreground placeholder:text-[#525A61]/50 focus:outline-none focus:ring-2 focus:ring-rose/30"
+                    className="w-full px-4 py-3 rounded-xl border border-border-warm bg-white text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-rose/30"
                   />
                 </div>
               </div>
@@ -185,7 +177,7 @@ export default function ContactPageClient() {
                   value={form.message}
                   onChange={handleChange}
                   placeholder="Tell me a bit about yourself and what you are looking for..."
-                  className="w-full px-4 py-3 rounded-xl border border-[#E4DDD7] bg-white text-foreground placeholder:text-[#525A61]/50 focus:outline-none focus:ring-2 focus:ring-rose/30 resize-none"
+                  className="w-full px-4 py-3 rounded-xl border border-border-warm bg-white text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-rose/30 resize-none"
                 />
               </div>
 
@@ -196,9 +188,9 @@ export default function ContactPageClient() {
                   type="checkbox"
                   checked={form.agree}
                   onChange={handleChange}
-                  className="mt-1 h-4 w-4 rounded border-[#E4DDD7] accent-rose"
+                  className="mt-1 h-4 w-4 rounded border-border-warm accent-rose"
                 />
-                <label htmlFor="agree" className="text-sm text-[#525A61]">
+                <label htmlFor="agree" className="text-sm ef-body"
                   I agree to the{" "}
                   <a href="/terms" className="text-rose underline hover:text-rose/80 transition-colors">
                     privacy policy
@@ -207,10 +199,7 @@ export default function ContactPageClient() {
                 </label>
               </div>
 
-              <button
-                type="submit"
-                className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity w-full justify-center"
-              >
+              <button type="submit" className="ef-btn ef-btn-primary w-full justify-center">
                 Send Message <ArrowUpRight className="w-4 h-4" />
               </button>
             </form>
@@ -285,21 +274,21 @@ export default function ContactPageClient() {
                     <SocialIcon name="facebook" />
                   </a>
                   <span
-                    className="w-10 h-10 rounded-full bg-[#E4DDD7]/50 flex items-center justify-center text-[#525A61]/40 cursor-default"
+                    className="w-10 h-10 rounded-full bg-border-warm/50 flex items-center justify-center text-muted-foreground/40 cursor-default"
                     title="Instagram — coming soon"
                     aria-label="Instagram — coming soon"
                   >
                     <SocialIcon name="instagram" />
                   </span>
                   <span
-                    className="w-10 h-10 rounded-full bg-[#E4DDD7]/50 flex items-center justify-center text-[#525A61]/40 cursor-default"
+                    className="w-10 h-10 rounded-full bg-border-warm/50 flex items-center justify-center text-muted-foreground/40 cursor-default"
                     title="YouTube — coming soon"
                     aria-label="YouTube — coming soon"
                   >
                     <SocialIcon name="youtube" />
                   </span>
                   <span
-                    className="w-10 h-10 rounded-full bg-[#E4DDD7]/50 flex items-center justify-center text-[#525A61]/40 cursor-default"
+                    className="w-10 h-10 rounded-full bg-border-warm/50 flex items-center justify-center text-muted-foreground/40 cursor-default"
                     title="TikTok — coming soon"
                     aria-label="TikTok — coming soon"
                   >
@@ -324,7 +313,7 @@ export default function ContactPageClient() {
           <p className="ef-body text-center max-w-xl mx-auto mb-12">
             Based in Worthing, West Sussex. The private studio is easily accessible by car and public transport.
           </p>
-          <div className="rounded-3xl overflow-hidden border border-[#E4DDD7] shadow-sm">
+          <div className="rounded-3xl overflow-hidden border border-border-warm shadow-sm">
             <iframe
               title="Eternal Fitness location in Worthing, West Sussex"
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d40625.88654390968!2d-0.4005!3d50.8148!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4875a3a3a3a3a3a3%3A0x0!2sWorthing%2C+West+Sussex!5e0!3m2!1sen!2suk!4v1700000000000!5m2!1sen!2suk"

@@ -64,12 +64,10 @@ export default function BlogPageClient({ posts }: { posts: BlogPost[] }) {
             Dive into my blog for insights, tips, and advice to support your health and fitness journey.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <button onClick={openDialog} className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-rose/30">
-              Book an Initial Consultation
+            <button onClick={openDialog} className="ef-btn ef-btn-primary shadow-lg shadow-rose/30">
+              Book a Free Consultation
             </button>
-            <Link href="/about" className="inline-flex items-center gap-2 border border-white/30 text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-white/10 transition-colors">
-              Visit the Studio
-            </Link>
+            <Link href="/about" className="ef-btn ef-btn-ghost-white">Visit the Studio</Link>
           </div>
         </div>
       </section>
@@ -84,13 +82,13 @@ export default function BlogPageClient({ posts }: { posts: BlogPost[] }) {
           </div>
 
           <div className="relative max-w-md mx-auto mb-8">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#525A61]" />
-            <input type="text" placeholder="Search for blogs" value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-11 pr-4 py-3 rounded-full border border-[#E4DDD7] bg-white text-sm text-foreground placeholder:text-[#525A61]/50 focus:outline-none focus:ring-2 focus:ring-rose" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input type="text" placeholder="Search for blogs" value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-11 pr-4 py-3 rounded-full border border-border-warm bg-white text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-rose" />
           </div>
 
           <div className="flex flex-wrap gap-2 justify-center mb-12">
             {categories.map((cat, ci) => (
-              <button key={cat} onClick={() => setActiveCategory(cat)} className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${activeCategory === cat ? (ci % 2 === 0 ? "bg-teal text-white" : "bg-rose text-white") : "bg-white text-[#525A61] hover:bg-white/80 border border-[#E4DDD7]"}`}>
+              <button key={cat} onClick={() => setActiveCategory(cat)} className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${activeCategory === cat ? (ci % 2 === 0 ? "bg-teal text-white" : "bg-rose text-white") : "bg-white text-muted-foreground hover:bg-white/80 border border-border-warm"}`}>
                 {cat}
               </button>
             ))}
@@ -142,7 +140,7 @@ function BlogCard({ post }: { post: BlogPost }) {
   const date = new Date(post.published_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
   return (
     <Link href={`/blog/${post.slug}`} className="group block">
-      <div className="rounded-3xl overflow-hidden mb-4 aspect-[4/3] bg-white shadow-sm border border-[#E4DDD7]">
+      <div className="rounded-3xl overflow-hidden mb-4 aspect-[4/3] bg-white shadow-sm border border-border-warm">
         <img src={post.image_url || categoryImages[post.category] || "/images/hero-gym.jpg"} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
       </div>
       <h3 className="text-lg font-bold text-foreground tracking-tight mb-2 group-hover:text-rose transition-colors">{post.title}</h3>
@@ -152,7 +150,7 @@ function BlogCard({ post }: { post: BlogPost }) {
           <div className="w-8 h-8 rounded-full bg-rose/20 flex items-center justify-center text-rose text-xs font-bold">{post.author_name.charAt(0)}</div>
           <div>
             <p className="text-xs font-semibold text-foreground">{post.author_name}</p>
-            <p className="text-xs text-[#525A61]">{date}</p>
+            <p className="text-xs text-muted-foreground">{date}</p>
           </div>
         </div>
         <span className="inline-flex items-center gap-1 text-xs font-medium text-rose">Read <ArrowUpRight className="w-3 h-3" /></span>

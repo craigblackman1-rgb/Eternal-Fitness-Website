@@ -86,6 +86,12 @@ export default {
         "near-black": {
           DEFAULT: "var(--color-near-black)",
         },
+        ink: {
+          DEFAULT: "var(--color-ink)",
+        },
+        "border-warm": {
+          DEFAULT: "var(--color-border-warm)",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

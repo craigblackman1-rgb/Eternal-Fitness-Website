@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, ClipboardList, Search, BarChart3, HeartHandshake } from "lucide-react";
+import { ArrowUpRight, ClipboardList, Search, BarChart3, HeartHandshake, Sparkles } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
@@ -90,19 +90,16 @@ const relatedArticles = [
     href: "/blog/exercise-illness",
     title: "Exercise & Illness",
     desc: "Understanding how to stay active during health challenges and what's safe when managing chronic conditions.",
-    emoji: "💪",
   },
   {
     href: "/blog/menopause-and-exercise",
     title: "Menopause & Exercise",
     desc: "How to train effectively through hormonal changes and manage strength, mobility, and energy during midlife transitions.",
-    emoji: "🏃",
   },
   {
     href: "/blog/myth-buster-does-resistance-training-cause-high-blood-pressure",
     title: "Resistance Training & Blood Pressure",
     desc: "Safety considerations for people managing cardiovascular health and how resistance training can be part of a healthy approach.",
-    emoji: "❤️",
   },
 ];
 
@@ -125,15 +122,10 @@ export default function PersonalTrainingClient() {
             Private one-to-one sessions with a Cancer Rehabilitation Specialist and Exercise Referral Specialist (Level 4 qualified). Whether you are in cancer treatment, post-surgery recovery, managing a chronic condition, living with a disability, or have complex medical needs — there is a specialist programme here for you.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <button
-              onClick={openDialog}
-              className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity shadow-lg shadow-rose/30"
-            >
+            <button onClick={openDialog} className="ef-btn ef-btn-primary shadow-lg shadow-rose/30">
               Book a Free Consultation
             </button>
-            <a href="#what" className="inline-flex items-center gap-2 border border-white/40 text-white px-7 py-3 rounded-full font-medium hover:bg-white/10 transition-colors">
-              What Sessions Involve
-            </a>
+            <a href="#what" className="ef-btn ef-btn-ghost-white">What Sessions Involve</a>
           </div>
         </div>
       </section>
@@ -141,9 +133,7 @@ export default function PersonalTrainingClient() {
       {/* What to Expect */}
       <section id="what" className="ef-section px-6 md:px-12 bg-background">
         <div className="max-w-[1320px] mx-auto">
-          <div className="ef-eyebrow ef-eyebrow-rose mb-5">
-            What to Expect
-          </div>
+          <div className="ef-eyebrow ef-eyebrow-rose mb-4">What to Expect</div>
           <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-6">
@@ -158,10 +148,7 @@ export default function PersonalTrainingClient() {
               <p className="ef-body mb-6">
                 My specialist training in cancer rehabilitation and exercise referral means I am trained to adapt to medical conditions, medication side-effects, fatigue cycles, and variable capacity. I work within your GP's or specialist's guidance. I do not guess — I ask, I listen, and I adjust every session based on your body's actual needs that day.
               </p>
-              <button
-                onClick={openDialog}
-                className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
-              >
+              <button onClick={openDialog} className="ef-btn ef-btn-primary">
                 Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
               </button>
             </div>
@@ -173,12 +160,12 @@ export default function PersonalTrainingClient() {
         </div>
       </section>
 
-      {/* Specialist Areas — homepage spec-g treatment */}
-      <section className="ef-section px-6 md:px-12 bg-white">
+      {/* Specialist Areas */}
+      <section className="ef-section px-6 md:px-12 bg-warm">
         <div className="max-w-[1320px] mx-auto">
           <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-end mb-16">
             <div>
-              <div className="ef-eyebrow ef-eyebrow-rose mb-5">Specialist Areas</div>
+              <div className="ef-eyebrow ef-eyebrow-rose mb-4">Specialist Areas</div>
               <h2 className="text-3xl md:text-4xl text-foreground ef-h2">Who I Work With</h2>
             </div>
             <p className="ef-body">
@@ -187,11 +174,11 @@ export default function PersonalTrainingClient() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
             {specialistAreas.map((area, idx) => (
-              <div key={area.title} className="group" style={{ marginTop: idx === 1 || idx === 4 ? '48px' : idx === 2 || idx === 5 ? '24px' : 0 }}>
+              <div key={area.title} className="group" style={{ marginTop: idx === 1 || idx === 4 ? "48px" : idx === 2 || idx === 5 ? "24px" : 0 }}>
                 <div className="relative rounded-[20px] overflow-hidden aspect-[3/4] mb-5 shadow-[0_14px_40px_rgba(0,0,0,0.09)]">
                   <img src={area.image} alt={area.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 </div>
-                <div className="text-[10.5px] font-bold tracking-[0.1em] uppercase text-rose mb-1.5">{String(idx + 1).padStart(2, '0')}</div>
+                <div className="text-[10.5px] font-bold tracking-[0.1em] uppercase text-rose mb-1.5">{String(idx + 1).padStart(2, "0")}</div>
                 <h4 className="text-[22px] font-bold text-foreground tracking-tight mb-2 leading-tight">{area.title}</h4>
                 <p className="ef-body text-sm">{area.desc}</p>
               </div>
@@ -201,19 +188,17 @@ export default function PersonalTrainingClient() {
       </section>
 
       {/* What I Work On */}
-      <section className="ef-section px-6 md:px-12 bg-warm">
+      <section className="ef-section px-6 md:px-12 bg-background">
         <div className="max-w-[1320px] mx-auto">
           <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-start mb-12">
             <div>
-              <div className="ef-eyebrow ef-eyebrow-teal mb-5">
-                What I Work On
-              </div>
-                <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-4">
-                  Recovery and Rehabilitation for Real Life
-                </h2>
-                <p className="ef-body mb-6">
-                  The focus is functional rehabilitation — building strength, mobility, endurance, and capability for real life during and after health conditions. Not aesthetics. Not performance metrics. Real outcomes: returning to activities after cancer treatment, climbing stairs without pain, managing fatigue, walking further, recovering independence, sleeping better, regaining confidence in your own body.
-                </p>
+              <div className="ef-eyebrow ef-eyebrow-teal mb-4">What I Work On</div>
+              <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-5">
+                Recovery and Rehabilitation for Real Life
+              </h2>
+              <p className="ef-body mb-6">
+                The focus is functional rehabilitation — building strength, mobility, endurance, and capability for real life during and after health conditions. Not aesthetics. Not performance metrics. Real outcomes: returning to activities after cancer treatment, climbing stairs without pain, managing fatigue, walking further, recovering independence, sleeping better, regaining confidence in your own body.
+              </p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {sessionImages.map((img, i) => (
@@ -226,7 +211,7 @@ export default function PersonalTrainingClient() {
             {focusCards.map((card) => (
               <div key={card.title} className="ef-card">
                 <div className="w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center mb-4">
-                  <span className="text-teal text-lg">✦</span>
+                  <Sparkles className="w-5 h-5 text-teal" />
                 </div>
                 <h4 className="text-foreground text-lg font-bold tracking-tight mb-2">{card.title}</h4>
                 <p className="ef-body text-sm">{card.desc}</p>
@@ -237,11 +222,9 @@ export default function PersonalTrainingClient() {
       </section>
 
       {/* How It Works */}
-      <section className="ef-section px-6 md:px-12 bg-background">
+      <section className="ef-section px-6 md:px-12 bg-warm">
         <div className="max-w-[1320px] mx-auto text-center">
-          <div className="ef-eyebrow ef-eyebrow-rose justify-center mb-5">
-            The Process
-          </div>
+          <div className="ef-eyebrow ef-eyebrow-rose justify-center mb-4">The Process</div>
           <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-14">How It Works</h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -259,10 +242,7 @@ export default function PersonalTrainingClient() {
           </div>
 
           <div className="mt-14">
-            <button
-              onClick={openDialog}
-              className="inline-flex items-center gap-2 bg-rose text-white px-8 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
-            >
+            <button onClick={openDialog} className="ef-btn ef-btn-primary">
               Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
             </button>
           </div>
@@ -270,35 +250,33 @@ export default function PersonalTrainingClient() {
       </section>
 
       {/* Related Blog Articles */}
-      <section className="ef-section px-6 md:px-12 bg-white">
+      <section className="ef-section px-6 md:px-12 bg-background">
         <div className="max-w-[1320px] mx-auto">
           <div className="text-center mb-14">
-            <div className="ef-eyebrow ef-eyebrow-rose justify-center mb-5">Learn More</div>
-            <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-4">Related Articles</h2>
+            <div className="ef-eyebrow ef-eyebrow-rose justify-center mb-4">Learn More</div>
+            <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-5">Related Articles</h2>
             <p className="ef-body max-w-2xl mx-auto">
               Read more about training with health conditions, recovery strategies, and what makes specialist personal training different.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {relatedArticles.map((article) => (
               <Link key={article.href} href={article.href} className="group">
-                <div className="bg-white rounded-3xl overflow-hidden shadow-sm h-full flex flex-col border border-[#E4DDD7]">
-                  <div className="bg-gradient-to-br from-rose/20 to-rose/10 h-40 flex items-center justify-center">
-                    <span className="text-4xl">{article.emoji}</span>
+                <div className="ef-card h-full flex flex-col hover:border-rose/40 transition-colors">
+                  <div className="bg-gradient-to-br from-rose/15 to-rose/5 rounded-xl h-36 flex items-center justify-center mb-5">
+                    <ArrowUpRight className="w-8 h-8 text-rose/40" />
                   </div>
-                  <div className="p-6 flex-1 flex flex-col">
-                    <h3 className="text-foreground font-bold mb-2 group-hover:text-rose transition-colors">{article.title}</h3>
-                    <p className="ef-body text-sm mb-4 flex-1">{article.desc}</p>
-                    <div className="text-rose text-sm font-semibold hover:underline">Read Article →</div>
-                  </div>
+                  <h3 className="text-foreground font-bold mb-2 group-hover:text-rose transition-colors">{article.title}</h3>
+                  <p className="ef-body text-sm mb-4 flex-1">{article.desc}</p>
+                  <div className="text-rose text-sm font-semibold flex items-center gap-1">Read Article <ArrowUpRight className="w-3.5 h-3.5" /></div>
                 </div>
               </Link>
             ))}
           </div>
 
           <div className="text-center">
-            <Link href="/blog" className="inline-flex items-center gap-2 border border-[#E4DDD7] text-foreground px-6 py-3 rounded-full font-medium hover:bg-white transition-colors">
+            <Link href="/blog" className="ef-btn ef-btn-outline">
               View All Articles <ArrowUpRight className="w-4 h-4" />
             </Link>
           </div>

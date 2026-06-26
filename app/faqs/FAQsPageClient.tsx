@@ -140,15 +140,10 @@ export default function FAQsPageClient() {
             If something is stopping you from getting in touch, the answer is probably here. And if it is not — just ask.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <button
-              onClick={openDialog}
-              className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity shadow-lg shadow-rose/30"
-            >
+            <button onClick={openDialog} className="ef-btn ef-btn-primary shadow-lg shadow-rose/30">
               Book a Free Consultation
             </button>
-            <a href="#faq" className="inline-flex items-center gap-2 border border-white/40 text-white px-7 py-3 rounded-full font-medium hover:bg-white/10 transition-colors">
-              Read the FAQs
-            </a>
+            <a href="#faq" className="ef-btn ef-btn-ghost-white">Read the FAQs</a>
           </div>
         </div>
       </section>
@@ -171,10 +166,7 @@ export default function FAQsPageClient() {
             <p className="ef-body text-sm mb-8">
               The questions below cover the things people most commonly wonder about before getting in touch.
             </p>
-            <button
-              onClick={openDialog}
-              className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
-            >
+            <button onClick={openDialog} className="ef-btn ef-btn-primary">
               Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
             </button>
           </div>
@@ -183,12 +175,12 @@ export default function FAQsPageClient() {
           <div className="space-y-12">
             {faqGroups.map((group, gi) => (
               <div key={group.group}>
-                <h3 className={`text-[11px] font-bold tracking-[0.1em] uppercase mb-4 pb-2 border-b border-[#E4DDD7] ${gi % 2 === 0 ? 'text-teal' : 'text-rose'}`}>
+                <h3 className={`text-[11px] font-bold tracking-[0.1em] uppercase mb-4 pb-2 border-b border-border-warm ${gi % 2 === 0 ? "text-teal" : "text-rose"}`}>
                   {group.group}
                 </h3>
                 <Accordion type="single" collapsible className="w-full">
                   {group.faqs.map((faq, i) => (
-                    <AccordionItem key={i} value={`${group.group}-${i}`} className="border-[#E4DDD7]">
+                    <AccordionItem key={i} value={`${group.group}-${i}`} className="border-border-warm">
                       <AccordionTrigger className="font-body text-foreground text-left text-base py-5 hover:no-underline">
                         {faq.question}
                       </AccordionTrigger>

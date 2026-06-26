@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 import { HubSidebar } from "./HubSidebar";
+import { HubBreadcrumb } from "./HubBreadcrumb";
 
 export default async function HubLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
@@ -14,14 +15,9 @@ export default async function HubLayout({ children }: { children: React.ReactNod
     <div className="flex min-h-screen bg-off-white">
       <HubSidebar />
       <div className="flex-1 flex flex-col">
-        {/* Top bar — subtle, matches website header feel */}
         <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-border/50">
           <div className="mx-auto max-w-6xl px-6 lg:px-8 h-14 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="text-rose font-semibold">Hub</span>
-              <span>/</span>
-              <span className="text-foreground font-medium">Dashboard</span>
-            </div>
+            <HubBreadcrumb />
             <div className="flex items-center gap-3">
               <div className="w-7 h-7 rounded-full bg-rose/10 text-rose flex items-center justify-center text-xs font-bold">
                 EF

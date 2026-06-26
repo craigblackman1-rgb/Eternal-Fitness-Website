@@ -33,15 +33,15 @@ export default function AboutPageClient() {
         <div className="absolute inset-0 bg-gradient-to-b from-hero-overlay/55 via-hero-overlay/65 to-hero-overlay/75" />
         <div className="relative z-10 text-center max-w-3xl px-6">
           <h1 className="text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-5">About Esther Fair — Cancer Rehabilitation Specialist</h1>
-          <p className="text-white/70 font-body text-base md:text-lg mb-8 max-w-xl mx-auto">Level 4 Personal Trainer. Cancer Rehabilitation Specialist. Exercise Referral Specialist. Specialist in rehabilitation and recovery training for complex health needs. I know first-hand what it feels like to start from zero.</p>
+          <p className="text-white/70 font-body text-base md:text-lg mb-8 max-w-xl mx-auto">Level 4 Personal Trainer. Cancer Rehabilitation Specialist. Exercise Referral Specialist. I know first-hand what it feels like to start from zero.</p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <button onClick={openDialog} className="inline-flex items-center gap-2 bg-rose text-white px-7 py-3 rounded-full font-medium hover:opacity-90 transition-opacity shadow-lg shadow-rose/30">Book a Free Consultation</button>
-            <a href="#story" className="inline-flex items-center gap-2 border border-white/40 text-white px-7 py-3 rounded-full font-medium hover:bg-white/10 transition-colors">My Story</a>
+            <button onClick={openDialog} className="ef-btn ef-btn-primary shadow-lg shadow-rose/30">Book a Free Consultation</button>
+            <a href="#story" className="ef-btn ef-btn-ghost-white">My Story</a>
           </div>
         </div>
       </section>
 
-      {/* Story — mirrors homepage #why split layout */}
+      {/* Story */}
       <section id="story" className="ef-section px-6 md:px-12 bg-background">
         <div className="max-w-[1320px] mx-auto">
           <div className="grid md:grid-cols-[5fr_6fr] gap-12 md:gap-20 items-center">
@@ -55,23 +55,23 @@ export default function AboutPageClient() {
               </div>
             </div>
             <div>
-              <div className="ef-eyebrow ef-eyebrow-rose mb-5">My Story</div>
+              <div className="ef-eyebrow ef-eyebrow-rose mb-4">My Story</div>
               <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-5">I Have Been Where You Are</h2>
               <p className="ef-body mb-5">I did not come to fitness from a place of confidence. There was a time when exercise felt inaccessible, intimidating, and simply not something that was meant for me. When that changed, it changed everything — my health, my recovery, my sense of what my body was capable of.</p>
               <p className="ef-body mb-5">That experience is the reason I became a personal trainer. Not to help people lose weight or achieve an aesthetic ideal — but to help people rehabilitate, recover, and feel stronger, more capable, and more functional in their own bodies, regardless of their health conditions or limitations.</p>
               <p className="ef-body mb-8">I qualified to Level 4 — the highest personal training qualification in the UK — and went further with specialist certifications in Cancer Rehabilitation and Exercise Referral. I specifically sought these qualifications to work with people who have more complex medical needs: cancer treatment survivors, those with chronic health conditions, post-surgical recovery, disabilities, and clients whose health situations have led other trainers to say they cannot help. Those are exactly the clients I am here for.</p>
-              <button onClick={openDialog} className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">Book a Free Consultation <ArrowUpRight className="w-4 h-4" /></button>
+              <button onClick={openDialog} className="ef-btn ef-btn-primary">Book a Free Consultation <ArrowUpRight className="w-4 h-4" /></button>
             </div>
           </div>
         </div>
       </section>
 
       {/* Qualifications */}
-      <section className="ef-section px-6 md:px-12 bg-white">
+      <section className="ef-section px-6 md:px-12 bg-warm">
         <div className="max-w-[1320px] mx-auto">
           <div className="text-center mb-14">
-            <div className="ef-eyebrow ef-eyebrow-rose justify-center mb-5">Qualifications</div>
-            <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-4">Qualified to Help Where Others Cannot</h2>
+            <div className="ef-eyebrow ef-eyebrow-rose justify-center mb-4">Qualifications</div>
+            <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-5">Qualified to Help Where Others Cannot</h2>
             <p className="ef-body max-w-2xl mx-auto">Most personal trainers hold a Level 3 qualification. I hold Level 4 — alongside specialist certifications that are rare in any fitness setting.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -90,7 +90,7 @@ export default function AboutPageClient() {
       <section className="ef-section px-6 md:px-12 bg-background">
         <div className="max-w-[1320px] mx-auto">
           <div className="text-center mb-6">
-            <div className="ef-eyebrow ef-eyebrow-teal justify-center mb-5">Experience</div>
+            <div className="ef-eyebrow ef-eyebrow-teal justify-center mb-4">Experience</div>
           </div>
           <h2 className="text-3xl md:text-4xl text-foreground ef-h2 text-center mb-6">Experience Across the Full Range of Human Complexity</h2>
           <div className="max-w-3xl mx-auto text-center mb-14">
@@ -107,11 +107,11 @@ export default function AboutPageClient() {
       </section>
 
       {/* Philosophy */}
-      <section id="philosophy" className="ef-section px-6 md:px-12 bg-white">
+      <section id="philosophy" className="ef-section px-6 md:px-12 bg-warm">
         <div className="max-w-[1320px] mx-auto">
           <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
             <div>
-              <div className="ef-eyebrow ef-eyebrow-rose mb-5">Philosophy</div>
+              <div className="ef-eyebrow ef-eyebrow-rose mb-4">Philosophy</div>
               <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-6">The Philosophy</h2>
               <p className="ef-body mb-5">Eternal Fitness is not a weight loss service. It is not about transforming your body into something it is not. It is about rehabilitation and recovery — finding out what your body is capable of right now, with all the health conditions, medications, limitations, and recovery status it is currently dealing with — and building steadily from there.</p>
               <p className="ef-body mb-6">The goal is not a six-week result. It is returning to activities after cancer treatment. Being able to move with less pain. Having better fatigue management. Managing your chronic condition without fear. Recovering full function after injury. Climbing stairs. Walking further. Moving through life with more ease, capability, and confidence than before. That takes time, consistency, and working with someone who genuinely understands medical complexity and adjusts when your health or capacity changes. That is what I do.</p>
@@ -119,7 +119,7 @@ export default function AboutPageClient() {
                 <h4 className="text-foreground text-lg font-bold tracking-tight mb-2">More Than a Workout</h4>
                 <p className="ef-body text-sm">No weigh-ins. No before-and-after photos. No pressure to look a certain way. Just steady, meaningful progress — measured against your own baseline, not anyone else&apos;s.</p>
               </div>
-              <button onClick={openDialog} className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">Book a Free Consultation <ArrowUpRight className="w-4 h-4" /></button>
+              <button onClick={openDialog} className="ef-btn ef-btn-primary">Book a Free Consultation <ArrowUpRight className="w-4 h-4" /></button>
             </div>
             <img src="/images/about-philosophy.jpg" alt="Personal training philosophy at Eternal Fitness Worthing" loading="lazy" className="rounded-3xl w-full h-[420px] object-cover shadow-[0_32px_80px_rgba(0,0,0,0.12)]" />
           </div>
@@ -127,11 +127,11 @@ export default function AboutPageClient() {
       </section>
 
       {/* Studio */}
-      <section className="ef-section px-6 md:px-12 bg-warm">
+      <section className="ef-section px-6 md:px-12 bg-background">
         <div className="max-w-[1320px] mx-auto">
           <div className="text-center mb-14">
-            <div className="ef-eyebrow ef-eyebrow-rose justify-center mb-5">Studio</div>
-            <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-4">A Private Space in Worthing</h2>
+            <div className="ef-eyebrow ef-eyebrow-rose justify-center mb-4">Studio</div>
+            <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-5">A Private Space in Worthing</h2>
             <p className="ef-body max-w-2xl mx-auto">Sessions take place in a small, private, fully equipped studio. No public gym floor. No other clients watching. No ambient pressure of what anyone else around you is doing.</p>
           </div>
           <div className="grid md:grid-cols-2 gap-6 mb-10">
@@ -146,18 +146,18 @@ export default function AboutPageClient() {
       </section>
 
       {/* Long-Term */}
-      <section className="ef-section px-6 md:px-12 bg-background">
+      <section className="ef-section px-6 md:px-12 bg-warm">
         <div className="max-w-[1320px] mx-auto">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-14 gap-6">
             <div>
-              <div className="ef-eyebrow ef-eyebrow-teal mb-5">Long-Term Progress</div>
+              <div className="ef-eyebrow ef-eyebrow-teal mb-4">Long-Term Progress</div>
               <h2 className="text-3xl md:text-4xl text-foreground ef-h2">Why the Long-Term Approach Matters</h2>
             </div>
             <p className="ef-body max-w-md">Quick fixes do not work. Sustainable change does — and Eternal Fitness is built around that belief.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {longTermCards.map((card) => (
-              <div key={card.title} className="border border-[#E4DDD7] rounded-3xl overflow-hidden shadow-sm bg-white">
+              <div key={card.title} className="ef-card overflow-hidden !p-0">
                 <div className="h-48 overflow-hidden"><img src={card.image} alt={card.title} loading="lazy" className="w-full h-full object-cover" /></div>
                 <div className="p-6">
                   <h4 className="text-foreground text-lg font-bold tracking-tight mb-2">{card.title}</h4>
