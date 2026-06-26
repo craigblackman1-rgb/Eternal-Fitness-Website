@@ -190,7 +190,7 @@ export default function ContactPageClient() {
                   onChange={handleChange}
                   className="mt-1 h-4 w-4 rounded border-border-warm accent-rose"
                 />
-                <label htmlFor="agree" className="text-sm ef-body"
+                <label htmlFor="agree" className="text-sm ef-body">
                   I agree to the{" "}
                   <a href="/terms" className="text-rose underline hover:text-rose/80 transition-colors">
                     privacy policy
