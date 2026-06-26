@@ -23,7 +23,7 @@ const Footer = () => {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
       />
 
-      <footer id="contact" className="bg-ink">
+      <footer id="contact" className="bg-[#131313]">
         {/* Top */}
         <div className="border-b border-white/[0.07] px-6 md:px-12 py-16 md:py-20">
           <div className="max-w-[1320px] mx-auto flex flex-col md:flex-row md:items-end md:justify-between gap-10">

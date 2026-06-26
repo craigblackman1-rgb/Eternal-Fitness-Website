@@ -52,13 +52,13 @@ export default function BlogPageClient({ posts }: { posts: BlogPost[] }) {
   return (
     <div className="min-h-screen bg-background">
       <ConsultationDialog open={open} onOpenChange={setOpen} />
+      <Navbar onBookConsultation={openDialog} />
 
       {/* Hero */}
       <section className="relative min-h-[50vh] pt-[72px] flex items-center justify-center overflow-hidden">
         <img src="/images/blog-hero.jpg" alt="Blog" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-hero-overlay/55 via-hero-overlay/65 to-hero-overlay/75" />
-        <Navbar onBookConsultation={openDialog} />
-        <div className="relative z-10 text-center px-6 pt-20">
+        <div className="relative z-10 text-center px-6">
           <h1 className="text-4xl md:text-5xl lg:text-6xl text-white mb-4">My Blog</h1>
           <p className="text-white/70 max-w-xl mx-auto text-base md:text-lg mb-8">
             Dive into my blog for insights, tips, and advice to support your health and fitness journey.
