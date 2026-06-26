@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eternal Fitness — Design Audit & Cohesion Plan</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rose: #C1839F;
+      --teal: #087E8B;
+      --cream: #F5EFEA;
+      --ink: #131313;
+      --body: #525A61;
+      --muted: #7E8088;
+      --border: #E4DDD7;
+      --white: #fff;
+      --warm: #FCF8F4;
+    }
+
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--warm);
+      color: var(--ink);
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    /* ── Layout ── */
+    .wrapper {
+      max-width: 940px;
+      margin: 0 auto;
+      padding: 60px 28px 100px;
+    }
+
+    /* ── Cover ── */
+    .cover {
+      background: var(--ink);
+      border-radius: 20px;
+      padding: 56px 56px 52px;
+      margin-bottom: 56px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: rgba(193,131,159,0.12);
+    }
+    .cover-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--rose);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    .cover-eyebrow::before {
+      content: '';
+      display: block;
+      width: 26px;
+      height: 1px;
+      background: var(--rose);
+    }
+    .cover h1 {
+      font-size: clamp(30px, 4vw, 44px);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+    }
+    .cover p {
+      font-size: 15px;
+      color: rgba(255,255,255,0.5);
+      max-width: 520px;
+      line-height: 1.65;
+    }
+    .cover-meta {
+      margin-top: 36px;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .cover-meta-item {
+      font-size: 12px;
+      color: rgba(255,255,255,0.3);
+    }
+    .cover-meta-item strong {
+      color: rgba(255,255,255,0.65);
+      font-weight: 600;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* ── Section headings ── */
+    .section {
+      margin-bottom: 52px;
+    }
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--rose);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 26px;
+      height: 1px;
+      background: var(--rose);
+    }
+    .section-label.teal { color: var(--teal); }
+    .section-label.teal::before { background: var(--teal); }
+
+    h2 {
+      font-size: clamp(22px, 3vw, 30px);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      color: var(--ink);
+      margin-bottom: 18px;
+    }
+    h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.015em;
+      margin-bottom: 10px;
+    }
+    p { color: var(--body); margin-bottom: 14px; }
+    p:last-child { margin-bottom: 0; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 30px;
+      margin-bottom: 14px;
+    }
+    .card:last-child { margin-bottom: 0; }
+
+    /* ── Conflict table ── */
+    .conflict-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .conflict-item {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 24px;
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .conflict-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--rose);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .conflict-body h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 5px;
+      letter-spacing: -0.01em;
+    }
+    .conflict-body p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .conflict-body p:last-child { margin-bottom: 0; }
+    .file-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      background: var(--warm);
+      color: var(--teal);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2px 8px;
+      margin-right: 6px;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* ── Phase cards ── */
+    .phase-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .phase-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 22px 26px;
+      border-bottom: 1px solid var(--border);
+    }
+    .phase-num {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .phase-num.p1 { background: #EBF7F8; color: var(--teal); }
+    .phase-num.p2 { background: rgba(193,131,159,0.12); color: var(--rose); }
+    .phase-num.p3 { background: #EBF7F8; color: var(--teal); }
+    .phase-num.p4 { background: rgba(193,131,159,0.12); color: var(--rose); }
+    .phase-num.p5 { background: #EBF7F8; color: var(--teal); }
+    .phase-num.p6 { background: rgba(193,131,159,0.12); color: var(--rose); }
+    .phase-header-text h3 { margin-bottom: 3px; font-size: 15px; }
+    .phase-header-text p { font-size: 12.5px; color: var(--muted); margin: 0; }
+    .phase-meta {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 999px;
+      letter-spacing: 0.01em;
+    }
+    .badge-time { background: #F0FAF0; color: #2D7A2D; }
+    .badge-risk-low { background: #F0FAF0; color: #2D7A2D; }
+    .badge-risk-med { background: #FFF8E6; color: #A0610D; }
+    .phase-body {
+      padding: 22px 26px;
+    }
+    .phase-body ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .phase-body li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13.5px;
+      color: var(--body);
+      line-height: 1.55;
+    }
+    .phase-body li::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--rose);
+      flex-shrink: 0;
+      margin-top: 7px;
+    }
+    .phase-body li.teal-dot::before { background: var(--teal); }
+    .phase-body li strong { color: var(--ink); }
+
+    code {
+      font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 11.5px;
+      background: var(--warm);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 1px 6px;
+      color: var(--teal);
+    }
+
+    pre {
+      font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 12px;
+      background: #0E1117;
+      color: #B8C4D0;
+      border-radius: 12px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      line-height: 1.7;
+      margin: 16px 0;
+    }
+    pre .c-comment { color: #4A5568; }
+    pre .c-key { color: #79B8FF; }
+    pre .c-val { color: #9ECBFF; }
+    pre .c-prop { color: #B392F0; }
+    pre .c-fn { color: #FFAB70; }
+    pre .c-str { color: #9ECB8A; }
+
+    /* ── Priority table ── */
+    .priority-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .priority-table th {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      padding: 14px 20px;
+      text-align: left;
+      background: var(--warm);
+      border-bottom: 1px solid var(--border);
+    }
+    .priority-table td {
+      padding: 14px 20px;
+      font-size: 13.5px;
+      color: var(--body);
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .priority-table tr:last-child td { border-bottom: none; }
+    .priority-table td:first-child { font-size: 16px; }
+    .priority-table td strong { color: var(--ink); }
+
+    /* ── Decision callout ── */
+    .callout {
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 14px;
+    }
+    .callout-rose {
+      background: rgba(193,131,159,0.09);
+      border: 1px solid rgba(193,131,159,0.25);
+    }
+    .callout-teal {
+      background: rgba(8,126,139,0.07);
+      border: 1px solid rgba(8,126,139,0.2);
+    }
+    .callout h4 {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .callout p { font-size: 13px; color: var(--body); }
+
+    /* ── Divider ── */
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+
+    /* ── Preserve note ── */
+    .preserve-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 600px) {
+      .preserve-grid { grid-template-columns: 1fr; }
+      .cover { padding: 36px 28px; }
+      .phase-header { flex-direction: column; align-items: flex-start; }
+    }
+    .preserve-item {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .preserve-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(8,126,139,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .preserve-icon svg { width: 14px; height: 14px; stroke: var(--teal); fill: none; }
+    .preserve-item h4 { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+    .preserve-item p { font-size: 12px; color: var(--muted); margin: 0; }
+
+    /* ── Footer bar ── */
+    .doc-footer {
+      margin-top: 80px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: gap;
+      gap: 12px;
+    }
+    .doc-footer p { font-size: 12px; color: var(--muted); margin: 0; }
+    .doc-footer .logo {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--rose);
+      letter-spacing: -0.01em;
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- Cover -->
+  <div class="cover">
+    <div class="cover-eyebrow">Design Review · June 2026</div>
+    <h1>Design Audit &amp;<br>Cohesion Plan</h1>
+    <p>A full audit of visual inconsistencies across the Eternal Fitness website and Hub back office, with a phased implementation plan to unify the design system.</p>
+    <div class="cover-meta">
+      <div class="cover-meta-item"><strong>10 conflicts found</strong>Across site + hub</div>
+      <div class="cover-meta-item"><strong>6 phases</strong>~9 hours total</div>
+      <div class="cover-meta-item"><strong>Scope</strong>Marketing site + Hub</div>
+      <div class="cover-meta-item"><strong>Stack</strong>Next.js · Tailwind · shadcn/ui</div>
+    </div>
+  </div>
+
+  <!-- What I Found -->
+  <div class="section">
+    <div class="section-label">Overview</div>
+    <h2>Three Design Layers That Evolved Independently</h2>
+    <p>The site has accumulated design debt across several rounds of updates. There is no single source of truth for components, spacing, or typography — instead three parallel systems are running side by side and conflicting.</p>
+
+    <div class="card">
+      <h3>Layer 1 — Homepage</h3>
+      <p>Custom scoped CSS in <code>home.css</code> with its own variables (<code>--ink</code>, <code>--cream</code>, <code>--teal</code>), its own nav, its own button classes, and h2 headings in <strong>DM Sans 800</strong>.</p>
+    </div>
+    <div class="card">
+      <h3>Layer 2 — Inner marketing pages</h3>
+      <p>Use <code>globals.css</code> utility classes (<code>ef-section</code>, <code>ef-eyebrow</code>, <code>ef-card</code>) plus inline Tailwind. h2 headings inherit the global rule and render in <strong>DM Serif Display 400</strong> — a completely different typeface from the homepage.</p>
+    </div>
+    <div class="card">
+      <h3>Layer 3 — Hub back office</h3>
+      <p>shadcn/ui components with Tailwind brand tokens. Largely self-consistent but siloed — uses hardcoded colour values, hardcoded breadcrumb text, and its own SVG conventions.</p>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- Conflicts -->
+  <div class="section">
+    <div class="section-label">Findings</div>
+    <h2>10 Specific Design Conflicts</h2>
+
+    <div class="conflict-grid">
+
+      <div class="conflict-item">
+        <div class="conflict-num">1</div>
+        <div class="conflict-body">
+          <h4>Duplicate colour systems</h4>
+          <p><code>home.css</code> defines <code>--ink</code>, <code>--teal</code>, <code>--cream</code> etc. while <code>globals.css</code> defines <code>--color-charcoal</code>, <code>--color-teal</code>, <code>--color-cream</code>. A brand colour change requires updating two files.</p>
+          <div><span class="file-tag">app/home.css</span><span class="file-tag">app/globals.css</span></div>
+        </div>
+      </div>
+
+      <div class="conflict-item">
+        <div class="conflict-num">2</div>
+        <div class="conflict-body">
+          <h4>Two separate navbars</h4>
+          <p>The homepage has its own nav built inline with <code>.ncta</code> CSS classes and a CTA labelled <strong>"Book Consultation"</strong>. All inner pages use <code>Navbar.tsx</code> with a CTA labelled <strong>"Contact Us"</strong>. Different label, different button colour treatment, different hover state.</p>
+          <div><span class="file-tag">HomePageClient.tsx</span><span class="file-tag">components/Navbar.tsx</span></div>
+        </div>
+      </div>
+
+      <div class="conflict-item">
+        <div class="conflict-num">3</div>
+        <div class="conflict-body">
+          <h4>Heading font divergence — biggest visual inconsistency</h4>
+          <p>Homepage h2s are <strong>DM Sans 800</strong> via <code>.efhome h2.D</code>. Inner pages and CTASection h2s are <strong>DM Serif Display 400</strong> via the global <code>h2</code> rule. The brand switches font families between pages — the most noticeable inconsistency when navigating the site.</p>
+          <div><span class="file-tag">home.css (line 94)</span><span class="file-tag">globals.css (line 157)</span></div>
+        </div>
+      </div>
+
+      <div class="conflict-item">
+        <div class="conflict-num">4</div>
+        <div class="conflict-body">
+          <h4>No shared button component</h4>
+          <p>Three different button patterns exist across the site with no shared source of truth:</p>
+          <p>Homepage: <code>.btn .btn-dk/.btn-rs/.btn-ol</code> (CSS classes)<br>
+          Inner pages: Long inline Tailwind strings on every button<br>
+          Hub: shadcn <code>&lt;Button&gt;</code> variants</p>
+          <div><span class="file-tag">home.css</span><span class="file-tag">AboutPageClient.tsx</span><span class="file-tag">components/ui/button.tsx</span></div>
+        </div>
+      </div>
+
+      <div class="conflict-item">
+        <div class="conflict-num">5</div>
+        <div class="conflict-body">
+          <h4>Hardcoded colours in Navbar</h4>
+          <p>Raw hex values bypass the token system. If the brand border colour changes, the Navbar won't update.</p>
+          <p><code>#3C3C3C</code> → should be <code>var(--color-charcoal)</code><br>
+          <code>#E4DDD7</code> → should be <code>var(--color-border-warm)</code><br>
+          <code>rgba(255,255,255,0.97)</code> → should be <code>bg-white/[0.97]</code></p>
+          <div><span class="file-tag">components/Navbar.tsx (lines 77, 88, 94, 137)</span></div>
+        </div>
+      </div>
+
+      <div class="conflict-item">
+        <div class="conflict-num">6</div>
+        <div class="conflict-body">
+          <h4>Footer hardcoded background</h4>
+          <p><code>bg-[#131313]</code> is the same value as <code>--ink</code> in <code>home.css</code> but is not mapped to any token in <code>globals.css</code>. If the dark colour changes it won't propagate to the footer.</p>
+          <div><span class="file-tag">components/Footer.tsx (line 26)</span></div>
+        </div>
+      </div>
+
+      <div class="conflict-item">
+        <div class="conflict-num">7</div>
+        <div class="conflict-body">
+          <h4>Hub breadcrumb hardcoded to "Dashboard"</h4>
+          <p>The hub layout header always shows <strong>Hub / Dashboard</strong> regardless of which page the trainer is actually on (Clients, Exercises, Agreements, etc.). A navigation usability issue.</p>
+          <div><span class="file-tag">app/hub/(protected)/layout.tsx (lines 22–23)</span></div>
+        </div>
+      </div>
+
+      <div class="conflict-item">
+        <div class="conflict-num">8</div>
+        <div class="conflict-body">
+          <h4>Section background alternation inconsistent</h4>
+          <p>About page: <code>bg-background → bg-white → bg-background → bg-white → bg-warm → bg-background</code>. Pricing: <code>bg-background → bg-warm</code>. Homepage: <code>white → ink → cream → white → teal</code>. No shared rhythm or rule.</p>
+          <div><span class="file-tag">AboutPageClient.tsx</span><span class="file-tag">PricingPageClient.tsx</span><span class="file-tag">home.css</span></div>
+        </div>
+      </div>
+
+      <div class="conflict-item">
+        <div class="conflict-num">9</div>
+        <div class="conflict-body">
+          <h4>CTA section — serif vs sans h2</h4>
+          <p><code>CTASection.tsx</code> renders its h2 in DM Serif Display (inheriting the global rule). The homepage's equivalent <code>#cta</code> section renders in DM Sans 800 (via <code>home.css</code>). The same functional section looks fundamentally different on the homepage versus inner pages.</p>
+          <div><span class="file-tag">components/CTASection.tsx (line 24)</span><span class="file-tag">home.css (line 170)</span></div>
+        </div>
+      </div>
+
+      <div class="conflict-item">
+        <div class="conflict-num">10</div>
+        <div class="conflict-body">
+          <h4>Hardcoded border in About page cards</h4>
+          <p>The long-term cards on the About page use <code>border-[#E4DDD7]</code> directly instead of the <code>border-border</code> token. Similar hardcoded values appear in several inner pages.</p>
+          <div><span class="file-tag">AboutPageClient.tsx (line 160)</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- Design Decisions -->
+  <div class="section">
+    <div class="section-label">Design Decisions</div>
+    <h2>Key Calls Before Implementation</h2>
+
+    <div class="callout callout-rose">
+      <h4>Heading font — use DM Serif Display everywhere</h4>
+      <p>The global <code>h2</code> rule already uses DM Serif Display, and this is the right choice for a healthcare/rehabilitation brand — it reads as warm, trustworthy, and established. The homepage should be brought into line with this, not the other way round. Homepage h2s should switch from DM Sans 800 → DM Serif Display with tight tracking to maintain editorial impact.</p>
+    </div>
+
+    <div class="callout callout-teal">
+      <h4>CTA label — standardise on "Book a Free Consultation"</h4>
+      <p>"Contact Us" is weaker and less specific than "Book a Free Consultation". Every nav and primary CTA across the site should use the same action-oriented label. This aligns with how the homepage nav already phrases it.</p>
+    </div>
+
+    <div class="callout callout-rose">
+      <h4>Hub headings — keep DM Sans (this is correct)</h4>
+      <p>The hub is a data-dense back office tool for a trainer, not a consumer-facing page. DM Sans is the right typeface for dashboard headings — it's more legible at smaller sizes in data contexts. This is a deliberate and appropriate divergence that should be preserved.</p>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- Phases -->
+  <div class="section">
+    <div class="section-label teal">Implementation Plan</div>
+    <h2>6 Phases — ~9 Hours Total</h2>
+
+    <div class="phase-grid">
+
+      <!-- Phase 1 -->
+      <div class="phase-card">
+        <div class="phase-header">
+          <div class="phase-num p1">1</div>
+          <div class="phase-header-text">
+            <h3>Consolidate the Token System</h3>
+            <p>Add missing tokens to <code>globals.css</code> and make <code>home.css</code> reference them</p>
+            <div class="phase-meta">
+              <span class="badge badge-time">~1 hour</span>
+              <span class="badge badge-risk-low">Risk: Low</span>
+            </div>
+          </div>
+        </div>
+        <div class="phase-body">
+          <ul>
+            <li>Add <code>--color-ink: #131313</code>, <code>--color-body: #525A61</code>, <code>--color-muted: #7E8088</code>, <code>--color-border-warm: #E4DDD7</code> to <code>globals.css :root</code></li>
+            <li>Add <code>ink</code> colour to Tailwind config (for Footer background) and <code>border-warm</code> for border utilities</li>
+            <li>In <code>home.css</code>, replace all local variable declarations with references to globals tokens:<br><code>--ink: var(--color-ink);</code> etc.</li>
+            <li>Update <code>Footer.tsx</code> to use <code>bg-ink</code> instead of <code>bg-[#131313]</code></li>
+            <li class="teal-dot"><strong>Result:</strong> One source of truth for all brand colours. A single change in <code>globals.css</code> propagates everywhere.</li>
+          </ul>
+
+          <pre><span class="c-comment">/* Add to globals.css :root */</span>
+<span class="c-key">--color-ink</span>: <span class="c-val">#131313</span>;
+<span class="c-key">--color-body</span>: <span class="c-val">#525A61</span>;
+<span class="c-key">--color-muted</span>: <span class="c-val">#7E8088</span>;
+<span class="c-key">--color-border-warm</span>: <span class="c-val">#E4DDD7</span>;
+
+<span class="c-comment">/* home.css — replace all local declarations */</span>
+<span class="c-prop">.efhome</span> {
+  <span class="c-key">--ink</span>: <span class="c-val">var(--color-ink)</span>;
+  <span class="c-key">--teal</span>: <span class="c-val">var(--color-teal)</span>;
+  <span class="c-key">--rose</span>: <span class="c-val">var(--color-rose)</span>;
+  <span class="c-key">--cream</span>: <span class="c-val">var(--color-cream)</span>;
+  <span class="c-key">--body</span>: <span class="c-val">var(--color-body)</span>;
+  <span class="c-key">--hborder</span>: <span class="c-val">var(--color-border-warm)</span>;
+  <span class="c-comment">/* keep --f and --max */</span>
+}</pre>
+        </div>
+      </div>
+
+      <!-- Phase 2 -->
+      <div class="phase-card">
+        <div class="phase-header">
+          <div class="phase-num p2">2</div>
+          <div class="phase-header-text">
+            <h3>Unify Typography</h3>
+            <p>Fix the biggest visual inconsistency — heading fonts between homepage and inner pages</p>
+            <div class="phase-meta">
+              <span class="badge badge-time">~30 min</span>
+              <span class="badge badge-risk-low">Risk: Low</span>
+            </div>
+          </div>
+        </div>
+        <div class="phase-body">
+          <ul>
+            <li>Update <code>.efhome h2.D</code> in <code>home.css</code> to use <code>var(--font-serif)</code> (DM Serif Display), matching the global h2 rule</li>
+            <li>Reduce font-weight from 800 → 700 (serif reads heavier at the same weight value — 700 gives the same impact)</li>
+            <li>Keep the existing size (<code>clamp(34px, 3.4vw, 50px)</code>), line-height (1.06), and letter-spacing (−0.03em) — these maintain the homepage's editorial energy</li>
+            <li>The <code>CTASection.tsx</code> h2 already uses serif — no change needed there</li>
+            <li class="teal-dot"><strong>Result:</strong> Navigate from homepage to About — the heading typeface now matches.</li>
+          </ul>
+
+          <pre><span class="c-comment">/* home.css — update h2.D */</span>
+<span class="c-prop">.efhome h2.D</span> {
+  <span class="c-key">font-family</span>: <span class="c-val">var(--font-serif)</span>; <span class="c-comment">/* ADD */</span>
+  <span class="c-key">font-size</span>: <span class="c-val">clamp(34px, 3.4vw, 50px)</span>;
+  <span class="c-key">font-weight</span>: <span class="c-val">700</span>; <span class="c-comment">/* was 800 */</span>
+  <span class="c-key">line-height</span>: <span class="c-val">1.06</span>;
+  <span class="c-key">letter-spacing</span>: <span class="c-val">-.03em</span>;
+  <span class="c-key">color</span>: <span class="c-val">var(--ink)</span>;
+}</pre>
+        </div>
+      </div>
+
+      <!-- Phase 3 -->
+      <div class="phase-card">
+        <div class="phase-header">
+          <div class="phase-num p3">3</div>
+          <div class="phase-header-text">
+            <h3>Shared Button Utility Classes</h3>
+            <p>Add reusable <code>.ef-btn-*</code> utilities to <code>globals.css</code> — stop repeating Tailwind strings</p>
+            <div class="phase-meta">
+              <span class="badge badge-time">~1.5 hours</span>
+              <span class="badge badge-risk-low">Risk: Low</span>
+            </div>
+          </div>
+        </div>
+        <div class="phase-body">
+          <ul>
+            <li>Add <code>.ef-btn</code> base class + <code>.ef-btn-primary</code>, <code>.ef-btn-dark</code>, <code>.ef-btn-outline</code>, <code>.ef-btn-ghost-white</code> variants to <code>globals.css</code></li>
+            <li>Replace all inline Tailwind button strings across inner pages (About, Pricing, Personal Training, Contact, FAQs) with these classes</li>
+            <li>Rename homepage's existing <code>.btn</code> → <code>.ef-btn</code> and <code>.btn-rs</code> → <code>.ef-btn-primary</code> etc. for naming consistency</li>
+            <li>Hub keeps using shadcn <code>&lt;Button&gt;</code> — appropriate for its data-dense context</li>
+            <li class="teal-dot"><strong>Result:</strong> All marketing page buttons share one definition. Change the pill radius or padding once, it updates everywhere.</li>
+          </ul>
+
+          <pre><span class="c-comment">/* Add to globals.css @layer utilities */</span>
+<span class="c-prop">.ef-btn</span> {
+  <span class="c-key">display</span>: <span class="c-val">inline-flex</span>; <span class="c-key">align-items</span>: <span class="c-val">center</span>; <span class="c-key">gap</span>: <span class="c-val">8px</span>;
+  <span class="c-key">padding</span>: <span class="c-val">12px 24px</span>; <span class="c-key">border-radius</span>: <span class="c-val">999px</span>;
+  <span class="c-key">font-size</span>: <span class="c-val">14px</span>; <span class="c-key">font-weight</span>: <span class="c-val">600</span>; <span class="c-key">cursor</span>: <span class="c-val">pointer</span>;
+  <span class="c-key">transition</span>: <span class="c-val">all 200ms</span>; <span class="c-key">border</span>: <span class="c-val">none</span>;
+}
+<span class="c-prop">.ef-btn-primary</span>   { <span class="c-key">background</span>: <span class="c-val">var(--color-rose)</span>; <span class="c-key">color</span>: <span class="c-val">#fff</span>; }
+<span class="c-prop">.ef-btn-primary:hover</span> { <span class="c-key">opacity</span>: <span class="c-val">.88</span>; }
+<span class="c-prop">.ef-btn-dark</span>      { <span class="c-key">background</span>: <span class="c-val">var(--color-ink)</span>; <span class="c-key">color</span>: <span class="c-val">#fff</span>; }
+<span class="c-prop">.ef-btn-dark:hover</span> { <span class="c-key">background</span>: <span class="c-val">var(--color-rose)</span>; }
+<span class="c-prop">.ef-btn-outline</span>   { <span class="c-key">background</span>: <span class="c-val">transparent</span>; <span class="c-key">border</span>: <span class="c-val">1.5px solid var(--color-border-warm)</span>; <span class="c-key">color</span>: <span class="c-val">var(--color-ink)</span>; }
+<span class="c-prop">.ef-btn-ghost-white</span> { <span class="c-key">background</span>: <span class="c-val">transparent</span>; <span class="c-key">border</span>: <span class="c-val">1.5px solid rgba(255,255,255,.4)</span>; <span class="c-key">color</span>: <span class="c-val">#fff</span>; }</pre>
+        </div>
+      </div>
+
+      <!-- Phase 4 -->
+      <div class="phase-card">
+        <div class="phase-header">
+          <div class="phase-num p4">4</div>
+          <div class="phase-header-text">
+            <h3>Navbar Unification</h3>
+            <p>Replace hardcoded colours, standardise the CTA label</p>
+            <div class="phase-meta">
+              <span class="badge badge-time">~1 hour</span>
+              <span class="badge badge-risk-med">Risk: Medium — test carefully</span>
+            </div>
+          </div>
+        </div>
+        <div class="phase-body">
+          <ul>
+            <li>In <code>Navbar.tsx</code>, replace <code>#3C3C3C</code> → <code>text-charcoal</code>, <code>#E4DDD7</code> → <code>border-[var(--color-border-warm)]</code>, <code>rgba(255,255,255,0.97)</code> → <code>bg-white/[0.97]</code></li>
+            <li>Change the navbar CTA label from <strong>"Contact Us"</strong> → <strong>"Book a Free Consultation"</strong> on both desktop and mobile menu</li>
+            <li>The homepage's own nav already says "Book Consultation" — update to match the exact same label: "Book a Free Consultation"</li>
+            <li>The homepage nav can remain as its own component (it has unique scroll-transparent behaviour specific to the split hero) — just ensure labels and tokens are aligned</li>
+            <li class="teal-dot"><strong>Result:</strong> Consistent CTA across every page. Token-driven nav that respects the design system.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Phase 5 -->
+      <div class="phase-card">
+        <div class="phase-header">
+          <div class="phase-num p5">5</div>
+          <div class="phase-header-text">
+            <h3>Inner Page Standardisation</h3>
+            <p>Apply consistent patterns across all marketing pages</p>
+            <div class="phase-meta">
+              <span class="badge badge-time">~3 hours</span>
+              <span class="badge badge-risk-low">Risk: Low</span>
+            </div>
+          </div>
+        </div>
+        <div class="phase-body">
+          <ul>
+            <li><strong>Section background rule</strong> — establish one rhythm and apply it to all inner pages: light (<code>bg-background</code>) → feature (<code>bg-white</code>) → warm accent (<code>bg-warm</code>) → dark (<code>bg-ink</code>) → CTA (<code>&lt;CTASection /&gt;</code>)</li>
+            <li><strong>Card consistency</strong> — replace all inline <code>border border-[#E4DDD7] rounded-3xl</code> patterns with the <code>ef-card</code> class. Currently inconsistent across About, Pricing, and FAQs pages.</li>
+            <li><strong>Eyebrow → h2 → body hierarchy</strong> — standardise spacing across all sections: eyebrow <code>mb-4</code>, h2 <code>mb-5</code>, body <code>mb-8</code> before any CTA. Currently varies between <code>mb-4</code> and <code>mb-5</code> on eyebrows inconsistently.</li>
+            <li><strong>Replace inline button strings</strong> with <code>ef-btn-primary</code> / <code>ef-btn-outline</code> classes (from Phase 3)</li>
+            <li><strong>Pages to touch:</strong> About, Pricing, Personal Training, FAQs, Contact, Blog, and legal pages (Privacy, Terms, Cookies)</li>
+            <li class="teal-dot"><strong>Result:</strong> Every marketing page feels like it came from the same hand.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Phase 6 -->
+      <div class="phase-card">
+        <div class="phase-header">
+          <div class="phase-num p6">6</div>
+          <div class="phase-header-text">
+            <h3>Hub Cohesion</h3>
+            <p>Dynamic breadcrumb, token cleanup, minor polish</p>
+            <div class="phase-meta">
+              <span class="badge badge-time">~2 hours</span>
+              <span class="badge badge-risk-low">Risk: Low</span>
+            </div>
+          </div>
+        </div>
+        <div class="phase-body">
+          <ul>
+            <li><strong>Dynamic breadcrumb</strong> — replace the hardcoded "Dashboard" in <code>layout.tsx</code> with a client component that reads <code>usePathname()</code> and maps to human-readable labels (Dashboard, Clients, Exercise Library, Medical Tracker, Agreements, Site Review)</li>
+            <li><strong>HubSidebar SVG</strong> — replace hardcoded <code>hsl(318, 86%, 63%)</code> on the logo icon with <code>var(--color-rose)</code></li>
+            <li><strong>Hub colour tokens</strong> — audit the hub pages for any remaining hardcoded hex values and replace with the token system</li>
+            <li><strong>Keep DM Sans for hub headings</strong> — appropriate for a data-dense back office; this is an intentional divergence</li>
+            <li><strong>Keep shadcn Button</strong> — the rounded-full overrides on hub buttons already align them visually with the marketing site style</li>
+            <li class="teal-dot"><strong>Result:</strong> Hub feels connected to the brand and is easier to navigate.</li>
+          </ul>
+
+          <pre><span class="c-comment">// Suggested breadcrumb map for hub/layout.tsx</span>
+<span class="c-key">const</span> <span class="c-fn">crumbLabels</span>: <span class="c-prop">Record</span>&lt;<span class="c-str">string</span>, <span class="c-str">string</span>&gt; = {
+  <span class="c-str">"/hub"</span>:             <span class="c-str">"Dashboard"</span>,
+  <span class="c-str">"/hub/clients"</span>:    <span class="c-str">"Clients"</span>,
+  <span class="c-str">"/hub/exercises"</span>:  <span class="c-str">"Exercise Library"</span>,
+  <span class="c-str">"/hub/tracker"</span>:    <span class="c-str">"Medical Tracker"</span>,
+  <span class="c-str">"/hub/agreements"</span>: <span class="c-str">"Agreements"</span>,
+  <span class="c-str">"/hub/site-review"</span>:<span class="c-str">"Site Review"</span>,
+};</pre>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- Priority -->
+  <div class="section">
+    <div class="section-label">Prioritisation</div>
+    <h2>Recommended Order</h2>
+
+    <table class="priority-table">
+      <thead>
+        <tr>
+          <th>Priority</th>
+          <th>Phase</th>
+          <th>Effort</th>
+          <th>Why Now</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>🔴</td>
+          <td><strong>Phase 1</strong> — Token consolidation</td>
+          <td>1h</td>
+          <td>Eliminates dual-system maintenance risk immediately. Enables all subsequent phases.</td>
+        </tr>
+        <tr>
+          <td>🔴</td>
+          <td><strong>Phase 2</strong> — Typography unification</td>
+          <td>30m</td>
+          <td>Biggest visual inconsistency. Noticeable the moment you navigate from homepage to any inner page.</td>
+        </tr>
+        <tr>
+          <td>🟠</td>
+          <td><strong>Phase 4</strong> — Navbar fixes</td>
+          <td>1h</td>
+          <td>User-facing CTA inconsistency (two different labels). Quick win with clear impact.</td>
+        </tr>
+        <tr>
+          <td>🟠</td>
+          <td><strong>Phase 3</strong> — Shared button classes</td>
+          <td>1.5h</td>
+          <td>Enables consistent styling going forward. Reduces maintenance surface area significantly.</td>
+        </tr>
+        <tr>
+          <td>🟡</td>
+          <td><strong>Phase 5</strong> — Inner page standardisation</td>
+          <td>3h</td>
+          <td>Polishes the detail layer. Best done after Phases 1–3 are complete.</td>
+        </tr>
+        <tr>
+          <td>🟡</td>
+          <td><strong>Phase 6</strong> — Hub cohesion</td>
+          <td>2h</td>
+          <td>Breadcrumb UX fix + token cleanup. Improves daily usability for Esther.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr>
+
+  <!-- What to Preserve -->
+  <div class="section">
+    <div class="section-label teal">Preserve</div>
+    <h2>What to Keep As-Is</h2>
+    <p>Not everything needs changing. These elements are working well and should be kept:</p>
+
+    <div class="preserve-grid" style="margin-top: 20px;">
+      <div class="preserve-item">
+        <div class="preserve-icon">
+          <svg viewBox="0 0 16 16" stroke-width="1.5"><polyline points="3,8 6,11 13,5"/></svg>
+        </div>
+        <div>
+          <h4>Homepage scoped CSS (.efhome)</h4>
+          <p>Correct pattern. Prevents style leakage. Keep the scope — just convert the variables.</p>
+        </div>
+      </div>
+      <div class="preserve-item">
+        <div class="preserve-icon">
+          <svg viewBox="0 0 16 16" stroke-width="1.5"><polyline points="3,8 6,11 13,5"/></svg>
+        </div>
+        <div>
+          <h4>Hub shadcn/ui components</h4>
+          <p>Right choice for a data-dense back office. Don't replace with marketing-site patterns.</p>
+        </div>
+      </div>
+      <div class="preserve-item">
+        <div class="preserve-icon">
+          <svg viewBox="0 0 16 16" stroke-width="1.5"><polyline points="3,8 6,11 13,5"/></svg>
+        </div>
+        <div>
+          <h4>Rose/Teal/Cream palette</h4>
+          <p>Well-chosen and distinctive for the brand. Consistent in intent if not execution.</p>
+        </div>
+      </div>
+      <div class="preserve-item">
+        <div class="preserve-icon">
+          <svg viewBox="0 0 16 16" stroke-width="1.5"><polyline points="3,8 6,11 13,5"/></svg>
+        </div>
+        <div>
+          <h4>DM Serif Display + DM Sans pairing</h4>
+          <p>Strong, appropriate, and already loaded. Don't change the font choice.</p>
+        </div>
+      </div>
+      <div class="preserve-item">
+        <div class="preserve-icon">
+          <svg viewBox="0 0 16 16" stroke-width="1.5"><polyline points="3,8 6,11 13,5"/></svg>
+        </div>
+        <div>
+          <h4>Hub DM Sans headings</h4>
+          <p>Correct for a data-dense back office. An intentional divergence from the marketing site.</p>
+        </div>
+      </div>
+      <div class="preserve-item">
+        <div class="preserve-icon">
+          <svg viewBox="0 0 16 16" stroke-width="1.5"><polyline points="3,8 6,11 13,5"/></svg>
+        </div>
+        <div>
+          <h4>Homepage split hero layout</h4>
+          <p>A deliberate high-impact design distinct from the inner page full-bleed photo heroes. Keep both patterns.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="doc-footer">
+    <p>Eternal Fitness · Design Audit · June 2026 · 10 conflicts · 6 phases · ~9 hours</p>
+    <div class="logo">ETERNAL FITNESS</div>
+  </div>
+
+</div>
+</body>
+</html>
