@@ -161,7 +161,7 @@ export default function PersonalTrainingClient() {
       </section>
 
       {/* Specialist Areas */}
-      <section className="ef-section px-6 md:px-12 bg-warm">
+      <section id="specialist-areas" className="ef-section px-6 md:px-12 bg-warm">
         <div className="max-w-[1320px] mx-auto">
           <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-end mb-16">
             <div>

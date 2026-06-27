@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
 import ConsultationDialog from "@/components/ConsultationDialog";
-import EternalFitnessLogo from "@/components/EternalFitnessLogo";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroCanvas from "@/components/home/HeroCanvas";
 import HomeMotion from "@/components/home/HomeMotion";
@@ -18,66 +16,12 @@ const Arrow = () => (
   </svg>
 );
 
-const navItems = [
-  { label: "About", to: "/about" },
-  { label: "How It Works", to: "#approach" },
-  { label: "Specialist Areas", to: "#specialist" },
-  { label: "Pricing", to: "/pricing" },
-  { label: "FAQs", to: "/faqs" },
-];
-
 export default function HomePageClient() {
   const { open, setOpen, openDialog } = useConsultationDialog();
-  const [lit, setLit] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setLit(window.scrollY > 50);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   return (
     <div className="efhome">
-      {/* NAV */}
-      <nav id="nav" className={lit || menuOpen ? "lit" : ""}>
-        <Link href="/" aria-label="Eternal Fitness home">
-          <EternalFitnessLogo variant={lit || menuOpen ? "dark" : "light"} className="h-7 w-auto" />
-        </Link>
-        <div className="nlinks hidden md:flex">
-          {navItems.map((item) => (
-            <Link key={item.label} href={item.to} className="nlink">{item.label}</Link>
-          ))}
-        </div>
-        <button className="ncta btn hidden md:inline-flex" onClick={openDialog}>
-          Book a Free Consultation <Arrow />
-        </button>
-        <button
-          className="nburger btn md:hidden"
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
-          onClick={() => setMenuOpen((v) => !v)}
-        >
-          {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
-      </nav>
-
-      {menuOpen && (
-        <div
-          className="md:hidden"
-          style={{
-            position: "fixed", top: 72, left: 0, right: 0, zIndex: 999,
-            background: "#fff", borderBottom: "1px solid #E4DDD7",
-            padding: "20px 28px", display: "flex", flexDirection: "column", gap: 16,
-          }}
-        >
-          {navItems.map((item) => (
-            <Link key={item.label} href={item.to} className="nlink" onClick={() => setMenuOpen(false)}>
-              {item.label}
-            </Link>
-          ))}
-        </div>
-      )}
+      <Navbar onBookConsultation={openDialog} />
 
       {/* HERO */}
       <section id="hero">

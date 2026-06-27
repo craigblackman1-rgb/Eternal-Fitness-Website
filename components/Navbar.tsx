@@ -13,6 +13,7 @@ const navItems = [
   { label: "Pricing", to: "/pricing" },
   { label: "FAQs", to: "/faqs" },
   { label: "Blog", to: "/blog" },
+  { label: "Contact", to: "/contact" },
 ];
 
 interface NavbarProps {

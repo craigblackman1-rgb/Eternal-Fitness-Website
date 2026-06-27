@@ -25,22 +25,6 @@
 .efhome a { text-decoration: none; color: inherit; }
 .efhome button { cursor: pointer; font-family: var(--f); border: none; }
 
-/* ── Nav ──────────────────────────── */
-.efhome #nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: 72px; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; transition: background .3s, box-shadow .3s; }
-.efhome #nav.lit { background: rgba(255,255,255,.97); box-shadow: 0 1px 0 var(--hborder); }
-.efhome .nlinks { gap: 28px; }
-.efhome .nlink { font-size: 14px; font-weight: 500; color: var(--ink); opacity: .6; letter-spacing: -.01em; transition: opacity .2s; }
-.efhome .nlink:hover { opacity: 1; }
-.efhome .ncta { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: #fff; padding: 10px 22px; border-radius: 999px; font-size: 14px; font-weight: 600; letter-spacing: -.01em; transition: background .2s; }
-.efhome .ncta:hover { background: var(--rose); }
-.efhome .nburger { background: transparent; color: var(--ink); }
-
-/* ── Wordmark ──────────────────────── */
-.efhome .wm { display: inline-flex; align-items: baseline; gap: 6px; }
-.efhome .wm-thin { font-size: 15px; font-weight: 300; color: var(--ink); letter-spacing: .07em; text-transform: uppercase; transition: color .2s; }
-.efhome .wm-bold { font-size: 15px; font-weight: 900; color: var(--rose); letter-spacing: -.02em; text-transform: uppercase; transition: color .2s; }
-.efhome .wm:hover .wm-thin { color: var(--rose); }
-
 /* ── Hero ─────────────────────────── */
 .efhome #hero { min-height: 100vh; display: grid; grid-template-columns: 55fr 45fr; }
 .efhome .hlp { padding: 110px 80px 80px; display: flex; flex-direction: column; justify-content: center; }
@@ -185,7 +169,6 @@
   .efhome .spec-h { grid-template-columns: 1fr; gap: 24px; }
   .efhome .spec-g { grid-template-columns: 1fr; }
   .efhome .spc:nth-child(2), .efhome .spc:nth-child(3) { margin-top: 0; }
-  .efhome #nav { padding: 0 20px; }
   .efhome .ctac { padding: 72px 28px; }
 }
 @media (prefers-reduced-motion: reduce) {
