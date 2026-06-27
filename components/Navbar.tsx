@@ -134,8 +134,13 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
       </nav>
 
       {/* Mobile menu */}
-      {open && (
-        <div className="fixed top-[72px] left-0 right-0 z-40 bg-white border-b border-border-warm p-6 md:hidden flex flex-col gap-4 shadow-lg">
+      <div
+        className={`fixed top-[72px] left-0 right-0 z-40 bg-white border-b border-border-warm p-6 md:hidden flex flex-col gap-4 shadow-lg transition-all duration-200 ${
+          open
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 -translate-y-2 pointer-events-none"
+        }`}
+      >
           {navItems.map((item) => (
             <Link
               key={item.label}
@@ -163,7 +168,6 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
             </Link>
           )}
         </div>
-      )}
     </>
   );
 };
