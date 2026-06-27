@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowUpRight, Phone, Mail, MapPin } from "lucide-react";
+import { ArrowUpRight, Phone, Mail, MapPin, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -247,17 +247,24 @@ export default function ContactPageClient() {
               </div>
 
               {/* Not sure where to start? */}
-              <div className="ef-card">
-                <h3 className="text-foreground text-base font-bold tracking-tight mb-2">Not sure where to start?</h3>
-                <p className="ef-body text-sm mb-4">
-                  That is completely normal. Send me a message or give me a call and we can have an informal chat — no pressure, no commitment. I will help you figure out whether personal training is the right next step.
-                </p>
-                <a
-                  href="tel:07517658128"
-                  className="inline-flex items-center gap-2 text-rose font-medium text-sm hover:underline"
-                >
-                  Call me now <ArrowUpRight className="w-3.5 h-3.5" />
-                </a>
+              <div className="bg-cream rounded-2xl p-6 border border-warm/60">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-full bg-rose/15 flex items-center justify-center shrink-0 mt-0.5">
+                    <MessageCircle className="w-5 h-5 text-rose" />
+                  </div>
+                  <div>
+                    <h3 className="text-foreground text-base font-bold tracking-tight mb-1">Not Sure Where to Start?</h3>
+                    <p className="text-[14.5px] text-slate leading-relaxed mb-4">
+                      That is completely normal. Send me a message or give me a call and we can have an informal chat — no pressure, no commitment. I will help you figure out whether personal training is the right next step.
+                    </p>
+                    <a
+                      href="tel:07517658128"
+                      className="inline-flex items-center gap-2 text-rose font-semibold text-sm hover:underline"
+                    >
+                      Call me now <ArrowUpRight className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                </div>
               </div>
 
               {/* Social Icons */}

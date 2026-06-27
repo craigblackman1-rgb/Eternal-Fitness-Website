@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Award, HeartHandshake, Users } from "lucide-react";
+import { ArrowUpRight, Award, HeartHandshake, Users, Accessibility, Dumbbell, Leaf } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
@@ -115,9 +115,14 @@ export default function AboutPageClient() {
               <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-6">The Philosophy</h2>
               <p className="ef-body mb-5">Eternal Fitness is not a weight loss service. It is not about transforming your body into something it is not. It is about rehabilitation and recovery — finding out what your body is capable of right now, with all the health conditions, medications, limitations, and recovery status it is currently dealing with — and building steadily from there.</p>
               <p className="ef-body mb-6">The goal is not a six-week result. It is returning to activities after cancer treatment. Being able to move with less pain. Having better fatigue management. Managing your chronic condition without fear. Recovering full function after injury. Climbing stairs. Walking further. Moving through life with more ease, capability, and confidence than before. That takes time, consistency, and working with someone who genuinely understands medical complexity and adjusts when your health or capacity changes. That is what I do.</p>
-              <div className="ef-card mb-6">
-                <h4 className="text-foreground text-lg font-bold tracking-tight mb-2">More Than a Workout</h4>
-                <p className="ef-body text-sm">No weigh-ins. No before-and-after photos. No pressure to look a certain way. Just steady, meaningful progress — measured against your own baseline, not anyone else&apos;s.</p>
+              <div className="bg-cream rounded-2xl p-6 border border-warm/60 flex items-start gap-4">
+                <div className="w-11 h-11 rounded-full bg-rose/15 flex items-center justify-center shrink-0 mt-0.5">
+                  <HeartHandshake className="w-5 h-5 text-rose" />
+                </div>
+                <div>
+                  <h4 className="text-foreground text-base font-bold tracking-tight mb-1">More Than a Workout</h4>
+                  <p className="text-[14.5px] text-slate leading-relaxed">No weigh-ins. No before-and-after photos. No pressure to look a certain way. Just steady, meaningful progress — measured against your own baseline, not anyone else&apos;s.</p>
+                </div>
               </div>
               <button onClick={openDialog} className="ef-btn ef-btn-primary">Book a Free Consultation <ArrowUpRight className="w-4 h-4" /></button>
             </div>
@@ -138,9 +143,28 @@ export default function AboutPageClient() {
             <img src="/images/studio-1.jpg" alt="Eternal Fitness private training studio Worthing" loading="lazy" className="rounded-3xl w-full h-72 object-cover shadow-sm" />
             <img src="/images/studio-2.jpg" alt="Training equipment at Eternal Fitness Worthing" loading="lazy" className="rounded-3xl w-full h-72 object-cover shadow-sm" />
           </div>
-          <div className="ef-card max-w-2xl">
-            <h4 className="text-foreground text-lg font-bold tracking-tight mb-2">Built for All Abilities</h4>
-            <p className="ef-body text-sm">The studio is set up specifically for people with disabilities, mobility limitations, and complex health needs. Equipment is chosen to support functional recovery and movement — not performance aesthetics. The environment is deliberately calm, because the last thing someone managing a health condition or in recovery needs is more pressure or noise.</p>
+          <div className="grid md:grid-cols-3 gap-5">
+            <div className="bg-cream rounded-2xl p-6 border border-warm/60">
+              <div className="w-10 h-10 rounded-full bg-teal/15 flex items-center justify-center mb-4">
+                <Accessibility className="w-5 h-5 text-teal" />
+              </div>
+              <h4 className="text-foreground text-base font-bold tracking-tight mb-2">Designed for All Abilities</h4>
+              <p className="text-[14.5px] text-slate leading-relaxed">Studio set up for disabilities, mobility limitations, and complex health needs — with equipment chosen for functional recovery, not performance aesthetics.</p>
+            </div>
+            <div className="bg-cream rounded-2xl p-6 border border-warm/60">
+              <div className="w-10 h-10 rounded-full bg-teal/15 flex items-center justify-center mb-4">
+                <Dumbbell className="w-5 h-5 text-teal" />
+              </div>
+              <h4 className="text-foreground text-base font-bold tracking-tight mb-2">Equipment That Serves You</h4>
+              <p className="text-[14.5px] text-slate leading-relaxed">Every piece is chosen to support rehabilitation, recovery, and real-life movement. Resistance bands, mobility tools, and adaptive kit — nothing intimidating.</p>
+            </div>
+            <div className="bg-cream rounded-2xl p-6 border border-warm/60">
+              <div className="w-10 h-10 rounded-full bg-teal/15 flex items-center justify-center mb-4">
+                <Leaf className="w-5 h-5 text-teal" />
+              </div>
+              <h4 className="text-foreground text-base font-bold tracking-tight mb-2">A Calm Environment</h4>
+              <p className="text-[14.5px] text-slate leading-relaxed">No gym floor, no other clients watching, no ambient pressure. Quiet, private, one-to-one sessions — because recovery needs calm, not noise.</p>
+            </div>
           </div>
         </div>
       </section>

@@ -185,13 +185,19 @@ export default function PricingPageClient() {
             ))}
           </div>
 
-          <div className="mt-8 ef-card max-w-2xl">
-            <p className="ef-body text-sm">
-              <strong className="text-foreground">Not sure which to choose?</strong> Start with the free consultation. I will give you an honest recommendation based on your situation — not the most expensive option.
-            </p>
-            <p className="ef-body text-sm mt-3">
-              <Link href="/personal-training" className="text-rose hover:underline">See my specialist areas</Link> &middot; <Link href="/faqs" className="text-rose hover:underline">Read the FAQs</Link>
-            </p>
+          <div className="mt-8 bg-cream rounded-2xl p-6 border border-warm/60 flex items-start gap-4 max-w-2xl mx-auto">
+            <div className="w-10 h-10 rounded-full bg-rose/15 flex items-center justify-center shrink-0 mt-0.5">
+              <Heart className="w-5 h-5 text-rose" />
+            </div>
+            <div>
+              <p className="text-[15px] text-slate leading-relaxed">
+                <strong className="text-foreground">Not sure which to choose?</strong> Start with the free consultation. I will give you an honest recommendation based on your situation — not the most expensive option.
+              </p>
+              <div className="mt-3 flex gap-4 text-sm">
+                <Link href="/personal-training" className="text-rose font-semibold hover:underline inline-flex items-center gap-1">See my specialist areas <ArrowUpRight className="w-3.5 h-3.5" /></Link>
+                <Link href="/faqs" className="text-rose font-semibold hover:underline inline-flex items-center gap-1">Read the FAQs <ArrowUpRight className="w-3.5 h-3.5" /></Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
