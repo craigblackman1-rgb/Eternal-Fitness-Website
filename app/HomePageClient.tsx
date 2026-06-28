@@ -5,7 +5,6 @@ import Link from "next/link";
 import ConsultationDialog from "@/components/ConsultationDialog";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import HeroCanvas from "@/components/home/HeroCanvas";
 import HomeMotion from "@/components/home/HomeMotion";
 import { useConsultationDialog } from "@/hooks/useConsultationDialog";
 import "./home.css";
@@ -28,23 +27,31 @@ export default function HomePageClient() {
         <div className="hlp">
           <div className="h-tag" id="htag">Worthing, West Sussex</div>
           <div style={{ marginBottom: 24 }}>
-            <div className="hw"><span className="hl hl-t" id="hl1">Rehabilitation</span></div>
-            <div className="hw"><span className="hl hl-b" id="hl2">and Recovery</span></div>
-            <div className="hw"><span className="hl hl-t" id="hl3">Training</span></div>
+            <div className="hw"><span className="hl hl-t" id="hl1">Exercise</span></div>
+            <div className="hw"><span className="hl hl-b" id="hl2">for Health</span></div>
+            <div className="hw"><span className="hl hl-t" id="hl3">Conditions</span></div>
           </div>
-          <p className="h-loc" id="hloc">in Worthing for Complex Health Needs</p>
+          <p className="h-loc" id="hloc">Private one-to-one personal training in Worthing</p>
           <p className="h-sub" id="hsub">
-            Specialist one-to-one training for cancer rehabilitation, chronic health conditions,
-            post-surgery recovery, mobility limitations, disabilities, and anyone with complex
-            medical needs who has been overlooked by mainstream fitness. GP-referred clients welcome.
+            Specialist training for people with health conditions, complex needs, and anyone the
+            mainstream fitness industry has overlooked. Every session adapts to how you feel that
+            day — because the same plan can be right one week and wrong the next.
+            GP-referred clients welcome.
           </p>
           <div className="h-btns" id="hbtns">
             <button className="btn btn-dk" onClick={openDialog}>Book a Free Consultation <Arrow /></button>
             <a href="#why" className="btn btn-ol">Find Out How It Works</a>
           </div>
         </div>
-        <div className="hrp">
-          <HeroCanvas />
+        <div className="hrp" style={{ padding: 0 }}>
+          <Image
+            src="/images/esther-main.jpg"
+            alt="Esther Fair — Level 4 Personal Trainer, Worthing"
+            fill
+            priority
+            sizes="(max-width: 1000px) 100vw, 45vw"
+            style={{ objectFit: "cover", objectPosition: "center top" }}
+          />
           <div className="h-badge" id="hbadge">
             <div className="hbc">4</div>
             <div>
@@ -139,30 +146,30 @@ export default function HomePageClient() {
             <h2 className="D">This Is Not Like<br />Other Personal Training</h2>
           </div>
           <p className="L" style={{ maxWidth: 560 }}>
-            A Cancer Rehabilitation Specialist and Exercise Referral Specialist trained to adapt to
-            medical conditions, medication side-effects, fatigue variability, and changing capacity.
-            I work alongside your GP, specialist, or physiotherapist — not against them.
+            I am always watching and always adapting. Every session starts with a check-in — energy
+            levels, pain, sleep, what&apos;s changed since last week. The plan for that day is set then,
+            not before you walk through the door.
           </p>
           <div className="steps">
             <div className="step">
               <div className="sn">01</div>
-              <div className="sc"><h3>Private 1-to-1 studio</h3><p>No gym floor. No other clients. No pressure to look or perform a certain way.</p></div>
-              <div className="si"><Image src="/images/approach-private.jpg" alt="Private one-to-one studio" fill sizes="(max-width: 1000px) 100vw, 360px" style={{ objectFit: "cover" }} /></div>
+              <div className="sc"><h3>Every session adapts to how you feel that day</h3><p>Fatigue, flares, bad nights, medication changes — I notice and adjust without drawing attention to it. You always leave feeling you&apos;ve done something worthwhile.</p></div>
+              <div className="si"><Image src="/images/esther-training.jpg" alt="Esther Fair adapting a training session in Worthing" fill sizes="(max-width: 1000px) 100vw, 360px" style={{ objectFit: "cover" }} /></div>
             </div>
             <div className="step">
               <div className="sn">02</div>
-              <div className="sc"><h3>Adapts when your medical situation changes</h3><p>Fatigue flares. Conditions fluctuate. Side effects vary. Your programme adjusts with your body — always.</p></div>
-              <div className="si"><Image src="/images/approach-flexible.jpg" alt="Programme adapts to your situation" fill sizes="(max-width: 1000px) 100vw, 360px" style={{ objectFit: "cover" }} /></div>
+              <div className="sc"><h3>Private 1-to-1 studio — no gym floor</h3><p>No other clients. No performance pressure. No dress code. A calm, private space where the only focus is you and what you need today.</p></div>
+              <div className="si"><Image src="/images/studio-2.jpg" alt="Private personal training studio in Worthing" fill sizes="(max-width: 1000px) 100vw, 360px" style={{ objectFit: "cover" }} /></div>
             </div>
             <div className="step">
               <div className="sn">03</div>
-              <div className="sc"><h3>Long-term over quick fixes</h3><p>Real results come from steady, sustainable progress — not six-week transformations.</p></div>
-              <div className="si"><Image src="/images/approach-consistency.jpg" alt="Long-term sustainable progress" fill sizes="(max-width: 1000px) 100vw, 360px" style={{ objectFit: "cover" }} /></div>
+              <div className="sc"><h3>Functional progress — not transformation</h3><p>Climbing stairs with less pain. Better sleep. More energy. Walking further. These are the outcomes that matter to the people I work with — and they&apos;re the ones I build towards.</p></div>
+              <div className="si"><Image src="/images/studio-1.jpg" alt="Long-term sustainable training in Worthing" fill sizes="(max-width: 1000px) 100vw, 360px" style={{ objectFit: "cover" }} /></div>
             </div>
           </div>
           <div className="aq-g">
-            <div className="aq"><h4>Qualified in cancer rehabilitation and clinical exercise</h4><p>Level 4 Personal Trainer, Exercise Referral Specialist, Cancer Rehabilitation Specialist. Trained to work with GP-referred clients, chronic conditions, post-treatment recovery, and complex medical needs — rare qualifications in any fitness setting.</p></div>
-            <div className="aq"><h4>No judgement. No agenda.</h4><p>No weigh-ins, no before-and-after photos, no expectation of what fitness should look like. Just you and me, and a programme built for your body.</p></div>
+            <div className="aq"><h4>Level 4 qualified — the highest mainstream PT certification in the UK</h4><p>Exercise Referral Specialist and Cancer Rehabilitation Specialist. Trained to work with GP-referred clients, chronic conditions, post-treatment recovery, and complex medical needs. Most PTs are not qualified for this work.</p></div>
+            <div className="aq"><h4>No weigh-ins. No judgement. No agenda.</h4><p>No before-and-after framing, no expectations about what fitness should look like. The goal is what matters to you — whether that&apos;s managing pain, regaining independence, or simply moving with more confidence.</p></div>
           </div>
         </div>
       </section>
@@ -180,9 +187,9 @@ export default function HomePageClient() {
             </p>
           </div>
           <div className="spec-g">
-            <div className="spc"><div className="spc-img"><Image src="/images/specialise-1.jpg" alt="Cancer rehabilitation training in Worthing" fill sizes="(max-width: 1000px) 100vw, 33vw" style={{ objectFit: "cover" }} /></div><div className="spc-n">01</div><div className="spc-t">Cancer Rehabilitation</div><div className="spc-d">Specialist support during treatment, in remission, and post-surgery.</div></div>
-            <div className="spc"><div className="spc-img"><Image src="/images/specialise-2.jpg" alt="Adaptive personal training in Worthing" fill sizes="(max-width: 1000px) 100vw, 33vw" style={{ objectFit: "cover" }} /></div><div className="spc-n">02</div><div className="spc-t">Adaptive Training</div><div className="spc-d">Inclusive programmes tailored to your abilities and goals.</div></div>
-            <div className="spc"><div className="spc-img"><Image src="/images/specialise-3.jpg" alt="Injury recovery training in Worthing" fill sizes="(max-width: 1000px) 100vw, 33vw" style={{ objectFit: "cover" }} /></div><div className="spc-n">03</div><div className="spc-t">Injury Recovery</div><div className="spc-d">Safe, structured return to movement after injury or surgery.</div></div>
+            <Link href="/cancer-rehabilitation" className="spc"><div className="spc-img"><Image src="/images/esther-training.jpg" alt="Cancer rehabilitation training in Worthing" fill sizes="(max-width: 1000px) 100vw, 33vw" style={{ objectFit: "cover" }} /></div><div className="spc-n">01</div><div className="spc-t">Cancer Rehabilitation</div><div className="spc-d">Specialist support during treatment, in remission, and post-surgery.</div></Link>
+            <Link href="/exercise-for-health" className="spc"><div className="spc-img"><Image src="/images/studio-2.jpg" alt="Exercise for health conditions in Worthing" fill sizes="(max-width: 1000px) 100vw, 33vw" style={{ objectFit: "cover" }} /></div><div className="spc-n">02</div><div className="spc-t">Exercise for Health</div><div className="spc-d">Blood pressure, diabetes, bone strength, mobility and more — exercise referral specialists.</div></Link>
+            <Link href="/exercise-for-health/visual-impairment" className="spc"><div className="spc-img"><Image src="/images/studio-1.jpg" alt="Personal training for visually impaired clients in Worthing" fill sizes="(max-width: 1000px) 100vw, 33vw" style={{ objectFit: "cover" }} /></div><div className="spc-n">03</div><div className="spc-t">Visual Impairment</div><div className="spc-d">Adapted training for people who are blind or partially sighted.</div></Link>
           </div>
         </div>
       </section>

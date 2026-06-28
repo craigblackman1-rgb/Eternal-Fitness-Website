@@ -87,23 +87,23 @@ const Footer = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/personal-training#specialist-areas" className={`text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}>
+                  <Link href="/cancer-rehabilitation" className={`text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}>
                     Cancer Rehabilitation
                   </Link>
                 </li>
                 <li>
-                  <Link href="/personal-training#specialist-areas" className={`text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}>
-                    Exercise Referral
+                  <Link href="/exercise-for-health" className={`text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}>
+                    Exercise for Health
                   </Link>
                 </li>
                 <li>
-                  <Link href="/personal-training#specialist-areas" className={`text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}>
+                  <Link href="/exercise-for-health/visual-impairment" className={`text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}>
+                    Visual Impairment
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/personal-training" className={`text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}>
                     Adaptive Training
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/personal-training#specialist-areas" className={`text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}>
-                    Injury Recovery
                   </Link>
                 </li>
               </ul>
