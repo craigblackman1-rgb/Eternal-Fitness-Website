@@ -25,6 +25,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/exercise-for-health`, priority: 0.9, changeFrequency: "monthly" as const },
     { url: `${baseUrl}/cancer-rehabilitation`, priority: 0.9, changeFrequency: "monthly" as const },
     { url: `${baseUrl}/exercise-for-health/visual-impairment`, priority: 0.85, changeFrequency: "monthly" as const },
+    { url: `${baseUrl}/exercise-for-health/high-blood-pressure`, priority: 0.85, changeFrequency: "monthly" as const },
+    { url: `${baseUrl}/exercise-for-health/bone-health`, priority: 0.85, changeFrequency: "monthly" as const },
     { url: `${baseUrl}/pricing`, priority: 0.85, changeFrequency: "monthly" as const },
     { url: `${baseUrl}/contact`, priority: 0.8, changeFrequency: "monthly" as const },
     { url: `${baseUrl}/faqs`, priority: 0.7, changeFrequency: "monthly" as const },

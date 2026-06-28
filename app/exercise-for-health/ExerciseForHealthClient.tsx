@@ -24,7 +24,7 @@ const conditions = [
     title: "High Blood Pressure",
     slug: "high-blood-pressure",
     desc: "Exercise is one of the most effective ways to lower blood pressure — when it is done safely and progressively. I am qualified in exercise referral for hypertension.",
-    available: false,
+    available: true,
   },
   {
     icon: IconDiabetes,
@@ -38,7 +38,7 @@ const conditions = [
     title: "Bone Health & Osteoporosis",
     slug: "bone-health",
     desc: "Weight-bearing and resistance exercise is clinically recommended to slow bone density loss and reduce fracture risk. Safe, load-managed progression.",
-    available: false,
+    available: true,
   },
   {
     icon: IconEye,

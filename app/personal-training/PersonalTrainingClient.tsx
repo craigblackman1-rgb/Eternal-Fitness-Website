@@ -15,21 +15,25 @@ const specialistAreas = [
     title: "Cancer & cancer rehabilitation",
     desc: "During active treatment, in remission, or post-surgery. I am qualified in cancer rehabilitation and adapt to wherever you are in your journey.",
     image: "/images/specialise-1.jpg",
+    href: "/cancer-rehabilitation",
   },
   {
     title: "Chronic health conditions",
     desc: "Including autoimmune conditions, fibromyalgia, ME/CFS, heart conditions, diabetes, and more. Every session adapts to what your body can manage that day.",
     image: "/images/specialise-2.jpg",
+    href: "/exercise-for-health",
   },
   {
     title: "Disability & adaptive training",
     desc: "Physical disabilities, significant mobility limitations, and sensory impairments including visual impairment. Programmes are built around your body, not a template.",
     image: "/images/specialise-3.jpg",
+    href: "/exercise-for-health/visual-impairment",
   },
   {
     title: "GP-referred exercise",
     desc: "I am qualified in exercise referral and experienced in working alongside medical guidance from GPs and healthcare teams.",
     image: "/images/services-training.jpg",
+    href: "/exercise-for-health",
   },
   {
     title: "Injury recovery & rehabilitation",
@@ -173,16 +177,28 @@ export default function PersonalTrainingClient() {
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
-            {specialistAreas.map((area, idx) => (
-              <div key={area.title} className="group" style={{ marginTop: idx === 1 || idx === 4 ? "48px" : idx === 2 || idx === 5 ? "24px" : 0 }}>
-                <div className="relative rounded-[20px] overflow-hidden aspect-[3/4] mb-5 shadow-[0_14px_40px_rgba(0,0,0,0.09)]">
-                  <img src={area.image} alt={area.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            {specialistAreas.map((area, idx) => {
+              const cardContent = (
+                <>
+                  <div className="relative rounded-[20px] overflow-hidden aspect-[3/4] mb-5 shadow-[0_14px_40px_rgba(0,0,0,0.09)]">
+                    <img src={area.image} alt={area.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  </div>
+                  <div className="text-[10.5px] font-bold tracking-[0.1em] uppercase text-rose mb-1.5">{String(idx + 1).padStart(2, "0")}</div>
+                  <h4 className="text-[22px] font-bold text-foreground tracking-tight mb-2 leading-tight">{area.title}</h4>
+                  <p className="ef-body text-sm">{area.desc}</p>
+                </>
+              );
+              const marginStyle = idx === 1 || idx === 4 ? "48px" : idx === 2 || idx === 5 ? "24px" : 0;
+              return area.href ? (
+                <Link key={area.title} href={area.href} className="group" style={{ marginTop: marginStyle, display: "block", textDecoration: "none" }}>
+                  {cardContent}
+                </Link>
+              ) : (
+                <div key={area.title} className="group" style={{ marginTop: marginStyle }}>
+                  {cardContent}
                 </div>
-                <div className="text-[10.5px] font-bold tracking-[0.1em] uppercase text-rose mb-1.5">{String(idx + 1).padStart(2, "0")}</div>
-                <h4 className="text-[22px] font-bold text-foreground tracking-tight mb-2 leading-tight">{area.title}</h4>
-                <p className="ef-body text-sm">{area.desc}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -245,6 +261,38 @@ export default function PersonalTrainingClient() {
             <button onClick={openDialog} className="ef-btn ef-btn-primary">
               Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Specialist Pages */}
+      <section className="ef-section px-6 md:px-12 bg-background">
+        <div className="max-w-[1320px] mx-auto">
+          <div className="text-center mb-14">
+            <div className="ef-eyebrow ef-eyebrow-teal justify-center mb-4">Specialist Pages</div>
+            <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-5">Condition-Specific Training</h2>
+            <p className="ef-body max-w-2xl mx-auto">
+              Each of my specialist areas has a dedicated page with more detail about how I work with specific conditions.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {[
+              { href: "/exercise-for-health", title: "Exercise for Health", desc: "Training for high blood pressure, type 2 diabetes, osteoporosis, COPD, heart conditions, chronic pain and more." },
+              { href: "/cancer-rehabilitation", title: "Cancer Rehabilitation", desc: "Training during active treatment, in remission, or post-surgery. Qualified and experienced in cancer rehabilitation." },
+              { href: "/exercise-for-health/visual-impairment", title: "Visual Impairment", desc: "Adapted training for people who are blind or partially sighted. Verbal instruction, consistent environment, tactile guidance." },
+            ].map((page) => (
+              <Link key={page.href} href={page.href} className="group">
+                <div className="ef-card h-full flex flex-col hover:border-rose/40 transition-colors">
+                  <div className="bg-gradient-to-br from-teal/15 to-teal/5 rounded-xl h-36 flex items-center justify-center mb-5">
+                    <ArrowUpRight className="w-8 h-8 text-teal/40" />
+                  </div>
+                  <h3 className="text-foreground font-bold mb-2 group-hover:text-rose transition-colors">{page.title}</h3>
+                  <p className="ef-body text-sm mb-4 flex-1">{page.desc}</p>
+                  <div className="text-rose text-sm font-semibold flex items-center gap-1">Learn more <ArrowUpRight className="w-3.5 h-3.5" /></div>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
