@@ -6,10 +6,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ? `https://${process.env.VERCEL_URL}`
     : process.env.NEXT_PUBLIC_SITE_URL || "https://eternalfitness.co.uk";
 
-  const { data: posts } = await supabase
-    .from("blog_posts")
-    .select("slug, published_at")
-    .order("published_at", { ascending: false });
+  let posts: { slug: string; published_at: string }[] | null = null;
+  try {
+    const { data } = await supabase
+      .from("blog_posts")
+      .select("slug, published_at")
+      .order("published_at", { ascending: false });
+    posts = data;
+  } catch {
+    posts = [];
+  }
 
   const blogEntries = (posts ?? []).map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,
