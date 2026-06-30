@@ -477,36 +477,6 @@ export default function ParqPage() {
               </div>
             </section>
 
-            {/* Section 8: Annual Review */}
-            <section>
-              <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
-                Section 8 — Annual Review Record
-              </h2>
-              <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-4">
-                <p className="text-sm text-amber-900 font-semibold">This form must be reviewed every 12 months or following any change in health status.</p>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm border-collapse" role="table" aria-label="Annual review record">
-                  <thead>
-                    <tr className="bg-[#087E8B] text-white">
-                      <th className="text-left p-3 font-semibold" scope="col">Review date</th>
-                      <th className="text-left p-3 font-semibold" scope="col">Changes to health, medications, or conditions</th>
-                      <th className="text-left p-3 font-semibold" scope="col">Client signature</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[0, 1, 2, 3].map((i) => (
-                      <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-[#F1F1F1]"}>
-                        <td className="p-3 border-t border-[#D9D9D9] h-12">&nbsp;</td>
-                        <td className="p-3 border-t border-[#D9D9D9]">&nbsp;</td>
-                        <td className="p-3 border-t border-[#D9D9D9]">&nbsp;</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-
             {/* Section 9: Declaration and Signature */}
             <section>
               <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
@@ -571,6 +541,36 @@ export default function ParqPage() {
                     <p className="mt-1 italic font-serif text-lg text-[#1E1E1E]">Esther Fair</p>
                   </div>
                 </div>
+              </div>
+            </section>
+
+            {/* Section 8: Annual Review */}
+            <section>
+              <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
+                Section 8 — Annual Review Record
+              </h2>
+              <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-4">
+                <p className="text-sm text-amber-900 font-semibold">This form must be reviewed every 12 months or following any change in health status.</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse" role="table" aria-label="Annual review record">
+                  <thead>
+                    <tr className="bg-[#087E8B] text-white">
+                      <th className="text-left p-3 font-semibold" scope="col">Review date</th>
+                      <th className="text-left p-3 font-semibold" scope="col">Changes to health, medications, or conditions</th>
+                      <th className="text-left p-3 font-semibold" scope="col">Client signature</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[0, 1, 2, 3].map((i) => (
+                      <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-[#F1F1F1]"}>
+                        <td className="p-3 border-t border-[#D9D9D9] h-12">&nbsp;</td>
+                        <td className="p-3 border-t border-[#D9D9D9]">&nbsp;</td>
+                        <td className="p-3 border-t border-[#D9D9D9]">&nbsp;</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </section>
           </div>
@@ -861,37 +861,6 @@ export default function ParqPage() {
               </div>
             </section>
 
-            {/* Section 8: Annual Review Record */}
-            <section aria-labelledby="review-heading">
-              <h2 id="review-heading" className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
-                Section 8 — Annual Review Record
-              </h2>
-              <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-4">
-                <p className="text-sm text-amber-900 font-semibold">This form must be reviewed every 12 months or following any change in health status.</p>
-                <p className="text-sm text-amber-800 mt-1">You must inform your trainer immediately of any change to your health, new diagnosis, new medication, or any hospital admission. Do not wait until your next session.</p>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm border-collapse" role="table" aria-label="Annual review record">
-                  <thead>
-                    <tr className="bg-[#087E8B] text-white">
-                      <th className="text-left p-3 font-semibold" scope="col">Review date</th>
-                      <th className="text-left p-3 font-semibold" scope="col">Changes to health, medications, or conditions</th>
-                      <th className="text-left p-3 font-semibold" scope="col">Client signature</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[0, 1, 2, 3].map((i) => (
-                      <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-[#F1F1F1]"}>
-                        <td className="p-3 border-t border-[#D9D9D9] h-12">&nbsp;</td>
-                        <td className="p-3 border-t border-[#D9D9D9]">&nbsp;</td>
-                        <td className="p-3 border-t border-[#D9D9D9]">&nbsp;</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-
             {/* Section 9: Declaration and Signature */}
             <section aria-labelledby="declaration-heading">
               <h2 id="declaration-heading" className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
@@ -995,6 +964,37 @@ export default function ParqPage() {
                 Print PAR-Q
               </Button>
             </div>
+
+            {/* Section 8: Annual Review Record */}
+            <section aria-labelledby="review-heading">
+              <h2 id="review-heading" className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
+                Section 8 — Annual Review Record
+              </h2>
+              <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-4">
+                <p className="text-sm text-amber-900 font-semibold">This form must be reviewed every 12 months or following any change in health status.</p>
+                <p className="text-sm text-amber-800 mt-1">You must inform your trainer immediately of any change to your health, new diagnosis, new medication, or any hospital admission. Do not wait until your next session.</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse" role="table" aria-label="Annual review record">
+                  <thead>
+                    <tr className="bg-[#087E8B] text-white">
+                      <th className="text-left p-3 font-semibold" scope="col">Review date</th>
+                      <th className="text-left p-3 font-semibold" scope="col">Changes to health, medications, or conditions</th>
+                      <th className="text-left p-3 font-semibold" scope="col">Client signature</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[0, 1, 2, 3].map((i) => (
+                      <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-[#F1F1F1]"}>
+                        <td className="p-3 border-t border-[#D9D9D9] h-12">&nbsp;</td>
+                        <td className="p-3 border-t border-[#D9D9D9]">&nbsp;</td>
+                        <td className="p-3 border-t border-[#D9D9D9]">&nbsp;</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
           </form>
 
           {/* Footer */}

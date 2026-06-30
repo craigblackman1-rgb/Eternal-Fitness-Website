@@ -596,7 +596,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
                       <div key={q} className="bg-muted/30 rounded-md p-2.5">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1">
-                            <span className="text-sm">{text}</span>
+                            <span className="text-sm font-medium">Q{q.replace("q", "")}. </span><span className="text-sm">{text}</span>
                             {note && <p className="text-xs text-muted-foreground italic mt-0.5">{note}</p>}
                           </div>
                           <Select value={parqForm[q] || "unanswered"} onValueChange={(v) => handleParqChange(q, v === "unanswered" ? "" : v)}>
