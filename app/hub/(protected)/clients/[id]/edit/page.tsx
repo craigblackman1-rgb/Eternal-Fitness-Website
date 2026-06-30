@@ -44,7 +44,15 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
         return;
       }
       setName(data.name);
-      setProfile(data.profile || emptyProfile);
+      const p = data.profile || {};
+      setProfile({
+        client: { ...emptyProfile.client, ...(p.client || {}) },
+        logistics: { ...emptyProfile.logistics, ...(p.logistics || {}) },
+        health: { ...emptyProfile.health, ...(p.health || {}) },
+        physical_baseline: { ...emptyProfile.physical_baseline, ...(p.physical_baseline || {}) },
+        goals: { ...emptyProfile.goals, ...(p.goals || {}) },
+        notes: { ...emptyProfile.notes, ...(p.notes || {}) },
+      });
       setLoading(false);
     }
     load();
