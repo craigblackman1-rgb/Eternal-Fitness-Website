@@ -93,6 +93,10 @@ export interface Session {
   client_intro: string;
 }
 
+export type DBClientComplianceStatus = "clear" | "action_needed" | "do_not_train" | "pending_medical";
+export type DBClientGroupType = "individual_journey" | "calendar_block";
+export type DBClientPaceMode = "fast" | "medium" | "slow";
+
 export interface DBClient {
   id: string;
   name: string;
@@ -100,6 +104,10 @@ export interface DBClient {
   gender: string | null;
   profile: ClientProfile;
   created_at: string;
+  compliance_status: DBClientComplianceStatus;
+  outstanding_actions: string[];
+  group_type: DBClientGroupType;
+  pace_mode: DBClientPaceMode;
 }
 
 export interface DBBlock {

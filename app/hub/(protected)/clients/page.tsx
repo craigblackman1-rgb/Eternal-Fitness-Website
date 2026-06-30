@@ -2,12 +2,13 @@ import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Plus, Users } from "lucide-react";
-import type { DBClient } from "@/types";
+import type { DBClient, DBClientComplianceStatus, DBClientPaceMode } from "@/types";
 
 export default async function ClientsPage() {
   const supabase = createClient();
-  const { data: clients } = await supabase.from("clients").select("*").order("created_at", { ascending: false });
+  const { data: clients } = await supabase.from("clients").select("*, compliance_status, outstanding_actions, group_type, pace_mode").order("created_at", { ascending: false });
 
   return (
     <div className="space-y-6">
@@ -34,40 +35,69 @@ export default async function ClientsPage() {
             const goals = client.profile?.goals?.primary;
 
             return (
-              <Link key={client.id} href={`/hub/clients/${client.client_number}`}>
-                <Card className="transition-all duration-150 hover:shadow-md hover:border-rose/20 border-border/60 rounded-2xl group h-full">
-                  <CardContent className="p-5">
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-full bg-rose/15 text-rose flex items-center justify-center text-sm font-bold shrink-0">
-                        {initials}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-foreground truncate group-hover:text-rose transition-colors">{client.name}</h3>
-                        <div className="space-y-1 mt-2 text-sm text-muted-foreground">
-                          {sessionsPerWeek && (
-                            <p className="flex items-center gap-1.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-rose/40" />
-                              {sessionsPerWeek}x per week{timeTier ? ` · ${timeTier}` : ""}
-                            </p>
-                          )}
-                          {conditions?.length > 0 && (
-                            <p className="flex items-center gap-1.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-teal/40" />
-                              {conditions.length} condition(s)
-                            </p>
-                          )}
-                          {goals && (
-                            <p className="flex items-center gap-1.5 truncate" title={goals}>
-                              <span className="w-1.5 h-1.5 rounded-full bg-dark-navy/30" />
-                              {goals}
-                            </p>
-                          )}
+              <div className="relative">
+                {client.compliance_status && client.compliance_status !== 'clear' && (
+                  <div className="absolute -top-2 -right-2 z-10">
+                    <Badge 
+                      className={
+                        client.compliance_status === 'do_not_train'
+                          ? 'bg-rose text-white rounded-full'
+                          : client.compliance_status === 'pending_medical'
+                          ? 'bg-amber-100 text-amber-800 border border-amber-200 rounded-full'
+                          : 'bg-amber-100 text-amber-800 border border-amber-200 rounded-full'
+                      }
+                    >
+                      {client.compliance_status === 'do_not_train' 
+                        ? 'Do Not Train' 
+                        : client.compliance_status === 'pending_medical'
+                        ? 'Pending Clearance'
+                        : 'Action Needed'
+                      }
+                    </Badge>
+                  </div>
+                )}
+                <Link key={client.id} href={`/hub/clients/${client.client_number}`}>
+                  <Card className="transition-all duration-150 hover:shadow-md hover:border-rose/20 border-border/60 rounded-2xl group h-full pt-4">
+                    <CardContent className="p-5">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 rounded-full bg-rose/15 text-rose flex items-center justify-center text-sm font-bold shrink-0">
+                          {initials}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-foreground truncate group-hover:text-rose transition-colors">{client.name}</h3>
+                          <div className="space-y-1 mt-2 text-sm text-muted-foreground">
+                            {sessionsPerWeek && (
+                              <p className="flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-rose/40" />
+                                {sessionsPerWeek}x per week{timeTier ? ` · ${timeTier}` : ""}
+                              </p>
+                            )}
+                            {conditions?.length > 0 && (
+                              <p className="flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-teal/40" />
+                                {conditions.length} condition(s)
+                              </p>
+                            )}
+                            {goals && (
+                              <p className="flex items-center gap-1.5 truncate" title={goals}>
+                                <span className="w-1.5 h-1.5 rounded-full bg-dark-navy/30" />
+                                {goals}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
+                      {client.pace_mode && (
+                        <div className="mt-3 pt-3 border-t border-border/60">
+                          <p className="text-xs text-muted-foreground">
+                            {client.pace_mode === 'fast' ? 'Fast pace' : client.pace_mode === 'medium' ? 'Med pace' : 'Slow pace'}
+                          </p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Link>
+              </div>
             );
           })}
         </div>
