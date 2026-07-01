@@ -6,7 +6,7 @@ import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
 import ConsultationDialog from "@/components/ConsultationDialog";
 import { useConsultationDialog } from "@/hooks/useConsultationDialog";
-import { IconRibbon } from "@/components/icons";
+import { IconRibbon, IconActivity, IconAlertCircle, IconBone, IconClipboardCheck, IconHeartHandshake, IconClock, IconUserPlus } from "@/components/icons";
 
 const stages = [
   {
@@ -27,18 +27,45 @@ const considerations = [
   {
     title: "Cancer-related fatigue is different",
     body: "Cancer-related fatigue (CRF) does not respond to rest the way ordinary tiredness does. It is physiologically distinct — and training must account for it. I will never push through CRF or interpret it as effort avoidance.",
+    icon: IconActivity,
   },
   {
     title: "Lymphoedema awareness",
     body: "For clients with or at risk of lymphoedema, I monitor for signs of swelling, avoid tight compression, and follow safe exercise guidelines. Exercise can actually help manage lymphoedema when programmed correctly.",
+    icon: IconAlertCircle,
   },
   {
     title: "Bone density",
     body: "Some cancer treatments (particularly certain hormonal therapies) accelerate bone density loss. Weight-bearing and resistance exercise is clinically recommended — but load and progression must be managed carefully.",
+    icon: IconBone,
   },
   {
     title: "GP or oncologist sign-off",
     body: "Before beginning any structured exercise programme during or shortly after treatment, I ask for GP or oncologist clearance. This is non-negotiable — not because I am being cautious, but because it is the right clinical standard.",
+    icon: IconClipboardCheck,
+  },
+];
+
+const faqs = [
+  {
+    q: "Is it safe to exercise during cancer treatment?",
+    a: "Evidence now strongly supports exercise during cancer treatment — at the right intensity and with the right guidance. The programme must account for your specific treatment, side effects, and current capacity. I will always ask for GP or oncologist sign-off before beginning.",
+    icon: IconClipboardCheck,
+  },
+  {
+    q: "What is cancer-related fatigue and how do you account for it?",
+    a: "Cancer-related fatigue (CRF) is physiologically different from ordinary tiredness — it does not improve with rest in the same way. I am trained to recognise CRF and programme around it. Sessions may be shorter or lower in intensity on harder days. That is not failure — it is appropriate clinical management.",
+    icon: IconClock,
+  },
+  {
+    q: "When can I start exercising after surgery?",
+    a: "This depends entirely on the type of surgery and your recovery. I work with the guidance of your surgical team and will not progress any movement without appropriate medical clearance.",
+    icon: IconHeartHandshake,
+  },
+  {
+    q: "Do you work with people during active treatment?",
+    a: "Yes. I work with people during active chemotherapy or radiotherapy, people in remission, and those who have finished treatment but are rebuilding. Each stage requires a different approach — the programme is built around where you are right now.",
+    icon: IconUserPlus,
   },
 ];
 
@@ -46,7 +73,7 @@ export default function CancerRehabClient() {
   const { open, setOpen, openDialog } = useConsultationDialog();
 
   return (
-    <div>
+    <div className="min-h-screen bg-background">
       <Navbar onBookConsultation={openDialog} />
 
       {/* HERO */}
@@ -143,9 +170,12 @@ export default function CancerRehabClient() {
             What I Know and How I Work
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 24 }}>
-            {considerations.map(({ title, body }) => (
-              <div key={title} style={{ padding: "28px 0", borderTop: "1px solid var(--color-border-warm)" }}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--color-ink)", marginBottom: 10, letterSpacing: "-0.01em" }}>{title}</h3>
+            {considerations.map(({ title, body, icon: Icon }) => (
+              <div key={title} className="ef-card">
+                <div className="w-12 h-12 rounded-full bg-teal/15 flex items-center justify-center mb-4">
+                  <Icon className="w-5 h-5 text-teal" />
+                </div>
+                <h3 className="text-foreground" style={{ fontSize: 16, fontWeight: 700, marginBottom: 10, letterSpacing: "-0.01em" }}>{title}</h3>
                 <p className="ef-body" style={{ fontSize: 14.5 }}>{body}</p>
               </div>
             ))}
@@ -160,29 +190,17 @@ export default function CancerRehabClient() {
           <h2 className="ef-h2" style={{ fontSize: "clamp(24px, 2.6vw, 36px)", color: "var(--color-ink)", marginBottom: 48 }}>
             Common Questions About Cancer Rehabilitation
           </h2>
-          {[
-            {
-              q: "Is it safe to exercise during cancer treatment?",
-              a: "Evidence now strongly supports exercise during cancer treatment — at the right intensity and with the right guidance. The programme must account for your specific treatment, side effects, and current capacity. I will always ask for GP or oncologist sign-off before beginning.",
-            },
-            {
-              q: "What is cancer-related fatigue and how do you account for it?",
-              a: "Cancer-related fatigue (CRF) is physiologically different from ordinary tiredness — it does not improve with rest in the same way. I am trained to recognise CRF and programme around it. Sessions may be shorter or lower in intensity on harder days. That is not failure — it is appropriate clinical management.",
-            },
-            {
-              q: "When can I start exercising after surgery?",
-              a: "This depends entirely on the type of surgery and your recovery. I work with the guidance of your surgical team and will not progress any movement without appropriate medical clearance.",
-            },
-            {
-              q: "Do you work with people during active treatment?",
-              a: "Yes. I work with people during active chemotherapy or radiotherapy, people in remission, and those who have finished treatment but are rebuilding. Each stage requires a different approach — the programme is built around where you are right now.",
-            },
-          ].map(({ q, a }) => (
-            <div key={q} style={{ padding: "24px 0", borderTop: "1px solid var(--color-border-warm)" }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--color-ink)", marginBottom: 10, letterSpacing: "-0.01em" }}>{q}</h3>
-              <p className="ef-body" style={{ fontSize: 15 }}>{a}</p>
-            </div>
-          ))}
+          <div className="flex flex-col gap-5">
+            {faqs.map(({ q, a, icon: Icon }) => (
+              <div key={q} className="ef-card">
+                <div className="w-12 h-12 rounded-full bg-rose/15 flex items-center justify-center mb-4">
+                  <Icon className="w-5 h-5 text-rose" />
+                </div>
+                <h3 className="text-foreground" style={{ fontSize: 16, fontWeight: 700, marginBottom: 10, letterSpacing: "-0.01em" }}>{q}</h3>
+                <p className="ef-body" style={{ fontSize: 15 }}>{a}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

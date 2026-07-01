@@ -116,7 +116,18 @@
 .efhome .si img { width: 100%; height: 100%; object-fit: cover; transition: transform .55s; }
 .efhome .step:hover .si img { transform: scale(1.04); }
 .efhome .aq-g { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 48px; }
-.efhome .aq { background: var(--white); border-radius: 18px; padding: 30px; border: 1px solid var(--hborder); }
+.efhome .aq {
+  background: var(--white);
+  border-radius: 18px;
+  padding: 32px;
+  border: 1px solid var(--hborder);
+  box-shadow: 0 4px 16px rgba(30,24,20,.04), 0 20px 48px rgba(30,24,20,.07);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.efhome .aq:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(30,24,20,.06), 0 28px 60px rgba(30,24,20,.1); }
+.efhome .aq-ic { width: 44px; height: 44px; border-radius: 999px; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
+.efhome .aq:nth-child(1) .aq-ic { background: rgba(8,126,139,.12); color: var(--teal); }
+.efhome .aq:nth-child(2) .aq-ic { background: rgba(193,131,159,.14); color: var(--rose); }
 .efhome .aq h4 { font-size: 19px; font-weight: 700; color: var(--ink); margin-bottom: 10px; letter-spacing: -.018em; line-height: 1.2; }
 .efhome .aq p { font-size: 14.5px; color: var(--body); line-height: 1.65; }
 

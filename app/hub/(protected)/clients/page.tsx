@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { IconPlus, IconUsers } from "@/components/icons";
+import { getComplianceBadgeClass, getComplianceLabel } from "@/lib/complianceStatus";
 import type { DBClient, DBClientComplianceStatus, DBClientPaceMode } from "@/types";
 
 export default async function ClientsPage() {
@@ -35,28 +36,15 @@ export default async function ClientsPage() {
             const goals = client.profile?.goals?.primary;
 
             return (
-              <div className="relative">
+              <div key={client.id} className="relative">
                 {client.compliance_status && client.compliance_status !== 'clear' && (
                   <div className="absolute -top-2 -right-2 z-10">
-                    <Badge 
-                      className={
-                        client.compliance_status === 'do_not_train'
-                          ? 'bg-rose text-white rounded-full'
-                          : client.compliance_status === 'pending_medical'
-                          ? 'bg-amber-100 text-amber-800 border border-amber-200 rounded-full'
-                          : 'bg-amber-100 text-amber-800 border border-amber-200 rounded-full'
-                      }
-                    >
-                      {client.compliance_status === 'do_not_train' 
-                        ? 'Do Not Train' 
-                        : client.compliance_status === 'pending_medical'
-                        ? 'Pending Clearance'
-                        : 'Action Needed'
-                      }
+                    <Badge className={getComplianceBadgeClass(client.compliance_status)}>
+                      {getComplianceLabel(client.compliance_status)}
                     </Badge>
                   </div>
                 )}
-                <Link key={client.id} href={`/hub/clients/${client.client_number}`}>
+                <Link href={`/hub/clients/${client.client_number}`}>
                   <Card className="transition-all duration-150 hover:shadow-md hover:border-rose/20 border-border/60 rounded-2xl group h-full pt-4">
                     <CardContent className="p-5">
                       <div className="flex items-start gap-4">

@@ -220,6 +220,13 @@
   border: 1px solid #E4DDD7;
   border-radius: 18px;
   padding: 30px;
+  box-shadow: 0 4px 16px rgba(30, 24, 20, 0.04), 0 16px 40px rgba(30, 24, 20, 0.06);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.ef-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(30, 24, 20, 0.06), 0 24px 56px rgba(30, 24, 20, 0.09);
 }
 
 .ef-section {

@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HomeMotion from "@/components/home/HomeMotion";
 import { useConsultationDialog } from "@/hooks/useConsultationDialog";
+import { IconAward, IconHeartHandshake } from "@/components/icons";
 import "./home.css";
 
 const Arrow = () => (
@@ -168,8 +169,8 @@ export default function HomePageClient() {
             </div>
           </div>
           <div className="aq-g">
-            <div className="aq"><h4>Level 4 qualified — the highest mainstream PT certification in the UK</h4><p>Exercise Referral Specialist and Cancer Rehabilitation Specialist. Trained to work with GP-referred clients, chronic conditions, post-treatment recovery, and complex medical needs. Most PTs are not qualified for this work.</p></div>
-            <div className="aq"><h4>No weigh-ins. No judgement. No agenda.</h4><p>No before-and-after framing, no expectations about what fitness should look like. The goal is what matters to you — whether that&apos;s managing pain, regaining independence, or simply moving with more confidence.</p></div>
+            <div className="aq"><div className="aq-ic"><IconAward className="w-5 h-5" /></div><h4>Level 4 qualified — the highest mainstream PT certification in the UK</h4><p>Exercise Referral Specialist and Cancer Rehabilitation Specialist. Trained to work with GP-referred clients, chronic conditions, post-treatment recovery, and complex medical needs. Most PTs are not qualified for this work.</p></div>
+            <div className="aq"><div className="aq-ic"><IconHeartHandshake className="w-5 h-5" /></div><h4>No weigh-ins. No judgement. No agenda.</h4><p>No before-and-after framing, no expectations about what fitness should look like. The goal is what matters to you — whether that&apos;s managing pain, regaining independence, or simply moving with more confidence.</p></div>
           </div>
         </div>
       </section>

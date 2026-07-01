@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronLeft, Eye, Printer, FileText } from "lucide-react";
+import { IconChevronLeft, IconEye, IconPrinter, IconFileText } from "@/components/icons";
 import { DeleteBlockButton } from "./delete-block-button";
 import { ExportSpreadsheetButton } from "./export-spreadsheet";
 
@@ -52,11 +52,11 @@ export default async function BlockViewPage({
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link href={`/hub/clients/${client?.client_number || params.id}`} className="text-muted-foreground hover:text-foreground transition-colors">
-          <ChevronLeft className="h-5 w-5" />
+          <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div className="flex items-center gap-4 flex-1">
           <div className="w-12 h-12 rounded-xl bg-rose/10 flex items-center justify-center">
-            <FileText className="w-6 h-6 text-rose" />
+            <IconFileText className="w-6 h-6 text-rose" />
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">
@@ -73,7 +73,7 @@ export default async function BlockViewPage({
         <div className="flex items-center gap-2">
           <Link href={`/hub/clients/${client?.client_number || params.id}/blocks/${params.blockId}/print`}>
             <Button variant="outline" className="rounded-full gap-1.5 border-border/60">
-              <Printer className="h-4 w-4" />
+              <IconPrinter className="h-4 w-4" />
               Print
             </Button>
           </Link>
@@ -144,7 +144,7 @@ export default async function BlockViewPage({
                   <TableCell>
                     <Link href={`/hub/clients/${client?.client_number || params.id}/blocks/${params.blockId}/sessions/${session.session_number}`}>
                       <Button variant="ghost" size="icon" className="rounded-full hover:bg-rose/10 hover:text-rose">
-                        <Eye className="h-4 w-4" />
+                        <IconEye className="h-4 w-4" />
                       </Button>
                     </Link>
                   </TableCell>

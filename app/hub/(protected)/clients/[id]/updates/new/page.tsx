@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ChevronLeft, Sparkles, Send, AlertTriangle, Eye, EyeOff } from "lucide-react";
+import { IconChevronLeft, IconSparkles, IconSend, IconAlertTriangle, IconEye, IconEyeOff } from "@/components/icons";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -93,7 +93,7 @@ export default function NewUpdatePage({ params }: { params: { id: string } }) {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href={`/hub/clients/${params.id}/updates`} className="text-muted-foreground hover:text-foreground">
-          <ChevronLeft className="h-5 w-5" />
+          <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">New 6-Week Update</h1>
@@ -103,7 +103,7 @@ export default function NewUpdatePage({ params }: { params: { id: string } }) {
 
       {error && (
         <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
+          <IconAlertTriangle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
@@ -128,7 +128,7 @@ export default function NewUpdatePage({ params }: { params: { id: string } }) {
                 <Button variant="outline">Cancel</Button>
               </Link>
               <Button onClick={handleGenerate} disabled={generating} className="gap-2">
-                <Sparkles className="h-4 w-4" />
+                <IconSparkles className="h-4 w-4" />
                 {generating ? "Generating..." : "Generate Draft"}
               </Button>
             </div>
@@ -148,7 +148,7 @@ export default function NewUpdatePage({ params }: { params: { id: string } }) {
                 onClick={() => setShowRaw(!showRaw)}
                 className="rounded-full gap-1.5"
               >
-                {showRaw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showRaw ? <IconEyeOff className="h-4 w-4" /> : <IconEye className="h-4 w-4" />}
                 {showRaw ? "Show Preview" : "Show HTML"}
               </Button>
             </CardHeader>
@@ -218,7 +218,7 @@ export default function NewUpdatePage({ params }: { params: { id: string } }) {
                   disabled={sending || !clientEmail.trim()}
                   className="gap-2 bg-rose hover:bg-rose/90 text-white"
                 >
-                  <Send className="h-4 w-4" />
+                  <IconSend className="h-4 w-4" />
                   {sending ? "Sending..." : "Send Update"}
                 </Button>
               </div>

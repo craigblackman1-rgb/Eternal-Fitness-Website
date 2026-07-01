@@ -62,6 +62,33 @@ export default async function DashboardPage() {
     .order("created_at", { ascending: false })
     .limit(10);
 
+  const { data: activeBlocks } = await supabase
+    .from("blocks")
+    .select("id, block_number, client_id, clients!inner(client_number, name)")
+    .eq("status", "active")
+    .order("created_at", { ascending: false });
+
+  const activeBlockIds = (activeBlocks ?? []).map((b) => b.id);
+  const { data: activeSessions } = activeBlockIds.length > 0
+    ? await supabase
+        .from("sessions")
+        .select("id, block_id, session_number, data")
+        .in("block_id", activeBlockIds)
+        .order("session_number", { ascending: true })
+    : { data: [] as { id: string; block_id: string; session_number: number; data: any }[] };
+
+  const nextUpByBlock = (activeBlocks ?? []).map((block) => {
+    const blockSessions = (activeSessions ?? []).filter((s) => s.block_id === block.id);
+    const nextSession = blockSessions.find((s) => !s.data?.session_log?.completed_at);
+    const completedCount = blockSessions.filter((s) => s.data?.session_log?.completed_at).length;
+    return {
+      block,
+      nextSession,
+      completedCount,
+      totalCount: blockSessions.length,
+    };
+  });
+
   const totalClients = clients?.length ?? 0;
   const draftBlocks = blocks?.filter((b) => b.status === "draft").length ?? 0;
   const approvedBlocks = blocks?.filter((b) => b.status === "approved" || b.status === "active").length ?? 0;
@@ -98,6 +125,54 @@ export default async function DashboardPage() {
         <StatCard icon={<IconCheckCircle className="w-5 h-5" />} label="Active / Approved" value={approvedBlocks} accent="teal" />
         <StatCard icon={<IconActivity className="w-5 h-5" />} label="Total Blocks" value={totalBlocks} accent="navy" />
       </div>
+
+      {/* Active Blocks — next session widget */}
+      <Card className="shadow-sm border-border/60 rounded-2xl">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-rose/10 flex items-center justify-center">
+              <IconCalendar className="w-4 h-4 text-rose" />
+            </div>
+            Active Blocks — Next Session
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {nextUpByBlock.length > 0 ? (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {nextUpByBlock.map(({ block, nextSession, completedCount, totalCount }) => {
+                const clientNumber = (block as any).clients?.client_number;
+                const clientName = (block as any).clients?.name;
+                const initials = (clientName ?? "").split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
+                const href = nextSession
+                  ? `/hub/clients/${clientNumber}/blocks/${block.id}/sessions/${nextSession.session_number}`
+                  : `/hub/clients/${clientNumber}/blocks/${block.id}`;
+                return (
+                  <Link
+                    key={block.id}
+                    href={href}
+                    className="flex items-center gap-3 rounded-xl border border-border/60 p-3 transition-all hover:bg-off-white hover:border-rose/20 group"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-rose/15 text-rose flex items-center justify-center text-xs font-bold shrink-0">
+                      {initials}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate group-hover:text-rose transition-colors">{clientName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Block {block.block_number}
+                        {nextSession ? ` · Session ${nextSession.session_number}` : " · All sessions logged"}
+                        {totalCount > 0 && ` · ${completedCount}/${totalCount} done`}
+                      </p>
+                    </div>
+                    <IconArrowUpRight className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-6">No active blocks right now — approve a block to see it here.</p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Main grid */}
       <div className="grid gap-6 lg:grid-cols-3">

@@ -6,7 +6,7 @@ import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
 import ConsultationDialog from "@/components/ConsultationDialog";
 import { useConsultationDialog } from "@/hooks/useConsultationDialog";
-import { IconEye } from "@/components/icons";
+import { IconEye, IconCheckCircle, IconMessageCircle, IconAccessibility, IconTarget } from "@/components/icons";
 
 const adaptations = [
   {
@@ -39,7 +39,7 @@ export default function VisualImpairmentClient() {
   const { open, setOpen, openDialog } = useConsultationDialog();
 
   return (
-    <div>
+    <div className="min-h-screen bg-background">
       <Navbar onBookConsultation={openDialog} />
 
       {/* HERO */}
@@ -132,29 +132,38 @@ export default function VisualImpairmentClient() {
           <h2 className="ef-h2" style={{ fontSize: "clamp(24px, 2.6vw, 36px)", color: "var(--color-ink)", marginBottom: 48 }}>
             Questions About VIP Personal Training
           </h2>
-          {[
-            {
-              q: "Can I do personal training if I am blind or partially sighted?",
-              a: "Yes. Personal training is very achievable for visually impaired people with the right approach. Sessions rely on verbal instruction, consistent environment, and tactile guidance — not visual demonstration.",
-            },
-            {
-              q: "How do you describe exercises without showing me?",
-              a: "I describe what should happen in your body — which muscles should be working, what you should feel in your joints, what the movement should feel like at different points. Many clients find this produces a more aware and connected training experience than watching someone else.",
-            },
-            {
-              q: "I have some remaining vision — does that matter?",
-              a: "We will work with whatever you have. Sessions are adapted to your specific visual situation — whether that is complete blindness, significant partial sight, or anything in between. Your experience, not a label, guides the approach.",
-            },
-            {
-              q: "Do you have experience with showdown or other VIP sports?",
-              a: "Yes. I currently work with clients engaged in showdown and I am actively developing my knowledge and approach in this area. If you have a sport-specific goal, that can absolutely inform your training programme.",
-            },
-          ].map(({ q, a }) => (
-            <div key={q} style={{ padding: "24px 0", borderTop: "1px solid var(--color-border-warm)" }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--color-ink)", marginBottom: 10, letterSpacing: "-0.01em" }}>{q}</h3>
-              <p className="ef-body" style={{ fontSize: 15 }}>{a}</p>
-            </div>
-          ))}
+          <div className="flex flex-col gap-5">
+            {[
+              {
+                q: "Can I do personal training if I am blind or partially sighted?",
+                a: "Yes. Personal training is very achievable for visually impaired people with the right approach. Sessions rely on verbal instruction, consistent environment, and tactile guidance — not visual demonstration.",
+                icon: IconCheckCircle,
+              },
+              {
+                q: "How do you describe exercises without showing me?",
+                a: "I describe what should happen in your body — which muscles should be working, what you should feel in your joints, what the movement should feel like at different points. Many clients find this produces a more aware and connected training experience than watching someone else.",
+                icon: IconMessageCircle,
+              },
+              {
+                q: "I have some remaining vision — does that matter?",
+                a: "We will work with whatever you have. Sessions are adapted to your specific visual situation — whether that is complete blindness, significant partial sight, or anything in between. Your experience, not a label, guides the approach.",
+                icon: IconAccessibility,
+              },
+              {
+                q: "Do you have experience with showdown or other VIP sports?",
+                a: "Yes. I currently work with clients engaged in showdown and I am actively developing my knowledge and approach in this area. If you have a sport-specific goal, that can absolutely inform your training programme.",
+                icon: IconTarget,
+              },
+            ].map(({ q, a, icon: Icon }) => (
+              <div key={q} className="ef-card">
+                <div className="w-12 h-12 rounded-full bg-teal/15 flex items-center justify-center mb-4">
+                  <Icon className="w-5 h-5 text-teal" />
+                </div>
+                <h3 className="text-foreground" style={{ fontSize: 16, fontWeight: 700, marginBottom: 10, letterSpacing: "-0.01em" }}>{q}</h3>
+                <p className="ef-body" style={{ fontSize: 15 }}>{a}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

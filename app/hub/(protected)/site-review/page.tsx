@@ -110,10 +110,10 @@ const sitemap: SitemapItem[] = [
 ];
 
 const priorityConfig = {
-  CRITICAL: { color: "bg-red-100 text-red-800", icon: IconAlertCircle },
-  HIGH: { color: "bg-orange-100 text-orange-800", icon: IconZap },
-  MEDIUM: { color: "bg-blue-100 text-blue-800", icon: IconClock },
-  LOW: { color: "bg-gray-100 text-gray-800", icon: IconCheckSquare },
+  CRITICAL: { color: "bg-rose/10 text-rose", icon: IconAlertCircle },
+  HIGH: { color: "bg-dark-navy/10 text-dark-navy", icon: IconZap },
+  MEDIUM: { color: "bg-teal/10 text-teal", icon: IconClock },
+  LOW: { color: "bg-slate/10 text-slate", icon: IconCheckSquare },
 };
 
 export default function SiteReviewPage() {
@@ -173,7 +173,7 @@ export default function SiteReviewPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-6 gap-4">
-        <Card>
+        <Card className="shadow-sm border-border/60 rounded-2xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Tasks</CardTitle>
           </CardHeader>
@@ -181,23 +181,23 @@ export default function SiteReviewPage() {
             <div className="text-3xl font-bold">{stats.total}</div>
           </CardContent>
         </Card>
-        <Card className="border-green-200 bg-green-50">
+        <Card className="shadow-sm border-teal/20 bg-teal/5 rounded-2xl">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-green-700">Completed</CardTitle>
+            <CardTitle className="text-sm font-medium text-teal">Completed</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-700">{completedCount}</div>
+            <div className="text-3xl font-bold text-teal">{completedCount}</div>
           </CardContent>
         </Card>
-        <Card className="border-red-200 bg-red-50">
+        <Card className="shadow-sm border-rose/20 bg-rose/5 rounded-2xl">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-red-700">Critical Issues</CardTitle>
+            <CardTitle className="text-sm font-medium text-rose">Critical Issues</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-red-700">{stats.critical}</div>
+            <div className="text-3xl font-bold text-rose">{stats.critical}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="shadow-sm border-border/60 rounded-2xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Est. Hours</CardTitle>
           </CardHeader>
@@ -205,7 +205,7 @@ export default function SiteReviewPage() {
             <div className="text-3xl font-bold">{stats.hours}h</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="shadow-sm border-border/60 rounded-2xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Public Pages</CardTitle>
           </CardHeader>
@@ -213,7 +213,7 @@ export default function SiteReviewPage() {
             <div className="text-3xl font-bold">{stats.public}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="shadow-sm border-border/60 rounded-2xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Hub Pages</CardTitle>
           </CardHeader>
@@ -282,7 +282,7 @@ export default function SiteReviewPage() {
             {filteredTasks.map((task) => {
               const currentStatus = taskStatuses[task.id] || "Not Started";
               return (
-                <Card key={task.id} className={`transition-colors ${currentStatus === "Complete" ? "border-green-200 bg-green-50" : "hover:border-rose/50"}`}>
+                <Card key={task.id} className={`shadow-sm rounded-2xl transition-all ${currentStatus === "Complete" ? "border-teal/20 bg-teal/5" : "border-border/60 hover:border-rose/40 hover:shadow-md"}`}>
                   <CardContent className="p-4">
                     <div className="flex gap-4">
                       <div className="flex-1">
@@ -292,7 +292,7 @@ export default function SiteReviewPage() {
                               {task.priority}
                             </Badge>
                             <Badge variant="outline">{task.category}</Badge>
-                            {currentStatus === "Complete" && <Badge className="bg-green-100 text-green-800">Done</Badge>}
+                            {currentStatus === "Complete" && <Badge className="bg-teal/10 text-teal">Done</Badge>}
                           </div>
                         </div>
                         <p className="font-medium text-foreground mt-2">{task.id}: {task.task}</p>
@@ -321,7 +321,7 @@ export default function SiteReviewPage() {
                               size="sm"
                               variant={currentStatus === "Complete" ? "default" : "outline"}
                               onClick={() => updateTaskStatus(task.id, "Complete")}
-                              className={`h-7 text-xs ${currentStatus === "Complete" ? "bg-green-600 hover:bg-green-700" : ""}`}
+                              className={`h-7 text-xs ${currentStatus === "Complete" ? "bg-teal hover:bg-teal/90" : ""}`}
                             >
                               Complete
                             </Button>
@@ -339,7 +339,7 @@ export default function SiteReviewPage() {
         {/* Sitemap Tab */}
         <TabsContent value="sitemap" className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <Card>
+            <Card className="shadow-sm border-border/60 rounded-2xl">
               <CardHeader>
                 <CardTitle className="text-base">Public Pages ({stats.public})</CardTitle>
               </CardHeader>
@@ -355,7 +355,7 @@ export default function SiteReviewPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="shadow-sm border-border/60 rounded-2xl">
               <CardHeader>
                 <CardTitle className="text-base">Protected Hub Pages ({stats.protected})</CardTitle>
               </CardHeader>
@@ -374,7 +374,7 @@ export default function SiteReviewPage() {
         </TabsContent>
       </Tabs>
 
-      <Card className="bg-off-white border-border/50">
+      <Card className="shadow-sm bg-off-white border-border/50 rounded-2xl">
         <CardHeader>
           <CardTitle className="text-sm">Resources</CardTitle>
         </CardHeader>

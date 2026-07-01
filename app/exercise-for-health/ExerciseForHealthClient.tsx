@@ -16,6 +16,13 @@ import {
   IconEye,
   IconAccessibility,
   IconMove,
+  IconClipboardList,
+  IconMessageCircle,
+  IconActivity,
+  IconCheckCircle,
+  IconFileText,
+  IconAward,
+  IconHeartHandshake,
 } from "@/components/icons";
 
 const conditions = [
@@ -81,7 +88,7 @@ export default function ExerciseForHealthClient() {
   const { open, setOpen, openDialog } = useConsultationDialog();
 
   return (
-    <div>
+    <div className="min-h-screen bg-background">
       <Navbar onBookConsultation={openDialog} />
 
       {/* HERO */}
@@ -193,21 +200,27 @@ export default function ExerciseForHealthClient() {
                 n: "01",
                 title: "Free consultation first",
                 body: "We start with a conversation — no commitment, no obligation. I want to understand your condition, your history, and your goals before we do anything else.",
+                icon: IconClipboardList,
               },
               {
                 n: "02",
                 title: "Check-in at the start of every session",
                 body: "How are you feeling today? Energy, pain, sleep, any changes. The session plan is finalised then — because what works one week may not be right the next.",
+                icon: IconMessageCircle,
               },
               {
                 n: "03",
                 title: "Progress that adapts to you",
                 body: "There is no fixed template. Programmes are built around your body, your condition, and your goals — and adjusted as those things change.",
+                icon: IconActivity,
               },
-            ].map(({ n, title, body }) => (
-              <div key={n} style={{ padding: "28px 0", borderTop: "1px solid var(--color-border-warm)" }}>
-                <div style={{ fontSize: 52, fontWeight: 900, color: "var(--color-rose)", opacity: 0.18, lineHeight: 0.85, marginBottom: 20, letterSpacing: "-0.05em" }}>{n}</div>
-                <h3 style={{ fontSize: 19, fontWeight: 700, color: "var(--color-ink)", marginBottom: 10, letterSpacing: "-0.018em", lineHeight: 1.2 }}>{title}</h3>
+            ].map(({ n, title, body, icon: Icon }) => (
+              <div key={n} className="ef-card">
+                <div className="w-12 h-12 rounded-full bg-rose/15 flex items-center justify-center mb-4">
+                  <Icon className="w-5 h-5 text-rose" />
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-rose)", marginBottom: 8 }}>{n}</div>
+                <h3 className="text-foreground" style={{ fontSize: 19, fontWeight: 700, marginBottom: 10, letterSpacing: "-0.018em", lineHeight: 1.2 }}>{title}</h3>
                 <p className="ef-body" style={{ fontSize: 14.5 }}>{body}</p>
               </div>
             ))}
@@ -222,29 +235,38 @@ export default function ExerciseForHealthClient() {
           <h2 className="ef-h2" style={{ fontSize: "clamp(26px, 2.8vw, 38px)", color: "var(--color-ink)", marginBottom: 48 }}>
             Questions About Exercising With a Health Condition
           </h2>
-          {[
-            {
-              q: "Can I exercise if I have a health condition?",
-              a: "In most cases, yes — and the evidence strongly supports it. Exercise is clinically recommended for a wide range of conditions. The key is having a qualified specialist who understands your specific condition and can programme safely around it.",
-            },
-            {
-              q: "Do I need a GP referral?",
-              a: "No. A GP referral is welcome but not required. Many clients come independently. I will ask about your medical history and may recommend checking with your GP if there are specific contraindications to consider first.",
-            },
-            {
-              q: "How is this different from a regular personal trainer?",
-              a: "A standard Level 3 PT is not trained to work with clinical populations. As a Level 4 Exercise Referral Specialist, I understand contraindicated exercises, medication effects, fatigue management, and how conditions affect capacity from one session to the next.",
-            },
-            {
-              q: "What if I am having a bad day when I come in?",
-              a: "That is what the check-in is for. I adapt the session to how you actually feel — not how the plan says you should feel. You will always leave having done something genuinely useful, even on the difficult days.",
-            },
-          ].map(({ q, a }) => (
-            <div key={q} style={{ padding: "24px 0", borderTop: "1px solid var(--color-border-warm)" }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--color-ink)", marginBottom: 10, letterSpacing: "-0.01em" }}>{q}</h3>
-              <p className="ef-body" style={{ fontSize: 15 }}>{a}</p>
-            </div>
-          ))}
+          <div className="flex flex-col gap-5">
+            {[
+              {
+                q: "Can I exercise if I have a health condition?",
+                a: "In most cases, yes — and the evidence strongly supports it. Exercise is clinically recommended for a wide range of conditions. The key is having a qualified specialist who understands your specific condition and can programme safely around it.",
+                icon: IconCheckCircle,
+              },
+              {
+                q: "Do I need a GP referral?",
+                a: "No. A GP referral is welcome but not required. Many clients come independently. I will ask about your medical history and may recommend checking with your GP if there are specific contraindications to consider first.",
+                icon: IconFileText,
+              },
+              {
+                q: "How is this different from a regular personal trainer?",
+                a: "A standard Level 3 PT is not trained to work with clinical populations. As a Level 4 Exercise Referral Specialist, I understand contraindicated exercises, medication effects, fatigue management, and how conditions affect capacity from one session to the next.",
+                icon: IconAward,
+              },
+              {
+                q: "What if I am having a bad day when I come in?",
+                a: "That is what the check-in is for. I adapt the session to how you actually feel — not how the plan says you should feel. You will always leave having done something genuinely useful, even on the difficult days.",
+                icon: IconHeartHandshake,
+              },
+            ].map(({ q, a, icon: Icon }) => (
+              <div key={q} className="ef-card">
+                <div className="w-12 h-12 rounded-full bg-teal/15 flex items-center justify-center mb-4">
+                  <Icon className="w-5 h-5 text-teal" />
+                </div>
+                <h3 className="text-foreground" style={{ fontSize: 16, fontWeight: 700, marginBottom: 10, letterSpacing: "-0.01em" }}>{q}</h3>
+                <p className="ef-body" style={{ fontSize: 15 }}>{a}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

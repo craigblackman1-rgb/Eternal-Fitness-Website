@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { IconArrowUpRight, IconClipboardList, IconSearch, IconBarChart3, IconHeartHandshake, IconSparkles } from "@/components/icons";
+import { IconArrowUpRight, IconClipboardList, IconSearch, IconBarChart3, IconHeartHandshake, IconSparkles, IconRibbon, IconActivity, IconAccessibility, IconHeart, IconBloodPressure, IconFileText } from "@/components/icons";
 import Navbar from "@/components/Navbar";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
@@ -94,16 +94,19 @@ const relatedArticles = [
     href: "/blog/exercise-illness",
     title: "Exercise & Illness",
     desc: "Understanding how to stay active during health challenges and what's safe when managing chronic conditions.",
+    icon: IconActivity,
   },
   {
     href: "/blog/menopause-and-exercise",
     title: "Menopause & Exercise",
     desc: "How to train effectively through hormonal changes and manage strength, mobility, and energy during midlife transitions.",
+    icon: IconHeart,
   },
   {
     href: "/blog/myth-buster-does-resistance-training-cause-high-blood-pressure",
     title: "Resistance Training & Blood Pressure",
     desc: "Safety considerations for people managing cardiovascular health and how resistance training can be part of a healthy approach.",
+    icon: IconBloodPressure,
   },
 ];
 
@@ -278,14 +281,14 @@ export default function PersonalTrainingClient() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {[
-              { href: "/exercise-for-health", title: "Exercise for Health", desc: "Training for high blood pressure, type 2 diabetes, osteoporosis, COPD, heart conditions, chronic pain and more." },
-              { href: "/cancer-rehabilitation", title: "Cancer Rehabilitation", desc: "Training during active treatment, in remission, or post-surgery. Qualified and experienced in cancer rehabilitation." },
-              { href: "/exercise-for-health/visual-impairment", title: "Visual Impairment", desc: "Adapted training for people who are blind or partially sighted. Verbal instruction, consistent environment, tactile guidance." },
+              { href: "/exercise-for-health", title: "Exercise for Health", desc: "Training for high blood pressure, type 2 diabetes, osteoporosis, COPD, heart conditions, chronic pain and more.", icon: IconFileText },
+              { href: "/cancer-rehabilitation", title: "Cancer Rehabilitation", desc: "Training during active treatment, in remission, or post-surgery. Qualified and experienced in cancer rehabilitation.", icon: IconRibbon },
+              { href: "/exercise-for-health/visual-impairment", title: "Visual Impairment", desc: "Adapted training for people who are blind or partially sighted. Verbal instruction, consistent environment, tactile guidance.", icon: IconAccessibility },
             ].map((page) => (
               <Link key={page.href} href={page.href} className="group">
                 <div className="ef-card h-full flex flex-col hover:border-rose/40 transition-colors">
-                  <div className="bg-gradient-to-br from-teal/15 to-teal/5 rounded-xl h-36 flex items-center justify-center mb-5">
-                    <IconArrowUpRight className="w-8 h-8 text-teal/40" />
+                  <div className="w-12 h-12 rounded-full bg-teal/15 flex items-center justify-center mb-5">
+                    <page.icon className="w-5 h-5 text-teal" />
                   </div>
                   <h3 className="text-foreground font-bold mb-2 group-hover:text-rose transition-colors">{page.title}</h3>
                   <p className="ef-body text-sm mb-4 flex-1">{page.desc}</p>
@@ -312,8 +315,8 @@ export default function PersonalTrainingClient() {
             {relatedArticles.map((article) => (
               <Link key={article.href} href={article.href} className="group">
                 <div className="ef-card h-full flex flex-col hover:border-rose/40 transition-colors">
-                  <div className="bg-gradient-to-br from-rose/15 to-rose/5 rounded-xl h-36 flex items-center justify-center mb-5">
-                    <IconArrowUpRight className="w-8 h-8 text-rose/40" />
+                  <div className="w-12 h-12 rounded-full bg-rose/15 flex items-center justify-center mb-5">
+                    <article.icon className="w-5 h-5 text-rose" />
                   </div>
                   <h3 className="text-foreground font-bold mb-2 group-hover:text-rose transition-colors">{article.title}</h3>
                   <p className="ef-body text-sm mb-4 flex-1">{article.desc}</p>

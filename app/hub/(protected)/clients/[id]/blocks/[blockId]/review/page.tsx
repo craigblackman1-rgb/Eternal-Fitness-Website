@@ -95,14 +95,14 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
         </Alert>
       )}
 
-      <Card>
+      <Card className="shadow-sm border-border/60 rounded-2xl">
         <CardHeader>
           <CardTitle className="text-lg">Session Overview</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="border-border/60">
                 <TableHead className="w-12">#</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Week</TableHead>
@@ -123,7 +123,10 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
                   (session.data?.versions?.home?.main_block?.length || 0) +
                   (session.data?.versions?.home?.cooldown?.length || 0);
                 return (
-                  <TableRow key={session.id}>
+                  <TableRow
+                    key={session.id}
+                    className="border-border/60 odd:bg-off-white/40 hover:bg-rose/5 transition-colors"
+                  >
                     <TableCell className="font-medium">{session.session_number}</TableCell>
                     <TableCell>
                       <Badge variant={session.archetype === "A" ? "secondary" : session.archetype === "B" ? "default" : "outline"}>

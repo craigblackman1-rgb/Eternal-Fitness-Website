@@ -147,7 +147,7 @@ export default function ContactPageClient() {
                   value={form.email}
                   onChange={handleChange}
                   placeholder="you@example.com"
-                  className="w-full px-4 py-3 rounded-xl border border-[#E4DDD7] bg-white text-foreground placeholder:text-[#525A61]/50 focus:outline-none focus:ring-2 focus:ring-rose/30"
+                  className="w-full px-4 py-3 rounded-xl border border-border-warm bg-white text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-rose/30"
                 />
               </div>
 
@@ -162,7 +162,7 @@ export default function ContactPageClient() {
                   value={form.phone}
                   onChange={handleChange}
                   placeholder="07xxx xxx xxx"
-                  className="w-full px-4 py-3 rounded-xl border border-[#E4DDD7] bg-white text-foreground placeholder:text-[#525A61]/50 focus:outline-none focus:ring-2 focus:ring-rose/30"
+                  className="w-full px-4 py-3 rounded-xl border border-border-warm bg-white text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-rose/30"
                 />
               </div>
 

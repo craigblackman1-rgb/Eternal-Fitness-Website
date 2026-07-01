@@ -5,7 +5,7 @@ import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
 import ConsultationDialog from "@/components/ConsultationDialog";
 import { useConsultationDialog } from "@/hooks/useConsultationDialog";
-import { IconBloodPressure } from "@/components/icons";
+import { IconBloodPressure, IconActivity, IconDumbbell, IconHeart, IconCheckCircle, IconTarget, IconFileText, IconClock } from "@/components/icons";
 
 const approachPoints = [
   {
@@ -26,7 +26,7 @@ export default function HighBloodPressureClient() {
   const { open, setOpen, openDialog } = useConsultationDialog();
 
   return (
-    <div>
+    <div className="min-h-screen bg-background">
       <Navbar onBookConsultation={openDialog} />
 
       {/* HERO */}
@@ -116,19 +116,25 @@ export default function HighBloodPressureClient() {
               {
                 n: "01", title: "Warm-up and mobilisation",
                 body: "Light cardio and mobility work to gradually increase heart rate and blood flow. No sudden starts — we ease into every session.",
+                icon: IconActivity,
               },
               {
                 n: "02", title: "Main exercise block",
                 body: "A combination of moderate-intensity cardio and controlled resistance work. I monitor your RPE throughout and adjust intensity immediately if needed.",
+                icon: IconDumbbell,
               },
               {
                 n: "03", title: "Cool-down and recovery",
                 body: "Guided cool-down to bring your heart rate and blood pressure back to baseline gradually. Breathing work and gentle stretching to support recovery.",
+                icon: IconHeart,
               },
-            ].map(({ n, title, body }) => (
-              <div key={n} style={{ padding: "28px 0", borderTop: "1px solid var(--color-border-warm)" }}>
-                <div style={{ fontSize: 52, fontWeight: 900, color: "var(--color-rose)", opacity: 0.18, lineHeight: 0.85, marginBottom: 20, letterSpacing: "-0.05em" }}>{n}</div>
-                <h3 style={{ fontSize: 19, fontWeight: 700, color: "var(--color-ink)", marginBottom: 10, letterSpacing: "-0.018em", lineHeight: 1.2 }}>{title}</h3>
+            ].map(({ n, title, body, icon: Icon }) => (
+              <div key={n} className="ef-card">
+                <div className="w-12 h-12 rounded-full bg-rose/15 flex items-center justify-center mb-4">
+                  <Icon className="w-5 h-5 text-rose" />
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-rose)", marginBottom: 8 }}>{n}</div>
+                <h3 className="text-foreground" style={{ fontSize: 19, fontWeight: 700, marginBottom: 10, letterSpacing: "-0.018em", lineHeight: 1.2 }}>{title}</h3>
                 <p className="ef-body" style={{ fontSize: 14.5 }}>{body}</p>
               </div>
             ))}
@@ -143,29 +149,38 @@ export default function HighBloodPressureClient() {
           <h2 className="ef-h2" style={{ fontSize: "clamp(24px, 2.6vw, 36px)", color: "var(--color-ink)", marginBottom: 48 }}>
             Questions About Exercising With High Blood Pressure
           </h2>
-          {[
-            {
-              q: "Is exercise safe if I have high blood pressure?",
-              a: "Yes — in most cases, exercise is both safe and clinically recommended for managing hypertension. Moderate-intensity exercise has been shown to reduce systolic blood pressure by 5–10 mmHg in some cases. The key is having a qualified specialist who monitors your response and programmes appropriately.",
-            },
-            {
-              q: "What type of exercise helps lower blood pressure?",
-              a: "A combination of moderate aerobic exercise and resistance training is most effective. I use steady-state cardio, circuit-style resistance work, and controlled rhythmic movements — all monitored and adapted to your individual response.",
-            },
-            {
-              q: "Can I train if I take blood pressure medication?",
-              a: "Yes. Many of my clients take antihypertensives. Some medications affect heart rate response, which is why I use RPE — how hard you feel you are working — alongside heart rate data to guide intensity. I will never push beyond what is safe for your specific situation.",
-            },
-            {
-              q: "How quickly will I see improvements?",
-              a: "Many clients notice their blood pressure readings trending lower within 4–6 weeks of consistent training. But the timeframe depends on your starting point, medication, and other health factors. I track your readings session by session so we can see what is working.",
-            },
-          ].map(({ q, a }) => (
-            <div key={q} style={{ padding: "24px 0", borderTop: "1px solid var(--color-border-warm)" }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--color-ink)", marginBottom: 10, letterSpacing: "-0.01em" }}>{q}</h3>
-              <p className="ef-body" style={{ fontSize: 15 }}>{a}</p>
-            </div>
-          ))}
+          <div className="flex flex-col gap-5">
+            {[
+              {
+                q: "Is exercise safe if I have high blood pressure?",
+                a: "Yes — in most cases, exercise is both safe and clinically recommended for managing hypertension. Moderate-intensity exercise has been shown to reduce systolic blood pressure by 5–10 mmHg in some cases. The key is having a qualified specialist who monitors your response and programmes appropriately.",
+                icon: IconCheckCircle,
+              },
+              {
+                q: "What type of exercise helps lower blood pressure?",
+                a: "A combination of moderate aerobic exercise and resistance training is most effective. I use steady-state cardio, circuit-style resistance work, and controlled rhythmic movements — all monitored and adapted to your individual response.",
+                icon: IconTarget,
+              },
+              {
+                q: "Can I train if I take blood pressure medication?",
+                a: "Yes. Many of my clients take antihypertensives. Some medications affect heart rate response, which is why I use RPE — how hard you feel you are working — alongside heart rate data to guide intensity. I will never push beyond what is safe for your specific situation.",
+                icon: IconFileText,
+              },
+              {
+                q: "How quickly will I see improvements?",
+                a: "Many clients notice their blood pressure readings trending lower within 4–6 weeks of consistent training. But the timeframe depends on your starting point, medication, and other health factors. I track your readings session by session so we can see what is working.",
+                icon: IconClock,
+              },
+            ].map(({ q, a, icon: Icon }) => (
+              <div key={q} className="ef-card">
+                <div className="w-12 h-12 rounded-full bg-teal/15 flex items-center justify-center mb-4">
+                  <Icon className="w-5 h-5 text-teal" />
+                </div>
+                <h3 className="text-foreground" style={{ fontSize: 16, fontWeight: 700, marginBottom: 10, letterSpacing: "-0.01em" }}>{q}</h3>
+                <p className="ef-body" style={{ fontSize: 15 }}>{a}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

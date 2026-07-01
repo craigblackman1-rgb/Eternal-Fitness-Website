@@ -92,6 +92,14 @@ export interface Session {
   };
   coaching_notes: string;
   client_intro: string;
+  session_log?: SessionLog;
+}
+
+export interface SessionLog {
+  completed_at: string | null;
+  rpe: number | null;
+  fatigue: "low" | "moderate" | "high" | null;
+  notes: string;
 }
 
 export type DBClientComplianceStatus = "clear" | "action_needed" | "do_not_train" | "pending_medical";

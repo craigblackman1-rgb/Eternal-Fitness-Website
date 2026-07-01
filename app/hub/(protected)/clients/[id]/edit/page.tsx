@@ -136,7 +136,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
       </div>
 
       <div className="space-y-6">
-        <Card>
+        <Card className="shadow-sm border-border/60 rounded-2xl">
           <CardHeader>
             <CardTitle>Basic Info</CardTitle>
           </CardHeader>
@@ -158,7 +158,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm border-border/60 rounded-2xl">
           <CardHeader>
             <CardTitle>Logistics</CardTitle>
           </CardHeader>
@@ -210,7 +210,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm border-border/60 rounded-2xl">
           <CardHeader>
             <CardTitle>Health & Clearance</CardTitle>
           </CardHeader>
@@ -246,7 +246,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm border-border/60 rounded-2xl">
           <CardHeader>
             <CardTitle>Physical Baseline</CardTitle>
           </CardHeader>
@@ -333,7 +333,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm border-border/60 rounded-2xl">
           <CardHeader>
             <CardTitle>Compliance &amp; Pace</CardTitle>
           </CardHeader>
@@ -385,7 +385,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm border-border/60 rounded-2xl">
           <CardHeader>
             <CardTitle>Goals</CardTitle>
           </CardHeader>
@@ -411,7 +411,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm border-border/60 rounded-2xl">
           <CardHeader>
             <CardTitle>Programming Adaptations</CardTitle>
           </CardHeader>
@@ -428,7 +428,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm border-border/60 rounded-2xl">
           <CardHeader>
             <CardTitle>Notes</CardTitle>
           </CardHeader>

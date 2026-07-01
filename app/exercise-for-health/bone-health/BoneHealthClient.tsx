@@ -5,7 +5,7 @@ import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
 import ConsultationDialog from "@/components/ConsultationDialog";
 import { useConsultationDialog } from "@/hooks/useConsultationDialog";
-import { IconBone } from "@/components/icons";
+import { IconBone, IconMove, IconDumbbell, IconAccessibility, IconCheckCircle, IconAlertTriangle, IconClock, IconClipboardList } from "@/components/icons";
 
 const approachPoints = [
   {
@@ -26,7 +26,7 @@ export default function BoneHealthClient() {
   const { open, setOpen, openDialog } = useConsultationDialog();
 
   return (
-    <div>
+    <div className="min-h-screen bg-background">
       <Navbar onBookConsultation={openDialog} />
 
       {/* HERO */}
@@ -118,19 +118,25 @@ export default function BoneHealthClient() {
               {
                 n: "01", title: "Mobilisation and activation",
                 body: "We start with gentle mobility work and muscle activation to prepare your joints and skeleton for loading. Good movement quality comes before any load is added.",
+                icon: IconMove,
               },
               {
                 n: "02", title: "Resistance and weight-bearing work",
                 body: "The main block focuses on compound resistance exercises — squats, presses, rows, lunges — at controlled loads that stimulate bone without exceeding safe thresholds. Impact is introduced carefully where appropriate.",
+                icon: IconDumbbell,
               },
               {
                 n: "03", title: "Balance and cool-down",
                 body: "Balance exercises to reduce fall risk, followed by a guided cool-down. Proprioception work — your body's awareness of where it is in space — is a key part of fracture prevention and we build it into every session.",
+                icon: IconAccessibility,
               },
-            ].map(({ n, title, body }) => (
-              <div key={n} style={{ padding: "28px 0", borderTop: "1px solid var(--color-border-warm)" }}>
-                <div style={{ fontSize: 52, fontWeight: 900, color: "var(--color-rose)", opacity: 0.18, lineHeight: 0.85, marginBottom: 20, letterSpacing: "-0.05em" }}>{n}</div>
-                <h3 style={{ fontSize: 19, fontWeight: 700, color: "var(--color-ink)", marginBottom: 10, letterSpacing: "-0.018em", lineHeight: 1.2 }}>{title}</h3>
+            ].map(({ n, title, body, icon: Icon }) => (
+              <div key={n} className="ef-card">
+                <div className="w-12 h-12 rounded-full bg-rose/15 flex items-center justify-center mb-4">
+                  <Icon className="w-5 h-5 text-rose" />
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-rose)", marginBottom: 8 }}>{n}</div>
+                <h3 className="text-foreground" style={{ fontSize: 19, fontWeight: 700, marginBottom: 10, letterSpacing: "-0.018em", lineHeight: 1.2 }}>{title}</h3>
                 <p className="ef-body" style={{ fontSize: 14.5 }}>{body}</p>
               </div>
             ))}
@@ -145,29 +151,38 @@ export default function BoneHealthClient() {
           <h2 className="ef-h2" style={{ fontSize: "clamp(24px, 2.6vw, 36px)", color: "var(--color-ink)", marginBottom: 48 }}>
             Questions About Exercising With Osteoporosis
           </h2>
-          {[
-            {
-              q: "Is exercise safe if I have osteoporosis?",
-              a: "Yes — exercise is clinically recommended for managing osteoporosis and reducing fracture risk. Weight-bearing and resistance exercises strengthen bone, while balance work reduces fall risk. A qualified specialist will know which movements are appropriate for your specific bone health status.",
-            },
-            {
-              q: "What exercises should I avoid with osteoporosis?",
-              a: "High-impact activities, uncontrolled twisting of the spine, heavy forward flexion (bending at the waist to touch your toes), and exercises that place excessive load through a fracture-prone area all need careful consideration. I assess your individual risk profile and programme around it.",
-            },
-            {
-              q: "How quickly can exercise improve bone density?",
-              a: "Bone adaptation is slower than muscle adaptation — measurable changes on a DEXA scan typically take 6–12 months of consistent training. But improvements in strength, balance, and confidence happen much sooner, and these have an immediate impact on your quality of life and fracture risk.",
-            },
-            {
-              q: "Do I need a recent DEXA scan to start?",
-              a: "It helps, but it is not essential. If you have a recent DEXA scan result that gives me your T-score and any fracture history, I can programme more precisely. If you do not have one, I will work with your diagnosis, your symptoms, and your medical guidance to keep you safe.",
-            },
-          ].map(({ q, a }) => (
-            <div key={q} style={{ padding: "24px 0", borderTop: "1px solid var(--color-border-warm)" }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--color-ink)", marginBottom: 10, letterSpacing: "-0.01em" }}>{q}</h3>
-              <p className="ef-body" style={{ fontSize: 15 }}>{a}</p>
-            </div>
-          ))}
+          <div className="flex flex-col gap-5">
+            {[
+              {
+                q: "Is exercise safe if I have osteoporosis?",
+                a: "Yes — exercise is clinically recommended for managing osteoporosis and reducing fracture risk. Weight-bearing and resistance exercises strengthen bone, while balance work reduces fall risk. A qualified specialist will know which movements are appropriate for your specific bone health status.",
+                icon: IconCheckCircle,
+              },
+              {
+                q: "What exercises should I avoid with osteoporosis?",
+                a: "High-impact activities, uncontrolled twisting of the spine, heavy forward flexion (bending at the waist to touch your toes), and exercises that place excessive load through a fracture-prone area all need careful consideration. I assess your individual risk profile and programme around it.",
+                icon: IconAlertTriangle,
+              },
+              {
+                q: "How quickly can exercise improve bone density?",
+                a: "Bone adaptation is slower than muscle adaptation — measurable changes on a DEXA scan typically take 6–12 months of consistent training. But improvements in strength, balance, and confidence happen much sooner, and these have an immediate impact on your quality of life and fracture risk.",
+                icon: IconClock,
+              },
+              {
+                q: "Do I need a recent DEXA scan to start?",
+                a: "It helps, but it is not essential. If you have a recent DEXA scan result that gives me your T-score and any fracture history, I can programme more precisely. If you do not have one, I will work with your diagnosis, your symptoms, and your medical guidance to keep you safe.",
+                icon: IconClipboardList,
+              },
+            ].map(({ q, a, icon: Icon }) => (
+              <div key={q} className="ef-card">
+                <div className="w-12 h-12 rounded-full bg-teal/15 flex items-center justify-center mb-4">
+                  <Icon className="w-5 h-5 text-teal" />
+                </div>
+                <h3 className="text-foreground" style={{ fontSize: 16, fontWeight: 700, marginBottom: 10, letterSpacing: "-0.01em" }}>{q}</h3>
+                <p className="ef-body" style={{ fontSize: 15 }}>{a}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

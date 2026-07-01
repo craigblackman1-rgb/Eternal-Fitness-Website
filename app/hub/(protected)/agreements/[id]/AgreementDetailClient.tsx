@@ -428,7 +428,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
       )}
 
       {/* Client details */}
-      <Card className="shadow-sm border-border/60">
+      <Card className="shadow-sm border-border/60 rounded-2xl transition-shadow hover:shadow-md">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <IconFileText className="w-4 h-4 text-primary" />
@@ -443,7 +443,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
               <span className="flex items-center gap-1">
                 <a href={`mailto:${data.client_email}`} className="text-primary hover:underline">{data.client_email}</a>
                 <button onClick={handleCopyEmail} className="text-muted-foreground hover:text-foreground" title="Copy email">
-                  <Copy className="w-3 h-3" />
+                  <IconCopy className="w-3 h-3" />
                 </button>
               </span>
             ) : null} />
@@ -457,7 +457,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
       </Card>
 
       {/* Signatures */}
-      <Card className="shadow-sm border-border/60">
+      <Card className="shadow-sm border-border/60 rounded-2xl transition-shadow hover:shadow-md">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             Signatures
@@ -501,7 +501,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
       </Card>
 
       {/* PAR-Q and Medical Clearance */}
-      <Card className="shadow-sm border-border/60">
+      <Card className="shadow-sm border-border/60 rounded-2xl transition-shadow hover:shadow-md">
         <CardHeader className="pb-3 flex flex-row items-start justify-between">
           <CardTitle className="text-base flex items-center gap-2">
             PAR-Q & Medical Clearance
@@ -513,7 +513,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
               className="gap-1.5"
               onClick={handleCopyParqEditLink}
             >
-              <Copy className="w-4 h-4" />
+              <IconCopy className="w-4 h-4" />
               {linkCopied ? "Link copied!" : "Send edit link"}
             </Button>
             <Button
@@ -530,7 +530,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
                 }
               }}
             >
-              <Edit3 className="w-4 h-4" />
+              <IconEdit3 className="w-4 h-4" />
               {editingParq ? "Cancel" : "Edit PAR-Q"}
             </Button>
           </div>
@@ -645,7 +645,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
 
               <div className="flex items-center gap-3 pt-2">
                 <Button onClick={handleSaveParq} disabled={parqSaving} className="gap-1.5 bg-rose hover:bg-rose/90 text-white">
-                  {parqSaving ? "Saving..." : <><Save className="w-4 h-4" /> Save PAR-Q</>}
+                  {parqSaving ? "Saving..." : <><IconSave className="w-4 h-4" /> Save PAR-Q</>}
                 </Button>
                 <Button variant="outline" onClick={() => { setEditingParq(false); setParqSaveError(null); }} className="gap-1.5">
                   <IconX className="w-4 h-4" /> Cancel
@@ -657,10 +657,10 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
       </Card>
 
       {/* Trainer Information — Editable */}
-      <Card className="shadow-sm border-border/60">
+      <Card className="shadow-sm border-border/60 rounded-2xl transition-shadow hover:shadow-md">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
-            <Edit3 className="w-4 h-4 text-primary" />
+            <IconEdit3 className="w-4 h-4 text-primary" />
             Trainer Information
           </CardTitle>
         </CardHeader>
@@ -709,7 +709,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
                 <div className="text-center py-6">
                   <p className="text-sm text-muted-foreground">No trainer information added yet</p>
                   <Button variant="outline" size="sm" className="mt-3 gap-1.5" onClick={() => setEditingTrainer(true)}>
-                    <Edit3 className="w-4 h-4" />
+                    <IconEdit3 className="w-4 h-4" />
                     Add trainer information
                   </Button>
                 </div>
@@ -980,7 +980,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
                     </>
                   ) : (
                     <>
-                      <Save className="w-4 h-4" />
+                      <IconSave className="w-4 h-4" />
                       Save trainer information
                     </>
                   )}
@@ -996,7 +996,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
       </Card>
 
       {/* Agreement terms */}
-      <Card className="shadow-sm border-border/60">
+      <Card className="shadow-sm border-border/60 rounded-2xl transition-shadow hover:shadow-md">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             Agreement

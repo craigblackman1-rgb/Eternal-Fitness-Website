@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IconChevronLeft, IconClipboardList, IconFileText, IconHeart, IconMail, IconPencil, IconPlus, IconTarget, IconTriangleAlert } from "@/components/icons";
+import { getComplianceBadgeClass, getComplianceLabel } from "@/lib/complianceStatus";
 import type { DBClientComplianceStatus, DBClientGroupType, DBClientPaceMode } from "@/types";
 import { PlanAgentTab } from "./PlanAgentTab";
 
@@ -91,7 +92,9 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
   const p = client.profile;
   const initials = client.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
-  const latestBlock = blocks && blocks.length > 0 ? blocks[0] : null;
+  const latestBlock = blocks && blocks.length > 0
+    ? blocks.find((b) => b.status === "active") ?? blocks.find((b) => b.status === "approved") ?? blocks[0]
+    : null;
 
   return (
     <div className="space-y-6">
@@ -467,22 +470,8 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
               <CardTitle className="text-base">Compliance Status</CardTitle>
             </CardHeader>
             <CardContent className="text-sm">
-              <Badge 
-                className={
-                  client.compliance_status === 'do_not_train'
-                    ? 'bg-rose text-white rounded-full'
-                    : client.compliance_status === 'pending_medical'
-                    ? 'bg-amber-100 text-amber-800 border border-amber-200 rounded-full'
-                    : 'bg-amber-100 text-amber-800 border border-amber-200 rounded-full'
-                }
-              >
-                {client.compliance_status && (
-                  client.compliance_status === 'do_not_train'
-                    ? 'Do Not Train'
-                    : client.compliance_status === 'pending_medical'
-                    ? 'Pending Clearance'
-                    : 'Action Needed'
-                )}
+              <Badge className={getComplianceBadgeClass(client.compliance_status)}>
+                {getComplianceLabel(client.compliance_status)}
               </Badge>
             </CardContent>
           </Card>
@@ -591,16 +580,23 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                     </tr>
                   </thead>
                   <tbody>
-                    {sessions.map((session) => (
-                      <tr key={session.id} className="border-b border-border/30 last:border-0">
-                        <td className="py-2 text-foreground">{(session?.blocks as any)?.block_number || '-'}</td>
-                        <td className="py-2 text-foreground">{session.session_number}</td>
-                        <td className="py-2 text-muted-foreground">-</td>
-                        <td className="py-2 text-muted-foreground">-</td>
-                        <td className="py-2 text-muted-foreground">-</td>
-                        <td className="py-2 text-muted-foreground">-</td>
-                      </tr>
-                    ))}
+                    {sessions.map((session) => {
+                      const log = (session.data as any)?.session_log;
+                      return (
+                        <tr key={session.id} className="border-b border-border/30 last:border-0">
+                          <td className="py-2 text-foreground">{(session?.blocks as any)?.block_number || '-'}</td>
+                          <td className="py-2 text-foreground">{session.session_number}</td>
+                          <td className="py-2 text-muted-foreground">
+                            {log?.completed_at
+                              ? new Date(log.completed_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })
+                              : "—"}
+                          </td>
+                          <td className="py-2 text-muted-foreground">{log?.rpe ?? "—"}</td>
+                          <td className="py-2 text-muted-foreground capitalize">{log?.fatigue ?? "—"}</td>
+                          <td className="py-2 text-muted-foreground max-w-[240px] truncate">{log?.notes || "—"}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               ) : (

@@ -1,12 +1,100 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { IconBookText, IconCheckSquare, IconClipboardList, IconFileSignature, IconLayoutDashboard, IconLogOut, IconUsers } from "@/components/icons";
+import { IconBookText, IconCheckSquare, IconClipboardList, IconFileSignature, IconLayoutDashboard, IconLogOut, IconSearch, IconUsers } from "@/components/icons";
+
+interface ClientSearchResult {
+  client_number: number;
+  name: string;
+}
+
+function ClientQuickSearch() {
+  const supabase = createClient();
+  const router = useRouter();
+  const [term, setTerm] = useState("");
+  const [results, setResults] = useState<ClientSearchResult[]>([]);
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (term.trim().length < 2) {
+      setResults([]);
+      return;
+    }
+    let cancelled = false;
+    const timeout = setTimeout(async () => {
+      const { data } = await supabase
+        .from("clients")
+        .select("client_number, name")
+        .ilike("name", `%${term.trim()}%`)
+        .order("name", { ascending: true })
+        .limit(6);
+      if (!cancelled) setResults(data ?? []);
+    }, 200);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [term]);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const goTo = (clientNumber: number) => {
+    setOpen(false);
+    setTerm("");
+    router.push(`/hub/clients/${clientNumber}`);
+  };
+
+  return (
+    <div ref={containerRef} className="relative px-3 pt-3">
+      <div className="relative">
+        <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <input
+          type="text"
+          value={term}
+          onChange={(e) => {
+            setTerm(e.target.value);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
+          placeholder="Find a client..."
+          className="w-full rounded-xl border border-border/60 bg-off-white/60 py-2 pl-9 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-rose/30"
+        />
+      </div>
+      {open && term.trim().length >= 2 && (
+        <div className="absolute left-3 right-3 z-20 mt-1 rounded-xl border border-border/60 bg-white shadow-lg overflow-hidden">
+          {results.length > 0 ? (
+            results.map((c) => (
+              <button
+                key={c.client_number}
+                onClick={() => goTo(c.client_number)}
+                className="flex w-full items-center px-3 py-2 text-left text-sm text-foreground hover:bg-rose/5 transition-colors"
+              >
+                {c.name}
+              </button>
+            ))
+          ) : (
+            <p className="px-3 py-2 text-sm text-muted-foreground">No clients found</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const navItems = [
   { href: "/hub", label: "Dashboard", icon: IconLayoutDashboard },
@@ -44,6 +132,8 @@ export function HubSidebar() {
           <span className="text-xs text-muted-foreground">Trainer Hub</span>
         </div>
       </div>
+
+      <ClientQuickSearch />
 
       {/* Navigation — rose active state matching website */}
       <nav className="flex-1 space-y-1 p-3">

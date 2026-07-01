@@ -14,7 +14,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Trash2 } from "lucide-react";
+import { IconTrash2 } from "@/components/icons";
 import { toast } from "sonner";
 
 export function DeleteBlockButton({
@@ -47,7 +47,7 @@ export function DeleteBlockButton({
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button variant="destructive" size="icon">
-          <Trash2 className="h-4 w-4" />
+          <IconTrash2 className="h-4 w-4" />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
