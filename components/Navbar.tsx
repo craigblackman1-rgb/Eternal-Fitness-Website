@@ -90,11 +90,11 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
         }`}
       >
         <Link href="/" className="flex items-center" aria-label="Eternal Fitness home">
-          <EternalFitnessLogo variant={isLit ? "dark" : "light"} className="h-7 md:h-8 w-auto" />
+          <EternalFitnessLogo variant={isLit || pathname === "/" ? "dark" : "light"} className="h-7 md:h-8 w-auto" />
         </Link>
 
 {/* Desktop nav */}
-        <ul className={`hidden md:flex items-center gap-8 text-sm font-medium ${isLit ? "text-charcoal/70" : "text-white/80"}`}>
+        <ul className={`hidden md:flex items-center gap-8 text-sm font-medium ${isLit ? "text-charcoal/70" : pathname === "/" ? "text-charcoal/70" : "text-white/80"}`}>
           {navItems.map((item) => {
             if (item.children) {
               return (
@@ -103,8 +103,8 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
                     href={item.to}
                     className={`transition-colors ${
                       pathname === item.to || item.children.some(c => pathname === c.to || pathname.startsWith(c.to + '/'))
-                        ? `${isLit ? "text-charcoal" : "text-white"} font-semibold`
-                        : isLit
+                        ? `${isLit || pathname === "/" ? "text-charcoal" : "text-white"} font-semibold`
+                        : isLit || pathname === "/"
                         ? "hover:text-charcoal"
                         : "hover:text-white"
                     } flex items-center gap-1`}
@@ -135,8 +135,8 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
                   href={item.to}
                   className={`transition-colors ${
                     pathname === item.to
-                      ? `${isLit ? "text-charcoal" : "text-white"} font-semibold`
-                      : isLit
+                      ? `${isLit || pathname === "/" ? "text-charcoal" : "text-white"} font-semibold`
+                      : isLit || pathname === "/"
                       ? "hover:text-charcoal"
                       : "hover:text-white"
                   }`}
@@ -170,7 +170,7 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
         {/* Mobile toggle */}
         <button
           onClick={() => setOpen((v) => !v)}
-          className={`md:hidden ${isLit ? "text-charcoal" : "text-white"}`}
+          className={`md:hidden ${isLit || pathname === "/" ? "text-charcoal" : "text-white"}`}
           aria-label={open ? "Close menu" : "Open menu"}
         >
           {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
