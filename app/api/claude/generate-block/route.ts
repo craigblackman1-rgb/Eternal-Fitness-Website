@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { getAiConfig, aiChat } from "@/lib/ai-client";
 import type { ClientProfile, Session, Archetype, Phase, Exercise, SessionVersion } from "@/types";
 
 const weekPhases: { week: number; phase: Phase }[] = [
@@ -44,10 +45,11 @@ export async function POST(request: Request) {
 
   const blockNumber = (existingBlocks?.[0]?.block_number ?? 0) + 1;
 
+  const aiConfig = getAiConfig();
   let sessions: Session[];
 
-  if (process.env.ANTHROPIC_API_KEY) {
-    sessions = await generateViaClaude(profile, blockNote, previousSummary, blockNumber);
+  if (aiConfig.provider) {
+    sessions = await generateViaAi(profile, blockNote, previousSummary, blockNumber);
   } else {
     sessions = generateFallback(profile, blockNumber);
   }
@@ -86,15 +88,12 @@ export async function POST(request: Request) {
   return NextResponse.json({ blockId: block.id }, { status: 201 });
 }
 
-async function generateViaClaude(
+async function generateViaAi(
   profile: ClientProfile,
   blockNote?: string,
   previousSummary?: string,
   _blockNumber?: number
 ): Promise<Session[]> {
-  const { default: Anthropic } = await import("@anthropic-ai/sdk");
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
-
   const spw = profile.logistics.sessions_per_week;
   const totalSessions = spw * 6;
 
@@ -144,15 +143,11 @@ PROGRESSION RULES:
 
 Return only a JSON array of ${totalSessions} Session objects.`;
 
-  const response = await client.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 16000,
-    system,
-    messages: [{ role: "user", content: user }],
-  });
+  const text = await aiChat({ system, user, maxTokens: 16000 });
+  if (!text) throw new Error("AI returned no response");
 
-  const text = response.content[0].type === "text" ? response.content[0].text : "";
-  return JSON.parse(text) as Session[];
+  const cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+  return JSON.parse(cleaned) as Session[];
 }
 
 /* ─── Fallback generator powered by exercise-db.json ─── */

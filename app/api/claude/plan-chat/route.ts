@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase-server";
+import { getAiConfig, aiChatStream } from "@/lib/ai-client";
 import { readFileSync } from "fs";
 import { join } from "path";
 
@@ -162,6 +163,11 @@ export async function POST(request: Request) {
     return new Response("Client not found", { status: 404 });
   }
 
+  const aiConfig = getAiConfig();
+  if (!aiConfig.provider) {
+    return new Response("Plan Agent is not configured — set OPENROUTER_API_KEY or ANTHROPIC_API_KEY", { status: 503 });
+  }
+
   const { data: blocks } = await supabase
     .from("blocks")
     .select("block_number, block_note, status, created_at")
@@ -169,35 +175,17 @@ export async function POST(request: Request) {
     .order("block_number", { ascending: false })
     .limit(5);
 
-  const { default: Anthropic } = await import("@anthropic-ai/sdk");
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
-
   const systemPrompt = buildSystemPrompt(client, blocks ?? []);
 
-  const stream = anthropic.messages.stream({
-    model: "claude-sonnet-4-6",
-    max_tokens: 4096,
+  const readable = await aiChatStream({
     system: systemPrompt,
     messages: messages.map((m) => ({ role: m.role, content: m.content })),
+    maxTokens: 4096,
   });
 
-  const readable = new ReadableStream({
-    async start(controller) {
-      const encoder = new TextEncoder();
-      try {
-        for await (const chunk of stream) {
-          if (
-            chunk.type === "content_block_delta" &&
-            chunk.delta.type === "text_delta"
-          ) {
-            controller.enqueue(encoder.encode(chunk.delta.text));
-          }
-        }
-      } finally {
-        controller.close();
-      }
-    },
-  });
+  if (!readable) {
+    return new Response("Plan Agent is not configured", { status: 503 });
+  }
 
   return new Response(readable, {
     headers: {
