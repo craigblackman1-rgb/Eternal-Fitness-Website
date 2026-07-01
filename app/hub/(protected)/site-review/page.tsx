@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { CheckSquare, AlertCircle, Clock, Zap, Check } from "lucide-react";
+import { IconAlertCircle, IconCheck, IconCheckSquare, IconClock, IconZap } from "@/components/icons";
 
 interface Task {
   id: string;
@@ -110,10 +110,10 @@ const sitemap: SitemapItem[] = [
 ];
 
 const priorityConfig = {
-  CRITICAL: { color: "bg-red-100 text-red-800", icon: AlertCircle },
-  HIGH: { color: "bg-orange-100 text-orange-800", icon: Zap },
-  MEDIUM: { color: "bg-blue-100 text-blue-800", icon: Clock },
-  LOW: { color: "bg-gray-100 text-gray-800", icon: CheckSquare },
+  CRITICAL: { color: "bg-red-100 text-red-800", icon: IconAlertCircle },
+  HIGH: { color: "bg-orange-100 text-orange-800", icon: IconZap },
+  MEDIUM: { color: "bg-blue-100 text-blue-800", icon: IconClock },
+  LOW: { color: "bg-gray-100 text-gray-800", icon: IconCheckSquare },
 };
 
 export default function SiteReviewPage() {
@@ -273,7 +273,7 @@ export default function SiteReviewPage() {
               onClick={() => setShowCompleted(!showCompleted)}
               className="ml-auto"
             >
-              <Check className="h-4 w-4 mr-2" />
+              <IconCheck className="h-4 w-4 mr-2" />
               Completed ({completedCount})
             </Button>
           </div>

@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChevronLeft, CheckCircle, AlertTriangle, Eye } from "lucide-react";
+import { IconAlertTriangle, IconCheckCircle, IconChevronLeft, IconEye } from "@/components/icons";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { DBSession, DBBlock } from "@/types";
@@ -78,7 +78,7 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}`} className="text-muted-foreground hover:text-foreground">
-          <ChevronLeft className="h-5 w-5" />
+          <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div className="flex-1">
           <h1 className="text-3xl font-bold tracking-tight">Review & Approve</h1>
@@ -88,7 +88,7 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
 
       {hasMissingMods && (
         <Alert className="border-amber-200 bg-amber-50">
-          <AlertTriangle className="h-4 w-4 text-amber-600" />
+          <IconAlertTriangle className="h-4 w-4 text-amber-600" />
           <AlertDescription className="text-amber-800">
             Some exercises are missing client-specific modifications. Review each session before approving.
           </AlertDescription>
@@ -137,7 +137,7 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
                     <TableCell>
                       <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}/sessions/${session.session_number}`}>
                         <Button variant="ghost" size="icon">
-                          <Eye className="h-4 w-4" />
+                          <IconEye className="h-4 w-4" />
                         </Button>
                       </Link>
                     </TableCell>
@@ -154,7 +154,7 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
           <Button variant="outline">Back to Block</Button>
         </Link>
         <Button onClick={handleApprove} disabled={approving} className="gap-2">
-          <CheckCircle className="h-4 w-4" />
+          <IconCheckCircle className="h-4 w-4" />
           {approving ? "Approving..." : "Approve Block"}
         </Button>
       </div>

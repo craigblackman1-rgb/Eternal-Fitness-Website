@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ChevronLeft } from "lucide-react";
+import { IconChevronLeft } from "@/components/icons";
 import Link from "next/link";
 import type { ClientProfile } from "@/types";
 
@@ -72,7 +72,7 @@ export default function NewClientPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/hub/clients" className="text-muted-foreground hover:text-foreground">
-          <ChevronLeft className="h-5 w-5" />
+          <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">New Client</h1>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Check, Heart, Dumbbell, Target } from "lucide-react";
+import { IconArrowUpRight, IconCheck, IconHeart, IconDumbbell, IconTarget } from "@/components/icons";
 import Navbar from "@/components/Navbar";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
@@ -58,21 +58,21 @@ const plans = [
 
 const valueProps = [
   {
-    icon: Heart,
+    icon: IconHeart,
     title: "One person. One trainer. One focus.",
     description:
       "Your health is not a short-term purchase — it is a long-term investment in your energy, confidence, and overall quality of life. Prioritising wellness now pays dividends for years to come.",
     accent: "rose",
   },
   {
-    icon: Dumbbell,
+    icon: IconDumbbell,
     title: "Qualified to work where others cannot",
     description:
       "My pricing reflects personalised coaching focused on real, sustainable change — not quick fixes. You are paying for private sessions, tailored programmes, and expert guidance designed around your goals.",
     accent: "teal",
   },
   {
-    icon: Target,
+    icon: IconTarget,
     title: "The first conversation is always free",
     description:
       "Most importantly, you are investing in a process that develops strength, consistency, and lasting habits. After your consultation, I will recommend the right level of support to help you progress safely and effectively.",
@@ -170,7 +170,7 @@ export default function PricingPageClient() {
                 <ul className="space-y-3 mb-8 flex-1">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2 text-sm font-body ef-body">
-                      <Check className={`w-4 h-4 ${plan.popular ? "text-teal" : "text-rose"} shrink-0 mt-0.5`} />
+                      <IconCheck className={`w-4 h-4 ${plan.popular ? "text-teal" : "text-rose"} shrink-0 mt-0.5`} />
                       {feature}
                     </li>
                   ))}
@@ -187,15 +187,15 @@ export default function PricingPageClient() {
 
           <div className="mt-8 bg-cream rounded-2xl p-6 border border-warm/60 flex items-start gap-4 max-w-2xl mx-auto">
             <div className="w-10 h-10 rounded-full bg-rose/15 flex items-center justify-center shrink-0 mt-0.5">
-              <Heart className="w-5 h-5 text-rose" />
+              <IconHeart className="w-5 h-5 text-rose" />
             </div>
             <div>
               <p className="text-[15px] text-slate leading-relaxed">
                 <strong className="text-foreground">Not sure which to choose?</strong> Start with the free consultation. I will give you an honest recommendation based on your situation — not the most expensive option.
               </p>
               <div className="mt-3 flex gap-4 text-sm">
-                <Link href="/personal-training" className="text-rose font-semibold hover:underline inline-flex items-center gap-1">See my specialist areas <ArrowUpRight className="w-3.5 h-3.5" /></Link>
-                <Link href="/faqs" className="text-rose font-semibold hover:underline inline-flex items-center gap-1">Read the FAQs <ArrowUpRight className="w-3.5 h-3.5" /></Link>
+                <Link href="/personal-training" className="text-rose font-semibold hover:underline inline-flex items-center gap-1">See my specialist areas <IconArrowUpRight className="w-3.5 h-3.5" /></Link>
+                <Link href="/faqs" className="text-rose font-semibold hover:underline inline-flex items-center gap-1">Read the FAQs <IconArrowUpRight className="w-3.5 h-3.5" /></Link>
               </div>
             </div>
           </div>

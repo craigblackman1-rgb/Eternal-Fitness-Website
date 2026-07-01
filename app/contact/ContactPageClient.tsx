@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowUpRight, Phone, Mail, MapPin, MessageCircle } from "lucide-react";
+import { IconArrowUpRight, IconPhone, IconMail, IconMapPin, IconMessageCircle } from "@/components/icons";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -85,7 +85,7 @@ export default function ContactPageClient() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
               <a href="#form" className="ef-btn ef-btn-primary shadow-lg shadow-rose/30">
-                Send a Message <ArrowUpRight className="w-4 h-4" />
+                Send a Message <IconArrowUpRight className="w-4 h-4" />
               </a>
               <a href="#map" className="ef-btn ef-btn-ghost-white">Find the Studio</a>
           </div>
@@ -200,7 +200,7 @@ export default function ContactPageClient() {
               </div>
 
               <button type="submit" className="ef-btn ef-btn-primary w-full justify-center">
-                Send Message <ArrowUpRight className="w-4 h-4" />
+                Send Message <IconArrowUpRight className="w-4 h-4" />
               </button>
             </form>
 
@@ -209,7 +209,7 @@ export default function ContactPageClient() {
               {/* Phone */}
               <div className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center">
-                  <Phone className="w-5 h-5 text-teal" />
+                  <IconPhone className="w-5 h-5 text-teal" />
                 </div>
                 <div>
                   <h3 className="text-foreground text-sm font-bold tracking-tight mb-1">Phone</h3>
@@ -222,7 +222,7 @@ export default function ContactPageClient() {
               {/* Email */}
               <div className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-teal" />
+                  <IconMail className="w-5 h-5 text-teal" />
                 </div>
                 <div>
                   <h3 className="text-foreground text-sm font-bold tracking-tight mb-1">Email</h3>
@@ -235,7 +235,7 @@ export default function ContactPageClient() {
               {/* Studio Location */}
               <div className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center">
-                  <MapPin className="w-5 h-5 text-teal" />
+                  <IconMapPin className="w-5 h-5 text-teal" />
                 </div>
                 <div>
                   <h3 className="text-foreground text-sm font-bold tracking-tight mb-1">Studio Location</h3>
@@ -250,7 +250,7 @@ export default function ContactPageClient() {
               <div className="bg-cream rounded-2xl p-6 border border-warm/60">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-full bg-rose/15 flex items-center justify-center shrink-0 mt-0.5">
-                    <MessageCircle className="w-5 h-5 text-rose" />
+                    <IconMessageCircle className="w-5 h-5 text-rose" />
                   </div>
                   <div>
                     <h3 className="text-foreground text-base font-bold tracking-tight mb-1">Not Sure Where to Start?</h3>
@@ -261,7 +261,7 @@ export default function ContactPageClient() {
                       href="tel:07517658128"
                       className="inline-flex items-center gap-2 text-rose font-semibold text-sm hover:underline"
                     >
-                      Call me now <ArrowUpRight className="w-3.5 h-3.5" />
+                      Call me now <IconArrowUpRight className="w-3.5 h-3.5" />
                     </a>
                   </div>
                 </div>

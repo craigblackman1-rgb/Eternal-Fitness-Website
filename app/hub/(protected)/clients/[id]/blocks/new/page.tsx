@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Label } from "@/components/ui/label";
-import { ChevronLeft, Sparkles, AlertTriangle } from "lucide-react";
+import { IconAlertTriangle, IconChevronLeft, IconSparkles } from "@/components/icons";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -48,7 +48,7 @@ export default function NewBlockPage({ params }: { params: { id: string } }) {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href={`/hub/clients/${params.id}`} className="text-muted-foreground hover:text-foreground">
-          <ChevronLeft className="h-5 w-5" />
+          <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Generate New Block</h1>
@@ -58,7 +58,7 @@ export default function NewBlockPage({ params }: { params: { id: string } }) {
 
       {error && (
         <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
+          <IconAlertTriangle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
@@ -95,7 +95,7 @@ export default function NewBlockPage({ params }: { params: { id: string } }) {
               <Button variant="outline">Cancel</Button>
             </Link>
             <Button onClick={handleGenerate} disabled={generating} className="gap-2">
-              <Sparkles className="h-4 w-4" />
+              <IconSparkles className="h-4 w-4" />
               {generating ? "Generating..." : "Generate Block"}
             </Button>
           </div>

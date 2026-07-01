@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search } from "lucide-react";
+import { IconSearch } from "@/components/icons";
 import type { ExerciseEntry } from "@/app/hub/(protected)/exercises/page";
 import exerciseDb from "@/lib/exercise-db.json";
 
@@ -78,7 +78,7 @@ export function SwapExerciseDialog({
         </DialogHeader>
 
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <IconSearch className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Type exercise name..."
             value={search}

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, FileText, CheckCircle, Activity, Plus, ArrowUpRight, UserPlus, Calendar } from "lucide-react";
+import { IconActivity, IconArrowUpRight, IconCalendar, IconCheckCircle, IconFileText, IconPlus, IconUserPlus, IconUsers } from "@/components/icons";
 import type { DBClient, DBBlock } from "@/types";
 
 function StatCard({ icon, label, value, accent }: { icon: React.ReactNode; label: string; value: string | number; accent: "rose" | "teal" | "navy" | "slate" }) {
@@ -78,13 +78,13 @@ export default async function DashboardPage() {
         <div className="flex items-center gap-3">
           <Link href="/hub/clients/new">
             <Button size="sm" className="rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white">
-              <UserPlus className="w-4 h-4" />
+              <IconUserPlus className="w-4 h-4" />
               New Client
             </Button>
           </Link>
           <Link href="/hub/clients/new" className="hidden sm:block">
             <Button size="sm" variant="outline" className="rounded-full gap-1.5 border-border/60">
-              <Calendar className="w-4 h-4" />
+              <IconCalendar className="w-4 h-4" />
               Schedule
             </Button>
           </Link>
@@ -93,10 +93,10 @@ export default async function DashboardPage() {
 
       {/* Stats row — branded colors */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={<Users className="w-5 h-5" />} label="Total Clients" value={totalClients} accent="rose" />
-        <StatCard icon={<FileText className="w-5 h-5" />} label="Draft Blocks" value={draftBlocks} accent="slate" />
-        <StatCard icon={<CheckCircle className="w-5 h-5" />} label="Active / Approved" value={approvedBlocks} accent="teal" />
-        <StatCard icon={<Activity className="w-5 h-5" />} label="Total Blocks" value={totalBlocks} accent="navy" />
+        <StatCard icon={<IconUsers className="w-5 h-5" />} label="Total Clients" value={totalClients} accent="rose" />
+        <StatCard icon={<IconFileText className="w-5 h-5" />} label="Draft Blocks" value={draftBlocks} accent="slate" />
+        <StatCard icon={<IconCheckCircle className="w-5 h-5" />} label="Active / Approved" value={approvedBlocks} accent="teal" />
+        <StatCard icon={<IconActivity className="w-5 h-5" />} label="Total Blocks" value={totalBlocks} accent="navy" />
       </div>
 
       {/* Main grid */}
@@ -106,12 +106,12 @@ export default async function DashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <CardTitle className="text-lg flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-rose/10 flex items-center justify-center">
-                <Users className="w-4 h-4 text-rose" />
+                <IconUsers className="w-4 h-4 text-rose" />
               </div>
               Recent Clients
             </CardTitle>
             <Link href="/hub/clients" className="text-sm text-rose hover:underline inline-flex items-center gap-1">
-              View all <ArrowUpRight className="w-3 h-3" />
+              View all <IconArrowUpRight className="w-3 h-3" />
             </Link>
           </CardHeader>
           <CardContent>
@@ -147,12 +147,12 @@ export default async function DashboardPage() {
             ) : (
               <div className="flex flex-col items-center gap-4 py-10">
                 <div className="w-16 h-16 rounded-full bg-rose/10 flex items-center justify-center">
-                  <Users className="w-7 h-7 text-rose/50" />
+                  <IconUsers className="w-7 h-7 text-rose/50" />
                 </div>
                 <p className="text-sm text-muted-foreground">No clients yet</p>
                 <Link href="/hub/clients/new">
                   <Button size="sm" className="rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white">
-                    <Plus className="w-4 h-4" />
+                    <IconPlus className="w-4 h-4" />
                     Add Your First Client
                   </Button>
                 </Link>
@@ -168,7 +168,7 @@ export default async function DashboardPage() {
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-teal/10 flex items-center justify-center">
-                  <FileText className="w-4 h-4 text-teal" />
+                  <IconFileText className="w-4 h-4 text-teal" />
                 </div>
                 Recent Blocks
               </CardTitle>
@@ -185,7 +185,7 @@ export default async function DashboardPage() {
                       <StatusDot status={block.status} />
                       <span className="flex-1 text-sm font-medium text-foreground">Block {block.block_number}</span>
                       <BlockBadge status={block.status} />
-                      <ArrowUpRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                      <IconArrowUpRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
                     </Link>
                   ))}
                 </div>
@@ -202,7 +202,7 @@ export default async function DashboardPage() {
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-dark-navy/10 flex items-center justify-center">
-                  <Activity className="w-4 h-4 text-dark-navy" />
+                  <IconActivity className="w-4 h-4 text-dark-navy" />
                 </div>
                 Quick Actions
               </CardTitle>
@@ -210,19 +210,19 @@ export default async function DashboardPage() {
             <CardContent className="space-y-2">
               <Link href="/hub/clients/new">
                 <Button variant="outline" className="w-full justify-start rounded-full gap-2 text-sm border-border/60 hover:bg-white">
-                  <UserPlus className="w-4 h-4 text-rose" />
+                  <IconUserPlus className="w-4 h-4 text-rose" />
                   Add a new client
                 </Button>
               </Link>
               <Link href="/hub/exercises">
                 <Button variant="outline" className="w-full justify-start rounded-full gap-2 text-sm border-border/60 hover:bg-white">
-                  <FileText className="w-4 h-4 text-teal" />
+                  <IconFileText className="w-4 h-4 text-teal" />
                   Browse exercise library
                 </Button>
               </Link>
               <Link href="/hub/clients">
                 <Button variant="outline" className="w-full justify-start rounded-full gap-2 text-sm border-border/60 hover:bg-white">
-                  <Users className="w-4 h-4 text-slate" />
+                  <IconUsers className="w-4 h-4 text-slate" />
                   View all clients
                 </Button>
               </Link>

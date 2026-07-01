@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight } from "lucide-react";
+import { IconArrowUpRight } from "@/components/icons";
 import Navbar from "@/components/Navbar";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
@@ -167,7 +167,7 @@ export default function FAQsPageClient() {
               The questions below cover the things people most commonly wonder about before getting in touch.
             </p>
             <button onClick={openDialog} className="ef-btn ef-btn-primary">
-              Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
+              Book a Free Consultation <IconArrowUpRight className="w-4 h-4" />
             </button>
           </div>
 

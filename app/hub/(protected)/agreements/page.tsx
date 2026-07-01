@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileSignature, Download, Eye, Calendar, Mail, Phone } from "lucide-react";
+import { IconCalendar, IconEye, IconFileSignature, IconMail, IconPhone } from "@/components/icons";
 
 export default async function AgreementsPage() {
   const supabase = createClient();
@@ -26,7 +26,7 @@ export default async function AgreementsPage() {
         <Card className="shadow-sm border-border/60 rounded-2xl">
           <CardContent className="p-5 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-rose/10 flex items-center justify-center shrink-0">
-              <FileSignature className="w-5 h-5 text-rose" />
+              <IconFileSignature className="w-5 h-5 text-rose" />
             </div>
             <div>
               <p className="text-2xl font-bold tracking-tight text-foreground">{agreements?.length ?? 0}</p>
@@ -37,7 +37,7 @@ export default async function AgreementsPage() {
         <Card className="shadow-sm border-border/60 rounded-2xl">
           <CardContent className="p-5 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-teal/10 flex items-center justify-center shrink-0">
-              <Eye className="w-5 h-5 text-teal" />
+              <IconEye className="w-5 h-5 text-teal" />
             </div>
             <div>
               <p className="text-2xl font-bold tracking-tight text-foreground">
@@ -50,7 +50,7 @@ export default async function AgreementsPage() {
         <Card className="shadow-sm border-border/60 rounded-2xl">
           <CardContent className="p-5 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-dark-navy/10 flex items-center justify-center shrink-0">
-              <Calendar className="w-5 h-5 text-dark-navy" />
+              <IconCalendar className="w-5 h-5 text-dark-navy" />
             </div>
             <div>
               <p className="text-2xl font-bold tracking-tight text-foreground">
@@ -67,7 +67,7 @@ export default async function AgreementsPage() {
         <CardHeader className="flex flex-row items-center justify-between pb-4">
           <CardTitle className="text-lg flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-rose/10 flex items-center justify-center">
-              <FileSignature className="w-4 h-4 text-rose" />
+              <IconFileSignature className="w-4 h-4 text-rose" />
             </div>
             All Agreements
           </CardTitle>
@@ -82,7 +82,7 @@ export default async function AgreementsPage() {
           {!error && (!agreements || agreements.length === 0) && (
             <div className="flex flex-col items-center gap-4 py-10">
               <div className="w-16 h-16 rounded-full bg-rose/10 flex items-center justify-center">
-                <FileSignature className="w-7 h-7 text-rose/40" />
+                <IconFileSignature className="w-7 h-7 text-rose/40" />
               </div>
               <p className="text-sm text-muted-foreground">No signed agreements yet</p>
               <p className="text-xs text-muted-foreground">
@@ -107,13 +107,13 @@ export default async function AgreementsPage() {
                     <div className="flex flex-wrap items-center gap-3 mt-1 text-xs text-muted-foreground">
                       {agreement.client_email && (
                         <span className="flex items-center gap-1">
-                          <Mail className="w-3 h-3" />
+                          <IconMail className="w-3 h-3" />
                           {agreement.client_email}
                         </span>
                       )}
                       {agreement.client_phone && (
                         <span className="flex items-center gap-1">
-                          <Phone className="w-3 h-3" />
+                          <IconPhone className="w-3 h-3" />
                           {agreement.client_phone}
                         </span>
                       )}
@@ -139,7 +139,7 @@ export default async function AgreementsPage() {
                   {/* Date and actions */}
                   <div className="flex items-center gap-3 shrink-0">
                     <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Calendar className="w-3 h-3" />
+                      <IconCalendar className="w-3 h-3" />
                       {new Date(agreement.signed_at).toLocaleDateString("en-GB", {
                         day: "numeric",
                         month: "short",
@@ -148,7 +148,7 @@ export default async function AgreementsPage() {
                     </span>
                     <Link href={`/hub/agreements/${agreement.id}`}>
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full hover:bg-rose/10 hover:text-rose">
-                        <Eye className="w-4 h-4" />
+                        <IconEye className="w-4 h-4" />
                         <span className="sr-only">View agreement for {agreement.client_name}</span>
                       </Button>
                     </Link>

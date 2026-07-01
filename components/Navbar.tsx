@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import EternalFitnessLogo from "@/components/EternalFitnessLogo";
-import { Menu, X, ArrowUpRight } from "lucide-react";
+import { IconMenu, IconX, IconArrowUpRight } from "@/components/icons";
 
 const navItems = [
   { label: "Home", to: "/" },
@@ -155,14 +155,14 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
               onClick={onBookConsultation}
               className="ef-btn ef-btn-primary text-sm py-2.5 px-5"
             >
-              Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
+              Book a Free Consultation <IconArrowUpRight className="w-4 h-4" />
             </button>
           ) : (
             <Link
               href="/contact"
               className="ef-btn ef-btn-primary text-sm py-2.5 px-5"
             >
-              Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
+              Book a Free Consultation <IconArrowUpRight className="w-4 h-4" />
             </Link>
           )}
         </div>
@@ -173,7 +173,7 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
           className={`md:hidden ${isLit || pathname === "/" ? "text-charcoal" : "text-white"}`}
           aria-label={open ? "Close menu" : "Open menu"}
         >
-          {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          {open ? <IconX className="w-6 h-6" /> : <IconMenu className="w-6 h-6" />}
         </button>
       </nav>
 
@@ -216,7 +216,7 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
             onClick={() => { setOpen(false); onBookConsultation(); }}
             className="ef-btn ef-btn-primary text-sm w-fit"
           >
-            Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
+            Book a Free Consultation <IconArrowUpRight className="w-4 h-4" />
           </button>
         ) : (
           <Link
@@ -224,7 +224,7 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
             onClick={() => setOpen(false)}
             className="ef-btn ef-btn-primary text-sm w-fit"
           >
-            Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
+            Book a Free Consultation <IconArrowUpRight className="w-4 h-4" />
           </Link>
         )}
       </div>

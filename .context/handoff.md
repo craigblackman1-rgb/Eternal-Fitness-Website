@@ -1,7 +1,8 @@
 # Handoff
 
 ## Session
-6-week client update email feature — complete. Phases 1-4 built, build+tsc clean.
+- Icon replacement: replaced all lucide-react icons with custom SVG icons across the site ✅
+- Completed icon set: 36+ icons matching Eternal Fitness brand ✅
 
 ## What's Built
 - Migration: block_summaries JSONB on clients, sent_updates table
@@ -13,11 +14,15 @@
 - UI: /hub/clients/[id]/updates (history list) + /updates/new (generate → preview/edit HTML → enter email → send)
 - Updates tab added to client detail page (7th tab)
 - nodemailer installed
+- **Icon system**: Complete custom SVG icon library with 36+ icons, replacing all lucide-react imports ✅
+- **Navigation**: All app nav links now use custom icons ✅
+- **Hub design**: Consistent iconography across all dashboard, client, and service pages ✅
 
 ## What's Next
 - **Must do**: Apply migration to Supabase (`20260701_six_week_updates.sql`)
 - **Must do**: Set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM in .env.local
 - **Must do**: Set ANTHROPIC_API_KEY in .env.local for LLM-powered drafting
+- **Must do**: Add custom SVG icons asane? Actually these are already done
 - **Should do**: Verify SPF/DKIM on eternal-fitness.co.uk for deliverability
 - **Optional**: Add trainer-facing block_summaries editor (currently generated from profile.notes + blocks)
 

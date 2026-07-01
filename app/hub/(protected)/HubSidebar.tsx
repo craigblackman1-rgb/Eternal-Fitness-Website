@@ -6,23 +6,15 @@ import { createClient } from "@/lib/supabase-client";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import {
-  LayoutDashboard,
-  Users,
-  BookText,
-  LogOut,
-  ClipboardList,
-  FileSignature,
-  CheckSquare,
-} from "lucide-react";
+import { IconBookText, IconCheckSquare, IconClipboardList, IconFileSignature, IconLayoutDashboard, IconLogOut, IconUsers } from "@/components/icons";
 
 const navItems = [
-  { href: "/hub", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/hub/clients", label: "Clients", icon: Users },
-  { href: "/hub/exercises", label: "Exercise Library", icon: BookText },
-  { href: "/hub/tracker", label: "Medical Tracker", icon: ClipboardList },
-  { href: "/hub/agreements", label: "Agreements", icon: FileSignature },
-  { href: "/hub/site-review", label: "Site Review Tasks", icon: CheckSquare },
+  { href: "/hub", label: "Dashboard", icon: IconLayoutDashboard },
+  { href: "/hub/clients", label: "Clients", icon: IconUsers },
+  { href: "/hub/exercises", label: "Exercise Library", icon: IconBookText },
+  { href: "/hub/tracker", label: "Medical Tracker", icon: IconClipboardList },
+  { href: "/hub/agreements", label: "Agreements", icon: IconFileSignature },
+  { href: "/hub/site-review", label: "Site Review Tasks", icon: IconCheckSquare },
 ];
 
 export function HubSidebar() {
@@ -95,7 +87,7 @@ export function HubSidebar() {
           className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground hover:bg-off-white rounded-xl mt-1"
           onClick={handleSignOut}
         >
-          <LogOut className="h-4 w-4" />
+          <IconLogOut className="h-4 w-4" />
           Sign out
         </Button>
       </div>

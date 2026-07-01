@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Award, HeartHandshake, Users, Accessibility, Dumbbell, Leaf } from "lucide-react";
+import { IconArrowUpRight, IconAward, IconHeartHandshake, IconUsers, IconAccessibility, IconDumbbell, IconLeaf } from "@/components/icons";
 import Navbar from "@/components/Navbar";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
@@ -9,9 +9,9 @@ import ConsultationDialog from "@/components/ConsultationDialog";
 import { useConsultationDialog } from "@/hooks/useConsultationDialog";
 
 const qualifications = [
-  { title: "Level 4 Personal Trainer", desc: "The highest level of personal training qualification in the UK — above the Level 3 held by most personal trainers. Registered with a recognised UK fitness body.", icon: Award },
-  { title: "Exercise Referral Specialist", desc: "Qualified to work with GP-referred clients and those with clinical conditions requiring adapted exercise programmes.", icon: HeartHandshake },
-  { title: "Cancer Rehabilitation", desc: "Specialist training to support people through cancer treatment and recovery, including those currently in active treatment.", icon: Award },
+  { title: "Level 4 Personal Trainer", desc: "The highest level of personal training qualification in the UK — above the Level 3 held by most personal trainers. Registered with a recognised UK fitness body.", icon: IconAward },
+  { title: "Exercise Referral Specialist", desc: "Qualified to work with GP-referred clients and those with clinical conditions requiring adapted exercise programmes.", icon: IconHeartHandshake },
+  { title: "Cancer Rehabilitation", desc: "Specialist training to support people through cancer treatment and recovery, including those currently in active treatment.", icon: IconAward },
 ];
 
 const longTermCards = [
@@ -60,7 +60,7 @@ export default function AboutPageClient() {
               <p className="ef-body mb-5">I did not come to fitness from a place of confidence. There was a time when exercise felt inaccessible, intimidating, and simply not something that was meant for me. When that changed, it changed everything — my health, my recovery, my sense of what my body was capable of.</p>
               <p className="ef-body mb-5">That experience is the reason I became a personal trainer. Not to help people lose weight or achieve an aesthetic ideal — but to help people rehabilitate, recover, and feel stronger, more capable, and more functional in their own bodies, regardless of their health conditions or limitations.</p>
               <p className="ef-body mb-8">I qualified to Level 4 — the highest personal training qualification in the UK — and went further with specialist certifications in Cancer Rehabilitation and Exercise Referral. I specifically sought these qualifications to work with people who have more complex medical needs: cancer treatment survivors, those with chronic health conditions, post-surgical recovery, disabilities, and clients whose health situations have led other trainers to say they cannot help. Those are exactly the clients I am here for.</p>
-              <button onClick={openDialog} className="ef-btn ef-btn-primary">Book a Free Consultation <ArrowUpRight className="w-4 h-4" /></button>
+              <button onClick={openDialog} className="ef-btn ef-btn-primary">Book a Free Consultation <IconArrowUpRight className="w-4 h-4" /></button>
             </div>
           </div>
         </div>
@@ -99,7 +99,7 @@ export default function AboutPageClient() {
           </div>
           <div className="flex justify-center">
             <div className="flex items-center gap-3 bg-teal/10 rounded-2xl px-6 py-4 max-w-xl">
-              <Users className="w-5 h-5 text-teal shrink-0" />
+              <IconUsers className="w-5 h-5 text-teal shrink-0" />
               <p className="ef-body text-sm">If you are wondering whether your medical situation, cancer recovery, disability, or complex needs mean you cannot train — <Link href="/contact" className="text-teal hover:underline">please get in touch</Link>. The answer is almost always yes, I can help. That is exactly what I <Link href="/personal-training" className="text-teal hover:underline">specialise in</Link>.</p>
             </div>
           </div>
@@ -117,14 +117,14 @@ export default function AboutPageClient() {
               <p className="ef-body mb-6">The goal is not a six-week result. It is returning to activities after cancer treatment. Being able to move with less pain. Having better fatigue management. Managing your chronic condition without fear. Recovering full function after injury. Climbing stairs. Walking further. Moving through life with more ease, capability, and confidence than before. That takes time, consistency, and working with someone who genuinely understands medical complexity and adjusts when your health or capacity changes. That is what I do.</p>
               <div className="bg-cream rounded-2xl p-6 border border-warm/60 flex items-start gap-4">
                 <div className="w-11 h-11 rounded-full bg-rose/15 flex items-center justify-center shrink-0 mt-0.5">
-                  <HeartHandshake className="w-5 h-5 text-rose" />
+                  <IconHeartHandshake className="w-5 h-5 text-rose" />
                 </div>
                 <div>
                   <h4 className="text-foreground text-base font-bold tracking-tight mb-1">More Than a Workout</h4>
                   <p className="text-[14.5px] text-slate leading-relaxed">No weigh-ins. No before-and-after photos. No pressure to look a certain way. Just steady, meaningful progress — measured against your own baseline, not anyone else&apos;s.</p>
                 </div>
               </div>
-              <button onClick={openDialog} className="ef-btn ef-btn-primary">Book a Free Consultation <ArrowUpRight className="w-4 h-4" /></button>
+              <button onClick={openDialog} className="ef-btn ef-btn-primary mt-6">Book a Free Consultation <IconArrowUpRight className="w-4 h-4" /></button>
             </div>
             <img src="/images/about-philosophy.jpg" alt="Personal training philosophy at Eternal Fitness Worthing" loading="lazy" className="rounded-3xl w-full h-[420px] object-cover shadow-[0_32px_80px_rgba(0,0,0,0.12)]" />
           </div>
@@ -146,21 +146,21 @@ export default function AboutPageClient() {
           <div className="grid md:grid-cols-3 gap-5">
             <div className="bg-cream rounded-2xl p-6 border border-warm/60">
               <div className="w-10 h-10 rounded-full bg-teal/15 flex items-center justify-center mb-4">
-                <Accessibility className="w-5 h-5 text-teal" />
+                <IconAccessibility className="w-5 h-5 text-teal" />
               </div>
               <h4 className="text-foreground text-base font-bold tracking-tight mb-2">Designed for All Abilities</h4>
               <p className="text-[14.5px] text-slate leading-relaxed">Studio set up for disabilities, mobility limitations, and complex health needs — with equipment chosen for functional recovery, not performance aesthetics.</p>
             </div>
             <div className="bg-cream rounded-2xl p-6 border border-warm/60">
               <div className="w-10 h-10 rounded-full bg-teal/15 flex items-center justify-center mb-4">
-                <Dumbbell className="w-5 h-5 text-teal" />
+                <IconDumbbell className="w-5 h-5 text-teal" />
               </div>
               <h4 className="text-foreground text-base font-bold tracking-tight mb-2">Equipment That Serves You</h4>
               <p className="text-[14.5px] text-slate leading-relaxed">Every piece is chosen to support rehabilitation, recovery, and real-life movement. Resistance bands, mobility tools, and adaptive kit — nothing intimidating.</p>
             </div>
             <div className="bg-cream rounded-2xl p-6 border border-warm/60">
               <div className="w-10 h-10 rounded-full bg-teal/15 flex items-center justify-center mb-4">
-                <Leaf className="w-5 h-5 text-teal" />
+                <IconLeaf className="w-5 h-5 text-teal" />
               </div>
               <h4 className="text-foreground text-base font-bold tracking-tight mb-2">A Calm Environment</h4>
               <p className="text-[14.5px] text-slate leading-relaxed">No gym floor, no other clients watching, no ambient pressure. Quiet, private, one-to-one sessions — because recovery needs calm, not noise.</p>

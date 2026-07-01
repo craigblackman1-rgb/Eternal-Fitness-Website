@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Phone, Mail, Facebook, Instagram, Linkedin, Youtube, MapPin } from "lucide-react";
+import { IconPhone, IconMail, IconFacebook, IconInstagram, IconLinkedin, IconYoutube, IconMapPin } from "@/components/icons";
 import EternalFitnessLogo from "@/components/EternalFitnessLogo";
 
 const websiteSchema = {
@@ -57,7 +57,7 @@ const Footer = () => {
                     href="tel:07517658128"
                     className={`inline-flex items-center gap-3 text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}
                   >
-                    <Phone className="w-4 h-4 text-rose shrink-0" aria-hidden="true" />
+                    <IconPhone className="w-4 h-4 text-rose shrink-0" aria-hidden="true" />
                     07517 658 128
                   </a>
                 </li>
@@ -66,12 +66,12 @@ const Footer = () => {
                     href="mailto:esther.fair@eternal-fitness.co.uk"
                     className={`inline-flex items-center gap-3 text-[15px] text-white/65 hover:text-rose transition-colors break-all ${focusRing}`}
                   >
-                    <Mail className="w-4 h-4 text-rose shrink-0" aria-hidden="true" />
+                    <IconMail className="w-4 h-4 text-rose shrink-0" aria-hidden="true" />
                     esther.fair@eternal-fitness.co.uk
                   </a>
                 </li>
                 <li className="inline-flex items-center gap-3 text-[15px] text-white/45">
-                  <MapPin className="w-4 h-4 text-rose shrink-0" aria-hidden="true" />
+                  <IconMapPin className="w-4 h-4 text-rose shrink-0" aria-hidden="true" />
                   Worthing, West Sussex
                 </li>
               </ul>
@@ -127,7 +127,7 @@ const Footer = () => {
                   aria-label="Facebook"
                   className={`w-10 h-10 rounded-full flex items-center justify-center text-white/40 hover:text-rose hover:bg-rose/10 transition-all ${focusRing}`}
                 >
-                  <Facebook className="w-4 h-4" />
+                  <IconFacebook className="w-4 h-4" />
                 </a>
                 <a
                   href="https://instagram.com/eternalfitness/"
@@ -136,7 +136,7 @@ const Footer = () => {
                   aria-label="Instagram"
                   className={`w-10 h-10 rounded-full flex items-center justify-center text-white/40 hover:text-rose hover:bg-rose/10 transition-all ${focusRing}`}
                 >
-                  <Instagram className="w-4 h-4" />
+                  <IconInstagram className="w-4 h-4" />
                 </a>
                 <a
                   href="https://linkedin.com/in/esther-fair/"
@@ -145,7 +145,7 @@ const Footer = () => {
                   aria-label="LinkedIn"
                   className={`w-10 h-10 rounded-full flex items-center justify-center text-white/40 hover:text-rose hover:bg-rose/10 transition-all ${focusRing}`}
                 >
-                  <Linkedin className="w-4 h-4" />
+                  <IconLinkedin className="w-4 h-4" />
                 </a>
                 <a
                   href="https://youtube.com/eternalfitness/"
@@ -154,7 +154,7 @@ const Footer = () => {
                   aria-label="YouTube"
                   className={`w-10 h-10 rounded-full flex items-center justify-center text-white/40 hover:text-rose hover:bg-rose/10 transition-all ${focusRing}`}
                 >
-                  <Youtube className="w-4 h-4" />
+                  <IconYoutube className="w-4 h-4" />
                 </a>
               </div>
             </div>

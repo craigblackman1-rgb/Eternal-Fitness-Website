@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Users } from "lucide-react";
+import { IconPlus, IconUsers } from "@/components/icons";
 import type { DBClient, DBClientComplianceStatus, DBClientPaceMode } from "@/types";
 
 export default async function ClientsPage() {
@@ -19,7 +19,7 @@ export default async function ClientsPage() {
         </div>
         <Link href="/hub/clients/new">
           <Button className="rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white">
-            <Plus className="mr-2 h-4 w-4" />
+            <IconPlus className="mr-2 h-4 w-4" />
             New Client
           </Button>
         </Link>
@@ -105,7 +105,7 @@ export default async function ClientsPage() {
         <Card className="border-border/60 rounded-2xl">
           <CardContent className="flex flex-col items-center gap-4 py-16">
             <div className="w-20 h-20 rounded-full bg-rose/10 flex items-center justify-center">
-              <Users className="w-9 h-9 text-rose/40" />
+              <IconUsers className="w-9 h-9 text-rose/40" />
             </div>
             <div className="text-center">
               <p className="font-semibold text-foreground">No clients yet</p>
@@ -113,7 +113,7 @@ export default async function ClientsPage() {
             </div>
             <Link href="/hub/clients/new">
               <Button className="rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white">
-                <Plus className="mr-2 h-4 w-4" />
+                <IconPlus className="mr-2 h-4 w-4" />
                 Add Your First Client
               </Button>
             </Link>

@@ -16,10 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  ArrowLeft, Calendar, Mail, Phone, MapPin, FileText, CheckCircle, AlertCircle,
-  Printer, Send, Edit3, Save, X, Copy,
-} from "lucide-react";
+import { IconAlertCircle, IconArrowLeft, IconCalendar, IconCheckCircle, IconCopy, IconEdit3, IconFileText, IconMail, IconMapPin, IconPhone, IconPrinter, IconSave, IconSend, IconX } from "@/components/icons";
 import AgreementPrintView from "./AgreementPrintView";
 import { parqSections } from "@/lib/parq-data";
 
@@ -327,7 +324,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
         <div className="flex items-center gap-4 flex-1">
           <Link href="/hub/agreements">
             <Button variant="ghost" size="sm" className="gap-1.5">
-              <ArrowLeft className="w-4 h-4" />
+              <IconArrowLeft className="w-4 h-4" />
               Back
             </Button>
           </Link>
@@ -339,10 +336,10 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
 
         {/* Action buttons */}
         <div className="flex items-center gap-2 flex-wrap">
-          <Button variant="outline" size="sm" className="gap-1.5" onClick={handlePrint}>
-            <Printer className="w-4 h-4" />
-            Print
-          </Button>
+<Button variant="outline" size="sm" className="gap-1.5" onClick={handlePrint}>
+             <IconPrinter className="w-4 h-4" />
+             Print
+           </Button>
           <Button
             variant="outline"
             size="sm"
@@ -360,7 +357,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
               </>
             ) : (
               <>
-                <Send className="w-4 h-4" />
+                <IconSend className="w-4 h-4" />
                 Email PDF
               </>
             )}
@@ -371,8 +368,8 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
             className="gap-1.5"
             onClick={() => setEditingTrainer(!editingTrainer)}
           >
-            <Edit3 className="w-4 h-4" />
-            {editingTrainer ? "Cancel" : "Edit Trainer Info"}
+<IconEdit3 className="w-4 h-4" />
+             {editingTrainer ? "Cancel" : "Edit Trainer Info"}
           </Button>
         </div>
       </div>
@@ -380,12 +377,12 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
       {/* Status badges */}
       <div className="flex flex-wrap gap-2">
         {data.parq_completed === "yes" ? (
-          <Badge className="gap-1"><CheckCircle className="w-3 h-3" /> PAR-Q filed</Badge>
+          <Badge className="gap-1"><IconCheckCircle className="w-3 h-3" /> PAR-Q filed</Badge>
         ) : (
-          <Badge variant="secondary" className="gap-1"><AlertCircle className="w-3 h-3" /> PAR-Q missing</Badge>
+          <Badge variant="secondary" className="gap-1"><IconAlertCircle className="w-3 h-3" /> PAR-Q missing</Badge>
         )}
         {data.medical_clearance === "yes" && (
-          <Badge className="gap-1"><CheckCircle className="w-3 h-3" /> Medical clearance filed</Badge>
+          <Badge className="gap-1"><IconCheckCircle className="w-3 h-3" /> Medical clearance filed</Badge>
         )}
         {data.medical_clearance === "na" && (
           <Badge variant="outline">No medical clearance needed</Badge>
@@ -405,13 +402,13 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
       {/* Save feedback */}
       {saveSuccess && (
         <div className="bg-green-50 border border-green-200 rounded-md p-3 flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 text-green-600" />
+          <IconCheckCircle className="w-4 h-4 text-green-600" />
           <p className="text-sm text-green-800">Trainer information saved successfully</p>
         </div>
       )}
       {saveError && (
         <div className="bg-red-50 border border-red-200 rounded-md p-3 flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-red-600" />
+          <IconAlertCircle className="w-4 h-4 text-red-600" />
           <p className="text-sm text-red-800">{saveError}</p>
         </div>
       )}
@@ -419,13 +416,13 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
       {/* Email feedback */}
       {emailStatus === "success" && (
         <div className="bg-green-50 border border-green-200 rounded-md p-3 flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 text-green-600" />
+          <IconCheckCircle className="w-4 h-4 text-green-600" />
           <p className="text-sm text-green-800">Agreement emailed to {data.client_email} with PDF attachment</p>
         </div>
       )}
       {emailStatus === "error" && (
         <div className="bg-red-50 border border-red-200 rounded-md p-3 flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-red-600" />
+          <IconAlertCircle className="w-4 h-4 text-red-600" />
           <p className="text-sm text-red-800">{emailError}</p>
         </div>
       )}
@@ -434,7 +431,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
       <Card className="shadow-sm border-border/60">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
-            <FileText className="w-4 h-4 text-primary" />
+            <IconFileText className="w-4 h-4 text-primary" />
             Client Details
           </CardTitle>
         </CardHeader>
@@ -559,13 +556,13 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
             <div className="space-y-6">
               {parqSaveSuccess && (
                 <div className="bg-green-50 border border-green-200 rounded-md p-3 flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <IconCheckCircle className="w-4 h-4 text-green-600" />
                   <p className="text-sm text-green-800">PAR-Q saved successfully</p>
                 </div>
               )}
               {parqSaveError && (
                 <div className="bg-red-50 border border-red-200 rounded-md p-3 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-red-600" />
+                  <IconAlertCircle className="w-4 h-4 text-red-600" />
                   <p className="text-sm text-red-800">{parqSaveError}</p>
                 </div>
               )}
@@ -651,7 +648,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
                   {parqSaving ? "Saving..." : <><Save className="w-4 h-4" /> Save PAR-Q</>}
                 </Button>
                 <Button variant="outline" onClick={() => { setEditingParq(false); setParqSaveError(null); }} className="gap-1.5">
-                  <X className="w-4 h-4" /> Cancel
+                  <IconX className="w-4 h-4" /> Cancel
                 </Button>
               </div>
             </div>
@@ -989,7 +986,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
                   )}
                 </Button>
                 <Button variant="outline" onClick={() => { setEditingTrainer(false); setSaveError(null); }} className="gap-1.5">
-                  <X className="w-4 h-4" />
+                  <IconX className="w-4 h-4" />
                   Cancel
                 </Button>
               </div>
@@ -1008,9 +1005,9 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
         <CardContent>
           <div className="flex items-center gap-2">
             {data.agreed_to_terms ? (
-              <CheckCircle className="w-4 h-4 text-green-600" />
+              <IconCheckCircle className="w-4 h-4 text-green-600" />
             ) : (
-              <AlertCircle className="w-4 h-4 text-red-600" />
+              <IconAlertCircle className="w-4 h-4 text-red-600" />
             )}
             <p className="text-sm text-foreground">
               Terms accepted: <span className="font-semibold">{data.agreed_to_terms ? "Yes" : "No"}</span>

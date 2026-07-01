@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FileDown } from "lucide-react";
+import { IconDownload } from "@/components/icons";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase-client";
 import * as XLSX from "xlsx";
@@ -109,7 +109,7 @@ export function ExportSpreadsheetButton({
 
   return (
     <Button variant="outline" onClick={handleExport} disabled={exporting}>
-      <FileDown className="mr-2 h-4 w-4" />
+      <IconDownload className="mr-2 h-4 w-4" />
       {exporting ? "Exporting..." : "Export XLSX"}
     </Button>
   );

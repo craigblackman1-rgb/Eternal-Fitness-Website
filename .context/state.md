@@ -3,6 +3,7 @@
 ## Current
 - Next.js 14 / Tailwind / shadcn-ui / Supabase
 - Hub with client management, training blocks, agreements, PAR-Q
+- **Custom icon system**: 36+ SVG icons replacing lucide-react ✅
 - 6-week client update email feature: **BUILT** (all phases complete, build+tsc clean)
 
 ## Built
@@ -15,6 +16,7 @@
 - **UI**: /hub/clients/[id]/updates (history) + /updates/new (generate → review → send)
 - **Updates tab** on client detail page
 - Hub: client CRUD, block generation (Claude + fallback), session review, agreement management
+- **Custom Icon System**: components/icons/index.tsx — all public and hub pages updated
 
 ## Known Issues
 - RESEND_API_KEY not set — PDF email is dead until configured

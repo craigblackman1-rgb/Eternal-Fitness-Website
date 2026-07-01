@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search, ArrowUpRight } from "lucide-react";
+import { IconSearch, IconArrowUpRight } from "@/components/icons";
 import Navbar from "@/components/Navbar";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
@@ -82,7 +82,7 @@ export default function BlogPageClient({ posts }: { posts: BlogPost[] }) {
           </div>
 
           <div className="relative max-w-md mx-auto mb-8">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <IconSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input type="text" placeholder="Search for blogs" value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-11 pr-4 py-3 rounded-full border border-border-warm bg-white text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-rose" />
           </div>
 
@@ -153,7 +153,7 @@ function BlogCard({ post }: { post: BlogPost }) {
             <p className="text-xs text-muted-foreground">{date}</p>
           </div>
         </div>
-        <span className="inline-flex items-center gap-1 text-xs font-medium text-rose">Read <ArrowUpRight className="w-3 h-3" /></span>
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-rose">Read <IconArrowUpRight className="w-3 h-3" /></span>
       </div>
     </Link>
   );

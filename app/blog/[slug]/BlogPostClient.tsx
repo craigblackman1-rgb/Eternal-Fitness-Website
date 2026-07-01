@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { IconArrowUpRight } from "@/components/icons";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SocialIcon from "@/components/SocialIcons";
@@ -274,7 +274,7 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-10 gap-4">
               <h2 className="text-3xl md:text-4xl text-foreground ef-h2">Popular Posts</h2>
               <Link href="/blog" className="inline-flex items-center gap-1 bg-rose text-white px-4 py-2 rounded-full text-sm font-medium hover:opacity-90 transition-opacity">
-                View All <ArrowUpRight className="w-4 h-4" />
+                View All <IconArrowUpRight className="w-4 h-4" />
               </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -310,10 +310,10 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <button onClick={openDialog} className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
-              Book Now <ArrowUpRight className="w-4 h-4" />
+              Book Now <IconArrowUpRight className="w-4 h-4" />
             </button>
             <a href="tel:07517658128" className="inline-flex items-center gap-2 border border-[#E4DDD7] text-[#525A61] px-6 py-3 rounded-full font-medium hover:bg-rose hover:text-white transition-colors">
-              Give Me a Call <ArrowUpRight className="w-4 h-4" />
+              Give Me a Call <IconArrowUpRight className="w-4 h-4" />
             </a>
           </div>
         </div>

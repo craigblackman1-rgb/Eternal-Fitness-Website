@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowUpRight } from "lucide-react";
+import { IconArrowUpRight } from "@/components/icons";
 
 interface CTASectionProps {
   onBookConsultation?: () => void;
@@ -28,15 +28,15 @@ const CTASection = ({ onBookConsultation }: CTASectionProps) => {
             <div className="flex flex-wrap gap-4">
               {onBookConsultation ? (
                 <button onClick={onBookConsultation} className="inline-flex items-center gap-2 bg-white text-rose px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-opacity shadow-lg">
-                  Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
+                  Book a Free Consultation <IconArrowUpRight className="w-4 h-4" />
                 </button>
               ) : (
                 <a href="/contact" className="inline-flex items-center gap-2 bg-white text-rose px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-opacity shadow-lg">
-                  Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
+                  Book a Free Consultation <IconArrowUpRight className="w-4 h-4" />
                 </a>
               )}
               <a href="tel:07517658128" className="inline-flex items-center gap-2 border border-white/40 text-white px-6 py-3 rounded-full font-medium hover:bg-white/10 transition-colors">
-                Give Me a Call <ArrowUpRight className="w-4 h-4" />
+                Give Me a Call <IconArrowUpRight className="w-4 h-4" />
               </a>
             </div>
           </div>

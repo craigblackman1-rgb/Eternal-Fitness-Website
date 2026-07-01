@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, Send, Loader2, Plus } from "lucide-react";
+import { IconBot, IconLoader2, IconPlus, IconSend } from "@/components/icons";
 import { useRouter } from "next/navigation";
 
 interface Message {
@@ -141,7 +141,7 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-dark-navy/10 flex items-center justify-center">
-            <Bot className="w-4 h-4 text-dark-navy" />
+            <IconBot className="w-4 h-4 text-dark-navy" />
           </div>
           <div>
             <p className="font-semibold text-foreground">Plan Agent</p>
@@ -157,9 +157,9 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
             className="rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white"
           >
             {generatingBlock ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <IconLoader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Plus className="h-4 w-4" />
+              <IconPlus className="h-4 w-4" />
             )}
             Generate Block
           </Button>
@@ -197,7 +197,7 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
                       : "bg-dark-navy/10 text-dark-navy"
                   }`}
                 >
-                  {message.role === "user" ? "E" : <Bot className="w-3.5 h-3.5" />}
+                  {message.role === "user" ? "E" : <IconBot className="w-3.5 h-3.5" />}
                 </div>
                 <div
                   className={`flex-1 rounded-xl px-4 py-3 text-sm ${
@@ -258,9 +258,9 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
           className="rounded-xl bg-rose hover:bg-rose/90 text-white h-[68px] w-[52px] shrink-0"
         >
           {streaming ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <IconLoader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <Send className="h-4 w-4" />
+            <IconSend className="h-4 w-4" />
           )}
         </Button>
       </div>

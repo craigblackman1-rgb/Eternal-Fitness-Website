@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, ClipboardList, Search, BarChart3, HeartHandshake, Sparkles } from "lucide-react";
+import { IconArrowUpRight, IconClipboardList, IconSearch, IconBarChart3, IconHeartHandshake, IconSparkles } from "@/components/icons";
 import Navbar from "@/components/Navbar";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
@@ -68,22 +68,22 @@ const focusCards = [
 
 const steps = [
   {
-    icon: ClipboardList,
+    icon: IconClipboardList,
     title: "Free Consultation",
     desc: "A relaxed 30-minute conversation with me about your goals, health history, and what has and has not worked before. No pressure, no commitment.",
   },
   {
-    icon: Search,
+    icon: IconSearch,
     title: "Movement Assessment",
     desc: "I check your current mobility, strength, and any limitations before any programme begins — so training starts safely and clearly.",
   },
   {
-    icon: BarChart3,
+    icon: IconBarChart3,
     title: "Your Programme",
     desc: "A plan built entirely around your body and your life. Session structure, exercises, and intensity are all tailored specifically to you.",
   },
   {
-    icon: HeartHandshake,
+    icon: IconHeartHandshake,
     title: "Ongoing Support",
     desc: "I adjust your programme as your health and capacity change — keeping training sustainable, realistic, and aligned with where you are.",
   },
@@ -153,7 +153,7 @@ export default function PersonalTrainingClient() {
                 My specialist training in cancer rehabilitation and exercise referral means I am trained to adapt to medical conditions, medication side-effects, fatigue cycles, and variable capacity. I work within your GP's or specialist's guidance. I do not guess — I ask, I listen, and I adjust every session based on your body's actual needs that day.
               </p>
               <button onClick={openDialog} className="ef-btn ef-btn-primary">
-                Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
+                Book a Free Consultation <IconArrowUpRight className="w-4 h-4" />
               </button>
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -227,7 +227,7 @@ export default function PersonalTrainingClient() {
             {focusCards.map((card) => (
               <div key={card.title} className="ef-card">
                 <div className="w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center mb-4">
-                  <Sparkles className="w-5 h-5 text-teal" />
+                  <IconSparkles className="w-5 h-5 text-teal" />
                 </div>
                 <h4 className="text-foreground text-lg font-bold tracking-tight mb-2">{card.title}</h4>
                 <p className="ef-body text-sm">{card.desc}</p>
@@ -259,7 +259,7 @@ export default function PersonalTrainingClient() {
 
           <div className="mt-14">
             <button onClick={openDialog} className="ef-btn ef-btn-primary">
-              Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
+              Book a Free Consultation <IconArrowUpRight className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -285,11 +285,11 @@ export default function PersonalTrainingClient() {
               <Link key={page.href} href={page.href} className="group">
                 <div className="ef-card h-full flex flex-col hover:border-rose/40 transition-colors">
                   <div className="bg-gradient-to-br from-teal/15 to-teal/5 rounded-xl h-36 flex items-center justify-center mb-5">
-                    <ArrowUpRight className="w-8 h-8 text-teal/40" />
+                    <IconArrowUpRight className="w-8 h-8 text-teal/40" />
                   </div>
                   <h3 className="text-foreground font-bold mb-2 group-hover:text-rose transition-colors">{page.title}</h3>
                   <p className="ef-body text-sm mb-4 flex-1">{page.desc}</p>
-                  <div className="text-rose text-sm font-semibold flex items-center gap-1">Learn more <ArrowUpRight className="w-3.5 h-3.5" /></div>
+                  <div className="text-rose text-sm font-semibold flex items-center gap-1">Learn more <IconArrowUpRight className="w-3.5 h-3.5" /></div>
                 </div>
               </Link>
             ))}
@@ -313,11 +313,11 @@ export default function PersonalTrainingClient() {
               <Link key={article.href} href={article.href} className="group">
                 <div className="ef-card h-full flex flex-col hover:border-rose/40 transition-colors">
                   <div className="bg-gradient-to-br from-rose/15 to-rose/5 rounded-xl h-36 flex items-center justify-center mb-5">
-                    <ArrowUpRight className="w-8 h-8 text-rose/40" />
+                    <IconArrowUpRight className="w-8 h-8 text-rose/40" />
                   </div>
                   <h3 className="text-foreground font-bold mb-2 group-hover:text-rose transition-colors">{article.title}</h3>
                   <p className="ef-body text-sm mb-4 flex-1">{article.desc}</p>
-                  <div className="text-rose text-sm font-semibold flex items-center gap-1">Read Article <ArrowUpRight className="w-3.5 h-3.5" /></div>
+                  <div className="text-rose text-sm font-semibold flex items-center gap-1">Read Article <IconArrowUpRight className="w-3.5 h-3.5" /></div>
                 </div>
               </Link>
             ))}
@@ -325,7 +325,7 @@ export default function PersonalTrainingClient() {
 
           <div className="text-center">
             <Link href="/blog" className="ef-btn ef-btn-outline">
-              View All Articles <ArrowUpRight className="w-4 h-4" />
+              View All Articles <IconArrowUpRight className="w-4 h-4" />
             </Link>
           </div>
         </div>

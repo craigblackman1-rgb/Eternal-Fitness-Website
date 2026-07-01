@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowUpRight } from "lucide-react";
+import { IconArrowUpRight } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 
 interface ConsultationDialogProps {
@@ -69,7 +69,7 @@ const ConsultationDialog = ({ open, onOpenChange }: ConsultationDialogProps) => 
           </div>
           <button type="submit" disabled={loading} className="w-full inline-flex items-center justify-center gap-2 bg-rose text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity disabled:opacity-60 shadow-lg shadow-rose/30">
             {loading ? "Sending..." : "Request Consultation"}
-            {!loading && <ArrowUpRight className="w-4 h-4" />}
+            {!loading && <IconArrowUpRight className="w-4 h-4" />}
           </button>
           <p className="text-xs text-muted-foreground text-center">
             By submitting, you agree to our{" "}

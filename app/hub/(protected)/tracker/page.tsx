@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, AlertTriangle, CheckCircle, FileText, Edit2, Trash2, X, ClipboardCheck } from "lucide-react";
+import { IconPlus, IconAlertTriangle, IconCheckCircle, IconFileText, IconEdit3, IconTrash2, IconX, IconClipboardCheck } from "@/components/icons";
 import { format, addMonths, parseISO } from "date-fns";
 import { toast } from "sonner";
 
@@ -360,7 +360,7 @@ export default function TrackerPage() {
         <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) resetForm(); setDialogOpen(open); }}>
           <DialogTrigger asChild>
             <Button className="rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white">
-              <Plus className="mr-2 h-4 w-4" />
+              <IconPlus className="mr-2 h-4 w-4" />
               Add Client
             </Button>
           </DialogTrigger>
@@ -435,7 +435,7 @@ export default function TrackerPage() {
                 />
                 {detectedAuto.length > 0 && (
                   <div className="flex items-start gap-2 rounded-xl bg-rose/5 border border-rose/10 p-3 text-sm text-rose">
-                    <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+                    <IconAlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
                     <div>
                       <p className="font-semibold">Auto-clearance triggered:</p>
                       <p>{detectedAuto.join(", ")}</p>
@@ -445,7 +445,7 @@ export default function TrackerPage() {
                 )}
                 {detectedCase.length > 0 && (
                   <div className="flex items-start gap-2 rounded-xl bg-teal/5 border border-teal/10 p-3 text-sm text-teal">
-                    <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+                    <IconAlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
                     <div>
                       <p className="font-semibold">Case-by-case assessment:</p>
                       <p>{detectedCase.join(", ")}</p>
@@ -588,10 +588,10 @@ export default function TrackerPage() {
 
       {/* Summary cards — branded */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <SummaryCard icon={<ClipboardCheck className="w-4 h-4 text-dark-navy" />} label="Total Clients" value={rows.length} color="navy" />
-        <SummaryCard icon={<CheckCircle className="w-4 h-4" />} label="Cleared / OK" value={flagSummary.ok + flagSummary.na} color="teal" />
-        <SummaryCard icon={<AlertTriangle className="w-4 h-4" />} label="Chase" value={flagSummary.chase} color="rose" />
-        <SummaryCard icon={<AlertTriangle className="w-4 h-4" />} label="Check" value={flagSummary.check} color="slate" />
+        <SummaryCard icon={<IconClipboardCheck className="w-4 h-4 text-dark-navy" />} label="Total Clients" value={rows.length} color="navy" />
+        <SummaryCard icon={<IconCheckCircle className="w-4 h-4" />} label="Cleared / OK" value={flagSummary.ok + flagSummary.na} color="teal" />
+        <SummaryCard icon={<IconAlertTriangle className="w-4 h-4" />} label="Chase" value={flagSummary.chase} color="rose" />
+        <SummaryCard icon={<IconAlertTriangle className="w-4 h-4" />} label="Check" value={flagSummary.check} color="slate" />
       </div>
 
       {/* Search and filter */}
@@ -623,14 +623,14 @@ export default function TrackerPage() {
         <Card className="border-border/60 rounded-2xl">
           <CardContent className="flex flex-col items-center gap-4 py-16">
             <div className="w-20 h-20 rounded-full bg-rose/10 flex items-center justify-center">
-              <FileText className="w-9 h-9 text-rose/40" />
+              <IconFileText className="w-9 h-9 text-rose/40" />
             </div>
             <div className="text-center">
               <p className="font-semibold text-foreground">No clients in tracker yet</p>
               <p className="text-sm text-muted-foreground mt-1">Add your first client to start tracking clearances</p>
             </div>
             <Button onClick={() => { resetForm(); setDialogOpen(true); }} className="rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white">
-              <Plus className="mr-2 h-4 w-4" />
+              <IconPlus className="mr-2 h-4 w-4" />
               Add First Client
             </Button>
           </CardContent>
@@ -674,9 +674,9 @@ export default function TrackerPage() {
                         className={`rounded-full ${flagStyles[flag.variant] || "bg-muted text-muted-foreground"}`}
                         variant="outline"
                       >
-                        {flag.variant === "ok" && <CheckCircle className="mr-1 h-3 w-3" />}
+                        {flag.variant === "ok" && <IconCheckCircle className="mr-1 h-3 w-3" />}
                         {(flag.variant === "chase" || flag.variant === "check" || flag.variant === "urgent" || flag.variant === "assess") && (
-                          <AlertTriangle className="mr-1 h-3 w-3" />
+                          <IconAlertTriangle className="mr-1 h-3 w-3" />
                         )}
                         {flag.label}
                       </Badge>
@@ -699,9 +699,9 @@ export default function TrackerPage() {
                     </TableCell>
                     <TableCell>
                       {row.clearance_filed === "Y" ? (
-                        <CheckCircle className="h-4 w-4 text-teal" />
+                        <IconCheckCircle className="h-4 w-4 text-teal" />
                       ) : (
-                        <X className="h-4 w-4 text-muted-foreground" />
+                        <IconX className="h-4 w-4 text-muted-foreground" />
                       )}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
@@ -730,10 +730,10 @@ export default function TrackerPage() {
                     <TableCell>
                       <div className="flex gap-1">
                         <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 hover:bg-rose/10 hover:text-rose" onClick={() => openEdit(row)}>
-                          <Edit2 className="h-3.5 w-3.5" />
+                          <IconEdit3 className="h-3.5 w-3.5" />
                         </Button>
                         <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 hover:bg-rose/10 hover:text-rose" onClick={() => handleDelete(row.id)}>
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <IconTrash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
                     </TableCell>
@@ -750,33 +750,33 @@ export default function TrackerPage() {
         <CardContent className="pt-6">
           <h3 className="font-semibold mb-3 flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-teal/10 flex items-center justify-center">
-              <ClipboardCheck className="w-3.5 h-3.5 text-teal" />
+              <IconClipboardCheck className="w-3.5 h-3.5 text-teal" />
             </div>
             Rules — Always Follow
           </h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li className="flex items-start gap-2">
-              <AlertTriangle className="h-4 w-4 text-rose mt-0.5 shrink-0" />
+              <IconAlertTriangle className="h-4 w-4 text-rose mt-0.5 shrink-0" />
               Never deliver a session to a client with Chase or Check in the Flag column.
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle className="h-4 w-4 text-teal mt-0.5 shrink-0" />
+              <IconCheckCircle className="h-4 w-4 text-teal mt-0.5 shrink-0" />
               Check the Flag column before booking or confirming any new session block.
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle className="h-4 w-4 text-teal mt-0.5 shrink-0" />
+              <IconCheckCircle className="h-4 w-4 text-teal mt-0.5 shrink-0" />
               Update the tracker the same day you receive any PAR-Q or clearance letter.
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle className="h-4 w-4 text-teal mt-0.5 shrink-0" />
+              <IconCheckCircle className="h-4 w-4 text-teal mt-0.5 shrink-0" />
               Set a calendar reminder for every annual review date so PAR-Qs never go out of date.
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle className="h-4 w-4 text-teal mt-0.5 shrink-0" />
+              <IconCheckCircle className="h-4 w-4 text-teal mt-0.5 shrink-0" />
               If a client discloses a new condition between reviews, update their row immediately.
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle className="h-4 w-4 text-teal mt-0.5 shrink-0" />
+              <IconCheckCircle className="h-4 w-4 text-teal mt-0.5 shrink-0" />
               Print or save each completed PAR-Q as a PDF and file alongside the signed contract.
             </li>
           </ul>

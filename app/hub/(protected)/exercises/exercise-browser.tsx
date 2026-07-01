@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Dumbbell, ChevronDown, ChevronUp, Video } from "lucide-react";
+import { IconChevronDown, IconChevronUp, IconDumbbell, IconSearch, IconVideo } from "@/components/icons";
 import type { Archetype } from "@/types";
 import type { ExerciseEntry } from "./page";
 import { ExerciseMediaPlaceholder } from "@/components/exercise-media";
@@ -106,7 +106,7 @@ export function ExerciseBrowser({
 
       <div className="space-y-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <IconSearch className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search exercises..."
             value={search}
@@ -187,7 +187,7 @@ export function ExerciseBrowser({
 
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center gap-2 py-12 text-muted-foreground">
-          <Dumbbell className="h-8 w-8" />
+          <IconDumbbell className="h-8 w-8" />
           <p className="text-sm">No exercises match your filters</p>
           <button onClick={clearFilters} className="text-xs underline">
             Clear filters
@@ -253,7 +253,7 @@ export function ExerciseBrowser({
                 {!expanded || expanded !== ex.id ? (
                   <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
                     <span>Click for details</span>
-                    <ChevronDown className="h-3 w-3" />
+                    <IconChevronDown className="h-3 w-3" />
                   </div>
                 ) : null}
 
@@ -266,7 +266,7 @@ export function ExerciseBrowser({
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 text-rose hover:underline"
                       >
-                        <Video className="h-3 w-3" />
+                        <IconVideo className="h-3 w-3" />
                         Watch demo video
                       </a>
                     ) : (
@@ -282,7 +282,7 @@ export function ExerciseBrowser({
                     </div>
                     <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
                       <span>Collapse</span>
-                      <ChevronUp className="h-3 w-3" />
+                      <IconChevronUp className="h-3 w-3" />
                     </div>
                   </div>
                 )}

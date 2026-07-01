@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Printer, X } from "lucide-react";
+import { IconPrinter, IconX } from "@/components/icons";
 import { parqSections } from "@/lib/parq-data";
 
 interface AgreementData {
@@ -112,11 +112,11 @@ export default function AgreementPrintView({ agreement, onClose }: { agreement: 
         <h2 className="text-lg font-semibold">Print Agreement</h2>
         <div className="flex items-center gap-2">
           <Button onClick={handlePrint} className="gap-2 bg-[#087E8B] hover:bg-[#087E8B]/90">
-            <Printer className="w-4 h-4" />
+            <IconPrinter className="w-4 h-4" />
             Print
           </Button>
           <Button variant="outline" onClick={onClose} className="gap-2">
-            <X className="w-4 h-4" />
+            <IconX className="w-4 h-4" />
             Close
           </Button>
         </div>

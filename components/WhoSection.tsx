@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowUpRight } from "lucide-react";
+import { IconArrowUpRight } from "@/components/icons";
 
 const WhoSection = () => {
   return (
@@ -28,7 +28,7 @@ const WhoSection = () => {
                 Cancer rehabilitation. Chronic illness. Neurological conditions. Post-surgical recovery. Extreme mobility limitations. I am Level 4 qualified and exercise referral trained — I know how to work safely and effectively with complex needs.
               </p>
               <a href="/personal-training" className="inline-flex items-center gap-2 bg-rose text-white px-5 py-2.5 rounded-full text-sm font-medium hover:opacity-90 transition-opacity">
-                See Specialist Areas <ArrowUpRight className="w-4 h-4" />
+                See Specialist Areas <IconArrowUpRight className="w-4 h-4" />
               </a>
             </div>
           </div>
