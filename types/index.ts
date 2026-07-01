@@ -97,6 +97,23 @@ export type DBClientComplianceStatus = "clear" | "action_needed" | "do_not_train
 export type DBClientGroupType = "individual_journey" | "calendar_block";
 export type DBClientPaceMode = "fast" | "medium" | "slow";
 
+export interface BlockSummary {
+  block_number: number;
+  period_start: string;
+  period_end: string;
+  attendance: {
+    sessions_attended: number;
+    sessions_scheduled: number;
+    attendance_notes: string;
+  };
+  movements_introduced: string[];
+  highlights: string;
+  areas_to_develop: string;
+  discoveries: string;
+  next_block_focus: string;
+  worth_saying: string;
+}
+
 export interface DBClient {
   id: string;
   name: string;
@@ -108,6 +125,18 @@ export interface DBClient {
   outstanding_actions: string[];
   group_type: DBClientGroupType;
   pace_mode: DBClientPaceMode;
+  block_summaries?: BlockSummary[];
+  client_number?: number;
+  display_code?: string;
+}
+
+export interface SentUpdate {
+  id: string;
+  client_id: string;
+  subject: string;
+  body_html: string;
+  block_number: number;
+  sent_at: string;
 }
 
 export interface DBBlock {

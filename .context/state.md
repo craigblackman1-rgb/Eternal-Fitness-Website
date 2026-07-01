@@ -1,0 +1,28 @@
+# Eternal Fitness Website — State
+
+## Current
+- Next.js 14 / Tailwind / shadcn-ui / Supabase
+- Hub with client management, training blocks, agreements, PAR-Q
+- 6-week client update email feature: **BUILT** (all phases complete, build+tsc clean)
+
+## Built
+- Supabase schema: clients, blocks, sessions, signed_agreements, signed_parq, medical_clearance_tracker, client_tracker
+- **6-week update emails**: block_summaries JSONB + sent_updates table (migration)
+- **Reusable SMTP send layer**: lib/email.ts — nodemailer, dry-runs gracefully when unconfigured
+- **Branded email template**: inline-CSS, 6 sections, Rose/Teal brand colours
+- **Generation API**: pulls profile + blocks + summaries → Claude or template-based fallback
+- **Send API**: SMTP send + history storage
+- **UI**: /hub/clients/[id]/updates (history) + /updates/new (generate → review → send)
+- **Updates tab** on client detail page
+- Hub: client CRUD, block generation (Claude + fallback), session review, agreement management
+
+## Known Issues
+- RESEND_API_KEY not set — PDF email is dead until configured
+- ANTHROPIC_API_KEY empty — Claude generation (blocks + updates) falls back to template
+- No SMTP credentials configured yet
+
+## Required Actions
+- Apply migration to Supabase
+- Set SMTP env vars
+- Set ANTHROPIC_API_KEY
+- Verify SPF/DKIM

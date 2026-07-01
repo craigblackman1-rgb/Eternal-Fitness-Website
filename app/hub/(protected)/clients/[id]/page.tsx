@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronLeft, FileText, Pencil, Plus, Heart, Target, ClipboardList, TriangleAlert } from "lucide-react";
+import { ChevronLeft, FileText, Pencil, Plus, Heart, Target, ClipboardList, TriangleAlert, Mail } from "lucide-react";
 import type { DBClientComplianceStatus, DBClientGroupType, DBClientPaceMode } from "@/types";
 import { PlanAgentTab } from "./PlanAgentTab";
 
@@ -130,13 +130,14 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="compliance">Compliance</TabsTrigger>
           <TabsTrigger value="training">Training</TabsTrigger>
           <TabsTrigger value="sessions">Sessions</TabsTrigger>
           <TabsTrigger value="plan-agent">Plan Agent</TabsTrigger>
+          <TabsTrigger value="updates">Updates</TabsTrigger>
         </TabsList>
 
         {/* Tab 1: Overview */}
@@ -454,6 +455,31 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             clientName={client.name}
             paceMode={client.pace_mode ?? "medium"}
           />
+        </TabsContent>
+
+        {/* Tab 7: Updates */}
+        <TabsContent value="updates" className="space-y-4 mt-4">
+          <Card className="shadow-sm border-border/60 rounded-2xl">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">6-Week Updates</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center gap-3 py-10">
+                <div className="w-16 h-16 rounded-full bg-rose/10 flex items-center justify-center">
+                  <Mail className="w-7 h-7 text-rose/40" />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Generate branded 6-week update emails from training data.
+                </p>
+                <Link href={`/hub/clients/${client.client_number}/updates`}>
+                  <Button variant="outline" size="sm" className="rounded-full gap-1.5">
+                    <Mail className="h-4 w-4" />
+                    View Updates
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
