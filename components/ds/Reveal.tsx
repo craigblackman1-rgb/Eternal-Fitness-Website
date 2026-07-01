@@ -15,6 +15,7 @@ type RevealProps = {
   /** ScrollTrigger start position */
   start?: string;
   className?: string;
+  style?: React.CSSProperties;
   as?: "div" | "section" | "span";
 };
 
@@ -32,6 +33,7 @@ export function Reveal({
   stagger,
   start = "top 85%",
   className,
+  style,
   as = "div",
 }: RevealProps) {
   const ref = useRef<HTMLElement | null>(null);
@@ -74,7 +76,7 @@ export function Reveal({
 
   const Tag = as;
   return (
-    <Tag ref={ref as never} className={className}>
+    <Tag ref={ref as never} className={className} style={style}>
       {children}
     </Tag>
   );

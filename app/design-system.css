@@ -171,9 +171,56 @@ a.ds-card { display: block; }
 .ds-hero-btns { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
 .ds-hero-badge { position: absolute; bottom: 40px; right: 40px; z-index: 3; }
 
+/* ── Process flow diagram ─────────── */
+.ds-flow { display: grid; gap: 28px; position: relative; grid-template-columns: repeat(var(--ds-flow-count, 3), 1fr); }
+.ds-flow-step { position: relative; }
+.ds-flow-num { width: 56px; height: 56px; border-radius: 999px; background: #fff; border: 2px solid var(--color-rose); color: var(--color-rose); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; margin-bottom: 18px; position: relative; z-index: 2; }
+.ds-flow-step h4 { font-size: 17px; font-weight: 700; color: var(--color-ink); letter-spacing: -.015em; line-height: 1.2; margin-bottom: 8px; }
+.ds-flow-step p { font-size: 14px; color: var(--color-body); line-height: 1.6; }
+/* horizontal connector line running through the number circles */
+.ds-flow-step:not(:last-child)::after {
+  content: ''; position: absolute; top: 28px; left: 56px; right: -28px; height: 2px;
+  background: repeating-linear-gradient(90deg, rgba(193,131,159,.4) 0 8px, transparent 8px 16px); z-index: 1;
+}
+.ds-bg-ink .ds-flow-num, .ds-bg-teal .ds-flow-num { background: transparent; border-color: rgba(255,255,255,.6); color: #fff; }
+.ds-bg-ink .ds-flow-step h4, .ds-bg-teal .ds-flow-step h4 { color: #fff; }
+.ds-bg-ink .ds-flow-step p, .ds-bg-teal .ds-flow-step p { color: rgba(255,255,255,.6); }
+
+/* ── Before / after comparison ────── */
+.ds-compare { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; gap: 0; }
+.ds-compare-col { padding: 32px; border-radius: 20px; }
+.ds-compare-neg { background: #fff; border: 1.5px dashed var(--color-border-warm); }
+.ds-compare-pos { background: rgba(8,126,139,.06); border: 1.5px solid rgba(8,126,139,.25); }
+.ds-compare-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 16px; }
+.ds-compare-neg .ds-compare-label { color: var(--color-muted-text); }
+.ds-compare-pos .ds-compare-label { color: var(--color-teal); }
+.ds-compare-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; font-size: 14.5px; color: var(--color-body); line-height: 1.5; }
+.ds-compare-item + .ds-compare-item { border-top: 1px solid var(--color-border-warm); }
+.ds-compare-ic { flex-shrink: 0; margin-top: 1px; }
+.ds-compare-ic-x { color: var(--color-muted-text); }
+.ds-compare-ic-check { color: var(--color-teal); }
+.ds-compare-vs { display: flex; align-items: center; justify-content: center; padding: 0 20px; }
+.ds-compare-vs span { width: 44px; height: 44px; border-radius: 999px; background: var(--color-rose); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; box-shadow: 0 8px 20px rgba(193,131,159,.3); }
+
+/* ── Stat / credentials strip ─────── */
+.ds-statstrip { display: grid; grid-template-columns: repeat(var(--ds-stat-count, 4), 1fr); border-radius: 22px; overflow: hidden; }
+.ds-stat { padding: 36px 24px; text-align: center; }
+.ds-stat + .ds-stat { border-left: 1px solid rgba(255,255,255,.12); }
+.ds-stat-ic { width: 40px; height: 40px; border-radius: 999px; background: rgba(255,255,255,.12); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px; color: #fff; }
+.ds-stat-v { font-family: var(--font-serif); font-size: clamp(28px, 3vw, 40px); font-weight: 700; line-height: 1; color: #fff; margin-bottom: 8px; letter-spacing: -.02em; }
+.ds-stat-l { font-size: 12.5px; color: rgba(255,255,255,.66); line-height: 1.4; }
+
 /* ── Responsive ───────────────────── */
 @media (max-width: 1000px) {
   .ds-sec { padding: 72px 28px; }
+  .ds-flow { grid-template-columns: 1fr; }
+  .ds-flow-step:not(:last-child)::after { display: none; }
+  .ds-compare { grid-template-columns: 1fr; gap: 16px; }
+  .ds-compare-vs { padding: 0; }
+  .ds-compare-vs span { transform: rotate(90deg); }
+  .ds-statstrip { grid-template-columns: repeat(2, 1fr); }
+  .ds-stat:nth-child(3), .ds-stat:nth-child(4) { border-top: 1px solid rgba(255,255,255,.12); }
+  .ds-stat:nth-child(3) { border-left: none; }
   .ds-grid-2, .ds-grid-3 { grid-template-columns: 1fr; }
   .ds-step { grid-template-columns: 1fr; gap: 16px; }
   .ds-step-img { max-width: 420px; }

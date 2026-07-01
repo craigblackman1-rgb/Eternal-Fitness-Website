@@ -11,6 +11,8 @@ import {
   PageHero,
   FeatureCard,
   StatBadge,
+  StatStrip,
+  CompareDiagram,
   CTABand,
   Callout,
   Reveal,
@@ -25,6 +27,8 @@ import {
   IconClipboardList,
   IconClock,
   IconHeartHandshake,
+  IconAward,
+  IconUsers,
 } from "@/components/icons";
 
 const adaptations = [
@@ -148,14 +152,57 @@ export default function VisualImpairmentClient() {
         </div>
       </Section>
 
-      {/* ADAPTATIONS */}
+      {/* WHY IT'S DIFFERENT — comparison diagram */}
       <Section background="cream">
+        <SectionHeading
+          align="center"
+          eyebrow="Why It's Different"
+          heading="Built Around Sound and Feel, Not Sight"
+          intro="Conventional training leans on watching and copying. Adapted training removes that dependency entirely."
+        />
+        <div style={{ marginTop: 48 }}>
+          <CompareDiagram
+            negative={{
+              label: "Conventional training",
+              items: [
+                "Relies on visual demonstration — watch me, do what I do",
+                "Busy gym floor with unexpected movement and noise",
+                "Pressure to navigate a space built for sighted people",
+              ],
+            }}
+            positive={{
+              label: "My adapted approach",
+              items: [
+                "Precise, detailed verbal instruction",
+                "Proprioceptive awareness — you feel the movement",
+                "A consistent, predictable, private environment",
+              ],
+            }}
+          />
+        </div>
+      </Section>
+
+      {/* ADAPTATIONS */}
+      <Section background="white">
         <SectionHeading eyebrow="How Sessions Are Adapted" heading="What Makes VIP Training Different" />
         <Reveal className="ds-grid-3" stagger={0.1} y={48} start="top 80%">
           {adaptations.map((a) => (
             <FeatureCard key={a.title} icon={a.icon} accent="rose" title={a.title} body={a.body} />
           ))}
         </Reveal>
+      </Section>
+
+      {/* CREDENTIALS STRIP */}
+      <Section background="cream">
+        <StatStrip
+          background="ink"
+          stats={[
+            { icon: IconAward, value: "L4", label: "Level 4 qualified trainer" },
+            { icon: IconUsers, value: "1:1", label: "Private sessions only" },
+            { icon: IconMessageCircle, value: "Verbal", label: "Led instruction, not demonstration" },
+            { icon: IconTarget, value: "Showdown", label: "Adapted-sport experience" },
+          ]}
+        />
       </Section>
 
       {/* FAQ */}
