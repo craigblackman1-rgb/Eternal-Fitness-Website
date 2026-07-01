@@ -19,6 +19,7 @@ const emptyProfile: ClientProfile = {
   logistics: { training_location: "studio", sessions_per_week: 2, time_tier: "standard", package: "12-week", block_number: 1 },
   health: { gp_clearance: false, conditions: [], contraindications: [], medications_relevant: [], injury_history: [], pain_points: [] },
   physical_baseline: { fitness_level: 3, movement_quality_flags: [], strength_baseline: { lower_body: "beginner", upper_body: "beginner", core: "beginner" } },
+  programming_adaptations: [],
   goals: { primary: "general_fitness", secondary: [], milestones: [] },
   notes: { esther_observations: "", motivation_notes: "", watch_for: "" },
 };
@@ -212,6 +213,23 @@ export default function NewClientPage() {
             <div className="space-y-2">
               <Label>Milestones</Label>
               <Input value={arrayToString(profile.goals.milestones)} onChange={(e) => updateProfile("goals", { milestones: stringToArray(e.target.value) })} placeholder="Comma-separated milestones" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Programming Adaptations</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Label>Adaptations (one per line)</Label>
+              <Textarea
+                value={profile.programming_adaptations.join("\n")}
+                onChange={(e) => setProfile({ ...profile, programming_adaptations: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean) })}
+                rows={6}
+                placeholder="Enter each adaptation on a new line"
+              />
             </div>
           </CardContent>
         </Card>

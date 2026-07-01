@@ -261,6 +261,29 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             </Card>
           )}
 
+          {p?.programming_adaptations && p.programming_adaptations.length > 0 && (
+            <Card className="shadow-sm border-border/60 rounded-2xl">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-amber/10 flex items-center justify-center">
+                    <ClipboardList className="w-3.5 h-3.5 text-amber" />
+                  </div>
+                  Programming Adaptations
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="list-none space-y-2">
+                  {p.programming_adaptations.map((ad, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber mt-2 shrink-0" />
+                      <span className="text-foreground">{ad}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
           {p?.notes?.esther_observations && (
             <Card className="shadow-sm border-border/60 rounded-2xl bg-off-white/40">
               <CardHeader className="pb-3">

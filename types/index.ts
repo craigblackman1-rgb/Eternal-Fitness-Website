@@ -40,6 +40,7 @@ export interface ClientProfile {
       core: StrengthLevel;
     };
   };
+  programming_adaptations: string[];
   goals: {
     primary: PrimaryGoal;
     secondary: string[];
