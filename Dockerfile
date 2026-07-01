@@ -14,6 +14,7 @@ RUN corepack enable pnpm && pnpm i --frozen-lockfile
 
 # Build the application
 FROM base AS builder
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
