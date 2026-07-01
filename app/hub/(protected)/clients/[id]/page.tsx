@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronLeft, FileText, Pencil, Plus, Heart, Target, ClipboardList, TriangleAlert, Mail } from "lucide-react";
+import { IconChevronLeft, IconClipboardList, IconFileText, IconHeart, IconMail, IconPencil, IconPlus, IconTarget, IconTriangleAlert } from "@/components/icons";
 import type { DBClientComplianceStatus, DBClientGroupType, DBClientPaceMode } from "@/types";
 import { PlanAgentTab } from "./PlanAgentTab";
 
@@ -43,7 +43,7 @@ function OutstandingActionsList({ actions }: { actions: string[] | null }) {
     <ul className="list-none space-y-2 mb-4">
       {actions.map((action, i) => (
         <li key={i} className="flex items-start gap-2 text-sm">
-          <TriangleAlert className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+          <IconTriangleAlert className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
           <span className="text-foreground">{action}</span>
         </li>
       ))}
@@ -98,7 +98,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       {/* Header — client identity */}
       <div className="flex items-center gap-4">
         <Link href="/hub/clients" className="text-muted-foreground hover:text-foreground transition-colors">
-          <ChevronLeft className="h-5 w-5" />
+          <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div className="flex items-center gap-4 flex-1">
           <div className="w-14 h-14 rounded-full bg-rose/15 text-rose flex items-center justify-center text-lg font-bold shrink-0">
@@ -116,13 +116,13 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         <div className="flex items-center gap-2">
           <Link href={`/hub/clients/${client.client_number}/edit`}>
             <Button variant="outline" className="rounded-full gap-1.5 border-border/60">
-              <Pencil className="h-4 w-4" />
+              <IconPencil className="h-4 w-4" />
               Edit
             </Button>
           </Link>
           <Link href={`/hub/clients/${client.client_number}/blocks/new`}>
             <Button className="rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white">
-              <Plus className="h-4 w-4" />
+              <IconPlus className="h-4 w-4" />
               New Block
             </Button>
           </Link>
@@ -196,12 +196,53 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
         {/* Tab 2: Profile */}
         <TabsContent value="profile" className="space-y-4 mt-4">
+          {/* Logistics */}
+          {p?.logistics && (
+            <Card className="shadow-sm border-border/60 rounded-2xl">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-dark-navy/10 flex items-center justify-center">
+                    <IconClipboardList className="w-3.5 h-3.5 text-dark-navy" />
+                  </div>
+                  Logistics
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+                <div>
+                  <span className="text-muted-foreground block mb-1">Location</span>
+                  <p className="text-foreground font-medium capitalize">{p.logistics.training_location?.replace("_", " ") ?? "—"}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block mb-1">Sessions/week</span>
+                  <p className="text-foreground font-medium">{p.logistics.sessions_per_week ?? "—"}x</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block mb-1">Time tier</span>
+                  <p className="text-foreground font-medium capitalize">{p.logistics.time_tier ?? "—"}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block mb-1">Package</span>
+                  <p className="text-foreground font-medium">{p.logistics.package ?? "—"}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block mb-1">Pace mode</span>
+                  <p className="text-foreground font-medium"><PaceModeDisplay paceMode={client.pace_mode} /></p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block mb-1">Group type</span>
+                  <p className="text-foreground font-medium"><GroupTypeLabel groupType={client.group_type} /></p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Health */}
           {p?.health && (
             <Card className="shadow-sm border-border/60 rounded-2xl">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-teal/10 flex items-center justify-center">
-                    <Heart className="w-3.5 h-3.5 text-teal" />
+                    <IconHeart className="w-3.5 h-3.5 text-teal" />
                   </div>
                   Health
                 </CardTitle>
@@ -225,16 +266,95 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                     <p className="text-foreground">{p.health.contraindications.join(", ")}</p>
                   </div>
                 )}
+                {p.health.medications_relevant?.length > 0 && (
+                  <div>
+                    <span className="text-muted-foreground block mb-1">Relevant Medications</span>
+                    <p className="text-foreground">{p.health.medications_relevant.join(", ")}</p>
+                  </div>
+                )}
+                {p.health.injury_history?.length > 0 && (
+                  <div>
+                    <span className="text-muted-foreground block mb-1">Injury History</span>
+                    <p className="text-foreground">{p.health.injury_history.join(", ")}</p>
+                  </div>
+                )}
+                {p.health.pain_points?.length > 0 && (
+                  <div>
+                    <span className="text-muted-foreground block mb-1">Pain Points</span>
+                    <p className="text-foreground">{p.health.pain_points.join(", ")}</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
 
+          {/* Physical Baseline */}
+          {p?.physical_baseline && (
+            <Card className="shadow-sm border-border/60 rounded-2xl">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-rose/10 flex items-center justify-center">
+                    <IconTarget className="w-3.5 h-3.5 text-rose" />
+                  </div>
+                  Physical Baseline
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Fitness Level</span>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <span
+                        key={n}
+                        className={`w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium ${
+                          n <= (p.physical_baseline.fitness_level ?? 0)
+                            ? "bg-rose text-white"
+                            : "bg-border/40 text-muted-foreground"
+                        }`}
+                      >
+                        {n}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <span className="text-muted-foreground block mb-1">Lower Body</span>
+                    <p className="text-foreground font-medium capitalize">{p.physical_baseline.strength_baseline?.lower_body ?? "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block mb-1">Upper Body</span>
+                    <p className="text-foreground font-medium capitalize">{p.physical_baseline.strength_baseline?.upper_body ?? "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block mb-1">Core</span>
+                    <p className="text-foreground font-medium capitalize">{p.physical_baseline.strength_baseline?.core ?? "—"}</p>
+                  </div>
+                </div>
+                {p.physical_baseline.movement_quality_flags?.length > 0 && (
+                  <div>
+                    <span className="text-muted-foreground block mb-1">Movement Quality Flags</span>
+                    <ul className="list-none space-y-1">
+                      {p.physical_baseline.movement_quality_flags.map((flag, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <IconTriangleAlert className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" />
+                          <span>{flag}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Goals */}
           {p?.goals && (
             <Card className="shadow-sm border-border/60 rounded-2xl">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-dark-navy/10 flex items-center justify-center">
-                    <Target className="w-3.5 h-3.5 text-dark-navy" />
+                    <IconTarget className="w-3.5 h-3.5 text-dark-navy" />
                   </div>
                   Goals
                 </CardTitle>
@@ -242,8 +362,14 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
               <CardContent className="space-y-2 text-sm">
                 <div>
                   <span className="text-muted-foreground block mb-1">Primary</span>
-                  <p className="text-foreground font-medium">{p.goals.primary}</p>
+                  <p className="text-foreground font-medium capitalize">{p.goals.primary?.replace("_", " ") ?? "—"}</p>
                 </div>
+                {p.goals.secondary?.length > 0 && (
+                  <div>
+                    <span className="text-muted-foreground block mb-1">Secondary</span>
+                    <p className="text-foreground">{p.goals.secondary.join(", ")}</p>
+                  </div>
+                )}
                 {p.goals.milestones?.length > 0 && (
                   <div>
                     <span className="text-muted-foreground block mb-1">Milestones</span>
@@ -261,12 +387,13 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             </Card>
           )}
 
+          {/* Programming Adaptations */}
           {p?.programming_adaptations && p.programming_adaptations.length > 0 && (
             <Card className="shadow-sm border-border/60 rounded-2xl">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-amber/10 flex items-center justify-center">
-                    <ClipboardList className="w-3.5 h-3.5 text-amber" />
+                    <IconClipboardList className="w-3.5 h-3.5 text-amber" />
                   </div>
                   Programming Adaptations
                 </CardTitle>
@@ -284,20 +411,32 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             </Card>
           )}
 
-          {p?.notes?.esther_observations && (
+          {/* Notes */}
+          {(p?.notes?.esther_observations || p?.notes?.motivation_notes || p?.notes?.watch_for) && (
             <Card className="shadow-sm border-border/60 rounded-2xl bg-off-white/40">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-slate/10 flex items-center justify-center">
-                    <ClipboardList className="w-3.5 h-3.5 text-slate" />
+                    <IconClipboardList className="w-3.5 h-3.5 text-slate" />
                   </div>
                   Notes
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-sm">
-                <p className="text-foreground">{p.notes.esther_observations}</p>
+              <CardContent className="space-y-3 text-sm">
+                {p.notes.esther_observations && (
+                  <div>
+                    <span className="text-muted-foreground block mb-1">Observations</span>
+                    <p className="text-foreground">{p.notes.esther_observations}</p>
+                  </div>
+                )}
+                {p.notes.motivation_notes && (
+                  <div>
+                    <span className="text-muted-foreground block mb-1">Motivation</span>
+                    <p className="text-foreground">{p.notes.motivation_notes}</p>
+                  </div>
+                )}
                 {p.notes.watch_for && (
-                  <div className="mt-3 p-3 rounded-lg bg-rose/5 border border-rose/10">
+                  <div className="mt-1 p-3 rounded-lg bg-rose/5 border border-rose/10">
                     <span className="text-rose font-semibold text-xs uppercase tracking-wide">Watch for</span>
                     <p className="text-rose/80 mt-1">{p.notes.watch_for}</p>
                   </div>
@@ -380,7 +519,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-rose/10 flex items-center justify-center">
-                  <FileText className="w-4 h-4 text-rose" />
+                  <IconFileText className="w-4 h-4 text-rose" />
                 </div>
                 Training Blocks
               </CardTitle>
@@ -396,7 +535,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-off-white flex items-center justify-center">
-                          <FileText className="h-5 w-5 text-muted-foreground group-hover:text-rose transition-colors" />
+                          <IconFileText className="h-5 w-5 text-muted-foreground group-hover:text-rose transition-colors" />
                         </div>
                         <div>
                           <p className="font-semibold text-foreground">Block {block.block_number}</p>
@@ -418,7 +557,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
               ) : (
                 <div className="flex flex-col items-center gap-3 py-10">
                   <div className="w-16 h-16 rounded-full bg-rose/10 flex items-center justify-center">
-                    <FileText className="w-7 h-7 text-rose/40" />
+                    <IconFileText className="w-7 h-7 text-rose/40" />
                   </div>
                   <p className="text-sm text-muted-foreground">No blocks yet</p>
                   <Link href={`/hub/clients/${client.client_number}/blocks/new`}>
@@ -489,14 +628,14 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             <CardContent>
               <div className="flex flex-col items-center gap-3 py-10">
                 <div className="w-16 h-16 rounded-full bg-rose/10 flex items-center justify-center">
-                  <Mail className="w-7 h-7 text-rose/40" />
+                  <IconMail className="w-7 h-7 text-rose/40" />
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Generate branded 6-week update emails from training data.
                 </p>
                 <Link href={`/hub/clients/${client.client_number}/updates`}>
                   <Button variant="outline" size="sm" className="rounded-full gap-1.5">
-                    <Mail className="h-4 w-4" />
+                    <IconMail className="h-4 w-4" />
                     View Updates
                   </Button>
                 </Link>

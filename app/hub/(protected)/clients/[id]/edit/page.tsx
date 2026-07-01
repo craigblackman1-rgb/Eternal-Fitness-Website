@@ -10,9 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ChevronLeft } from "lucide-react";
+import { IconChevronLeft } from "@/components/icons";
 import Link from "next/link";
-import type { ClientProfile } from "@/types";
+import type { ClientProfile, DBClientComplianceStatus, DBClientGroupType, DBClientPaceMode } from "@/types";
 
 const emptyProfile: ClientProfile = {
   client: { id: "", name: "", age: 0, gender: "" },
@@ -31,6 +31,10 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState("");
   const [profile, setProfile] = useState<ClientProfile>(emptyProfile);
+  const [complianceStatus, setComplianceStatus] = useState<DBClientComplianceStatus>("action_needed");
+  const [outstandingActions, setOutstandingActions] = useState("");
+  const [groupType, setGroupType] = useState<DBClientGroupType>("individual_journey");
+  const [paceMode, setPaceMode] = useState<DBClientPaceMode>("medium");
 
   useEffect(() => {
     async function load() {
@@ -50,11 +54,22 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
         client: { ...emptyProfile.client, ...(p.client || {}) },
         logistics: { ...emptyProfile.logistics, ...(p.logistics || {}) },
         health: { ...emptyProfile.health, ...(p.health || {}) },
-        physical_baseline: { ...emptyProfile.physical_baseline, ...(p.physical_baseline || {}) },
+        physical_baseline: {
+          ...emptyProfile.physical_baseline,
+          ...(p.physical_baseline || {}),
+          strength_baseline: {
+            ...emptyProfile.physical_baseline.strength_baseline,
+            ...(p.physical_baseline?.strength_baseline || {}),
+          },
+        },
         programming_adaptations: p.programming_adaptations || [],
         goals: { ...emptyProfile.goals, ...(p.goals || {}) },
         notes: { ...emptyProfile.notes, ...(p.notes || {}) },
       });
+      setComplianceStatus(data.compliance_status ?? "action_needed");
+      setOutstandingActions((data.outstanding_actions ?? []).join("\n"));
+      setGroupType(data.group_type ?? "individual_journey");
+      setPaceMode(data.pace_mode ?? "medium");
       setLoading(false);
     }
     load();
@@ -84,7 +99,14 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
 
     const { error } = await supabase
       .from("clients")
-      .update({ name: name.trim(), profile: fullProfile })
+      .update({
+        name: name.trim(),
+        profile: fullProfile,
+        compliance_status: complianceStatus,
+        outstanding_actions: outstandingActions.split("\n").map((s) => s.trim()).filter(Boolean),
+        group_type: groupType,
+        pace_mode: paceMode,
+      })
       .eq("client_number", parseInt(params.id));
 
     if (error) {
@@ -105,7 +127,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href={`/hub/clients/${params.id}`} className="text-muted-foreground hover:text-foreground">
-          <ChevronLeft className="h-5 w-5" />
+          <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Edit Client</h1>
@@ -220,6 +242,145 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
                 <Label>Pain Points</Label>
                 <Input value={arrayToString(profile.health.pain_points)} onChange={(e) => updateProfile("health", { pain_points: stringToArray(e.target.value) })} />
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Physical Baseline</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Fitness Level (1 = very low, 5 = high)</Label>
+              <Select
+                value={String(profile.physical_baseline.fitness_level)}
+                onValueChange={(v) => updateProfile("physical_baseline", { fitness_level: parseInt(v) as 1 | 2 | 3 | 4 | 5 })}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 — Very Low</SelectItem>
+                  <SelectItem value="2">2 — Low</SelectItem>
+                  <SelectItem value="3">3 — Moderate</SelectItem>
+                  <SelectItem value="4">4 — Good</SelectItem>
+                  <SelectItem value="5">5 — High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="space-y-2">
+                <Label>Lower Body Strength</Label>
+                <Select
+                  value={profile.physical_baseline.strength_baseline.lower_body}
+                  onValueChange={(v: "beginner" | "intermediate" | "advanced") =>
+                    setProfile((prev) => ({ ...prev, physical_baseline: { ...prev.physical_baseline, strength_baseline: { ...prev.physical_baseline.strength_baseline, lower_body: v } } }))
+                  }
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="beginner">Beginner</SelectItem>
+                    <SelectItem value="intermediate">Intermediate</SelectItem>
+                    <SelectItem value="advanced">Advanced</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Upper Body Strength</Label>
+                <Select
+                  value={profile.physical_baseline.strength_baseline.upper_body}
+                  onValueChange={(v: "beginner" | "intermediate" | "advanced") =>
+                    setProfile((prev) => ({ ...prev, physical_baseline: { ...prev.physical_baseline, strength_baseline: { ...prev.physical_baseline.strength_baseline, upper_body: v } } }))
+                  }
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="beginner">Beginner</SelectItem>
+                    <SelectItem value="intermediate">Intermediate</SelectItem>
+                    <SelectItem value="advanced">Advanced</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Core Strength</Label>
+                <Select
+                  value={profile.physical_baseline.strength_baseline.core}
+                  onValueChange={(v: "beginner" | "intermediate" | "advanced") =>
+                    setProfile((prev) => ({ ...prev, physical_baseline: { ...prev.physical_baseline, strength_baseline: { ...prev.physical_baseline.strength_baseline, core: v } } }))
+                  }
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="beginner">Beginner</SelectItem>
+                    <SelectItem value="intermediate">Intermediate</SelectItem>
+                    <SelectItem value="advanced">Advanced</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Movement Quality Flags (one per line)</Label>
+              <Textarea
+                value={profile.physical_baseline.movement_quality_flags.join("\n")}
+                onChange={(e) =>
+                  updateProfile("physical_baseline", {
+                    movement_quality_flags: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean),
+                  })
+                }
+                rows={3}
+                placeholder="e.g. Limited hip flexion&#10;Knee valgus under load"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Compliance &amp; Pace</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label>Compliance Status</Label>
+                <Select value={complianceStatus} onValueChange={(v: DBClientComplianceStatus) => setComplianceStatus(v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="clear">Clear — all paperwork in order</SelectItem>
+                    <SelectItem value="action_needed">Action Needed</SelectItem>
+                    <SelectItem value="pending_medical">Pending Medical Clearance</SelectItem>
+                    <SelectItem value="do_not_train">Do Not Train</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Pace Mode</Label>
+                <Select value={paceMode} onValueChange={(v: DBClientPaceMode) => setPaceMode(v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fast">Fast (~10 exercises/session)</SelectItem>
+                    <SelectItem value="medium">Medium (~8 exercises/session)</SelectItem>
+                    <SelectItem value="slow">Slow (~5–6 exercises/session)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Group Type</Label>
+                <Select value={groupType} onValueChange={(v: DBClientGroupType) => setGroupType(v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="individual_journey">Individual Journey</SelectItem>
+                    <SelectItem value="calendar_block">Calendar Block (shared)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Outstanding Actions (one per line)</Label>
+              <Textarea
+                value={outstandingActions}
+                onChange={(e) => setOutstandingActions(e.target.value)}
+                rows={4}
+                placeholder="e.g. No signed PAR-Q on file&#10;GP clearance letter outstanding"
+              />
             </div>
           </CardContent>
         </Card>
