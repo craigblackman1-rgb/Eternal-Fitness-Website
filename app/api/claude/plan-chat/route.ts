@@ -180,7 +180,7 @@ export async function POST(request: Request) {
   const readable = await aiChatStream({
     system: systemPrompt,
     messages: messages.map((m) => ({ role: m.role, content: m.content })),
-    maxTokens: 4096,
+    maxTokens: 8000,
   });
 
   if (!readable) {
