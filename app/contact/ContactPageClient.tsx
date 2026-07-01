@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SocialIcon from "@/components/SocialIcons";
+import { Section, SectionHeading, PageHero, StatBadge, CTABand } from "@/components/ds";
 
 interface FormData {
   firstName: string;
@@ -68,41 +69,21 @@ export default function ContactPageClient() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero */}
-      <section className="relative min-h-[70vh] pt-[72px] flex items-center justify-center overflow-hidden">
-        <img
-          src="/images/contact-hero.jpg"
-          alt="Contact Eternal Fitness in Worthing"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-hero-overlay/55 via-hero-overlay/65 to-hero-overlay/75" />
-        <div className="relative z-10 text-center max-w-3xl px-6">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-5">
-            Get in Touch
-          </h1>
-          <p className="text-white/70 font-body text-base md:text-lg mb-8 max-w-xl mx-auto">
-            Whether you have a question, want to learn more, or are ready to book your free consultation — I would love to hear from you.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-              <a href="#form" className="ef-btn ef-btn-primary shadow-lg shadow-rose/30">
-                Send a Message <IconArrowUpRight className="w-4 h-4" />
-              </a>
-              <a href="#map" className="ef-btn ef-btn-ghost-white">Find the Studio</a>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        image="/images/contact-hero.jpg"
+        imageAlt="Contact Eternal Fitness in Worthing"
+        eyebrow="Contact"
+        heading="Get in Touch"
+        subhead="Whether you have a question, want to learn more, or are ready to book your free consultation — I would love to hear from you."
+        primaryCta={{ label: "Send a Message", href: "#form", arrow: true }}
+        secondaryCta={{ label: "Find the Studio", href: "#map", variant: "ghost-white" }}
+        badge={<StatBadge value="Free" label="First conversation" sublabel="No pressure, no commitment" />}
+      />
 
       {/* Contact Form + Info */}
-      <section id="form" className="ef-section px-6 md:px-12 bg-background">
-        <div className="max-w-[1320px] mx-auto">
-          <div className="ef-eyebrow ef-eyebrow-rose justify-center mb-5">
-            Contact
-          </div>
-          <h2 className="text-3xl md:text-4xl text-foreground ef-h2 text-center mb-14">
-            Send Me a Message
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+      <Section background="white" id="form">
+          <SectionHeading align="center" eyebrow="Contact" heading="Send Me a Message" />
+          <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto" style={{ marginTop: 48 }}>
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
@@ -305,22 +286,18 @@ export default function ContactPageClient() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
+      </Section>
 
       {/* Map */}
-      <section id="map" className="ef-section px-6 md:px-12 bg-white">
-        <div className="max-w-[1320px] mx-auto">
-          <div className="ef-eyebrow ef-eyebrow-teal justify-center mb-5">
-            Location
-          </div>
-          <h2 className="text-3xl md:text-4xl text-foreground ef-h2 text-center mb-6">
-            Find the Studio
-          </h2>
-          <p className="ef-body text-center max-w-xl mx-auto mb-12">
-            Based in Worthing, West Sussex. The private studio is easily accessible by car and public transport.
-          </p>
-          <div className="rounded-3xl overflow-hidden border border-border-warm shadow-sm">
+      <Section background="cream" id="map">
+          <SectionHeading
+            align="center"
+            eyebrow="Location"
+            eyebrowColor="teal"
+            heading="Find the Studio"
+            intro="Based in Worthing, West Sussex. The private studio is easily accessible by car and public transport."
+          />
+          <div className="rounded-3xl overflow-hidden border border-border-warm shadow-sm" style={{ marginTop: 48 }}>
             <iframe
               title="Eternal Fitness location in Worthing, West Sussex"
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d40625.88654390968!2d-0.4005!3d50.8148!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4875a3a3a3a3a3a3%3A0x0!2sWorthing%2C+West+Sussex!5e0!3m2!1sen!2suk!4v1700000000000!5m2!1sen!2suk"
@@ -332,9 +309,15 @@ export default function ContactPageClient() {
               referrerPolicy="no-referrer-when-downgrade"
             />
           </div>
-        </div>
-      </section>
+      </Section>
 
+      <CTABand
+        image="/images/studio-1.jpg"
+        heading="Ready to find out if this is right for you?"
+        body="The first conversation is free, with no commitment. I work with a small number of clients at a time — so every person gets my full attention."
+        primaryCta={{ label: "Send a Message", href: "#form" }}
+        secondaryCta={{ label: "Call: 07517 658 128", href: "tel:07517658128", variant: "ghost-white" }}
+      />
       <Footer />
     </div>
   );

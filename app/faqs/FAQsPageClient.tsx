@@ -1,11 +1,10 @@
 "use client";
 
-import { IconArrowUpRight } from "@/components/icons";
 import Navbar from "@/components/Navbar";
-import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
 import ConsultationDialog from "@/components/ConsultationDialog";
 import { useConsultationDialog } from "@/hooks/useConsultationDialog";
+import { Section, PageHero, StatBadge, CTABand, Eyebrow, CtaButton } from "@/components/ds";
 import {
   Accordion,
   AccordionContent,
@@ -128,47 +127,33 @@ export default function FAQsPageClient() {
     <div className="min-h-screen bg-background">
       <Navbar onBookConsultation={openDialog} />
 
-      {/* Hero */}
-      <section className="relative min-h-[60vh] pt-[72px] flex items-center justify-center overflow-hidden">
-        <img src="/images/hero-gym.jpg" alt="Frequently Asked Questions — Eternal Fitness Worthing" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-b from-hero-overlay/55 via-hero-overlay/65 to-hero-overlay/75" />
-        <div className="relative z-10 text-center max-w-2xl px-6">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-4">
-            Frequently Asked Questions
-          </h1>
-          <p className="text-white/70 font-body text-lg md:text-xl mb-8 max-w-lg mx-auto">
-            If something is stopping you from getting in touch, the answer is probably here. And if it is not — just ask.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <button onClick={openDialog} className="ef-btn ef-btn-primary shadow-lg shadow-rose/30">
-              Book a Free Consultation
-            </button>
-            <a href="#faq" className="ef-btn ef-btn-ghost-white">Read the FAQs</a>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        image="/images/hero-gym.jpg"
+        imageAlt="Frequently Asked Questions — Eternal Fitness Worthing"
+        eyebrow="FAQs"
+        heading="Frequently Asked Questions"
+        subhead="If something is stopping you from getting in touch, the answer is probably here. And if it is not — just ask."
+        primaryCta={{ label: "Book a Free Consultation", onClick: openDialog, arrow: true }}
+        secondaryCta={{ label: "Read the FAQs", href: "#faq", variant: "ghost-white" }}
+        badge={<StatBadge value="?" label="No question too small" sublabel="Just ask — I would rather you did" />}
+      />
 
       {/* FAQ Section */}
-      <section id="faq" className="ef-section px-6 md:px-12 bg-background">
-        <div className="max-w-[1320px] mx-auto grid md:grid-cols-[340px_1fr] gap-12 md:gap-20 items-start">
+      <Section background="white" id="faq" innerClassName="grid md:grid-cols-[340px_1fr] gap-12 md:gap-20 items-start">
 
           {/* Left — intro */}
           <div className="md:sticky md:top-24">
-            <div className="ef-eyebrow ef-eyebrow-rose mb-5">
-              Your Questions Answered
-            </div>
-            <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-4">
+            <Eyebrow color="rose">Your Questions Answered</Eyebrow>
+            <h2 className="ds-h2" style={{ margin: "16px 0" }}>
               No question is too complicated
             </h2>
-            <p className="ef-body mb-6">
+            <p className="ds-body" style={{ marginBottom: 16 }}>
               I work with people whose situations are rarely straightforward. If you are wondering whether your health, disability, or circumstances make you a difficult client — they almost certainly do not.
             </p>
-            <p className="ef-body text-sm mb-8">
+            <p className="ds-body" style={{ marginBottom: 28, fontSize: 14.5 }}>
               The questions below cover the things people most commonly wonder about before getting in touch.
             </p>
-            <button onClick={openDialog} className="ef-btn ef-btn-primary">
-              Book a Free Consultation <IconArrowUpRight className="w-4 h-4" />
-            </button>
+            <CtaButton cta={{ label: "Book a Free Consultation", onClick: openDialog, arrow: true }} />
           </div>
 
           {/* Right — grouped FAQs */}
@@ -193,10 +178,15 @@ export default function FAQsPageClient() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
+      </Section>
 
-      <CTASection onBookConsultation={openDialog} />
+      <CTABand
+        image="/images/studio-1.jpg"
+        heading="Ready to find out if this is right for you?"
+        body="The first conversation is free, with no commitment. I work with a small number of clients at a time — so every person gets my full attention."
+        primaryCta={{ label: "Book a Free Consultation", onClick: openDialog }}
+        secondaryCta={{ label: "Call: 07517 658 128", href: "tel:07517658128", variant: "ghost-white" }}
+      />
       <Footer />
       <ConsultationDialog open={open} onOpenChange={setOpen} />
     </div>

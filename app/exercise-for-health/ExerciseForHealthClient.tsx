@@ -3,10 +3,19 @@
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
-import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
 import ConsultationDialog from "@/components/ConsultationDialog";
 import { useConsultationDialog } from "@/hooks/useConsultationDialog";
+import {
+  Section,
+  SectionHeading,
+  PageHero,
+  FeatureCard,
+  StatBadge,
+  CTABand,
+  Reveal,
+  CtaButton,
+} from "@/components/ds";
 import {
   IconHeart,
   IconBloodPressure,
@@ -84,193 +93,161 @@ const conditions = [
   },
 ];
 
+const steps = [
+  {
+    title: "Free consultation first",
+    body: "We start with a conversation — no commitment, no obligation. I want to understand your condition, your history, and your goals before we do anything else.",
+    icon: IconClipboardList,
+  },
+  {
+    title: "Check-in at the start of every session",
+    body: "How are you feeling today? Energy, pain, sleep, any changes. The session plan is finalised then — because what works one week may not be right the next.",
+    icon: IconMessageCircle,
+  },
+  {
+    title: "Progress that adapts to you",
+    body: "There is no fixed template. Programmes are built around your body, your condition, and your goals — and adjusted as those things change.",
+    icon: IconActivity,
+  },
+];
+
+const faqs = [
+  {
+    title: "Can I exercise if I have a health condition?",
+    body: "In most cases, yes — and the evidence strongly supports it. Exercise is clinically recommended for a wide range of conditions. The key is having a qualified specialist who understands your specific condition and can programme safely around it.",
+    icon: IconCheckCircle,
+  },
+  {
+    title: "Do I need a GP referral?",
+    body: "No. A GP referral is welcome but not required. Many clients come independently. I will ask about your medical history and may recommend checking with your GP if there are specific contraindications to consider first.",
+    icon: IconFileText,
+  },
+  {
+    title: "How is this different from a regular personal trainer?",
+    body: "A standard Level 3 PT is not trained to work with clinical populations. As a Level 4 Exercise Referral Specialist, I understand contraindicated exercises, medication effects, fatigue management, and how conditions affect capacity from one session to the next.",
+    icon: IconAward,
+  },
+  {
+    title: "What if I am having a bad day when I come in?",
+    body: "That is what the check-in is for. I adapt the session to how you actually feel — not how the plan says you should feel. You will always leave having done something genuinely useful, even on the difficult days.",
+    icon: IconHeartHandshake,
+  },
+];
+
 export default function ExerciseForHealthClient() {
   const { open, setOpen, openDialog } = useConsultationDialog();
+  const bookCta = { label: "Book a Free Consultation", onClick: openDialog, arrow: true };
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar onBookConsultation={openDialog} />
 
-      {/* HERO */}
-      <section className="ef-section" style={{ background: "var(--color-ink)", paddingTop: 120 }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <p className="ef-eyebrow ef-eyebrow-rose" style={{ marginBottom: 24 }}>Exercise for Health</p>
-          <h1 style={{ fontSize: "clamp(36px, 4.5vw, 62px)", fontWeight: 700, color: "#fff", lineHeight: 1.08, letterSpacing: "-0.03em", maxWidth: 760, marginBottom: 24 }}>
-            Personal Training for<br />Health Conditions
-          </h1>
-          <p style={{ fontSize: 18, color: "rgba(255,255,255,0.65)", lineHeight: 1.7, maxWidth: 580, marginBottom: 40 }}>
-            Exercise is one of the most evidence-based interventions for managing a wide range of health conditions.
-            The key is having a qualified specialist who understands your condition and programmes safely around it —
-            not a standard PT working outside their training.
-          </p>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            <button className="ef-btn ef-btn-primary" onClick={openDialog}>Book a Free Consultation</button>
-            <a href="#conditions" className="ef-btn ef-btn-outline" style={{ borderColor: "rgba(255,255,255,0.25)", color: "#fff" }}>See Conditions Covered</a>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        image="/images/who-health.jpg"
+        imageAlt="Personal training for health conditions in Worthing"
+        eyebrow="Exercise for Health"
+        heading={<>Personal Training for<br />Health Conditions</>}
+        subhead="Exercise is one of the most evidence-based interventions for managing a wide range of health conditions. The key is having a qualified specialist who understands your condition and programmes safely around it — not a standard PT working outside their training."
+        primaryCta={bookCta}
+        secondaryCta={{ label: "See Conditions Covered", href: "#conditions", variant: "ghost-white" }}
+        badge={<StatBadge variant="rose" value="L4" label="Exercise Referral Specialist" />}
+      />
 
-      {/* WHAT THIS IS */}
-      <section className="ef-section" style={{ background: "#fff" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
-          <div style={{ position: "relative", borderRadius: 20, overflow: "hidden", aspectRatio: "4/5", boxShadow: "0 24px 64px rgba(0,0,0,0.12)" }}>
+      {/* THE APPROACH */}
+      <Section background="white">
+        <div className="ds-split">
+          <Reveal y={40} className="ds-split-img">
             <Image
               src="/images/esther-training.jpg"
               alt="Esther Fair — Exercise for health conditions specialist in Worthing"
               fill
-              sizes="(max-width: 768px) 100vw, 50vw"
+              sizes="(max-width: 1000px) 100vw, 50vw"
               style={{ objectFit: "cover" }}
             />
-          </div>
+          </Reveal>
           <div>
-            <p className="ef-eyebrow ef-eyebrow-teal" style={{ marginBottom: 20 }}>The Approach</p>
-            <h2 className="ef-h2" style={{ fontSize: "clamp(28px, 3vw, 42px)", color: "var(--color-ink)", marginBottom: 20 }}>
-              Exercise for health is different from exercise for fitness
-            </h2>
-            <p className="ef-body" style={{ marginBottom: 16, fontSize: 16 }}>
-              Think of it like seeing a physiotherapist rather than a personal trainer. The goal is not weight loss,
-              not aesthetics, and not performance. The goal is health — managing your condition, building functional
-              strength, improving quality of life.
-            </p>
-            <p className="ef-body" style={{ marginBottom: 16, fontSize: 16 }}>
-              I work the same way a physio or an osteopath does — targeting conditions, not demographics. Every session
-              starts with a check-in. The plan for that day is set then, based on how you actually feel — not how you
-              felt last week.
-            </p>
-            <p className="ef-body" style={{ fontSize: 16 }}>
-              As a Level 4 Personal Trainer and Exercise Referral Specialist, I am qualified to work with clinical
-              populations that a standard Level 3 PT is not trained for. That distinction matters.
-            </p>
+            <SectionHeading
+              eyebrow="The Approach"
+              eyebrowColor="teal"
+              heading="Exercise for health is different from exercise for fitness"
+            />
+            <Reveal y={24}>
+              <p className="ds-body" style={{ marginTop: 20, marginBottom: 16 }}>
+                Think of it like seeing a physiotherapist rather than a personal trainer. The goal is not weight loss,
+                not aesthetics, and not performance. The goal is health — managing your condition, building functional
+                strength, improving quality of life.
+              </p>
+              <p className="ds-body" style={{ marginBottom: 16 }}>
+                I work the same way a physio or an osteopath does — targeting conditions, not demographics. Every session
+                starts with a check-in. The plan for that day is set then, based on how you actually feel — not how you
+                felt last week.
+              </p>
+              <p className="ds-body" style={{ marginBottom: 28 }}>
+                As a Level 4 Personal Trainer and Exercise Referral Specialist, I am qualified to work with clinical
+                populations that a standard Level 3 PT is not trained for. That distinction matters.
+              </p>
+              <CtaButton cta={bookCta} />
+            </Reveal>
           </div>
         </div>
-      </section>
+      </Section>
 
       {/* CONDITIONS GRID */}
-      <section id="conditions" className="ef-section" style={{ background: "var(--color-warm)" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <p className="ef-eyebrow ef-eyebrow-rose" style={{ marginBottom: 20 }}>Conditions Covered</p>
-          <h2 className="ef-h2" style={{ fontSize: "clamp(28px, 3vw, 42px)", color: "var(--color-ink)", marginBottom: 14, maxWidth: 600 }}>
-            Who I Work With
-          </h2>
-          <p className="ef-body" style={{ fontSize: 16, maxWidth: 560, marginBottom: 56 }}>
-            If your condition is not listed here, please still get in touch.
-            The answer is almost always yes.
-          </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
-            {conditions.map(({ icon: Icon, title, slug, desc, available }) => (
-              <div key={slug} className="ef-card" style={{ padding: "28px 28px 24px" }}>
-                <div style={{ color: "var(--color-teal)", marginBottom: 16 }}>
-                  <Icon className="w-8 h-8" style={{ width: 36, height: 36 }} />
-                </div>
-                <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--color-ink)", marginBottom: 10, letterSpacing: "-0.015em", lineHeight: 1.2 }}>
-                  {title}
-                </h3>
-                <p className="ef-body" style={{ fontSize: 14, marginBottom: 16 }}>{desc}</p>
-                {available ? (
-                  <Link
-                    href={`/exercise-for-health/${slug}`}
-                    style={{ fontSize: 13, fontWeight: 600, color: "var(--color-rose)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}
-                  >
-                    Learn more →
-                  </Link>
-                ) : (
-                  <button
-                    onClick={openDialog}
-                    style={{ fontSize: 13, fontWeight: 600, color: "var(--color-teal)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
-                  >
-                    Book a consultation →
-                  </button>
-                )}
+      <Section background="cream" id="conditions">
+        <SectionHeading
+          eyebrow="Conditions Covered"
+          heading="Who I Work With"
+          intro="If your condition is not listed here, please still get in touch. The answer is almost always yes."
+        />
+        <Reveal className="ds-grid-3" stagger={0.1} y={48} start="top 80%" >
+          {conditions.map(({ icon: Icon, title, slug, desc, available }) => (
+            <div key={slug} className="ds-card">
+              <div className="ds-card-ic ds-card-ic-teal">
+                <Icon className="w-5 h-5" />
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+              <h4 className="ds-card-title">{title}</h4>
+              <p className="ds-card-body" style={{ marginBottom: 16 }}>{desc}</p>
+              {available ? (
+                <Link href={`/exercise-for-health/${slug}`} style={{ fontSize: 13, fontWeight: 600, color: "var(--color-rose)", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  Learn more →
+                </Link>
+              ) : (
+                <button onClick={openDialog} style={{ fontSize: 13, fontWeight: 600, color: "var(--color-teal)", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                  Book a consultation →
+                </button>
+              )}
+            </div>
+          ))}
+        </Reveal>
+      </Section>
 
       {/* HOW IT WORKS */}
-      <section className="ef-section" style={{ background: "#fff" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <p className="ef-eyebrow ef-eyebrow-teal" style={{ marginBottom: 20 }}>How It Works</p>
-          <h2 className="ef-h2" style={{ fontSize: "clamp(28px, 3vw, 42px)", color: "var(--color-ink)", marginBottom: 56, maxWidth: 500 }}>
-            What to Expect from Your Sessions
-          </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 24 }}>
-            {[
-              {
-                n: "01",
-                title: "Free consultation first",
-                body: "We start with a conversation — no commitment, no obligation. I want to understand your condition, your history, and your goals before we do anything else.",
-                icon: IconClipboardList,
-              },
-              {
-                n: "02",
-                title: "Check-in at the start of every session",
-                body: "How are you feeling today? Energy, pain, sleep, any changes. The session plan is finalised then — because what works one week may not be right the next.",
-                icon: IconMessageCircle,
-              },
-              {
-                n: "03",
-                title: "Progress that adapts to you",
-                body: "There is no fixed template. Programmes are built around your body, your condition, and your goals — and adjusted as those things change.",
-                icon: IconActivity,
-              },
-            ].map(({ n, title, body, icon: Icon }) => (
-              <div key={n} className="ef-card">
-                <div className="w-12 h-12 rounded-full bg-rose/15 flex items-center justify-center mb-4">
-                  <Icon className="w-5 h-5 text-rose" />
-                </div>
-                <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-rose)", marginBottom: 8 }}>{n}</div>
-                <h3 className="text-foreground" style={{ fontSize: 19, fontWeight: 700, marginBottom: 10, letterSpacing: "-0.018em", lineHeight: 1.2 }}>{title}</h3>
-                <p className="ef-body" style={{ fontSize: 14.5 }}>{body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <Section background="white">
+        <SectionHeading eyebrow="How It Works" eyebrowColor="teal" heading="What to Expect from Your Sessions" />
+        <Reveal className="ds-grid-3" stagger={0.13} y={48} start="top 80%">
+          {steps.map((s) => (
+            <FeatureCard key={s.title} icon={s.icon} accent="rose" title={s.title} body={s.body} />
+          ))}
+        </Reveal>
+      </Section>
 
       {/* FAQ */}
-      <section className="ef-section" style={{ background: "var(--color-warm)" }}>
-        <div style={{ maxWidth: 720, margin: "0 auto" }}>
-          <p className="ef-eyebrow ef-eyebrow-rose" style={{ marginBottom: 20 }}>Common Questions</p>
-          <h2 className="ef-h2" style={{ fontSize: "clamp(26px, 2.8vw, 38px)", color: "var(--color-ink)", marginBottom: 48 }}>
-            Questions About Exercising With a Health Condition
-          </h2>
-          <div className="flex flex-col gap-5">
-            {[
-              {
-                q: "Can I exercise if I have a health condition?",
-                a: "In most cases, yes — and the evidence strongly supports it. Exercise is clinically recommended for a wide range of conditions. The key is having a qualified specialist who understands your specific condition and can programme safely around it.",
-                icon: IconCheckCircle,
-              },
-              {
-                q: "Do I need a GP referral?",
-                a: "No. A GP referral is welcome but not required. Many clients come independently. I will ask about your medical history and may recommend checking with your GP if there are specific contraindications to consider first.",
-                icon: IconFileText,
-              },
-              {
-                q: "How is this different from a regular personal trainer?",
-                a: "A standard Level 3 PT is not trained to work with clinical populations. As a Level 4 Exercise Referral Specialist, I understand contraindicated exercises, medication effects, fatigue management, and how conditions affect capacity from one session to the next.",
-                icon: IconAward,
-              },
-              {
-                q: "What if I am having a bad day when I come in?",
-                a: "That is what the check-in is for. I adapt the session to how you actually feel — not how the plan says you should feel. You will always leave having done something genuinely useful, even on the difficult days.",
-                icon: IconHeartHandshake,
-              },
-            ].map(({ q, a, icon: Icon }) => (
-              <div key={q} className="ef-card">
-                <div className="w-12 h-12 rounded-full bg-teal/15 flex items-center justify-center mb-4">
-                  <Icon className="w-5 h-5 text-teal" />
-                </div>
-                <h3 className="text-foreground" style={{ fontSize: 16, fontWeight: 700, marginBottom: 10, letterSpacing: "-0.01em" }}>{q}</h3>
-                <p className="ef-body" style={{ fontSize: 15 }}>{a}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <Section background="cream">
+        <SectionHeading eyebrow="Common Questions" heading="Questions About Exercising With a Health Condition" />
+        <Reveal className="ds-grid-2" stagger={0.12} y={48} start="top 80%">
+          {faqs.map((f) => (
+            <FeatureCard key={f.title} icon={f.icon} accent="teal" title={f.title} body={f.body} />
+          ))}
+        </Reveal>
+      </Section>
 
-      <CTASection onBookConsultation={openDialog} />
+      <CTABand
+        image="/images/studio-1.jpg"
+        heading="Ready to find out if this is right for you?"
+        body="The first conversation is free, with no commitment. I work with a small number of clients at a time — so every person gets my full attention."
+        primaryCta={{ label: "Book a Free Consultation", onClick: openDialog }}
+        secondaryCta={{ label: "Call: 07517 658 128", href: "tel:07517658128", variant: "ghost-white" }}
+      />
       <Footer />
       <ConsultationDialog open={open} onOpenChange={setOpen} />
     </div>
