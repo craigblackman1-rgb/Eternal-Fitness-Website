@@ -4,7 +4,9 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
   images: {
-    unoptimized: false,
+    // Self-hosted (Coolify/Docker) — Next's built-in optimizer assumes Vercel's
+    // image infrastructure; serve originals directly instead.
+    unoptimized: true,
     formats: ["image/avif", "image/webp"],
   },
   async headers() {
