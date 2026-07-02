@@ -14,6 +14,8 @@ import {
   Reveal,
   CtaButton,
   ProcessFlow,
+  MotionArcs,
+  PulseLine,
 } from "@/components/ds";
 import { IconActivity, IconTarget, IconMessageCircle } from "@/components/icons";
 
@@ -117,6 +119,9 @@ export default function HighBloodPressureClient() {
           </div>
           <Reveal y={40} className="ds-split-img">
             <img src="/images/esther-training.jpg" alt="Blood pressure monitoring during training in Worthing" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <div className="ds-art-chip">
+              <MotionArcs accent="teal" />
+            </div>
           </Reveal>
         </div>
       </Section>
@@ -139,6 +144,7 @@ export default function HighBloodPressureClient() {
           heading="What Your Sessions Would Look Like"
           intro="Every session starts with a check-in and a blood pressure reading. Then we work through a structured but adaptable programme:"
         />
+        <div className="ds-art-divider"><PulseLine accent="rose" /></div>
         <div style={{ marginTop: 48 }}>
           <ProcessFlow steps={sessionStructure} />
         </div>

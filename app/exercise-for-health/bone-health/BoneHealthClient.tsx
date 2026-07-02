@@ -14,6 +14,8 @@ import {
   Reveal,
   CtaButton,
   ProcessFlow,
+  MotionArcs,
+  PulseLine,
 } from "@/components/ds";
 import { IconClipboardList, IconDumbbell, IconAccessibility } from "@/components/icons";
 
@@ -119,6 +121,9 @@ export default function BoneHealthClient() {
           </div>
           <Reveal y={40} className="ds-split-img">
             <img src="/images/studio-1.jpg" alt="Private training studio in Worthing for bone health" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <div className="ds-art-chip">
+              <MotionArcs accent="teal" />
+            </div>
           </Reveal>
         </div>
       </Section>
@@ -141,6 +146,7 @@ export default function BoneHealthClient() {
           heading="What Your Sessions Would Look Like"
           intro="Each session is structured around safe loading, balance, and functional movement. Here is the general framework:"
         />
+        <div className="ds-art-divider"><PulseLine accent="rose" /></div>
         <div style={{ marginTop: 48 }}>
           <ProcessFlow steps={sessionStructure} />
         </div>

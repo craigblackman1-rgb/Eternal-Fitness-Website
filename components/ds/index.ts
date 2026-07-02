@@ -20,3 +20,6 @@ export type { Stat } from "./StatStrip";
 export { CtaButton } from "./CtaButton";
 export { Reveal } from "./Reveal";
 export type { CTA, Accent, SectionBg } from "./types";
+export { PulseLine } from "./artwork/PulseLine";
+export { MotionArcs } from "./artwork/MotionArcs";
+export { JourneyPath } from "./artwork/JourneyPath";

@@ -16,6 +16,8 @@ import {
   Reveal,
   CtaButton,
   StatStrip,
+  PulseLine,
+  JourneyPath,
 } from "@/components/ds";
 import { IconRibbon } from "@/components/icons";
 
@@ -140,6 +142,7 @@ export default function CancerRehabClient() {
       {/* STAGES */}
       <Section background="cream">
         <SectionHeading eyebrow="When I Can Help" heading="Support at Every Stage" />
+        <div className="ds-art-divider"><JourneyPath accent="rose" milestones={3} /></div>
         <Reveal className="ds-grid-3" stagger={0.13} y={48} start="top 80%">
           {stages.map((s, i) => (
             <FeatureCard key={s.title} image={["/images/specialise-1.jpg", "/images/mind-body.jpg", "/images/strength-tasks.jpg"][i]} imageAlt={s.title} title={s.title} body={s.body} />
@@ -166,6 +169,9 @@ export default function CancerRehabClient() {
           </div>
           <Reveal y={40} className="ds-split-img">
             <Image src="/images/who-health.jpg" alt="Esther Fair — cancer rehabilitation specialist" fill sizes="(max-width: 1000px) 100vw, 50vw" style={{ objectFit: "cover" }} />
+            <div className="ds-art-chip" style={{ width: 210, padding: "16px 14px" }}>
+              <PulseLine accent="teal" />
+            </div>
           </Reveal>
         </div>
       </Section>

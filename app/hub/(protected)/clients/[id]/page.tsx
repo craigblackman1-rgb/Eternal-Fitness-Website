@@ -98,27 +98,47 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
   return (
     <div className="space-y-6">
-      {/* Header — client identity */}
-      <div className="flex items-center gap-4">
-        <Link href="/hub/clients" className="text-muted-foreground hover:text-foreground transition-colors">
+      {/* Client identity band */}
+      <div className="rounded-2xl bg-dark-navy text-white p-6 flex items-center gap-5">
+        <Link href="/hub/clients" className="text-white/50 hover:text-white transition-colors shrink-0">
           <IconChevronLeft className="h-5 w-5" />
         </Link>
-        <div className="flex items-center gap-4 flex-1">
-          <div className="w-14 h-14 rounded-full bg-rose/15 text-rose flex items-center justify-center text-lg font-bold shrink-0">
-            {initials}
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{client.name}</h1>
-            <p className="text-muted-foreground">
-              {p?.client?.age && `${p.client.age} yrs`} {p?.client?.gender && `· ${p.client.gender}`}
-              {p?.logistics?.sessions_per_week && ` · ${p.logistics.sessions_per_week}x/week`}
-              {p?.logistics?.time_tier && ` · ${p.logistics.time_tier}`}
-            </p>
+        <div className="w-16 h-16 rounded-full bg-rose text-white text-xl font-bold flex items-center justify-center shrink-0">
+          {initials}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-3xl font-bold">{client.name}</h1>
+          <p className="text-white/60">
+            {p?.client?.age && `${p.client.age} yrs`} {p?.client?.gender && `· ${p.client.gender}`}
+            {p?.logistics?.sessions_per_week && ` · ${p.logistics.sessions_per_week}x/week`}
+            {p?.logistics?.time_tier && ` · ${p.logistics.time_tier}`}
+          </p>
+          <div className="flex items-center gap-2 mt-2 flex-wrap">
+            {client.group_type && (
+              <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/80">
+                {client.group_type === 'individual_journey' ? 'Individual Journey' : 'Calendar Block'}
+              </span>
+            )}
+            {client.pace_mode && (
+              <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/80">
+                {client.pace_mode === 'fast' ? 'Fast pace' : client.pace_mode === 'medium' ? 'Medium pace' : 'Slow pace'}
+              </span>
+            )}
+            {p?.logistics?.sessions_per_week && (
+              <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/80">
+                {p.logistics.sessions_per_week}x/week
+              </span>
+            )}
+            {p?.logistics?.time_tier && (
+              <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/80">
+                {p.logistics.time_tier}
+              </span>
+            )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <Link href={`/hub/clients/${client.client_number}/edit`}>
-            <Button variant="outline" className="rounded-full gap-1.5 border-border/60">
+            <Button variant="outline" className="rounded-full gap-1.5 border-white/20 text-white hover:bg-white/10 bg-transparent">
               <IconPencil className="h-4 w-4" />
               Edit
             </Button>
@@ -133,28 +153,18 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="compliance">Compliance</TabsTrigger>
-          <TabsTrigger value="training">Training</TabsTrigger>
-          <TabsTrigger value="sessions">Sessions</TabsTrigger>
-          <TabsTrigger value="plan-agent">Plan Agent</TabsTrigger>
-          <TabsTrigger value="updates">Updates</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="overview" className="rounded-full data-[state=active]:bg-rose data-[state=active]:text-white">Overview</TabsTrigger>
+          <TabsTrigger value="profile-compliance" className="rounded-full data-[state=active]:bg-rose data-[state=active]:text-white">Profile & Compliance</TabsTrigger>
+          <TabsTrigger value="training" className="rounded-full data-[state=active]:bg-rose data-[state=active]:text-white">Training</TabsTrigger>
+          <TabsTrigger value="plan-agent" className="rounded-full data-[state=active]:bg-rose data-[state=active]:text-white">Plan Agent</TabsTrigger>
+          <TabsTrigger value="updates" className="rounded-full data-[state=active]:bg-rose data-[state=active]:text-white">Updates</TabsTrigger>
         </TabsList>
 
         {/* Tab 1: Overview */}
         <TabsContent value="overview" className="space-y-4 mt-4">
           <ComplianceAlert status={client.compliance_status} />
           
-          {/* Stats row */}
-          <div className="flex items-center gap-6 text-sm text-muted-foreground mb-4">
-            <span>Group: <span className="text-foreground font-medium">{client.group_type && <GroupTypeLabel groupType={client.group_type} />}</span></span>
-            <span>Pace: <span className="text-foreground font-medium">{client.pace_mode && <PaceModeDisplay paceMode={client.pace_mode} />}</span></span>
-            {p?.logistics?.sessions_per_week && <span>Sessions: <span className="text-foreground font-medium">{p.logistics.sessions_per_week}x/week</span></span>}
-            {p?.logistics?.time_tier && <span>Tier: <span className="text-foreground font-medium">{p.logistics.time_tier}</span></span>}
-          </div>
-
           <OutstandingActionsList actions={client.outstanding_actions} />
 
           {/* Active block summary */}
@@ -197,9 +207,9 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           )}
         </TabsContent>
 
-        {/* Tab 2: Profile */}
-        <TabsContent value="profile" className="space-y-4 mt-4">
-          {/* Logistics */}
+        {/* Tab 2: Profile & Compliance */}
+        <TabsContent value="profile-compliance" className="space-y-4 mt-4">
+          {/* Profile content */}
           {p?.logistics && (
             <Card className="shadow-sm border-border/60 rounded-2xl">
               <CardHeader className="pb-3">
@@ -239,7 +249,6 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             </Card>
           )}
 
-          {/* Health */}
           {p?.health && (
             <Card className="shadow-sm border-border/60 rounded-2xl">
               <CardHeader className="pb-3">
@@ -291,7 +300,6 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             </Card>
           )}
 
-          {/* Physical Baseline */}
           {p?.physical_baseline && (
             <Card className="shadow-sm border-border/60 rounded-2xl">
               <CardHeader className="pb-3">
@@ -351,7 +359,6 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             </Card>
           )}
 
-          {/* Goals */}
           {p?.goals && (
             <Card className="shadow-sm border-border/60 rounded-2xl">
               <CardHeader className="pb-3">
@@ -390,7 +397,6 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             </Card>
           )}
 
-          {/* Programming Adaptations */}
           {p?.programming_adaptations && p.programming_adaptations.length > 0 && (
             <Card className="shadow-sm border-border/60 rounded-2xl">
               <CardHeader className="pb-3">
@@ -414,7 +420,6 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             </Card>
           )}
 
-          {/* Notes */}
           {(p?.notes?.esther_observations || p?.notes?.motivation_notes || p?.notes?.watch_for) && (
             <Card className="shadow-sm border-border/60 rounded-2xl bg-off-white/40">
               <CardHeader className="pb-3">
@@ -447,10 +452,11 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
               </CardContent>
             </Card>
           )}
-        </TabsContent>
 
-        {/* Tab 3: Compliance */}
-        <TabsContent value="compliance" className="">
+          {/* Separator */}
+          <div className="border-t border-border/60 my-2" />
+
+          {/* Compliance content */}
           <Card className="shadow-sm border-border/60 rounded-2xl mb-4">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Medical Clearance</CardTitle>
@@ -502,7 +508,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           </Card>
         </TabsContent>
 
-        {/* Tab 4: Training */}
+        {/* Tab 3: Training (Blocks + Sessions) */}
         <TabsContent value="training" className="space-y-4 mt-4">
           <Card className="shadow-sm border-border/60 rounded-2xl">
             <CardHeader className="pb-4">
@@ -558,10 +564,11 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
               )}
             </CardContent>
           </Card>
-        </TabsContent>
 
-        {/* Tab 5: Sessions */}
-        <TabsContent value="sessions" className="space-y-4 mt-4">
+          {/* Separator */}
+          <div className="border-t border-border/60 my-2" />
+
+          {/* Sessions content */}
           <Card className="shadow-sm border-border/60 rounded-2xl">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Session Log</CardTitle>
@@ -606,7 +613,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           </Card>
         </TabsContent>
 
-        {/* Tab 6: Plan Agent */}
+        {/* Tab 4: Plan Agent */}
         <TabsContent value="plan-agent" className="mt-4">
           <PlanAgentTab
             clientNumber={client.client_number}
@@ -615,7 +622,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           />
         </TabsContent>
 
-        {/* Tab 7: Updates */}
+        {/* Tab 5: Updates */}
         <TabsContent value="updates" className="space-y-4 mt-4">
           <Card className="shadow-sm border-border/60 rounded-2xl">
             <CardHeader className="pb-3">

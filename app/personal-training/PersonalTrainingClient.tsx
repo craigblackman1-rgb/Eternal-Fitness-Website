@@ -26,6 +26,8 @@ import {
   CtaButton,
   ProcessFlow,
   StatStrip,
+  PulseLine,
+  MotionArcs,
 } from "@/components/ds";
 
 const specialistAreas = [
@@ -188,6 +190,9 @@ export default function PersonalTrainingClient() {
         <div className="ds-split">
           <Reveal y={40} className="ds-split-img">
             <Image src="/images/who-mobility.jpg" alt="Mobility and functional training" fill sizes="(max-width: 1000px) 100vw, 50vw" style={{ objectFit: "cover" }} />
+            <div className="ds-art-chip">
+              <MotionArcs accent="teal" />
+            </div>
           </Reveal>
           <div>
             <SectionHeading
@@ -214,6 +219,9 @@ export default function PersonalTrainingClient() {
       {/* How It Works */}
       <Section background="cream">
         <SectionHeading align="center" eyebrow="The Process" heading="How It Works" />
+        <div className="ds-art-divider">
+          <PulseLine accent="rose" />
+        </div>
         <div style={{ marginTop: 48 }}>
           <ProcessFlow steps={steps.map((s) => ({ title: s.title, body: s.desc }))} />
         </div>

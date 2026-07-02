@@ -210,6 +210,12 @@ a.ds-card { display: block; }
 .ds-stat-v { font-family: var(--font-serif); font-size: clamp(28px, 3vw, 40px); font-weight: 700; line-height: 1; color: #fff; margin-bottom: 8px; letter-spacing: -.02em; }
 .ds-stat-l { font-size: 12.5px; color: rgba(255,255,255,.66); line-height: 1.4; }
 
+/* ── Artwork accents ──────────────── */
+/* floating diagram chip pinned to a split image — reads like a physio chart */
+.ds-art-chip { position: absolute; left: 18px; bottom: 18px; width: 150px; background: #fff; border-radius: 14px; padding: 12px 12px 8px; box-shadow: 0 10px 30px rgba(0,0,0,.14); z-index: 2; }
+.ds-art-divider { max-width: 420px; margin: 18px auto 0; }
+.ds-art-inline { max-width: 340px; margin-top: 26px; }
+
 /* ── Responsive ───────────────────── */
 @media (max-width: 1000px) {
   .ds-sec { padding: 72px 28px; }
@@ -231,6 +237,7 @@ a.ds-card { display: block; }
   .ds-cta-inner { padding: 72px 28px; }
   .ds-hero-inner { padding: 64px 28px; }
   .ds-hero-badge { position: static; margin-top: 28px; }
+  .ds-art-chip { width: 118px; left: 12px; bottom: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

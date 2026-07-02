@@ -15,6 +15,8 @@ import {
   Reveal,
   CtaButton,
   ProcessFlow,
+  MotionArcs,
+  PulseLine,
 } from "@/components/ds";
 import {
   IconHeart,
@@ -150,6 +152,9 @@ export default function ExerciseForHealthClient() {
               sizes="(max-width: 1000px) 100vw, 50vw"
               style={{ objectFit: "cover" }}
             />
+            <div className="ds-art-chip">
+              <MotionArcs accent="rose" />
+            </div>
           </Reveal>
           <div>
             <SectionHeading
@@ -210,6 +215,7 @@ export default function ExerciseForHealthClient() {
       {/* HOW IT WORKS */}
       <Section background="white">
         <SectionHeading eyebrow="How It Works" eyebrowColor="teal" heading="What to Expect from Your Sessions" />
+        <div className="ds-art-divider"><PulseLine accent="teal" /></div>
         <div style={{ marginTop: 48 }}>
           <ProcessFlow steps={steps} />
         </div>

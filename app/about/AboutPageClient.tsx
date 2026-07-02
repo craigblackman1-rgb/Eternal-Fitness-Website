@@ -17,6 +17,8 @@ import {
   Reveal,
   CtaButton,
   ProcessFlow,
+  PulseLine,
+  JourneyPath,
 } from "@/components/ds";
 import { IconAccessibility, IconDumbbell, IconLeaf, IconHeartHandshake, IconUsers } from "@/components/icons";
 
@@ -64,6 +66,9 @@ export default function AboutPageClient() {
             <Image src="/images/esther-about.jpg" alt="Esther Fair, personal trainer at Eternal Fitness Worthing" fill sizes="(max-width: 1000px) 100vw, 45vw" style={{ objectFit: "cover" }} />
             <div style={{ position: "absolute", bottom: 20, right: 20, zIndex: 3 }}>
               <StatBadge variant="rose" value="L4" label="Qualified" />
+            </div>
+            <div className="ds-art-chip">
+              <JourneyPath accent="rose" milestones={3} />
             </div>
           </Reveal>
           <div>
@@ -183,6 +188,7 @@ export default function AboutPageClient() {
           heading="Why the Long-Term Approach Matters"
           intro="Quick fixes do not work. Sustainable change does — and Eternal Fitness is built around that belief."
         />
+        <div className="ds-art-divider"><PulseLine accent="teal" /></div>
         <div style={{ marginTop: 48 }}>
           <ProcessFlow steps={longTermCards.map((c) => ({ title: c.title, body: c.desc }))} />
         </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import { Button } from "@/components/ui/button";
@@ -62,7 +63,7 @@ function ClientQuickSearch() {
   return (
     <div ref={containerRef} className="relative px-3 pt-3">
       <div className="relative">
-        <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
         <input
           type="text"
           value={term}
@@ -72,7 +73,7 @@ function ClientQuickSearch() {
           }}
           onFocus={() => setOpen(true)}
           placeholder="Find a client..."
-          className="w-full rounded-xl border border-border/60 bg-off-white/60 py-2 pl-9 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-rose/30"
+          className="w-full rounded-xl bg-white/10 border border-white/10 py-2 pl-9 pr-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-rose/40"
         />
       </div>
       {open && term.trim().length >= 2 && (
@@ -116,26 +117,21 @@ export function HubSidebar() {
   };
 
   return (
-    <aside className="flex w-64 flex-col border-r bg-white">
-      {/* Brand header — uses Eternal Fitness rose + real identity */}
-      <div className="flex items-center gap-3 p-5 border-b border-border/50">
-        <div className="w-9 h-9 rounded-xl bg-rose flex items-center justify-center">
-          <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M16 26c-5.5 0-10-4.5-10-10S10.5 6 16 6s10 4.5 10 10-4.5 10-10 10z" fill="white" opacity="0.3" />
-            <path d="M16 24c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="white" opacity="0.5" />
-            <path d="M16 22c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z" fill="white" />
-            <path d="M19 10l-3 10-3-4-4 3" stroke="var(--color-rose)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-          </svg>
+    <aside className="flex w-64 flex-col bg-dark-navy text-white">
+      {/* Brand header */}
+      <div className="flex items-center gap-3 p-5 border-b border-white/10">
+        <div className="w-9 h-9 relative shrink-0">
+          <Image src="/images/ef-heart-logo-white.svg" alt="Eternal Fitness" fill />
         </div>
         <div>
-          <span className="text-sm font-bold text-rose leading-tight block">Eternal Fitness</span>
-          <span className="text-xs text-muted-foreground">Trainer Hub</span>
+          <span className="text-sm font-semibold text-white leading-tight block">Eternal Fitness Hub</span>
+          <span className="text-xs text-white/50">Trainer Portal</span>
         </div>
       </div>
 
       <ClientQuickSearch />
 
-      {/* Navigation — rose active state matching website */}
+      {/* Navigation */}
       <nav className="flex-1 space-y-1 p-3">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -147,34 +143,34 @@ export function HubSidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
                 isActive
-                  ? "bg-rose/10 text-rose font-semibold"
-                  : "text-slate hover:bg-off-white hover:text-foreground"
+                  ? "bg-rose text-white font-semibold"
+                  : "text-white/60 hover:text-white hover:bg-white/5"
               )}
             >
-              <Icon className={cn("h-4 w-4 transition-colors", isActive ? "text-rose" : "text-muted-foreground")} />
+              <Icon className={cn("h-4 w-4 transition-colors", isActive ? "text-white" : "text-white/60")} />
               {item.label}
             </Link>
           );
         })}
       </nav>
 
-      <Separator className="mx-3" />
+      <Separator className="mx-3 bg-white/10" />
 
-      {/* User section — warm, personal */}
+      {/* User section */}
       <div className="p-3 space-y-1">
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-off-white/60 mx-1">
+        <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/5 mx-1">
           <div className="w-8 h-8 rounded-full bg-rose text-white flex items-center justify-center text-xs font-bold shrink-0">
             EF
           </div>
           <div className="text-xs min-w-0">
-            <p className="font-semibold text-foreground truncate">Esther Fair</p>
-            <p className="text-muted-foreground">Level 4 PT</p>
+            <p className="font-semibold text-white truncate">Esther Fair</p>
+            <p className="text-white/50">Level 4 PT</p>
           </div>
         </div>
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground hover:bg-off-white rounded-xl mt-1"
+          className="w-full justify-start gap-3 text-white/60 hover:text-white hover:bg-white/5 rounded-xl mt-1"
           onClick={handleSignOut}
         >
           <IconLogOut className="h-4 w-4" />

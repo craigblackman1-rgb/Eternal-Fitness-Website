@@ -6,26 +6,17 @@ import { Button } from "@/components/ui/button";
 import { IconActivity, IconArrowUpRight, IconCalendar, IconCheckCircle, IconFileText, IconPlus, IconUserPlus, IconUsers } from "@/components/icons";
 import type { DBClient, DBBlock } from "@/types";
 
-function StatCard({ icon, label, value, accent }: { icon: React.ReactNode; label: string; value: string | number; accent: "rose" | "teal" | "navy" | "slate" }) {
-  const map = {
-    rose: { bg: "bg-rose/10", icon: "text-rose", value: "text-foreground" },
-    teal: { bg: "bg-teal/10", icon: "text-teal", value: "text-foreground" },
-    navy: { bg: "bg-dark-navy/10", icon: "text-dark-navy", value: "text-foreground" },
-    slate: { bg: "bg-slate/10", icon: "text-slate", value: "text-foreground" },
-  };
-  const colors = map[accent];
+function KpiTile({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
   return (
-    <Card className="shadow-sm border-border/60 rounded-2xl">
-      <CardContent className="p-5 flex items-center gap-4">
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${colors.bg}`}>
-          <span className={colors.icon}>{icon}</span>
-        </div>
-        <div>
-          <p className={`text-2xl font-bold tracking-tight ${colors.value}`}>{value}</p>
-          <p className="text-sm text-muted-foreground">{label}</p>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="rounded-2xl bg-dark-navy text-white p-5 flex items-center gap-4">
+      <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+        <span className="text-white/80">{icon}</span>
+      </div>
+      <div>
+        <p className="text-2xl font-bold tracking-tight text-white">{value}</p>
+        <p className="text-sm text-white/60">{label}</p>
+      </div>
+    </div>
   );
 }
 
@@ -118,12 +109,12 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Stats row — branded colors */}
+      {/* KPI band */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={<IconUsers className="w-5 h-5" />} label="Total Clients" value={totalClients} accent="rose" />
-        <StatCard icon={<IconFileText className="w-5 h-5" />} label="Draft Blocks" value={draftBlocks} accent="slate" />
-        <StatCard icon={<IconCheckCircle className="w-5 h-5" />} label="Active / Approved" value={approvedBlocks} accent="teal" />
-        <StatCard icon={<IconActivity className="w-5 h-5" />} label="Total Blocks" value={totalBlocks} accent="navy" />
+        <KpiTile icon={<IconUsers className="w-5 h-5" />} label="Total Clients" value={totalClients} />
+        <KpiTile icon={<IconFileText className="w-5 h-5" />} label="Draft Blocks" value={draftBlocks} />
+        <KpiTile icon={<IconCheckCircle className="w-5 h-5" />} label="Active / Approved" value={approvedBlocks} />
+        <KpiTile icon={<IconActivity className="w-5 h-5" />} label="Total Blocks" value={totalBlocks} />
       </div>
 
       {/* Active Blocks — next session widget */}
