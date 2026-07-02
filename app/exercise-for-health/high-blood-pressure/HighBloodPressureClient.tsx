@@ -13,8 +13,9 @@ import {
   CTABand,
   Reveal,
   CtaButton,
+  ProcessFlow,
 } from "@/components/ds";
-import { IconActivity, IconDumbbell, IconHeart, IconCheckCircle, IconTarget, IconFileText, IconClock, IconMessageCircle } from "@/components/icons";
+import { IconActivity, IconTarget, IconMessageCircle } from "@/components/icons";
 
 const approachPoints = [
   {
@@ -38,17 +39,14 @@ const sessionStructure = [
   {
     title: "Warm-up and mobilisation",
     body: "Light cardio and mobility work to gradually increase heart rate and blood flow. No sudden starts — we ease into every session.",
-    icon: IconActivity,
   },
   {
     title: "Main exercise block",
     body: "A combination of moderate-intensity cardio and controlled resistance work. I monitor your RPE throughout and adjust intensity immediately if needed.",
-    icon: IconDumbbell,
   },
   {
     title: "Cool-down and recovery",
     body: "Guided cool-down to bring your heart rate and blood pressure back to baseline gradually. Breathing work and gentle stretching to support recovery.",
-    icon: IconHeart,
   },
 ];
 
@@ -56,22 +54,18 @@ const faqs = [
   {
     title: "Is exercise safe if I have high blood pressure?",
     body: "Yes — in most cases, exercise is both safe and clinically recommended for managing hypertension. Moderate-intensity exercise has been shown to reduce systolic blood pressure by 5–10 mmHg in some cases. The key is having a qualified specialist who monitors your response and programmes appropriately.",
-    icon: IconCheckCircle,
   },
   {
     title: "What type of exercise helps lower blood pressure?",
     body: "A combination of moderate aerobic exercise and resistance training is most effective. I use steady-state cardio, circuit-style resistance work, and controlled rhythmic movements — all monitored and adapted to your individual response.",
-    icon: IconTarget,
   },
   {
     title: "Can I train if I take blood pressure medication?",
     body: "Yes. Many of my clients take antihypertensives. Some medications affect heart rate response, which is why I use RPE — how hard you feel you are working — alongside heart rate data to guide intensity. I will never push beyond what is safe for your specific situation.",
-    icon: IconFileText,
   },
   {
     title: "How quickly will I see improvements?",
     body: "Many clients notice their blood pressure readings trending lower within 4–6 weeks of consistent training. But the timeframe depends on your starting point, medication, and other health factors. I track your readings session by session so we can see what is working.",
-    icon: IconClock,
   },
 ];
 
@@ -145,21 +139,38 @@ export default function HighBloodPressureClient() {
           heading="What Your Sessions Would Look Like"
           intro="Every session starts with a check-in and a blood pressure reading. Then we work through a structured but adaptable programme:"
         />
-        <Reveal className="ds-grid-3" stagger={0.13} y={48} start="top 80%">
-          {sessionStructure.map((s) => (
-            <FeatureCard key={s.title} icon={s.icon} accent="rose" title={s.title} body={s.body} />
-          ))}
-        </Reveal>
+        <div style={{ marginTop: 48 }}>
+          <ProcessFlow steps={sessionStructure} />
+        </div>
       </Section>
 
       {/* FAQ */}
       <Section background="white">
         <SectionHeading eyebrow="Common Questions" eyebrowColor="teal" heading="Questions About Exercising With High Blood Pressure" />
-        <Reveal className="ds-grid-2" stagger={0.12} y={48} start="top 80%">
-          {faqs.map((f) => (
-            <FeatureCard key={f.title} icon={f.icon} accent="teal" title={f.title} body={f.body} />
-          ))}
-        </Reveal>
+        <div className="ds-grid-2">
+          <div className="ds-featlist">
+            {faqs.slice(0, Math.ceil(faqs.length / 2)).map((f) => (
+              <div key={f.title} className="ds-feat">
+                <span className="ds-feat-dot" />
+                <div>
+                  <div className="ds-feat-t">{f.title}</div>
+                  <div className="ds-feat-c">{f.body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="ds-featlist">
+            {faqs.slice(Math.ceil(faqs.length / 2)).map((f) => (
+              <div key={f.title} className="ds-feat">
+                <span className="ds-feat-dot" />
+                <div>
+                  <div className="ds-feat-t">{f.title}</div>
+                  <div className="ds-feat-c">{f.body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </Section>
 
       <CTABand

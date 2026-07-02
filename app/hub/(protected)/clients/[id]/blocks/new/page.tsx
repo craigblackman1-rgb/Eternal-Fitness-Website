@@ -63,7 +63,7 @@ export default function NewBlockPage({ params }: { params: { id: string } }) {
         </Alert>
       )}
 
-      <Card>
+      <Card className="shadow-sm border-border/60 rounded-2xl">
         <CardHeader>
           <CardTitle>Block Note (optional)</CardTitle>
           <CardDescription>
@@ -92,9 +92,9 @@ export default function NewBlockPage({ params }: { params: { id: string } }) {
           </div>
           <div className="flex justify-end gap-3">
             <Link href={`/hub/clients/${params.id}`}>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline" className="rounded-full border-border/60">Cancel</Button>
             </Link>
-            <Button onClick={handleGenerate} disabled={generating} className="gap-2">
+            <Button onClick={handleGenerate} disabled={generating} className="rounded-full gap-2 bg-rose hover:bg-rose/90 text-white">
               <IconSparkles className="h-4 w-4" />
               {generating ? "Generating..." : "Generate Block"}
             </Button>

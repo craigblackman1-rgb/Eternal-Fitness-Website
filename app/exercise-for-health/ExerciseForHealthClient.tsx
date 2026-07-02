@@ -10,11 +10,11 @@ import {
   Section,
   SectionHeading,
   PageHero,
-  FeatureCard,
   StatBadge,
   CTABand,
   Reveal,
   CtaButton,
+  ProcessFlow,
 } from "@/components/ds";
 import {
   IconHeart,
@@ -25,13 +25,6 @@ import {
   IconEye,
   IconAccessibility,
   IconMove,
-  IconClipboardList,
-  IconMessageCircle,
-  IconActivity,
-  IconCheckCircle,
-  IconFileText,
-  IconAward,
-  IconHeartHandshake,
 } from "@/components/icons";
 
 const conditions = [
@@ -97,17 +90,14 @@ const steps = [
   {
     title: "Free consultation first",
     body: "We start with a conversation — no commitment, no obligation. I want to understand your condition, your history, and your goals before we do anything else.",
-    icon: IconClipboardList,
   },
   {
     title: "Check-in at the start of every session",
     body: "How are you feeling today? Energy, pain, sleep, any changes. The session plan is finalised then — because what works one week may not be right the next.",
-    icon: IconMessageCircle,
   },
   {
     title: "Progress that adapts to you",
     body: "There is no fixed template. Programmes are built around your body, your condition, and your goals — and adjusted as those things change.",
-    icon: IconActivity,
   },
 ];
 
@@ -115,22 +105,18 @@ const faqs = [
   {
     title: "Can I exercise if I have a health condition?",
     body: "In most cases, yes — and the evidence strongly supports it. Exercise is clinically recommended for a wide range of conditions. The key is having a qualified specialist who understands your specific condition and can programme safely around it.",
-    icon: IconCheckCircle,
   },
   {
     title: "Do I need a GP referral?",
     body: "No. A GP referral is welcome but not required. Many clients come independently. I will ask about your medical history and may recommend checking with your GP if there are specific contraindications to consider first.",
-    icon: IconFileText,
   },
   {
     title: "How is this different from a regular personal trainer?",
     body: "A standard Level 3 PT is not trained to work with clinical populations. As a Level 4 Exercise Referral Specialist, I understand contraindicated exercises, medication effects, fatigue management, and how conditions affect capacity from one session to the next.",
-    icon: IconAward,
   },
   {
     title: "What if I am having a bad day when I come in?",
     body: "That is what the check-in is for. I adapt the session to how you actually feel — not how the plan says you should feel. You will always leave having done something genuinely useful, even on the difficult days.",
-    icon: IconHeartHandshake,
   },
 ];
 
@@ -224,21 +210,38 @@ export default function ExerciseForHealthClient() {
       {/* HOW IT WORKS */}
       <Section background="white">
         <SectionHeading eyebrow="How It Works" eyebrowColor="teal" heading="What to Expect from Your Sessions" />
-        <Reveal className="ds-grid-3" stagger={0.13} y={48} start="top 80%">
-          {steps.map((s) => (
-            <FeatureCard key={s.title} icon={s.icon} accent="rose" title={s.title} body={s.body} />
-          ))}
-        </Reveal>
+        <div style={{ marginTop: 48 }}>
+          <ProcessFlow steps={steps} />
+        </div>
       </Section>
 
       {/* FAQ */}
       <Section background="cream">
         <SectionHeading eyebrow="Common Questions" heading="Questions About Exercising With a Health Condition" />
-        <Reveal className="ds-grid-2" stagger={0.12} y={48} start="top 80%">
-          {faqs.map((f) => (
-            <FeatureCard key={f.title} icon={f.icon} accent="teal" title={f.title} body={f.body} />
-          ))}
-        </Reveal>
+        <div className="ds-grid-2">
+          <div className="ds-featlist">
+            {faqs.slice(0, Math.ceil(faqs.length / 2)).map((f) => (
+              <div key={f.title} className="ds-feat">
+                <span className="ds-feat-dot" />
+                <div>
+                  <div className="ds-feat-t">{f.title}</div>
+                  <div className="ds-feat-c">{f.body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="ds-featlist">
+            {faqs.slice(Math.ceil(faqs.length / 2)).map((f) => (
+              <div key={f.title} className="ds-feat">
+                <span className="ds-feat-dot" />
+                <div>
+                  <div className="ds-feat-t">{f.title}</div>
+                  <div className="ds-feat-c">{f.body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </Section>
 
       <CTABand

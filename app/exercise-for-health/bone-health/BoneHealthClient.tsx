@@ -13,8 +13,9 @@ import {
   CTABand,
   Reveal,
   CtaButton,
+  ProcessFlow,
 } from "@/components/ds";
-import { IconMove, IconDumbbell, IconAccessibility, IconCheckCircle, IconAlertTriangle, IconClock, IconClipboardList } from "@/components/icons";
+import { IconClipboardList, IconDumbbell, IconAccessibility } from "@/components/icons";
 
 const approachPoints = [
   {
@@ -38,17 +39,14 @@ const sessionStructure = [
   {
     title: "Mobilisation and activation",
     body: "We start with gentle mobility work and muscle activation to prepare your joints and skeleton for loading. Good movement quality comes before any load is added.",
-    icon: IconMove,
   },
   {
     title: "Resistance and weight-bearing work",
     body: "The main block focuses on compound resistance exercises — squats, presses, rows, lunges — at controlled loads that stimulate bone without exceeding safe thresholds. Impact is introduced carefully where appropriate.",
-    icon: IconDumbbell,
   },
   {
     title: "Balance and cool-down",
     body: "Balance exercises to reduce fall risk, followed by a guided cool-down. Proprioception work — your body's awareness of where it is in space — is a key part of fracture prevention and we build it into every session.",
-    icon: IconAccessibility,
   },
 ];
 
@@ -56,22 +54,18 @@ const faqs = [
   {
     title: "Is exercise safe if I have osteoporosis?",
     body: "Yes — exercise is clinically recommended for managing osteoporosis and reducing fracture risk. Weight-bearing and resistance exercises strengthen bone, while balance work reduces fall risk. A qualified specialist will know which movements are appropriate for your specific bone health status.",
-    icon: IconCheckCircle,
   },
   {
     title: "What exercises should I avoid with osteoporosis?",
     body: "High-impact activities, uncontrolled twisting of the spine, heavy forward flexion (bending at the waist to touch your toes), and exercises that place excessive load through a fracture-prone area all need careful consideration. I assess your individual risk profile and programme around it.",
-    icon: IconAlertTriangle,
   },
   {
     title: "How quickly can exercise improve bone density?",
     body: "Bone adaptation is slower than muscle adaptation — measurable changes on a DEXA scan typically take 6–12 months of consistent training. But improvements in strength, balance, and confidence happen much sooner, and these have an immediate impact on your quality of life and fracture risk.",
-    icon: IconClock,
   },
   {
     title: "Do I need a recent DEXA scan to start?",
     body: "It helps, but it is not essential. If you have a recent DEXA scan result that gives me your T-score and any fracture history, I can programme more precisely. If you do not have one, I will work with your diagnosis, your symptoms, and your medical guidance to keep you safe.",
-    icon: IconClipboardList,
   },
 ];
 
@@ -147,21 +141,38 @@ export default function BoneHealthClient() {
           heading="What Your Sessions Would Look Like"
           intro="Each session is structured around safe loading, balance, and functional movement. Here is the general framework:"
         />
-        <Reveal className="ds-grid-3" stagger={0.13} y={48} start="top 80%">
-          {sessionStructure.map((s) => (
-            <FeatureCard key={s.title} icon={s.icon} accent="rose" title={s.title} body={s.body} />
-          ))}
-        </Reveal>
+        <div style={{ marginTop: 48 }}>
+          <ProcessFlow steps={sessionStructure} />
+        </div>
       </Section>
 
       {/* FAQ */}
       <Section background="white">
         <SectionHeading eyebrow="Common Questions" eyebrowColor="teal" heading="Questions About Exercising With Osteoporosis" />
-        <Reveal className="ds-grid-2" stagger={0.12} y={48} start="top 80%">
-          {faqs.map((f) => (
-            <FeatureCard key={f.title} icon={f.icon} accent="teal" title={f.title} body={f.body} />
-          ))}
-        </Reveal>
+        <div className="ds-grid-2">
+          <div className="ds-featlist">
+            {faqs.slice(0, Math.ceil(faqs.length / 2)).map((f) => (
+              <div key={f.title} className="ds-feat">
+                <span className="ds-feat-dot" />
+                <div>
+                  <div className="ds-feat-t">{f.title}</div>
+                  <div className="ds-feat-c">{f.body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="ds-featlist">
+            {faqs.slice(Math.ceil(faqs.length / 2)).map((f) => (
+              <div key={f.title} className="ds-feat">
+                <span className="ds-feat-dot" />
+                <div>
+                  <div className="ds-feat-t">{f.title}</div>
+                  <div className="ds-feat-c">{f.body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </Section>
 
       <CTABand

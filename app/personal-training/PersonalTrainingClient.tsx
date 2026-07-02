@@ -1,19 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import {
-  IconClipboardList,
-  IconSearch,
-  IconBarChart3,
-  IconHeartHandshake,
-  IconSparkles,
-  IconRibbon,
   IconActivity,
-  IconAccessibility,
-  IconHeart,
+  IconAward,
   IconBloodPressure,
-  IconFileText,
+  IconClipboardList,
+  IconHeart,
+  IconMessageCircle,
+  IconUsers,
 } from "@/components/icons";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -29,6 +24,8 @@ import {
   CTABand,
   Reveal,
   CtaButton,
+  ProcessFlow,
+  StatStrip,
 } from "@/components/ds";
 
 const specialistAreas = [
@@ -89,31 +86,27 @@ const focusCards = [
 
 const steps = [
   {
-    icon: IconClipboardList,
     title: "Free Consultation",
     desc: "A relaxed 30-minute conversation with me about your goals, health history, and what has and has not worked before. No pressure, no commitment.",
   },
   {
-    icon: IconSearch,
     title: "Movement Assessment",
     desc: "I check your current mobility, strength, and any limitations before any programme begins — so training starts safely and clearly.",
   },
   {
-    icon: IconBarChart3,
     title: "Your Programme",
     desc: "A plan built entirely around your body and your life. Session structure, exercises, and intensity are all tailored specifically to you.",
   },
   {
-    icon: IconHeartHandshake,
     title: "Ongoing Support",
     desc: "I adjust your programme as your health and capacity change — keeping training sustainable, realistic, and aligned with where you are.",
   },
 ];
 
 const specialistPages = [
-  { href: "/exercise-for-health", title: "Exercise for Health", desc: "Training for high blood pressure, type 2 diabetes, osteoporosis, COPD, heart conditions, chronic pain and more.", icon: IconFileText },
-  { href: "/cancer-rehabilitation", title: "Cancer Rehabilitation", desc: "Training during active treatment, in remission, or post-surgery. Qualified and experienced in cancer rehabilitation.", icon: IconRibbon },
-  { href: "/exercise-for-health/visual-impairment", title: "Visual Impairment", desc: "Adapted training for people who are blind or partially sighted. Verbal instruction, consistent environment, tactile guidance.", icon: IconAccessibility },
+  { href: "/exercise-for-health", title: "Exercise for Health", desc: "Training for high blood pressure, type 2 diabetes, osteoporosis, COPD, heart conditions, chronic pain and more.", image: "/images/services-training.jpg", imageAlt: "Exercise for Health" },
+  { href: "/cancer-rehabilitation", title: "Cancer Rehabilitation", desc: "Training during active treatment, in remission, or post-surgery. Qualified and experienced in cancer rehabilitation.", image: "/images/specialise-1.jpg", imageAlt: "Cancer Rehabilitation" },
+  { href: "/exercise-for-health/visual-impairment", title: "Visual Impairment", desc: "Adapted training for people who are blind or partially sighted. Verbal instruction, consistent environment, tactile guidance.", image: "/images/specialise-3.jpg", imageAlt: "Visual Impairment" },
 ];
 
 const relatedArticles = [
@@ -192,27 +185,38 @@ export default function PersonalTrainingClient() {
 
       {/* What I Work On */}
       <Section background="white">
-        <SectionHeading
-          eyebrow="What I Work On"
-          eyebrowColor="teal"
-          heading="Recovery and Rehabilitation for Real Life"
-          intro="The focus is functional rehabilitation — building strength, mobility, endurance, and capability for real life during and after health conditions. Not aesthetics. Not performance metrics. Real outcomes: returning to activities after cancer treatment, climbing stairs without pain, managing fatigue, walking further, recovering independence, sleeping better, regaining confidence in your own body."
-        />
-        <Reveal className="ds-grid-2" stagger={0.12} y={48} start="top 80%">
-          {focusCards.map((c) => (
-            <FeatureCard key={c.title} icon={IconSparkles} accent="teal" title={c.title} body={c.desc} />
-          ))}
-        </Reveal>
+        <div className="ds-split">
+          <Reveal y={40} className="ds-split-img">
+            <Image src="/images/who-mobility.jpg" alt="Mobility and functional training" fill sizes="(max-width: 1000px) 100vw, 50vw" style={{ objectFit: "cover" }} />
+          </Reveal>
+          <div>
+            <SectionHeading
+              eyebrow="What I Work On"
+              eyebrowColor="teal"
+              heading="Recovery and Rehabilitation for Real Life"
+              intro="The focus is functional rehabilitation — building strength, mobility, endurance, and capability for real life during and after health conditions. Not aesthetics. Not performance metrics. Real outcomes: returning to activities after cancer treatment, climbing stairs without pain, managing fatigue, walking further, recovering independence, sleeping better, regaining confidence in your own body."
+            />
+            <div className="ds-featlist">
+              {focusCards.map((c) => (
+                <div key={c.title} className="ds-feat">
+                  <span className="ds-feat-dot" />
+                  <div>
+                    <div className="ds-feat-t">{c.title}</div>
+                    <div className="ds-feat-c">{c.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </Section>
 
       {/* How It Works */}
       <Section background="cream">
         <SectionHeading align="center" eyebrow="The Process" heading="How It Works" />
-        <Reveal className="ds-grid-2" stagger={0.12} y={48} start="top 80%" >
-          {steps.map((s) => (
-            <FeatureCard key={s.title} icon={s.icon} accent="rose" title={s.title} body={s.desc} />
-          ))}
-        </Reveal>
+        <div style={{ marginTop: 48 }}>
+          <ProcessFlow steps={steps.map((s) => ({ title: s.title, body: s.desc }))} />
+        </div>
         <div style={{ textAlign: "center", marginTop: 44 }}>
           <CtaButton cta={bookCta} />
         </div>
@@ -229,13 +233,26 @@ export default function PersonalTrainingClient() {
         />
         <Reveal className="ds-grid-3" stagger={0.13} y={48} start="top 80%">
           {specialistPages.map((p) => (
-            <FeatureCard key={p.href} icon={p.icon} accent="teal" title={p.title} body={p.desc} href={p.href} />
+            <FeatureCard key={p.href} image={p.image} imageAlt={p.imageAlt} accent="teal" title={p.title} body={p.desc} href={p.href} />
           ))}
         </Reveal>
       </Section>
 
-      {/* Related Articles */}
+      {/* Credentials */}
       <Section background="cream">
+        <StatStrip
+          background="ink"
+          stats={[
+            { icon: IconAward, value: "L4", label: "Cancer rehab & exercise referral qualified" },
+            { icon: IconUsers, value: "1:1", label: "Private one-to-one sessions only" },
+            { icon: IconMessageCircle, value: "30 min", label: "Free, no-pressure consultation" },
+            { icon: IconClipboardList, value: "Worthing", label: "Private studio, West Sussex" },
+          ]}
+        />
+      </Section>
+
+      {/* Related Articles */}
+      <Section background="white">
         <SectionHeading
           align="center"
           eyebrow="Learn More"

@@ -1,7 +1,8 @@
 /**
  * AI client — supports Anthropic Claude and OpenRouter (OpenAI-compatible).
- * Tries OpenRouter first (OPENROUTER_API_KEY), then Claude (ANTHROPIC_API_KEY),
- * then returns null for template-only fallback.
+ * Prefers Claude direct (ANTHROPIC_API_KEY) — this powers client-facing
+ * clinical plan generation, so it must run on a capable model. OpenRouter
+ * (OPENROUTER_API_KEY) is the fallback; template-only if neither is set.
  */
 
 export interface AiConfig {
@@ -10,16 +11,16 @@ export interface AiConfig {
 }
 
 export function getAiConfig(): AiConfig {
-  if (process.env.OPENROUTER_API_KEY) {
-    return {
-      provider: "openrouter",
-      model: process.env.OPENROUTER_MODEL || "poolside/laguna-m.1:free",
-    };
-  }
   if (process.env.ANTHROPIC_API_KEY) {
     return {
       provider: "claude",
-      model: process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6",
+      model: process.env.ANTHROPIC_MODEL || "claude-sonnet-5",
+    };
+  }
+  if (process.env.OPENROUTER_API_KEY) {
+    return {
+      provider: "openrouter",
+      model: process.env.OPENROUTER_MODEL || "anthropic/claude-sonnet-5",
     };
   }
   return { provider: null, model: "" };

@@ -16,13 +16,14 @@ import {
   CTABand,
   Reveal,
   CtaButton,
+  ProcessFlow,
 } from "@/components/ds";
-import { IconAward, IconHeartHandshake, IconUsers, IconAccessibility, IconDumbbell, IconLeaf } from "@/components/icons";
+import { IconAccessibility, IconDumbbell, IconLeaf, IconHeartHandshake, IconUsers } from "@/components/icons";
 
 const qualifications = [
-  { title: "Level 4 Personal Trainer", desc: "The highest level of personal training qualification in the UK — above the Level 3 held by most personal trainers. Registered with a recognised UK fitness body.", icon: IconAward },
-  { title: "Exercise Referral Specialist", desc: "Qualified to work with GP-referred clients and those with clinical conditions requiring adapted exercise programmes.", icon: IconHeartHandshake },
-  { title: "Cancer Rehabilitation", desc: "Specialist training to support people through cancer treatment and recovery, including those currently in active treatment.", icon: IconAward },
+  { title: "Level 4 Personal Trainer", desc: "The highest level of personal training qualification in the UK — above the Level 3 held by most personal trainers. Registered with a recognised UK fitness body." },
+  { title: "Exercise Referral Specialist", desc: "Qualified to work with GP-referred clients and those with clinical conditions requiring adapted exercise programmes." },
+  { title: "Cancer Rehabilitation", desc: "Specialist training to support people through cancer treatment and recovery, including those currently in active treatment." },
 ];
 
 const studioCards = [
@@ -79,17 +80,29 @@ export default function AboutPageClient() {
 
       {/* Qualifications */}
       <Section background="cream">
-        <SectionHeading
-          align="center"
-          eyebrow="Qualifications"
-          heading="Qualified to Help Where Others Cannot"
-          intro="Most personal trainers hold a Level 3 qualification. I hold Level 4 — alongside specialist certifications that are rare in any fitness setting."
-        />
-        <Reveal className="ds-grid-3" stagger={0.13} y={48} start="top 80%">
-          {qualifications.map((q) => (
-            <FeatureCard key={q.title} icon={q.icon} accent="teal" title={q.title} body={q.desc} />
-          ))}
-        </Reveal>
+        <div className="ds-split">
+          <div>
+            <SectionHeading
+              eyebrow="Qualifications"
+              heading="Qualified to Help Where Others Cannot"
+              intro="Most personal trainers hold a Level 3 qualification. I hold Level 4 — alongside specialist certifications that are rare in any fitness setting."
+            />
+            <div className="ds-featlist">
+              {qualifications.map((q) => (
+                <div key={q.title} className="ds-feat">
+                  <span className="ds-feat-dot" />
+                  <div>
+                    <div className="ds-feat-t">{q.title}</div>
+                    <div className="ds-feat-c">{q.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <Reveal y={40} className="ds-split-img">
+            <Image src="/images/esther-training.jpg" alt="Esther Fair, personal trainer at Eternal Fitness Worthing" fill sizes="(max-width: 1000px) 100vw, 50vw" style={{ objectFit: "cover" }} />
+          </Reveal>
+        </div>
       </Section>
 
       {/* Experience */}
@@ -170,11 +183,9 @@ export default function AboutPageClient() {
           heading="Why the Long-Term Approach Matters"
           intro="Quick fixes do not work. Sustainable change does — and Eternal Fitness is built around that belief."
         />
-        <Reveal className="ds-grid-3" stagger={0.13} y={48} start="top 80%">
-          {longTermCards.map((c) => (
-            <FeatureCard key={c.title} image={c.image} imageAlt={c.title} title={c.title} body={c.desc} />
-          ))}
-        </Reveal>
+        <div style={{ marginTop: 48 }}>
+          <ProcessFlow steps={longTermCards.map((c) => ({ title: c.title, body: c.desc }))} />
+        </div>
       </Section>
 
       <CTABand

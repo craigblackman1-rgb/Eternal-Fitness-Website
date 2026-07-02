@@ -15,24 +15,22 @@ import {
   Callout,
   Reveal,
   CtaButton,
+  StatStrip,
 } from "@/components/ds";
-import { IconRibbon, IconActivity, IconAlertCircle, IconBone, IconClipboardCheck, IconHeartHandshake } from "@/components/icons";
+import { IconRibbon } from "@/components/icons";
 
 const stages = [
   {
     title: "During active treatment",
     body: "Chemotherapy and radiotherapy significantly affect energy, immune function, and physical capacity — and those effects are unpredictable from week to week. Sessions during active treatment are lower intensity, shorter, and built around your current treatment schedule. Every session begins with a check-in.",
-    icon: IconActivity,
   },
   {
     title: "In remission",
     body: "Remission brings its own challenges — rebuilding fitness that has been lost, managing ongoing fatigue or side effects, and navigating the physical and emotional after-effects of treatment. Sessions progress gradually, respecting the timeline your body needs.",
-    icon: IconHeartHandshake,
   },
   {
     title: "Post-surgery",
     body: "Whether mastectomy, colostomy, lymph node removal, or another procedure — post-surgical return to exercise requires careful, staged progression. I work within the guidance of your surgical team and will not progress any movement without appropriate medical clearance.",
-    icon: IconClipboardCheck,
   },
 ];
 
@@ -40,22 +38,18 @@ const considerations = [
   {
     title: "Cancer-related fatigue is different",
     body: "Cancer-related fatigue (CRF) does not respond to rest the way ordinary tiredness does. It is physiologically distinct — and training must account for it. I will never push through CRF or interpret it as effort avoidance.",
-    icon: IconActivity,
   },
   {
     title: "Lymphoedema awareness",
     body: "For clients with or at risk of lymphoedema, I monitor for signs of swelling, avoid tight compression, and follow safe exercise guidelines. Exercise can actually help manage lymphoedema when programmed correctly.",
-    icon: IconAlertCircle,
   },
   {
     title: "Bone density",
     body: "Some cancer treatments (particularly certain hormonal therapies) accelerate bone density loss. Weight-bearing and resistance exercise is clinically recommended — but load and progression must be managed carefully.",
-    icon: IconBone,
   },
   {
     title: "GP or oncologist sign-off",
     body: "Before beginning any structured exercise programme during or shortly after treatment, I ask for GP or oncologist clearance. This is non-negotiable — not because I am being cautious, but because it is the right clinical standard.",
-    icon: IconClipboardCheck,
   },
 ];
 
@@ -63,22 +57,18 @@ const faqs = [
   {
     title: "Is it safe to exercise during cancer treatment?",
     body: "Evidence now strongly supports exercise during cancer treatment — at the right intensity and with the right guidance. The programme must account for your specific treatment, side effects, and current capacity. I will always ask for GP or oncologist sign-off before beginning.",
-    icon: IconClipboardCheck,
   },
   {
     title: "What is cancer-related fatigue and how do you account for it?",
     body: "Cancer-related fatigue (CRF) is physiologically different from ordinary tiredness — it does not improve with rest in the same way. I am trained to recognise CRF and programme around it. Sessions may be shorter or lower in intensity on harder days. That is not failure — it is appropriate clinical management.",
-    icon: IconActivity,
   },
   {
     title: "When can I start exercising after surgery?",
     body: "This depends entirely on the type of surgery and your recovery. I work with the guidance of your surgical team and will not progress any movement without appropriate medical clearance.",
-    icon: IconHeartHandshake,
   },
   {
     title: "Do you work with people during active treatment?",
     body: "Yes. I work with people during active chemotherapy or radiotherapy, people in remission, and those who have finished treatment but are rebuilding. Each stage requires a different approach — the programme is built around where you are right now.",
-    icon: IconClipboardCheck,
   },
 ];
 
@@ -151,30 +141,75 @@ export default function CancerRehabClient() {
       <Section background="cream">
         <SectionHeading eyebrow="When I Can Help" heading="Support at Every Stage" />
         <Reveal className="ds-grid-3" stagger={0.13} y={48} start="top 80%">
-          {stages.map((s) => (
-            <FeatureCard key={s.title} icon={s.icon} accent="rose" title={s.title} body={s.body} />
+          {stages.map((s, i) => (
+            <FeatureCard key={s.title} image={["/images/specialise-1.jpg", "/images/mind-body.jpg", "/images/strength-tasks.jpg"][i]} imageAlt={s.title} title={s.title} body={s.body} />
           ))}
         </Reveal>
       </Section>
 
       {/* CLINICAL CONSIDERATIONS */}
       <Section background="white">
-        <SectionHeading eyebrow="Clinical Considerations" eyebrowColor="teal" heading="What I Know and How I Work" />
-        <Reveal className="ds-grid-2" stagger={0.12} y={48} start="top 80%">
-          {considerations.map((c) => (
-            <FeatureCard key={c.title} icon={c.icon} accent="teal" title={c.title} body={c.body} />
-          ))}
-        </Reveal>
+        <div className="ds-split">
+          <div>
+            <SectionHeading eyebrow="Clinical Considerations" eyebrowColor="teal" heading="What I Know and How I Work" />
+            <div className="ds-featlist">
+              {considerations.map((c) => (
+                <div key={c.title} className="ds-feat">
+                  <span className="ds-feat-dot" />
+                  <div>
+                    <div className="ds-feat-t">{c.title}</div>
+                    <div className="ds-feat-c">{c.body}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <Reveal y={40} className="ds-split-img">
+            <Image src="/images/who-health.jpg" alt="Esther Fair — cancer rehabilitation specialist" fill sizes="(max-width: 1000px) 100vw, 50vw" style={{ objectFit: "cover" }} />
+          </Reveal>
+        </div>
+      </Section>
+
+      {/* CREDENTIALS */}
+      <Section background="cream">
+        <StatStrip
+          background="ink"
+          stats={[
+            { value: "L4", label: "Cancer rehabilitation qualified" },
+            { value: "1:1", label: "Private one-to-one sessions only" },
+            { value: "30 min", label: "Free, no-pressure consultation" },
+            { value: "Worthing", label: "Private studio, West Sussex" },
+          ]}
+        />
       </Section>
 
       {/* FAQ */}
-      <Section background="cream">
+      <Section background="white">
         <SectionHeading eyebrow="Questions" heading="Common Questions About Cancer Rehabilitation" />
-        <Reveal className="ds-grid-2" stagger={0.12} y={48} start="top 80%">
-          {faqs.map((f) => (
-            <FeatureCard key={f.title} icon={f.icon} accent="rose" title={f.title} body={f.body} />
-          ))}
-        </Reveal>
+        <div className="ds-grid-2">
+          <div className="ds-featlist">
+            {faqs.slice(0, Math.ceil(faqs.length / 2)).map((f) => (
+              <div key={f.title} className="ds-feat">
+                <span className="ds-feat-dot" />
+                <div>
+                  <div className="ds-feat-t">{f.title}</div>
+                  <div className="ds-feat-c">{f.body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="ds-featlist">
+            {faqs.slice(Math.ceil(faqs.length / 2)).map((f) => (
+              <div key={f.title} className="ds-feat">
+                <span className="ds-feat-dot" />
+                <div>
+                  <div className="ds-feat-t">{f.title}</div>
+                  <div className="ds-feat-c">{f.body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </Section>
 
       <CTABand
