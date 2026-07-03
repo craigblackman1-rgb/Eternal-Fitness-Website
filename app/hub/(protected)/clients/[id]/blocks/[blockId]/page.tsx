@@ -59,7 +59,7 @@ export default async function BlockViewPage({
             <IconFileText className="w-6 h-6 text-rose" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">
+            <h1 className="text-xl font-bold tracking-tight">
               Block {block.block_number}
             </h1>
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -93,7 +93,7 @@ export default async function BlockViewPage({
 
       {/* Block Note */}
       {block.block_note && (
-        <Card className="shadow-sm border-border/60 rounded-2xl bg-off-white/40">
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] bg-off-white/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Block Note</CardTitle>
           </CardHeader>
@@ -104,7 +104,7 @@ export default async function BlockViewPage({
       )}
 
       {/* Sessions Table */}
-      <Card className="shadow-sm border-border/60 rounded-2xl">
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg">Sessions</CardTitle>
         </CardHeader>

@@ -75,13 +75,13 @@ export default function NewClientPage() {
           <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">New Client</h1>
+          <h1 className="text-xl font-semibold tracking-tight">New Client</h1>
           <p className="text-muted-foreground">Create a new client profile</p>
         </div>
       </div>
 
       <div className="space-y-6">
-        <Card className="shadow-sm border-border/60 rounded-2xl">
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardHeader>
             <CardTitle>Basic Info</CardTitle>
           </CardHeader>
@@ -103,7 +103,7 @@ export default function NewClientPage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-border/60 rounded-2xl">
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardHeader>
             <CardTitle>Logistics</CardTitle>
           </CardHeader>
@@ -155,7 +155,7 @@ export default function NewClientPage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-border/60 rounded-2xl">
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardHeader>
             <CardTitle>Health & Clearance</CardTitle>
           </CardHeader>
@@ -191,7 +191,7 @@ export default function NewClientPage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-border/60 rounded-2xl">
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardHeader>
             <CardTitle>Goals</CardTitle>
           </CardHeader>
@@ -217,7 +217,7 @@ export default function NewClientPage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-border/60 rounded-2xl">
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardHeader>
             <CardTitle>Programming Adaptations</CardTitle>
           </CardHeader>
@@ -234,7 +234,7 @@ export default function NewClientPage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-border/60 rounded-2xl">
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardHeader>
             <CardTitle>Notes</CardTitle>
           </CardHeader>

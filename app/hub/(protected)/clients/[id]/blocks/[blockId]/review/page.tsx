@@ -81,7 +81,7 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
           <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-2xl font-semibold tracking-tight">Review & Approve</h1>
+          <h1 className="text-xl font-semibold tracking-tight">Review & Approve</h1>
           <p className="text-muted-foreground">Block {block.block_number} — {sessions.length} sessions</p>
         </div>
       </div>
@@ -95,7 +95,7 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
         </Alert>
       )}
 
-      <Card className="shadow-sm border-border/60 rounded-2xl">
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
         <CardHeader>
           <CardTitle className="text-lg">Session Overview</CardTitle>
         </CardHeader>

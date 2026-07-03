@@ -20,7 +20,7 @@ export default async function AgreementsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Signed Agreements</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">Signed Agreements</h1>
         <p className="text-muted-foreground mt-1">View and manage all signed personal training agreements</p>
       </div>
 
@@ -32,7 +32,7 @@ export default async function AgreementsPage() {
       </div>
 
       {/* Agreements list */}
-      <Card className="shadow-sm border-border/60 rounded-2xl">
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
         <HubCardHeader icon={<IconFileSignature className="w-4 h-4" />} title="All Agreements" />
         <CardContent>
           {error && (
@@ -54,7 +54,7 @@ export default async function AgreementsPage() {
               {agreements.map((agreement) => (
                 <div
                   key={agreement.id}
-                  className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl border border-border/60 hover:bg-off-white hover:border-rose/20 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl border border-[var(--hub-border)] hover:bg-[var(--hub-hover)] transition-colors"
                 >
                   {/* Client info */}
                   <div className="flex-1 min-w-0">

@@ -59,6 +59,23 @@
     --status-neutral-bg: #D9D9D9;
     --status-neutral-border: rgba(82, 90, 97, 0.20);
 
+    /* Solid variants — alert banners and high-urgency badges only */
+    --status-danger-solid: #7A3D52;
+    --status-danger-solid-fg: #FFFFFF;
+    --status-warning-solid: #8A6A2A;
+    --status-warning-solid-fg: #FFFFFF;
+    --status-success-solid: #087E8B;
+    --status-success-solid-fg: #FFFFFF;
+
+    /* ===== HUB ADMIN SHELL (cool register — distinct from marketing warm cream) ===== */
+    --hub-canvas: #F4F5F7;
+    --hub-card: #FFFFFF;
+    --hub-border: #E6E8EC;
+    --hub-hover: #F8F9FB;
+    --hub-sidebar: #23262F;
+    --hub-sidebar-hover: rgba(255, 255, 255, 0.06);
+    --hub-sidebar-active: rgba(193, 131, 159, 0.14);
+
     /* ===== SEMANTIC TAILWIND COLORS ===== */
     --background: 0 0% 100%;
     --foreground: 0 0% 18%;

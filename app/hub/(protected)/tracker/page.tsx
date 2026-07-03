@@ -32,6 +32,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IconPlus, IconAlertTriangle, IconCheckCircle, IconFileText, IconEdit3, IconTrash2, IconX, IconClipboardCheck } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
+import { KpiTile } from "@/components/hub/KpiTile";
 import { format, addMonths, parseISO } from "date-fns";
 import { toast } from "sonner";
 
@@ -163,29 +164,6 @@ const emptyForm = {
   surgery_date: "",
   notes: "",
 };
-
-function SummaryCard({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color: "rose" | "teal" | "navy" | "slate" }) {
-  const colors = {
-    rose: { bg: "bg-rose/10", icon: "text-rose", value: "text-rose", label: "text-muted-foreground" },
-    teal: { bg: "bg-teal/10", icon: "text-teal", value: "text-teal", label: "text-muted-foreground" },
-    navy: { bg: "bg-dark-navy/10", icon: "text-dark-navy", value: "text-dark-navy", label: "text-muted-foreground" },
-    slate: { bg: "bg-slate/10", icon: "text-slate", value: "text-slate", label: "text-muted-foreground" },
-  };
-  const c = colors[color];
-  return (
-    <Card className="shadow-sm border-border/60 rounded-2xl">
-      <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-        <CardTitle className={`text-sm font-medium ${c.label}`}>{label}</CardTitle>
-        <div className={`w-8 h-8 rounded-lg ${c.bg} flex items-center justify-center`}>
-          {icon}
-        </div>
-      </CardHeader>
-      <CardContent>
-        <p className={`text-3xl font-bold ${c.value}`}>{value}</p>
-      </CardContent>
-    </Card>
-  );
-}
 
 export default function TrackerPage() {
   const [rows, setRows] = useState<TrackerRow[]>([]);
@@ -355,7 +333,7 @@ export default function TrackerPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Medical Clearance Tracker</h1>
+          <h1 className="text-xl font-semibold tracking-tight">Medical Clearance Tracker</h1>
           <p className="text-muted-foreground mt-1">Track PAR-Qs, clearance letters, and annual reviews</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) resetForm(); setDialogOpen(open); }}>
@@ -587,12 +565,12 @@ export default function TrackerPage() {
         </Dialog>
       </div>
 
-      {/* Summary cards — branded */}
+      {/* Summary cards — KpiTile */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <SummaryCard icon={<IconClipboardCheck className="w-4 h-4 text-dark-navy" />} label="Total Clients" value={rows.length} color="navy" />
-        <SummaryCard icon={<IconCheckCircle className="w-4 h-4" />} label="Cleared / OK" value={flagSummary.ok + flagSummary.na} color="teal" />
-        <SummaryCard icon={<IconAlertTriangle className="w-4 h-4" />} label="Chase" value={flagSummary.chase} color="rose" />
-        <SummaryCard icon={<IconAlertTriangle className="w-4 h-4" />} label="Check" value={flagSummary.check} color="slate" />
+        <KpiTile icon={<IconClipboardCheck className="w-4 h-4" />} label="Total Clients" value={rows.length} statusToken="primary" />
+        <KpiTile icon={<IconCheckCircle className="w-4 h-4" />} label="Cleared / OK" value={flagSummary.ok + flagSummary.na} statusToken="success" />
+        <KpiTile icon={<IconAlertTriangle className="w-4 h-4" />} label="Chase" value={flagSummary.chase} statusToken="warning" />
+        <KpiTile icon={<IconAlertTriangle className="w-4 h-4" />} label="Check" value={flagSummary.check} statusToken="warning" />
       </div>
 
       {/* Search and filter */}
@@ -621,7 +599,7 @@ export default function TrackerPage() {
       {loading ? (
         <p className="text-muted-foreground">Loading...</p>
       ) : filteredRows.length === 0 ? (
-        <Card className="shadow-sm border-border/60 rounded-2xl">
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardContent>
             <EmptyState icon={<IconFileText className="w-9 h-9" />} title="No clients in tracker yet" description="Add your first client to start tracking clearances" cta={{ label: "Add First Client", onClick: () => { resetForm(); setDialogOpen(true); } }} />
           </CardContent>

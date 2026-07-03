@@ -1,8 +1,18 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { StatusBadge } from "@/components/hub/StatusBadge";
 import { HubTable, type HubColumn } from "@/components/hub/HubTable";
 import type { DBClient } from "@/types";
+
+const complianceFilters = [
+  { value: "all", label: "All statuses" },
+  { value: "attention", label: "Needs attention" },
+  { value: "do_not_train", label: "Do Not Train" },
+  { value: "pending_medical", label: "Pending Clearance" },
+  { value: "action_needed", label: "Action Needed" },
+  { value: "clear", label: "Clear" },
+] as const;
 
 function InitialsCircle({ name }: { name: string }) {
   const initials = name
@@ -95,13 +105,35 @@ const columns: HubColumn<DBClient>[] = [
 ];
 
 export function ClientsTable({ clients }: { clients: DBClient[] }) {
+  const [filter, setFilter] = useState<(typeof complianceFilters)[number]["value"]>("all");
+
+  const filtered = useMemo(() => {
+    if (filter === "all") return clients;
+    if (filter === "attention") {
+      return clients.filter((c) => c.compliance_status && c.compliance_status !== "clear");
+    }
+    return clients.filter((c) => c.compliance_status === filter);
+  }, [clients, filter]);
+
   return (
     <HubTable
-      data={clients}
+      data={filtered}
       columns={columns}
       getRowHref={(client) => `/hub/clients/${client.client_number}`}
       searchPlaceholder="Search clients by name..."
       searchKeys={["name"]}
+      toolbar={
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value as typeof filter)}
+          className="h-10 rounded-lg border border-[var(--hub-border)] bg-[var(--hub-card)] px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-rose/30"
+          aria-label="Filter by compliance status"
+        >
+          {complianceFilters.map((f) => (
+            <option key={f.value} value={f.value}>{f.label}</option>
+          ))}
+        </select>
+      }
       emptyState={
         <div className="flex items-center justify-center py-12">
           <p className="text-sm text-muted-foreground">No clients match your search.</p>

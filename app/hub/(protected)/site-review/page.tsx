@@ -167,13 +167,13 @@ export default function SiteReviewPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-near-black">Site Review & Tasks</h1>
+        <h1 className="text-xl font-semibold text-near-black">Site Review & Tasks</h1>
         <p className="text-muted-foreground mt-1">Website audit checklist and project structure</p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-6 gap-4">
-        <Card className="shadow-sm border-border/60 rounded-2xl">
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Tasks</CardTitle>
           </CardHeader>
@@ -197,7 +197,7 @@ export default function SiteReviewPage() {
             <div className="text-3xl font-bold text-rose">{stats.critical}</div>
           </CardContent>
         </Card>
-        <Card className="shadow-sm border-border/60 rounded-2xl">
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Est. Hours</CardTitle>
           </CardHeader>
@@ -205,7 +205,7 @@ export default function SiteReviewPage() {
             <div className="text-3xl font-bold">{stats.hours}h</div>
           </CardContent>
         </Card>
-        <Card className="shadow-sm border-border/60 rounded-2xl">
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Public Pages</CardTitle>
           </CardHeader>
@@ -213,7 +213,7 @@ export default function SiteReviewPage() {
             <div className="text-3xl font-bold">{stats.public}</div>
           </CardContent>
         </Card>
-        <Card className="shadow-sm border-border/60 rounded-2xl">
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Hub Pages</CardTitle>
           </CardHeader>
@@ -339,7 +339,7 @@ export default function SiteReviewPage() {
         {/* Sitemap Tab */}
         <TabsContent value="sitemap" className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <Card className="shadow-sm border-border/60 rounded-2xl">
+            <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
               <CardHeader>
                 <CardTitle className="text-base">Public Pages ({stats.public})</CardTitle>
               </CardHeader>
@@ -355,7 +355,7 @@ export default function SiteReviewPage() {
               </CardContent>
             </Card>
 
-            <Card className="shadow-sm border-border/60 rounded-2xl">
+            <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
               <CardHeader>
                 <CardTitle className="text-base">Protected Hub Pages ({stats.protected})</CardTitle>
               </CardHeader>

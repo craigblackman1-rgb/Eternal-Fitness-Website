@@ -11,30 +11,34 @@ interface KpiTileProps {
   className?: string;
 }
 
+/**
+ * Stat card — single anatomy for every KPI band in the Hub (dashboard,
+ * tracker, agreements). Horizontal: icon badge | label-over-value | trend.
+ */
 export function KpiTile({ icon, label, value, trend, trendUp, statusToken = "primary", className }: KpiTileProps) {
   const c = getStatusClasses(statusToken);
 
   return (
-    <div className={cn("bg-white rounded-2xl border border-border/60 shadow-sm p-4", className)}>
-      <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center mb-3", c.bg, c.text)}>
+    <div className={cn("bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm p-4 flex items-center gap-3.5", className)}>
+      <div className={cn("w-11 h-11 rounded-xl flex items-center justify-center shrink-0", c.bg, c.text)}>
         {icon}
       </div>
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <div className="flex items-center gap-2 mt-0.5">
-        <p className="text-2xl font-bold tabular-nums text-foreground">{value}</p>
-        {trend && (
-          <span
-            className={cn(
-              "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-semibold leading-none",
-              trendUp === false
-                ? "bg-[var(--status-danger-bg)] text-[var(--status-danger)]"
-                : "bg-[var(--status-success-bg)] text-[var(--status-success)]",
-            )}
-          >
-            {trendUp === false ? "↓" : "↑"}{trend}
-          </span>
-        )}
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-medium text-muted-foreground truncate">{label}</p>
+        <p className="text-2xl font-bold tabular-nums text-foreground leading-tight">{value}</p>
       </div>
+      {trend && (
+        <span
+          className={cn(
+            "inline-flex items-center gap-0.5 rounded-full px-2 py-1 text-[11px] font-semibold leading-none shrink-0",
+            trendUp === false
+              ? "bg-[var(--status-danger-bg)] text-[var(--status-danger)]"
+              : "bg-[var(--status-success-bg)] text-[var(--status-success)]",
+          )}
+        >
+          {trendUp === false ? "↓" : "↑"}{trend}
+        </span>
+      )}
     </div>
   );
 }

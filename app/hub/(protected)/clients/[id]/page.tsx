@@ -9,50 +9,10 @@ import { IconChevronLeft, IconClipboardList, IconFileText, IconHeart, IconMail, 
 import { EmptyState } from "@/components/hub/EmptyState";
 import { HubCardHeader } from "@/components/hub/HubCardHeader";
 import { StatusBadge } from "@/components/hub/StatusBadge";
-import type { DBClientComplianceStatus, DBClientGroupType, DBClientPaceMode } from "@/types";
+import { HubAlert } from "@/components/hub/HubAlert";
+import { lookupStatus } from "@/lib/hubStatus";
+import type { DBClientGroupType, DBClientPaceMode } from "@/types";
 import { PlanAgentTab } from "./PlanAgentTab";
-
-function ComplianceAlert({ status }: { status: DBClientComplianceStatus | null }) {
-  if (!status || status === 'clear') return null;
-  
-  if (status === 'do_not_train') {
-    return (
-      <div className="p-4 rounded-lg bg-rose/10 border border-rose/20 mb-4">
-        <p className="text-rose font-medium">Do Not Train — outstanding paperwork must be resolved before any further sessions.</p>
-      </div>
-    );
-  }
-  
-  if (status === 'pending_medical') {
-    return (
-      <div className="p-4 rounded-lg bg-amber-100/50 border border-amber-200 mb-4">
-        <p className="text-amber-800 font-medium">Pending Medical Clearance — do not train until clearance is confirmed.</p>
-      </div>
-    );
-  }
-  
-  // action_needed
-  return (
-    <div className="p-3 rounded-lg bg-amber-50 border border-amber-100 mb-4">
-      <p className="text-sm text-amber-700">Actions outstanding — see Compliance tab.</p>
-    </div>
-  );
-}
-
-function OutstandingActionsList({ actions }: { actions: string[] | null }) {
-  if (!actions || actions.length === 0) return null;
-  
-  return (
-    <ul className="list-none space-y-2 mb-4">
-      {actions.map((action, i) => (
-        <li key={i} className="flex items-start gap-2 text-sm">
-          <IconTriangleAlert className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
-          <span className="text-foreground">{action}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
 
 function GroupTypeLabel({ groupType }: { groupType: DBClientGroupType | null }) {
   if (!groupType) return null;
@@ -61,21 +21,36 @@ function GroupTypeLabel({ groupType }: { groupType: DBClientGroupType | null }) 
 
 function PaceModeDisplay({ paceMode }: { paceMode: DBClientPaceMode | null }) {
   if (!paceMode) return null;
-  
+
   const label = paceMode === 'fast' ? 'Fast pace' : paceMode === 'medium' ? 'Medium pace' : 'Slow pace';
   const exerciseCount = paceMode === 'fast' ? '~10 exercises per session' : paceMode === 'medium' ? '~8 exercises per session' : '~5–6 exercises per session';
-  
+
   return (
     <span>{label} — {exerciseCount}</span>
+  );
+}
+
+function OutstandingActionsInline({ actions }: { actions: string[] | null }) {
+  if (!actions || actions.length === 0) return null;
+
+  return (
+    <ul className="mt-1.5 space-y-0.5">
+      {actions.map((action, i) => (
+        <li key={i} className="flex items-center gap-2 text-sm">
+          <IconTriangleAlert className="w-3.5 h-3.5 shrink-0" />
+          <span>{action}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
 export default async function ClientDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
   const { data: client } = await supabase.from("clients").select("*, compliance_status, outstanding_actions, group_type, pace_mode").eq("client_number", parseInt(params.id)).single();
-  
+
   if (!client) notFound();
-  
+
   const { data: blocks } = await supabase.from("blocks").select("*").eq("client_id", client.id).order("block_number", { ascending: false });
   const { data: sessions } = await supabase
     .from("sessions")
@@ -98,41 +73,114 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
     ? blocks.find((b) => b.status === "active") ?? blocks.find((b) => b.status === "approved") ?? blocks[0]
     : null;
 
+  const metaParts: string[] = [];
+  metaParts.push(`Client #${client.client_number}`);
+  if (p?.logistics?.sessions_per_week) metaParts.push(`${p.logistics.sessions_per_week}x/week`);
+  if (p?.logistics?.package) metaParts.push(p.logistics.package);
+
+  const complianceLookup = client.compliance_status ? lookupStatus(client.compliance_status) : null;
+  const gpClearance = p?.health?.gp_clearance;
+  const outstandingCount = client.outstanding_actions?.length ?? 0;
+
+  const rightRail = (
+    <div className="lg:col-span-4 space-y-5">
+      <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
+        <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Status" color="slate" />
+        <CardContent className="space-y-0 pt-0">
+          <div className="flex items-center justify-between py-1.5 text-sm">
+            <span className="text-muted-foreground">Compliance</span>
+            {complianceLookup ? <StatusBadge status={client.compliance_status} /> : <span className="text-muted-foreground">—</span>}
+          </div>
+          <div className="flex items-center justify-between py-1.5 text-sm">
+            <span className="text-muted-foreground">GP Clearance</span>
+            {p?.health ? (
+              <Badge variant={gpClearance ? "default" : "destructive"} className="rounded-full">
+                {gpClearance ? "Yes" : "No"}
+              </Badge>
+            ) : (
+              <span className="text-muted-foreground">—</span>
+            )}
+          </div>
+          <div className="flex items-center justify-between py-1.5 text-sm">
+            <span className="text-muted-foreground">Outstanding actions</span>
+            <span className="font-medium text-foreground">{outstandingCount}</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
+        <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Active Block" />
+        <CardContent className="pt-0">
+          {latestBlock ? (
+            <Link
+              href={`/hub/clients/${client.client_number}/blocks/${latestBlock.id}`}
+              className="flex items-center justify-between group py-1"
+            >
+              <div>
+                <p className="font-semibold text-sm text-foreground group-hover:text-rose transition-colors">Block {latestBlock.block_number}</p>
+                <p className="text-xs text-muted-foreground">
+                  {new Date(latestBlock.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                </p>
+              </div>
+              <StatusBadge status={latestBlock.status} />
+            </Link>
+          ) : (
+            <div className="flex items-center justify-between py-1 text-sm">
+              <span className="text-muted-foreground">No blocks yet</span>
+              <Link href={`/hub/clients/${client.client_number}/blocks/new`} className="text-rose font-medium hover:underline">
+                Create Block
+              </Link>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
+        <HubCardHeader icon={<IconTarget className="w-4 h-4" />} title="Quick Actions" color="amber" />
+        <CardContent className="space-y-1 pt-0">
+          <Link href={`/hub/clients/${client.client_number}/edit`} className="rounded-lg px-2.5 py-2 hover:bg-[var(--hub-hover)] text-sm font-medium flex items-center gap-2.5">
+            <IconPencil className="w-4 h-4 text-muted-foreground" />
+            Edit client
+          </Link>
+          <Link href={`/hub/clients/${client.client_number}/blocks/new`} className="rounded-lg px-2.5 py-2 hover:bg-[var(--hub-hover)] text-sm font-medium flex items-center gap-2.5">
+            <IconPlus className="w-4 h-4 text-muted-foreground" />
+            New block
+          </Link>
+          <Link href={`/hub/clients/${client.client_number}/updates`} className="rounded-lg px-2.5 py-2 hover:bg-[var(--hub-hover)] text-sm font-medium flex items-center gap-2.5">
+            <IconMail className="w-4 h-4 text-muted-foreground" />
+            Updates
+          </Link>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
   return (
-    <div className="space-y-6">
-      {/* Client identity band */}
-      <div className="rounded-2xl bg-dark-navy text-white p-6 flex items-center gap-5">
-        <Link href="/hub/clients" className="text-white/50 hover:text-white transition-colors shrink-0">
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm px-5 py-4 flex items-center gap-4">
+        <Link href="/hub/clients" className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
           <IconChevronLeft className="h-5 w-5" />
         </Link>
-        <div className="w-16 h-16 rounded-full bg-rose text-white text-xl font-bold flex items-center justify-center shrink-0">
+        <div className="w-12 h-12 rounded-full bg-rose/15 text-rose font-bold flex items-center justify-center shrink-0">
           {initials}
         </div>
         <div className="flex-1 min-w-0">
-          <h1 className="text-2xl font-semibold">{client.name}</h1>
-          <p className="text-white/60">
-            {p?.client?.age && `${p.client.age} yrs`} {p?.client?.gender && `· ${p.client.gender}`}
-            {p?.logistics?.sessions_per_week && ` · ${p.logistics.sessions_per_week}x/week`}
-            {p?.logistics?.time_tier && ` · ${p.logistics.time_tier}`}
-          </p>
-          <div className="flex items-center gap-2 mt-2 flex-wrap">
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">{client.name}</h1>
+          <p className="text-sm text-muted-foreground">{metaParts.join(" · ")}</p>
+          <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
             {client.group_type && (
-              <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/80">
-                {client.group_type === 'individual_journey' ? 'Individual Journey' : 'Calendar Block'}
+              <span className="inline-flex rounded-md bg-[var(--hub-canvas)] border border-[var(--hub-border)] px-2 py-0.5 text-xs text-slate">
+                <GroupTypeLabel groupType={client.group_type} />
               </span>
             )}
             {client.pace_mode && (
-              <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/80">
+              <span className="inline-flex rounded-md bg-[var(--hub-canvas)] border border-[var(--hub-border)] px-2 py-0.5 text-xs text-slate">
                 {client.pace_mode === 'fast' ? 'Fast pace' : client.pace_mode === 'medium' ? 'Medium pace' : 'Slow pace'}
               </span>
             )}
-            {p?.logistics?.sessions_per_week && (
-              <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/80">
-                {p.logistics.sessions_per_week}x/week
-              </span>
-            )}
             {p?.logistics?.time_tier && (
-              <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/80">
+              <span className="inline-flex rounded-md bg-[var(--hub-canvas)] border border-[var(--hub-border)] px-2 py-0.5 text-xs text-slate capitalize">
                 {p.logistics.time_tier}
               </span>
             )}
@@ -140,13 +188,13 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <Link href={`/hub/clients/${client.client_number}/edit`}>
-            <Button variant="outline" className="rounded-full gap-1.5 border-white/20 text-white hover:bg-white/10 bg-transparent">
+            <Button variant="outline" className="border border-[var(--hub-border)] rounded-lg px-3.5 py-1.5 h-auto text-sm font-medium hover:bg-[var(--hub-hover)] gap-1.5">
               <IconPencil className="h-4 w-4" />
               Edit
             </Button>
           </Link>
           <Link href={`/hub/clients/${client.client_number}/blocks/new`}>
-            <Button className="rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white">
+            <Button className="bg-rose hover:bg-rose/90 text-white rounded-lg px-3.5 py-1.5 h-auto text-sm font-semibold gap-1.5">
               <IconPlus className="h-4 w-4" />
               New Block
             </Button>
@@ -154,282 +202,329 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         </div>
       </div>
 
+      {/* Danger / warning banner */}
+      {client.compliance_status === "do_not_train" && (
+        <HubAlert severity="danger" title="Do Not Train">
+          Outstanding paperwork must be resolved before any further sessions.
+          <OutstandingActionsInline actions={client.outstanding_actions} />
+        </HubAlert>
+      )}
+      {(client.compliance_status === "pending_medical" || client.compliance_status === "action_needed") && (
+        <HubAlert severity="warning" title={lookupStatus(client.compliance_status)?.label ?? "Action Needed"}>
+          {client.compliance_status === "pending_medical"
+            ? "Do not train until clearance is confirmed."
+            : "Actions outstanding — see Compliance tab."}
+          <OutstandingActionsInline actions={client.outstanding_actions} />
+        </HubAlert>
+      )}
+
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview" className="rounded-full data-[state=active]:bg-rose data-[state=active]:text-white">Overview</TabsTrigger>
-          <TabsTrigger value="profile-compliance" className="rounded-full data-[state=active]:bg-rose data-[state=active]:text-white">Profile & Compliance</TabsTrigger>
-          <TabsTrigger value="training" className="rounded-full data-[state=active]:bg-rose data-[state=active]:text-white">Training</TabsTrigger>
-          <TabsTrigger value="plan-agent" className="rounded-full data-[state=active]:bg-rose data-[state=active]:text-white">Plan Agent</TabsTrigger>
-          <TabsTrigger value="updates" className="rounded-full data-[state=active]:bg-rose data-[state=active]:text-white">Updates</TabsTrigger>
+        <TabsList className="w-full justify-start gap-1 rounded-none border-b border-[var(--hub-border)] bg-transparent p-0 h-auto">
+          <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Overview</TabsTrigger>
+          <TabsTrigger value="profile-compliance" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Profile & Compliance</TabsTrigger>
+          <TabsTrigger value="training" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Training</TabsTrigger>
+          <TabsTrigger value="plan-agent" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Plan Agent</TabsTrigger>
+          <TabsTrigger value="updates" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Updates</TabsTrigger>
         </TabsList>
 
         {/* Tab 1: Overview */}
-        <TabsContent value="overview" className="space-y-4 mt-4">
-          <ComplianceAlert status={client.compliance_status} />
-          
-          <OutstandingActionsList actions={client.outstanding_actions} />
-
-          {/* Active block summary */}
-          {latestBlock ? (
-            <Card className="shadow-sm border-border/60 rounded-2xl">
-              <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Active Block" />
-              <CardContent>
-                <Link 
-                  href={`/hub/clients/${client.client_number}/blocks/${latestBlock.id}`}
-                  className="flex items-center justify-between group"
-                >
-                  <div>
-                    <p className="font-semibold text-foreground group-hover:text-rose transition-colors">Block {latestBlock.block_number}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(latestBlock.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                    </p>
+        <TabsContent value="overview" className="mt-4">
+          <div className="grid gap-5 lg:grid-cols-12">
+            <div className="lg:col-span-8 space-y-5">
+              <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
+                <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Snapshot" color="navy" />
+                <CardContent className="pt-0">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3 text-sm">
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-0.5">Sessions/week</span>
+                      <span className="font-medium text-foreground">{p?.logistics?.sessions_per_week ?? "—"}</span>
+                    </div>
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-0.5">Package</span>
+                      <span className="font-medium text-foreground">{p?.logistics?.package ?? "—"}</span>
+                    </div>
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-0.5">Primary Goal</span>
+                      <span className="font-medium text-foreground capitalize">{p?.goals?.primary?.replace("_", " ") ?? "—"}</span>
+                    </div>
                   </div>
-                  <StatusBadge status={latestBlock.status} />
-                </Link>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card className="shadow-sm border-border/60 rounded-2xl">
-              <CardContent>
-                <EmptyState title="No blocks yet" cta={{ label: "Create Block", href: `/hub/clients/${client.client_number}/blocks/new` }} />
-              </CardContent>
-            </Card>
-          )}
+                </CardContent>
+              </Card>
+            </div>
+            {rightRail}
+          </div>
         </TabsContent>
 
         {/* Tab 2: Profile & Compliance */}
-        <TabsContent value="profile-compliance" className="space-y-4 mt-4">
-          {/* Profile content */}
-          {p?.logistics && (
-            <Card className="shadow-sm border-border/60 rounded-2xl">
-              <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Logistics" color="navy" />
-              <CardContent className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
-                <div>
-                  <span className="text-muted-foreground block mb-1">Location</span>
-                  <p className="text-foreground font-medium capitalize">{p.logistics.training_location?.replace("_", " ") ?? "—"}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground block mb-1">Sessions/week</span>
-                  <p className="text-foreground font-medium">{p.logistics.sessions_per_week ?? "—"}x</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground block mb-1">Time tier</span>
-                  <p className="text-foreground font-medium capitalize">{p.logistics.time_tier ?? "—"}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground block mb-1">Package</span>
-                  <p className="text-foreground font-medium">{p.logistics.package ?? "—"}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground block mb-1">Pace mode</span>
-                  <p className="text-foreground font-medium"><PaceModeDisplay paceMode={client.pace_mode} /></p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground block mb-1">Group type</span>
-                  <p className="text-foreground font-medium"><GroupTypeLabel groupType={client.group_type} /></p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+        <TabsContent value="profile-compliance" className="mt-4">
+          <div className="grid gap-5 lg:grid-cols-12">
+            <div className="lg:col-span-8 space-y-5">
+              {p?.logistics && (
+                <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
+                  <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Logistics" color="navy" />
+                  <CardContent className="pt-0">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3 text-sm">
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-0.5">Location</span>
+                        <span className="font-medium text-foreground capitalize">{p.logistics.training_location?.replace("_", " ") ?? "—"}</span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-0.5">Sessions/week</span>
+                        <span className="font-medium text-foreground">{p.logistics.sessions_per_week ?? "—"}x</span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-0.5">Time tier</span>
+                        <span className="font-medium text-foreground capitalize">{p.logistics.time_tier ?? "—"}</span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-0.5">Package</span>
+                        <span className="font-medium text-foreground">{p.logistics.package ?? "—"}</span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-0.5">Pace mode</span>
+                        <span className="font-medium text-foreground"><PaceModeDisplay paceMode={client.pace_mode} /></span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-0.5">Group type</span>
+                        <span className="font-medium text-foreground"><GroupTypeLabel groupType={client.group_type} /></span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
-          {p?.health && (
-            <Card className="shadow-sm border-border/60 rounded-2xl bg-off-white">
-              <HubCardHeader icon={<IconHeart className="w-4 h-4" />} title="Health" />
-              <CardContent className="space-y-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">GP Clearance</span>
-                  <Badge variant={p.health.gp_clearance ? "default" : "destructive"} className="rounded-full">
-                    {p.health.gp_clearance ? "Yes" : "No"}
-                  </Badge>
-                </div>
-                {p.health.conditions?.length > 0 && (
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Conditions</span>
-                    <p className="text-foreground">{p.health.conditions.join(", ")}</p>
-                  </div>
-                )}
-                {p.health.contraindications?.length > 0 && (
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Contraindications</span>
-                    <p className="text-foreground">{p.health.contraindications.join(", ")}</p>
-                  </div>
-                )}
-                {p.health.medications_relevant?.length > 0 && (
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Relevant Medications</span>
-                    <p className="text-foreground">{p.health.medications_relevant.join(", ")}</p>
-                  </div>
-                )}
-                {p.health.injury_history?.length > 0 && (
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Injury History</span>
-                    <p className="text-foreground">{p.health.injury_history.join(", ")}</p>
-                  </div>
-                )}
-                {p.health.pain_points?.length > 0 && (
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Pain Points</span>
-                    <p className="text-foreground">{p.health.pain_points.join(", ")}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
+              {p?.health && (
+                <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
+                  <HubCardHeader icon={<IconHeart className="w-4 h-4" />} title="Health" />
+                  <CardContent className="space-y-3 text-sm pt-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">GP Clearance</span>
+                      <Badge variant={p.health.gp_clearance ? "default" : "destructive"} className="rounded-full">
+                        {p.health.gp_clearance ? "Yes" : "No"}
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3">
+                      {p.health.conditions?.length > 0 && (
+                        <div>
+                          <span className="text-xs text-muted-foreground block mb-0.5">Conditions</span>
+                          <span className="font-medium text-foreground">{p.health.conditions.join(", ")}</span>
+                        </div>
+                      )}
+                      {p.health.contraindications?.length > 0 && (
+                        <div>
+                          <span className="text-xs text-muted-foreground block mb-0.5">Contraindications</span>
+                          <span className="font-medium text-foreground">{p.health.contraindications.join(", ")}</span>
+                        </div>
+                      )}
+                      {p.health.medications_relevant?.length > 0 && (
+                        <div>
+                          <span className="text-xs text-muted-foreground block mb-0.5">Relevant Medications</span>
+                          <span className="font-medium text-foreground">{p.health.medications_relevant.join(", ")}</span>
+                        </div>
+                      )}
+                      {p.health.injury_history?.length > 0 && (
+                        <div>
+                          <span className="text-xs text-muted-foreground block mb-0.5">Injury History</span>
+                          <span className="font-medium text-foreground">{p.health.injury_history.join(", ")}</span>
+                        </div>
+                      )}
+                      {p.health.pain_points?.length > 0 && (
+                        <div>
+                          <span className="text-xs text-muted-foreground block mb-0.5">Pain Points</span>
+                          <span className="font-medium text-foreground">{p.health.pain_points.join(", ")}</span>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
-          {p?.physical_baseline && (
-            <Card className="shadow-sm border-border/60 rounded-2xl">
-              <HubCardHeader icon={<IconTarget className="w-4 h-4" />} title="Physical Baseline" />
-              <CardContent className="space-y-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Fitness Level</span>
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4, 5].map((n) => (
-                      <span
-                        key={n}
-                        className={`w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium ${
-                          n <= (p.physical_baseline.fitness_level ?? 0)
-                            ? "bg-rose text-white"
-                            : "bg-border/40 text-muted-foreground"
-                        }`}
-                      >
-                        {n}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Lower Body</span>
-                    <p className="text-foreground font-medium capitalize">{p.physical_baseline.strength_baseline?.lower_body ?? "—"}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Upper Body</span>
-                    <p className="text-foreground font-medium capitalize">{p.physical_baseline.strength_baseline?.upper_body ?? "—"}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Core</span>
-                    <p className="text-foreground font-medium capitalize">{p.physical_baseline.strength_baseline?.core ?? "—"}</p>
-                  </div>
-                </div>
-                {p.physical_baseline.movement_quality_flags?.length > 0 && (
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Movement Quality Flags</span>
-                    <ul className="list-none space-y-1">
-                      {p.physical_baseline.movement_quality_flags.map((flag, i) => (
-                        <li key={i} className="flex items-start gap-2">
-                          <IconTriangleAlert className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" />
-                          <span>{flag}</span>
+              {p?.physical_baseline && (
+                <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
+                  <HubCardHeader icon={<IconTarget className="w-4 h-4" />} title="Physical Baseline" />
+                  <CardContent className="space-y-3 text-sm pt-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Fitness Level</span>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <span
+                            key={n}
+                            className={`w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium ${
+                              n <= (p.physical_baseline.fitness_level ?? 0)
+                                ? "bg-rose text-white"
+                                : "bg-border/40 text-muted-foreground"
+                            }`}
+                          >
+                            {n}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3">
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-0.5">Lower Body</span>
+                        <span className="font-medium text-foreground capitalize">{p.physical_baseline.strength_baseline?.lower_body ?? "—"}</span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-0.5">Upper Body</span>
+                        <span className="font-medium text-foreground capitalize">{p.physical_baseline.strength_baseline?.upper_body ?? "—"}</span>
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-0.5">Core</span>
+                        <span className="font-medium text-foreground capitalize">{p.physical_baseline.strength_baseline?.core ?? "—"}</span>
+                      </div>
+                    </div>
+                    {p.physical_baseline.movement_quality_flags?.length > 0 && (
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-1">Movement Quality Flags</span>
+                        <ul className="list-none space-y-1">
+                          {p.physical_baseline.movement_quality_flags.map((flag, i) => (
+                            <li key={i} className="flex items-start gap-2 text-sm">
+                              <IconTriangleAlert className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" />
+                              <span>{flag}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {p?.goals && (
+                <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
+                  <HubCardHeader icon={<IconTarget className="w-4 h-4" />} title="Goals" />
+                  <CardContent className="space-y-3 text-sm pt-0">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3">
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-0.5">Primary</span>
+                        <span className="font-medium text-foreground capitalize">{p.goals.primary?.replace("_", " ") ?? "—"}</span>
+                      </div>
+                      {p.goals.secondary?.length > 0 && (
+                        <div>
+                          <span className="text-xs text-muted-foreground block mb-0.5">Secondary</span>
+                          <span className="font-medium text-foreground">{p.goals.secondary.join(", ")}</span>
+                        </div>
+                      )}
+                    </div>
+                    {p.goals.milestones?.length > 0 && (
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-1">Milestones</span>
+                        <ul className="list-none space-y-1">
+                          {p.goals.milestones.map((m, i) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose/50 mt-1.5 shrink-0" />
+                              {m}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {p?.programming_adaptations && p.programming_adaptations.length > 0 && (
+                <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
+                  <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Programming Adaptations" color="amber" />
+                  <CardContent className="pt-0">
+                    <ul className="list-none space-y-2">
+                      {p.programming_adaptations.map((ad, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber mt-2 shrink-0" />
+                          <span className="text-foreground">{ad}</span>
                         </li>
                       ))}
                     </ul>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
+                  </CardContent>
+                </Card>
+              )}
 
-          {p?.goals && (
-            <Card className="shadow-sm border-border/60 rounded-2xl bg-off-white">
-              <HubCardHeader icon={<IconTarget className="w-4 h-4" />} title="Goals" />
-              <CardContent className="space-y-2 text-sm">
-                <div>
-                  <span className="text-muted-foreground block mb-1">Primary</span>
-                  <p className="text-foreground font-medium capitalize">{p.goals.primary?.replace("_", " ") ?? "—"}</p>
-                </div>
-                {p.goals.secondary?.length > 0 && (
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Secondary</span>
-                    <p className="text-foreground">{p.goals.secondary.join(", ")}</p>
-                  </div>
-                )}
-                {p.goals.milestones?.length > 0 && (
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Milestones</span>
-                    <ul className="list-none space-y-1">
-                      {p.goals.milestones.map((m, i) => (
-                        <li key={i} className="flex items-start gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-rose/50 mt-1.5 shrink-0" />
-                          {m}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
+              {(p?.notes?.esther_observations || p?.notes?.motivation_notes || p?.notes?.watch_for) && (
+                <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
+                  <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Notes" color="slate" />
+                  <CardContent className="space-y-3 text-sm pt-0">
+                    {p.notes.esther_observations && (
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-0.5">Observations</span>
+                        <p className="text-foreground">{p.notes.esther_observations}</p>
+                      </div>
+                    )}
+                    {p.notes.motivation_notes && (
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-0.5">Motivation</span>
+                        <p className="text-foreground">{p.notes.motivation_notes}</p>
+                      </div>
+                    )}
+                    {p.notes.watch_for && (
+                      <div className="mt-1 p-3 rounded-lg bg-rose/5 border border-rose/10">
+                        <span className="text-rose font-semibold text-xs uppercase tracking-wide">Watch for</span>
+                        <p className="text-rose/80 mt-1">{p.notes.watch_for}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
 
-          {p?.programming_adaptations && p.programming_adaptations.length > 0 && (
-            <Card className="shadow-sm border-border/60 rounded-2xl">
-              <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Programming Adaptations" color="amber" />
-              <CardContent>
-                <ul className="list-none space-y-2">
-                  {p.programming_adaptations.map((ad, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber mt-2 shrink-0" />
-                      <span className="text-foreground">{ad}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          )}
-
-          {(p?.notes?.esther_observations || p?.notes?.motivation_notes || p?.notes?.watch_for) && (
-            <Card className="shadow-sm border-border/60 rounded-2xl bg-off-white/40">
-              <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Notes" color="slate" />
-              <CardContent className="space-y-3 text-sm">
-                {p.notes.esther_observations && (
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Observations</span>
-                    <p className="text-foreground">{p.notes.esther_observations}</p>
+              <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
+                <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Compliance & Documents" color="teal" />
+                <CardContent className="space-y-3 pt-0">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3 text-sm">
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-0.5">Compliance Status</span>
+                      {complianceLookup ? <StatusBadge status={client.compliance_status} /> : <span className="font-medium text-foreground">—</span>}
+                    </div>
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-0.5">Medical Clearance</span>
+                      {p?.health ? (
+                        <Badge variant={gpClearance ? "default" : "destructive"} className="rounded-full">
+                          {gpClearance ? "Yes" : "No"}
+                        </Badge>
+                      ) : (
+                        <span className="font-medium text-foreground">—</span>
+                      )}
+                    </div>
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-0.5">PAR-Q</span>
+                      <span className="font-medium text-foreground">No signed PAR-Q on file</span>
+                    </div>
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-0.5">Agreement</span>
+                      <span className="font-medium text-foreground">No signed agreement on file</span>
+                    </div>
                   </div>
-                )}
-                {p.notes.motivation_notes && (
-                  <div>
-                    <span className="text-muted-foreground block mb-1">Motivation</span>
-                    <p className="text-foreground">{p.notes.motivation_notes}</p>
-                  </div>
-                )}
-                {p.notes.watch_for && (
-                  <div className="mt-1 p-3 rounded-lg bg-rose/5 border border-rose/10">
-                    <span className="text-rose font-semibold text-xs uppercase tracking-wide">Watch for</span>
-                    <p className="text-rose/80 mt-1">{p.notes.watch_for}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          <Card className="shadow-sm border-border/60 rounded-2xl">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Documents</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div>
-                <span className="text-muted-foreground block mb-1">PAR-Q</span>
-                <p className="text-foreground">No signed PAR-Q on file</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground block mb-1">Agreement</span>
-                <p className="text-foreground">No signed agreement on file</p>
-              </div>
-            </CardContent>
-          </Card>
+                  {outstandingCount > 0 && (
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Outstanding Actions</span>
+                      <ul className="list-none space-y-1.5">
+                        {client.outstanding_actions!.map((action, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm">
+                            <IconTriangleAlert className="h-3.5 w-3.5 text-amber-600 mt-0.5 shrink-0" />
+                            <span className="text-foreground">{action}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+            {rightRail}
+          </div>
         </TabsContent>
 
         {/* Tab 3: Training (Blocks + Sessions) */}
         <TabsContent value="training" className="space-y-4 mt-4">
-          <Card className="shadow-sm border-border/60 rounded-2xl">
+          <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
             <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Training Blocks" />
-            <CardContent>
+            <CardContent className="pt-0">
               {blocks && blocks.length > 0 ? (
                 <div className="space-y-2">
                   {blocks.map((block) => (
                     <Link
                       key={block.id}
                       href={`/hub/clients/${client.client_number}/blocks/${block.id}`}
-                      className="flex items-center justify-between rounded-xl border border-border/60 p-4 transition-all hover:bg-off-white hover:border-rose/20 group"
+                      className="flex items-center justify-between rounded-xl border border-[var(--hub-border)] py-2 px-4 transition-all hover:bg-[var(--hub-hover)] hover:border-rose/20 group"
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-off-white flex items-center justify-center">
@@ -448,16 +543,21 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                   ))}
                 </div>
               ) : (
-                <EmptyState icon={<IconFileText className="w-7 h-7" />} title="No blocks yet" cta={{ label: "Generate First Block", href: `/hub/clients/${client.client_number}/blocks/new` }} />
+                <div className="flex items-center justify-between rounded-lg py-2 px-1 text-sm">
+                  <span className="text-muted-foreground">No blocks yet</span>
+                  <Link href={`/hub/clients/${client.client_number}/blocks/new`} className="text-rose font-medium hover:underline">
+                    Create Block
+                  </Link>
+                </div>
               )}
             </CardContent>
           </Card>
 
           {/* Separator */}
-          <div className="border-t border-border/60 my-2" />
+          <div className="border-t border-[var(--hub-border)] my-2" />
 
           {/* Sessions content */}
-          <Card className="shadow-sm border-border/60 rounded-2xl">
+          <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Session Log</CardTitle>
             </CardHeader>
@@ -465,7 +565,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
               {sessions && sessions.length > 0 ? (
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border/60">
+                    <tr className="border-b border-[var(--hub-border)]">
                       <th className="text-left font-medium text-muted-foreground pb-2">Block</th>
                       <th className="text-left font-medium text-muted-foreground pb-2">Session #</th>
                       <th className="text-left font-medium text-muted-foreground pb-2">Date</th>
@@ -512,7 +612,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
         {/* Tab 5: Updates */}
         <TabsContent value="updates" className="space-y-4 mt-4">
-          <Card className="shadow-sm border-border/60 rounded-2xl">
+          <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">6-Week Updates</CardTitle>
             </CardHeader>

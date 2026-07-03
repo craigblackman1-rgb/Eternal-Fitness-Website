@@ -118,7 +118,7 @@ export default function SessionViewPage({
         </Link>
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-semibold tracking-tight">Session {sessionNum}</h1>
+            <h1 className="text-xl font-semibold tracking-tight">Session {sessionNum}</h1>
             <Badge variant="outline" className="text-sm">{session.archetype}</Badge>
             <span className="text-sm capitalize text-muted-foreground">Week {session.week} · {session.phase}</span>
           </div>
@@ -183,7 +183,7 @@ export default function SessionViewPage({
         ))}
       </Tabs>
 
-      <Card className="shadow-sm border-border/60 rounded-2xl">
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
         <HubCardHeader
           icon={<IconActivity className="w-4 h-4" />}
           title="Session Log"
@@ -254,7 +254,7 @@ export default function SessionViewPage({
         </CardContent>
       </Card>
 
-      <Card className="shadow-sm border-border/60 rounded-2xl">
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
         <CardHeader>
           <CardTitle className="text-lg">Coaching Notes</CardTitle>
         </CardHeader>
@@ -301,7 +301,7 @@ function SessionSection({
 
   if (exercises.length === 0) {
     return (
-      <Card className="shadow-sm border-border/60 rounded-2xl">
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
         <CardHeader><CardTitle className="text-base">{title}</CardTitle></CardHeader>
         <CardContent><p className="text-sm text-muted-foreground">No exercises</p></CardContent>
       </Card>

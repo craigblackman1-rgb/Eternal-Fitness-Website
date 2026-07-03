@@ -330,21 +330,21 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">{data.client_name}</h1>
+            <h1 className="text-xl font-bold tracking-tight text-foreground">{data.client_name}</h1>
             <p className="text-sm text-muted-foreground mt-0.5">Signed {formatDate(data.signed_at)}</p>
           </div>
         </div>
 
         {/* Action buttons */}
         <div className="flex items-center gap-2 flex-wrap">
-<Button variant="outline" size="sm" className="gap-1.5 rounded-full" onClick={handlePrint}>
+<Button variant="outline" size="sm" className="gap-1.5 rounded-lg" onClick={handlePrint}>
              <IconPrinter className="w-4 h-4" />
              Print
            </Button>
           <Button
             variant="outline"
             size="sm"
-            className="gap-1.5 rounded-full"
+            className="gap-1.5 rounded-lg"
             onClick={handleEmail}
             disabled={!data.client_email || emailing}
           >
@@ -366,7 +366,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
           <Button
             variant={editingTrainer ? "default" : "outline"}
             size="sm"
-            className="gap-1.5 rounded-full"
+            className="gap-1.5 rounded-lg"
             onClick={() => setEditingTrainer(!editingTrainer)}
           >
 <IconEdit3 className="w-4 h-4" />
@@ -427,7 +427,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
       )}
 
       {/* Client details */}
-      <Card className="shadow-sm border-border/60 rounded-2xl transition-shadow hover:shadow-md">
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] transition-shadow hover:shadow-md">
         <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Client Details" />
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -451,7 +451,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
       </Card>
 
       {/* Signatures */}
-      <Card className="shadow-sm border-border/60 rounded-2xl transition-shadow hover:shadow-md">
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] transition-shadow hover:shadow-md">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             Signatures
@@ -495,7 +495,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
       </Card>
 
       {/* PAR-Q and Medical Clearance */}
-      <Card className="shadow-sm border-border/60 rounded-2xl transition-shadow hover:shadow-md">
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] transition-shadow hover:shadow-md">
         <CardHeader className="pb-3 flex flex-row items-start justify-between">
           <CardTitle className="text-base flex items-center gap-2">
             PAR-Q & Medical Clearance
@@ -651,7 +651,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
       </Card>
 
       {/* Trainer Information — Editable */}
-      <Card className="shadow-sm border-border/60 rounded-2xl transition-shadow hover:shadow-md">
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] transition-shadow hover:shadow-md">
         <HubCardHeader icon={<IconEdit3 className="w-4 h-4" />} title="Trainer Information" />
         <CardContent>
           {!editingTrainer ? (
@@ -985,7 +985,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
       </Card>
 
       {/* Agreement terms */}
-      <Card className="shadow-sm border-border/60 rounded-2xl transition-shadow hover:shadow-md">
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] transition-shadow hover:shadow-md">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             Agreement

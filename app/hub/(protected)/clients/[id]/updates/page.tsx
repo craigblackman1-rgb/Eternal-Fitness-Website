@@ -35,7 +35,7 @@ export default async function UpdatesHistoryPage({ params }: { params: { id: str
            <IconChevronLeft className="h-5 w-5" />
          </Link>
         <div className="flex-1">
-          <h1 className="text-2xl font-semibold tracking-tight">6-Week Updates</h1>
+          <h1 className="text-xl font-semibold tracking-tight">6-Week Updates</h1>
           <p className="text-muted-foreground">{client.name}</p>
         </div>
         <Link href={`/hub/clients/${params.id}/updates/new`}>
@@ -56,7 +56,7 @@ export default async function UpdatesHistoryPage({ params }: { params: { id: str
       ) : (
         <div className="space-y-3">
           {sentUpdates.map((update) => (
-            <Card key={update.id} className="shadow-sm border-border/60 rounded-2xl">
+            <Card key={update.id} className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
               <CardContent className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-teal/10 flex items-center justify-center shrink-0">

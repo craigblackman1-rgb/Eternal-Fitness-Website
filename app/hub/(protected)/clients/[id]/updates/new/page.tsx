@@ -96,7 +96,7 @@ export default function NewUpdatePage({ params }: { params: { id: string } }) {
           <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">New 6-Week Update</h1>
+          <h1 className="text-xl font-semibold tracking-tight">New 6-Week Update</h1>
           <p className="text-muted-foreground">Generate a draft from training data, review it, then send</p>
         </div>
       </div>
@@ -110,7 +110,7 @@ export default function NewUpdatePage({ params }: { params: { id: string } }) {
 
       {/* Step 1: Generate */}
       {!draft && (
-        <Card className="shadow-sm border-border/60 rounded-2xl">
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardHeader>
             <CardTitle>Generate Update Draft</CardTitle>
           </CardHeader>
@@ -139,7 +139,7 @@ export default function NewUpdatePage({ params }: { params: { id: string } }) {
       {/* Step 2: Review + Send */}
       {draft && (
         <>
-          <Card className="shadow-sm border-border/60 rounded-2xl">
+          <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Review Email</CardTitle>
               <Button
@@ -188,7 +188,7 @@ export default function NewUpdatePage({ params }: { params: { id: string } }) {
             </CardContent>
           </Card>
 
-          <Card className="shadow-sm border-border/60 rounded-2xl">
+          <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
             <CardHeader>
               <CardTitle>Send</CardTitle>
             </CardHeader>
