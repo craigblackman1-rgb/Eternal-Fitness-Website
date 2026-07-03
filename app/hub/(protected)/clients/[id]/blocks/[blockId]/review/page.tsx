@@ -129,7 +129,7 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
                   >
                     <TableCell className="font-medium">{session.session_number}</TableCell>
                     <TableCell>
-                      <Badge variant={session.archetype === "A" ? "secondary" : session.archetype === "B" ? "default" : "outline"}>
+                      <Badge variant={session.archetype === "A" ? "secondary" : session.archetype === "B" ? "default" : "outline"} className="rounded-full">
                         {session.archetype}
                       </Badge>
                     </TableCell>
@@ -139,7 +139,7 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
                     <TableCell>{homeCount} exercises</TableCell>
                     <TableCell>
                       <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}/sessions/${session.session_number}`}>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" className="rounded-full hover:bg-rose/10 hover:text-rose">
                           <IconEye className="h-4 w-4" />
                         </Button>
                       </Link>
@@ -154,9 +154,9 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
 
       <div className="flex justify-end gap-3">
         <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}`}>
-          <Button variant="outline">Back to Block</Button>
+          <Button variant="outline" className="rounded-full">Back to Block</Button>
         </Link>
-        <Button onClick={handleApprove} disabled={approving} className="gap-2">
+        <Button onClick={handleApprove} disabled={approving} className="gap-2 bg-rose hover:bg-rose/90 text-white rounded-full">
           <IconCheckCircle className="h-4 w-4" />
           {approving ? "Approving..." : "Approve Block"}
         </Button>

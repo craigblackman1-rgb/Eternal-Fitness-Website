@@ -258,9 +258,9 @@ export default function NewClientPage() {
 
         <div className="flex justify-end gap-3">
           <Link href="/hub/clients">
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline" className="rounded-full border-border/60">Cancel</Button>
           </Link>
-          <Button onClick={handleSave} disabled={saving}>
+          <Button onClick={handleSave} disabled={saving} className="rounded-full gap-2 bg-rose hover:bg-rose/90 text-white">
             {saving ? "Saving..." : "Save Client"}
           </Button>
         </div>

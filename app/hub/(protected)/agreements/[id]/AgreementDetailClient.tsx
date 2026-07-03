@@ -323,7 +323,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         <div className="flex items-center gap-4 flex-1">
           <Link href="/hub/agreements">
-            <Button variant="ghost" size="sm" className="gap-1.5">
+            <Button variant="ghost" size="sm" className="gap-1.5 rounded-full">
               <IconArrowLeft className="w-4 h-4" />
               Back
             </Button>
@@ -336,14 +336,14 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
 
         {/* Action buttons */}
         <div className="flex items-center gap-2 flex-wrap">
-<Button variant="outline" size="sm" className="gap-1.5" onClick={handlePrint}>
+<Button variant="outline" size="sm" className="gap-1.5 rounded-full" onClick={handlePrint}>
              <IconPrinter className="w-4 h-4" />
              Print
            </Button>
           <Button
             variant="outline"
             size="sm"
-            className="gap-1.5"
+            className="gap-1.5 rounded-full"
             onClick={handleEmail}
             disabled={!data.client_email || emailing}
           >
@@ -365,7 +365,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
           <Button
             variant={editingTrainer ? "default" : "outline"}
             size="sm"
-            className="gap-1.5"
+            className="gap-1.5 rounded-full"
             onClick={() => setEditingTrainer(!editingTrainer)}
           >
 <IconEdit3 className="w-4 h-4" />
@@ -381,17 +381,15 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
         ) : (
           <Badge variant="secondary" className="gap-1"><IconAlertCircle className="w-3 h-3" /> PAR-Q missing</Badge>
         )}
-        {data.medical_clearance === "yes" && (
-          <Badge className="gap-1"><IconCheckCircle className="w-3 h-3" /> Medical clearance filed</Badge>
-        )}
-        {data.medical_clearance === "na" && (
-          <Badge variant="outline">No medical clearance needed</Badge>
-        )}
-        {data.medical_clearance_status && data.medical_clearance_status !== "not_required" && (
+        {data.medical_clearance_status && data.medical_clearance_status !== "not_required" ? (
           <Badge variant={data.medical_clearance_status === "cleared" ? "default" : data.medical_clearance_status === "pending" ? "secondary" : "outline"}>
             Clearance: {data.medical_clearance_status.replace("_", " ")}
           </Badge>
-        )}
+        ) : data.medical_clearance === "yes" ? (
+          <Badge className="gap-1"><IconCheckCircle className="w-3 h-3" /> Medical clearance filed</Badge>
+        ) : data.medical_clearance === "na" ? (
+          <Badge variant="outline">No medical clearance needed</Badge>
+        ) : null}
         {data.client_status && (
           <Badge variant={data.client_status === "active" ? "default" : data.client_status === "inactive" ? "secondary" : "outline"}>
             {data.client_status}
@@ -510,7 +508,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
             <Button
               variant="outline"
               size="sm"
-              className="gap-1.5"
+              className="gap-1.5 rounded-full"
               onClick={handleCopyParqEditLink}
             >
               <IconCopy className="w-4 h-4" />
@@ -519,7 +517,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
             <Button
               variant={editingParq ? "default" : "outline"}
               size="sm"
-              className="gap-1.5"
+              className="gap-1.5 rounded-full"
               onClick={() => {
                 if (editingParq) {
                   setEditingParq(false);
@@ -644,10 +642,10 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
               </div>
 
               <div className="flex items-center gap-3 pt-2">
-                <Button onClick={handleSaveParq} disabled={parqSaving} className="gap-1.5 bg-rose hover:bg-rose/90 text-white">
+                <Button onClick={handleSaveParq} disabled={parqSaving} className="gap-1.5 bg-rose hover:bg-rose/90 text-white rounded-full">
                   {parqSaving ? "Saving..." : <><IconSave className="w-4 h-4" /> Save PAR-Q</>}
                 </Button>
-                <Button variant="outline" onClick={() => { setEditingParq(false); setParqSaveError(null); }} className="gap-1.5">
+                <Button variant="outline" onClick={() => { setEditingParq(false); setParqSaveError(null); }} className="gap-1.5 rounded-full">
                   <IconX className="w-4 h-4" /> Cancel
                 </Button>
               </div>
@@ -708,7 +706,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
               {!data.trainer_notes && !data.trainer_observations && !data.exercise_modifications && !data.watch_for && !data.package_type && (
                 <div className="text-center py-6">
                   <p className="text-sm text-muted-foreground">No trainer information added yet</p>
-                  <Button variant="outline" size="sm" className="mt-3 gap-1.5" onClick={() => setEditingTrainer(true)}>
+                  <Button variant="outline" size="sm" className="mt-3 gap-1.5 rounded-full" onClick={() => setEditingTrainer(true)}>
                     <IconEdit3 className="w-4 h-4" />
                     Add trainer information
                   </Button>
@@ -969,7 +967,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
 
               {/* Save/Cancel */}
               <div className="flex items-center gap-3 pt-2">
-                <Button onClick={handleSave} disabled={saving} className="gap-1.5 bg-rose hover:bg-rose/90 text-white">
+                <Button onClick={handleSave} disabled={saving} className="gap-1.5 bg-rose hover:bg-rose/90 text-white rounded-full">
                   {saving ? (
                     <>
                       <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
@@ -985,7 +983,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
                     </>
                   )}
                 </Button>
-                <Button variant="outline" onClick={() => { setEditingTrainer(false); setSaveError(null); }} className="gap-1.5">
+                <Button variant="outline" onClick={() => { setEditingTrainer(false); setSaveError(null); }} className="gap-1.5 rounded-full">
                   <IconX className="w-4 h-4" />
                   Cancel
                 </Button>

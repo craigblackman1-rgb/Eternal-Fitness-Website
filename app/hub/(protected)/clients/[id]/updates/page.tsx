@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { IconChevronLeft, IconMail, IconPlus, IconCalendar } from "@/components/icons";
+import { EmptyState } from "@/components/hub/EmptyState";
 import type { SentUpdate } from "@/types";
 
 export default async function UpdatesHistoryPage({ params }: { params: { id: string } }) {
@@ -46,23 +47,12 @@ export default async function UpdatesHistoryPage({ params }: { params: { id: str
       </div>
 
       {sentUpdates.length === 0 ? (
-        <Card className="shadow-sm border-border/60 rounded-2xl">
-          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-12 h-12 rounded-full bg-rose/10 flex items-center justify-center mb-4">
-              <IconMail className="h-6 w-6 text-rose" />
-            </div>
-            <h3 className="text-lg font-medium text-foreground mb-2">No updates sent yet</h3>
-            <p className="text-muted-foreground text-sm mb-6 max-w-sm">
-              Generate a 6-week update from {client.name}&apos;s training data, review it, and send via email.
-            </p>
-            <Link href={`/hub/clients/${params.id}/updates/new`}>
-<Button className="rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white">
-                 <IconPlus className="h-4 w-4" />
-                 Generate First Update
-               </Button>
-            </Link>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={<IconMail className="h-6 w-6" />}
+          title="No updates sent yet"
+          description={`Generate a 6-week update from ${client.name}'s training data, review it, and send via email.`}
+          cta={{ label: "Generate First Update", href: `/hub/clients/${params.id}/updates/new` }}
+        />
       ) : (
         <div className="space-y-3">
           {sentUpdates.map((update) => (

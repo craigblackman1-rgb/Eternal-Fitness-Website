@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { IconCalendar, IconEye, IconFileSignature, IconMail, IconPhone } from "@/components/icons";
+import { EmptyState } from "@/components/hub/EmptyState";
+import { KpiTile } from "@/components/hub/KpiTile";
 
 export default async function AgreementsPage() {
   const supabase = createClient();
@@ -23,43 +25,9 @@ export default async function AgreementsPage() {
 
       {/* Stats — branded */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
-        <Card className="shadow-sm border-border/60 rounded-2xl">
-          <CardContent className="p-5 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-rose/10 flex items-center justify-center shrink-0">
-              <IconFileSignature className="w-5 h-5 text-rose" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold tracking-tight text-foreground">{agreements?.length ?? 0}</p>
-              <p className="text-sm text-muted-foreground">Total agreements</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm border-border/60 rounded-2xl">
-          <CardContent className="p-5 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-teal/10 flex items-center justify-center shrink-0">
-              <IconEye className="w-5 h-5 text-teal" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold tracking-tight text-foreground">
-                {agreements?.filter((a) => a.parq_completed === "yes").length ?? 0}
-              </p>
-              <p className="text-sm text-muted-foreground">PAR-Q on file</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm border-border/60 rounded-2xl">
-          <CardContent className="p-5 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-dark-navy/10 flex items-center justify-center shrink-0">
-              <IconCalendar className="w-5 h-5 text-dark-navy" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold tracking-tight text-foreground">
-                {agreements?.filter((a) => a.medical_clearance === "yes").length ?? 0}
-              </p>
-              <p className="text-sm text-muted-foreground">Medical clearance filed</p>
-            </div>
-          </CardContent>
-        </Card>
+        <KpiTile icon={<IconFileSignature className="w-5 h-5" />} label="Total agreements" value={agreements?.length ?? 0} />
+        <KpiTile icon={<IconEye className="w-5 h-5" />} label="PAR-Q on file" value={agreements?.filter((a) => a.parq_completed === "yes").length ?? 0} />
+        <KpiTile icon={<IconCalendar className="w-5 h-5" />} label="Medical clearance filed" value={agreements?.filter((a) => a.medical_clearance === "yes").length ?? 0} />
       </div>
 
       {/* Agreements list */}
@@ -80,16 +48,11 @@ export default async function AgreementsPage() {
           )}
 
           {!error && (!agreements || agreements.length === 0) && (
-            <div className="flex flex-col items-center gap-4 py-10">
-              <div className="w-16 h-16 rounded-full bg-rose/10 flex items-center justify-center">
-                <IconFileSignature className="w-7 h-7 text-rose/40" />
-              </div>
-              <p className="text-sm text-muted-foreground">No signed agreements yet</p>
-              <p className="text-xs text-muted-foreground">
-                Agreements will appear here once clients sign at{" "}
-                <code className="text-rose bg-rose/5 px-1.5 py-0.5 rounded">/agreement</code>
-              </p>
-            </div>
+            <EmptyState
+              icon={<IconFileSignature className="w-7 h-7" />}
+              title="No signed agreements yet"
+              description={<>Agreements will appear here once clients sign at <code className="text-rose bg-rose/5 px-1.5 py-0.5 rounded">/agreement</code></>}
+            />
           )}
 
           {agreements && agreements.length > 0 && (

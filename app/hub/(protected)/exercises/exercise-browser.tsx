@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { IconChevronDown, IconChevronUp, IconDumbbell, IconSearch, IconVideo } from "@/components/icons";
+import { EmptyState } from "@/components/hub/EmptyState";
 import type { Archetype } from "@/types";
 import type { ExerciseEntry } from "./page";
 import { ExerciseMediaPlaceholder } from "@/components/exercise-media";
@@ -186,13 +187,12 @@ export function ExerciseBrowser({
       </div>
 
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 py-12 text-muted-foreground">
-          <IconDumbbell className="h-8 w-8" />
-          <p className="text-sm">No exercises match your filters</p>
-          <button onClick={clearFilters} className="text-xs underline">
-            Clear filters
-          </button>
-        </div>
+        <EmptyState
+          icon={<IconDumbbell className="h-8 w-8" />}
+          title="No exercises match your filters"
+          description="Try adjusting or clearing your search filters."
+          cta={{ label: "Clear filters", onClick: clearFilters }}
+        />
       ) : (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((ex) => (

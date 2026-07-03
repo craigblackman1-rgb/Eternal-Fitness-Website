@@ -576,20 +576,12 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
               <CardTitle className="text-base">6-Week Updates</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center gap-3 py-10">
-                <div className="w-16 h-16 rounded-full bg-rose/10 flex items-center justify-center">
-                  <IconMail className="w-7 h-7 text-rose/40" />
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Generate branded 6-week update emails from training data.
-                </p>
-                <Link href={`/hub/clients/${client.client_number}/updates`}>
-                  <Button variant="outline" size="sm" className="rounded-full gap-1.5">
-                    <IconMail className="h-4 w-4" />
-                    View Updates
-                  </Button>
-                </Link>
-              </div>
+                <EmptyState
+                  icon={<IconMail className="w-7 h-7" />}
+                  title="6-Week Updates"
+                  description="Generate branded 6-week update emails from training data."
+                  cta={{ label: "View Updates", href: `/hub/clients/${client.client_number}/updates` }}
+                />
             </CardContent>
           </Card>
         </TabsContent>

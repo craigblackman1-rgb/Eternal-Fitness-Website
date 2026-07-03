@@ -126,12 +126,12 @@ export default function SessionViewPage({
         <div className="flex gap-2">
           {sessionNum > 1 && (
             <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}/sessions/${sessionNum - 1}`}>
-              <Button variant="outline" size="icon"><IconChevronLeft className="h-4 w-4" /></Button>
+              <Button variant="outline" size="icon" className="rounded-full"><IconChevronLeft className="h-4 w-4" /></Button>
             </Link>
           )}
           {sessionNum < totalSessions && (
             <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}/sessions/${sessionNum + 1}`}>
-              <Button variant="outline" size="icon"><IconChevronRight className="h-4 w-4" /></Button>
+              <Button variant="outline" size="icon" className="rounded-full"><IconChevronRight className="h-4 w-4" /></Button>
             </Link>
           )}
         </div>
@@ -229,12 +229,12 @@ export default function SessionViewPage({
               </div>
               <Textarea value={logNotes} onChange={(e) => setLogNotes(e.target.value)} rows={3} placeholder="How the session went, adjustments made, anything for next time..." />
               <div className="flex gap-2">
-                <Button onClick={() => saveLog(true)} disabled={savingLog} className="bg-teal hover:bg-teal/90 text-white gap-1.5">
+                <Button onClick={() => saveLog(true)} disabled={savingLog} className="bg-rose hover:bg-rose/90 text-white gap-1.5 rounded-full">
                   <IconCheckCircle className="w-4 h-4" />
                   Mark Complete & Save
                 </Button>
-                <Button variant="outline" onClick={() => saveLog(false)} disabled={savingLog}>Save Without Completing</Button>
-                <Button variant="ghost" onClick={() => setEditingLog(false)} disabled={savingLog}>Cancel</Button>
+                <Button variant="outline" onClick={() => saveLog(false)} disabled={savingLog} className="rounded-full">Save Without Completing</Button>
+                <Button variant="ghost" onClick={() => setEditingLog(false)} disabled={savingLog} className="rounded-full">Cancel</Button>
               </div>
             </>
           ) : (
@@ -248,7 +248,7 @@ export default function SessionViewPage({
               ) : (
                 <p className="text-sm text-muted-foreground">Not logged yet.</p>
               )}
-              <Button variant="outline" size="sm" onClick={() => setEditingLog(true)}>
+              <Button variant="outline" size="sm" onClick={() => setEditingLog(true)} className="rounded-full">
                 {currentLog?.completed_at ? "Edit Log" : "Log This Session"}
               </Button>
             </>
@@ -265,14 +265,14 @@ export default function SessionViewPage({
             <>
               <Textarea value={coachingNotes} onChange={(e) => setCoachingNotes(e.target.value)} rows={4} />
               <div className="flex gap-2">
-                <Button onClick={saveNotes}>Save</Button>
-                <Button variant="outline" onClick={() => setEditingNotes(false)}>Cancel</Button>
+                <Button onClick={saveNotes} className="rounded-full">Save</Button>
+                <Button variant="outline" onClick={() => setEditingNotes(false)} className="rounded-full">Cancel</Button>
               </div>
             </>
           ) : (
             <>
               <p className="text-sm whitespace-pre-wrap">{coachingNotes || "No notes yet"}</p>
-              <Button variant="outline" size="sm" onClick={() => setEditingNotes(true)}>Edit Notes</Button>
+              <Button variant="outline" size="sm" onClick={() => setEditingNotes(true)} className="rounded-full">Edit Notes</Button>
             </>
           )}
         </CardContent>

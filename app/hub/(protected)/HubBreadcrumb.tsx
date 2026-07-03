@@ -19,6 +19,8 @@ function resolveLabel(pathname: string): string {
     if (pathname.includes("/sessions/")) return "Session";
     return "Block";
   }
+  if (pathname.startsWith("/hub/clients/") && pathname.endsWith("/updates/new")) return "New Update";
+  if (pathname.startsWith("/hub/clients/") && pathname.includes("/updates")) return "Updates";
   if (pathname.startsWith("/hub/clients/") && pathname.endsWith("/edit")) return "Edit Client";
   if (pathname.startsWith("/hub/clients/new")) return "New Client";
   if (pathname.startsWith("/hub/clients/")) return "Client";
