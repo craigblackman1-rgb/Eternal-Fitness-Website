@@ -49,7 +49,16 @@ export async function POST(request: Request) {
   let sessions: Session[];
 
   if (aiConfig.provider) {
-    sessions = await generateViaAi(profile, blockNote, previousSummary, blockNumber);
+    try {
+      sessions = await generateViaAi(profile, blockNote, previousSummary, blockNumber);
+    } catch (err) {
+      const detail = err instanceof Error ? err.message.slice(0, 300) : "unknown error";
+      console.error(`[generate-block] AI generation failed via ${aiConfig.provider} (${aiConfig.model}): ${detail}`);
+      return NextResponse.json(
+        { error: `AI generation failed via ${aiConfig.provider} (${aiConfig.model}): ${detail}` },
+        { status: 502 },
+      );
+    }
   } else {
     sessions = generateFallback(profile, blockNumber);
   }

@@ -177,11 +177,18 @@ export async function POST(request: Request) {
 
   const systemPrompt = buildSystemPrompt(client, blocks ?? []);
 
-  const readable = await aiChatStream({
-    system: systemPrompt,
-    messages: messages.map((m) => ({ role: m.role, content: m.content })),
-    maxTokens: 8000,
-  });
+  let readable: ReadableStream<Uint8Array> | null;
+  try {
+    readable = await aiChatStream({
+      system: systemPrompt,
+      messages: messages.map((m) => ({ role: m.role, content: m.content })),
+      maxTokens: 8000,
+    });
+  } catch (err) {
+    const detail = err instanceof Error ? err.message.slice(0, 300) : "unknown error";
+    console.error(`[plan-chat] AI stream failed via ${aiConfig.provider} (${aiConfig.model}): ${detail}`);
+    return new Response(`Plan Agent failed via ${aiConfig.provider} (${aiConfig.model}): ${detail}`, { status: 502 });
+  }
 
   if (!readable) {
     return new Response("Plan Agent is not configured", { status: 503 });
