@@ -75,7 +75,7 @@ export default function NewClientPage() {
           <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">New Client</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">New Client</h1>
           <p className="text-muted-foreground">Create a new client profile</p>
         </div>
       </div>

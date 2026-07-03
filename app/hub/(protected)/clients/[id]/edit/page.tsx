@@ -130,7 +130,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
           <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Edit Client</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Edit Client</h1>
           <p className="text-muted-foreground">{name}</p>
         </div>
       </div>

@@ -35,7 +35,7 @@ export default async function UpdatesHistoryPage({ params }: { params: { id: str
            <IconChevronLeft className="h-5 w-5" />
          </Link>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold tracking-tight">6-Week Updates</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">6-Week Updates</h1>
           <p className="text-muted-foreground">{client.name}</p>
         </div>
         <Link href={`/hub/clients/${params.id}/updates/new`}>

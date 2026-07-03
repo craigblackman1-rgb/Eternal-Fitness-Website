@@ -51,7 +51,7 @@ export default function NewBlockPage({ params }: { params: { id: string } }) {
           <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Generate New Block</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Generate New Block</h1>
           <p className="text-muted-foreground">The AI will create a bespoke plan based on the client profile and schedule</p>
         </div>
       </div>

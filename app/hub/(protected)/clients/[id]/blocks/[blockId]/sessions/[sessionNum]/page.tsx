@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IconChevronLeft, IconChevronRight, IconVideo, IconCheckCircle, IconActivity } from "@/components/icons";
+import { HubCardHeader } from "@/components/hub/HubCardHeader";
 import Link from "next/link";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -117,7 +118,7 @@ export default function SessionViewPage({
         </Link>
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold tracking-tight">Session {sessionNum}</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Session {sessionNum}</h1>
             <Badge variant="outline" className="text-sm">{session.archetype}</Badge>
             <span className="text-sm capitalize text-muted-foreground">Week {session.week} · {session.phase}</span>
           </div>
@@ -183,20 +184,17 @@ export default function SessionViewPage({
       </Tabs>
 
       <Card className="shadow-sm border-border/60 rounded-2xl">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-teal/10 flex items-center justify-center">
-              <IconActivity className="w-3.5 h-3.5 text-teal" />
-            </div>
-            Session Log
-          </CardTitle>
-          {currentLog?.completed_at && (
+        <HubCardHeader
+          icon={<IconActivity className="w-4 h-4" />}
+          title="Session Log"
+          color="teal"
+          action={currentLog?.completed_at ? (
             <Badge className="bg-teal/15 text-teal border-teal/20 rounded-full gap-1">
               <IconCheckCircle className="w-3 h-3" />
               Completed {new Date(currentLog.completed_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
             </Badge>
-          )}
-        </CardHeader>
+          ) : undefined}
+        />
         <CardContent className="space-y-3">
           {editingLog ? (
             <>

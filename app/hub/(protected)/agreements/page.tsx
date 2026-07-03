@@ -1,11 +1,12 @@
 import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { IconCalendar, IconEye, IconFileSignature, IconMail, IconPhone } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
 import { KpiTile } from "@/components/hub/KpiTile";
+import { HubCardHeader } from "@/components/hub/HubCardHeader";
 
 export default async function AgreementsPage() {
   const supabase = createClient();
@@ -19,7 +20,7 @@ export default async function AgreementsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Signed Agreements</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Signed Agreements</h1>
         <p className="text-muted-foreground mt-1">View and manage all signed personal training agreements</p>
       </div>
 
@@ -32,14 +33,7 @@ export default async function AgreementsPage() {
 
       {/* Agreements list */}
       <Card className="shadow-sm border-border/60 rounded-2xl">
-        <CardHeader className="flex flex-row items-center justify-between pb-4">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-rose/10 flex items-center justify-center">
-              <IconFileSignature className="w-4 h-4 text-rose" />
-            </div>
-            All Agreements
-          </CardTitle>
-        </CardHeader>
+        <HubCardHeader icon={<IconFileSignature className="w-4 h-4" />} title="All Agreements" />
         <CardContent>
           {error && (
             <div className="text-center py-8">

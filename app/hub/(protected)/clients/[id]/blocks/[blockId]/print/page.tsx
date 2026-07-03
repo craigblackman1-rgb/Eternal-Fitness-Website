@@ -71,7 +71,7 @@ export default async function BlockPrintPage({
           <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl font-semibold tracking-tight">
             Block {block.block_number} &mdash; Print View
           </h1>
         </div>

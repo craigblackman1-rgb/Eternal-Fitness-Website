@@ -100,7 +100,7 @@ export function ExerciseBrowser({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Exercise Library</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Exercise Library</h1>
           <p className="text-muted-foreground">{exercises.length} exercises &middot; {filtered.length} shown</p>
         </div>
       </div>

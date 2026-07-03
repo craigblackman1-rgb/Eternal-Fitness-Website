@@ -96,7 +96,7 @@ export default function NewUpdatePage({ params }: { params: { id: string } }) {
           <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">New 6-Week Update</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">New 6-Week Update</h1>
           <p className="text-muted-foreground">Generate a draft from training data, review it, then send</p>
         </div>
       </div>

@@ -167,7 +167,7 @@ export default function SiteReviewPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-near-black">Site Review & Tasks</h1>
+        <h1 className="text-2xl font-semibold text-near-black">Site Review & Tasks</h1>
         <p className="text-muted-foreground mt-1">Website audit checklist and project structure</p>
       </div>
 

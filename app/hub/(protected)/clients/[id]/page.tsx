@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IconChevronLeft, IconClipboardList, IconFileText, IconHeart, IconMail, IconPencil, IconPlus, IconTarget, IconTriangleAlert } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
+import { HubCardHeader } from "@/components/hub/HubCardHeader";
+import { StatusBadge } from "@/components/hub/StatusBadge";
 import type { DBClientComplianceStatus, DBClientGroupType, DBClientPaceMode } from "@/types";
 import { PlanAgentTab } from "./PlanAgentTab";
 
@@ -107,7 +109,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           {initials}
         </div>
         <div className="flex-1 min-w-0">
-          <h1 className="text-3xl font-bold">{client.name}</h1>
+          <h1 className="text-2xl font-semibold">{client.name}</h1>
           <p className="text-white/60">
             {p?.client?.age && `${p.client.age} yrs`} {p?.client?.gender && `· ${p.client.gender}`}
             {p?.logistics?.sessions_per_week && ` · ${p.logistics.sessions_per_week}x/week`}
@@ -170,9 +172,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           {/* Active block summary */}
           {latestBlock ? (
             <Card className="shadow-sm border-border/60 rounded-2xl">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Active Block</CardTitle>
-              </CardHeader>
+              <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Active Block" />
               <CardContent>
                 <Link 
                   href={`/hub/clients/${client.client_number}/blocks/${latestBlock.id}`}
@@ -184,12 +184,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                       {new Date(latestBlock.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                     </p>
                   </div>
-                  <Badge
-                    variant={latestBlock.status === "approved" || latestBlock.status === "active" ? "default" : latestBlock.status === "draft" ? "secondary" : "outline"}
-                    className="capitalize rounded-full"
-                  >
-                    {latestBlock.status}
-                  </Badge>
+                  <StatusBadge status={latestBlock.status} />
                 </Link>
               </CardContent>
             </Card>
@@ -207,14 +202,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           {/* Profile content */}
           {p?.logistics && (
             <Card className="shadow-sm border-border/60 rounded-2xl">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-dark-navy/10 flex items-center justify-center">
-                    <IconClipboardList className="w-3.5 h-3.5 text-dark-navy" />
-                  </div>
-                  Logistics
-                </CardTitle>
-              </CardHeader>
+              <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Logistics" color="navy" />
               <CardContent className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
                 <div>
                   <span className="text-muted-foreground block mb-1">Location</span>
@@ -246,14 +234,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
           {p?.health && (
             <Card className="shadow-sm border-border/60 rounded-2xl bg-off-white">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-rose/10 flex items-center justify-center">
-                    <IconHeart className="w-3.5 h-3.5 text-rose" />
-                  </div>
-                  Health
-                </CardTitle>
-              </CardHeader>
+              <HubCardHeader icon={<IconHeart className="w-4 h-4" />} title="Health" />
               <CardContent className="space-y-3 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">GP Clearance</span>
@@ -297,14 +278,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
           {p?.physical_baseline && (
             <Card className="shadow-sm border-border/60 rounded-2xl">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-rose/10 flex items-center justify-center">
-                    <IconTarget className="w-3.5 h-3.5 text-rose" />
-                  </div>
-                  Physical Baseline
-                </CardTitle>
-              </CardHeader>
+              <HubCardHeader icon={<IconTarget className="w-4 h-4" />} title="Physical Baseline" />
               <CardContent className="space-y-3 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Fitness Level</span>
@@ -356,14 +330,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
           {p?.goals && (
             <Card className="shadow-sm border-border/60 rounded-2xl bg-off-white">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-rose/10 flex items-center justify-center">
-                    <IconTarget className="w-3.5 h-3.5 text-rose" />
-                  </div>
-                  Goals
-                </CardTitle>
-              </CardHeader>
+              <HubCardHeader icon={<IconTarget className="w-4 h-4" />} title="Goals" />
               <CardContent className="space-y-2 text-sm">
                 <div>
                   <span className="text-muted-foreground block mb-1">Primary</span>
@@ -394,14 +361,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
           {p?.programming_adaptations && p.programming_adaptations.length > 0 && (
             <Card className="shadow-sm border-border/60 rounded-2xl">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-amber/10 flex items-center justify-center">
-                    <IconClipboardList className="w-3.5 h-3.5 text-amber" />
-                  </div>
-                  Programming Adaptations
-                </CardTitle>
-              </CardHeader>
+              <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Programming Adaptations" color="amber" />
               <CardContent>
                 <ul className="list-none space-y-2">
                   {p.programming_adaptations.map((ad, i) => (
@@ -417,14 +377,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
           {(p?.notes?.esther_observations || p?.notes?.motivation_notes || p?.notes?.watch_for) && (
             <Card className="shadow-sm border-border/60 rounded-2xl bg-off-white/40">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-slate/10 flex items-center justify-center">
-                    <IconClipboardList className="w-3.5 h-3.5 text-slate" />
-                  </div>
-                  Notes
-                </CardTitle>
-              </CardHeader>
+              <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Notes" color="slate" />
               <CardContent className="space-y-3 text-sm">
                 {p.notes.esther_observations && (
                   <div>
@@ -468,14 +421,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         {/* Tab 3: Training (Blocks + Sessions) */}
         <TabsContent value="training" className="space-y-4 mt-4">
           <Card className="shadow-sm border-border/60 rounded-2xl">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-rose/10 flex items-center justify-center">
-                  <IconFileText className="w-4 h-4 text-rose" />
-                </div>
-                Training Blocks
-              </CardTitle>
-            </CardHeader>
+            <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Training Blocks" />
             <CardContent>
               {blocks && blocks.length > 0 ? (
                 <div className="space-y-2">
@@ -497,12 +443,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                           </p>
                         </div>
                       </div>
-                      <Badge
-                        variant={block.status === "approved" || block.status === "active" ? "default" : block.status === "draft" ? "secondary" : "outline"}
-                        className="capitalize rounded-full"
-                      >
-                        {block.status}
-                      </Badge>
+                      <StatusBadge status={block.status} />
                     </Link>
                   ))}
                 </div>

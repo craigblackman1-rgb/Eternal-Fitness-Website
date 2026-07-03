@@ -1,22 +1,115 @@
 import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { IconPlus, IconUsers } from "@/components/icons";
-import { getComplianceBadgeClass, getComplianceLabel } from "@/lib/complianceStatus";
+import { StatusBadge } from "@/components/hub/StatusBadge";
 import { EmptyState } from "@/components/hub/EmptyState";
-import type { DBClient, DBClientComplianceStatus, DBClientPaceMode } from "@/types";
+import { HubTable, type HubColumn } from "@/components/hub/HubTable";
+import type { DBClient } from "@/types";
+
+function InitialsCircle({ name, size = "md" }: { name: string; size?: "sm" | "md" }) {
+  const initials = name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+  const sizeClasses = size === "sm" ? "w-8 h-8 text-xs" : "w-10 h-10 text-sm";
+  return (
+    <div className={`${sizeClasses} rounded-full bg-rose/15 text-rose flex items-center justify-center font-bold shrink-0`}>
+      {initials}
+    </div>
+  );
+}
+
+function getGoalsLabel(goals: DBClient["profile"]["goals"]["primary"] | undefined): string {
+  if (!goals) return "—";
+  const labels: Record<string, string> = {
+    strength: "Strength",
+    mobility: "Mobility",
+    weight_loss: "Weight Loss",
+    rehabilitation: "Rehab",
+    confidence: "Confidence",
+    general_fitness: "General Fitness",
+  };
+  return labels[goals] ?? goals;
+}
 
 export default async function ClientsPage() {
   const supabase = createClient();
-  const { data: clients } = await supabase.from("clients").select("*, compliance_status, outstanding_actions, group_type, pace_mode").order("created_at", { ascending: false });
+  const { data: clients } = await supabase
+    .from("clients")
+    .select("*, compliance_status, outstanding_actions, group_type, pace_mode")
+    .order("created_at", { ascending: false });
+
+  const columns: HubColumn<DBClient>[] = [
+    {
+      key: "name",
+      header: "Client",
+      sortable: true,
+      render: (client) => (
+        <div className="flex items-center gap-3">
+          <InitialsCircle name={client.name} />
+          <span className="font-semibold text-foreground truncate">{client.name}</span>
+        </div>
+      ),
+    },
+    {
+      key: "sessions_per_week",
+      header: "Sessions / Week",
+      render: (client) => {
+        const spw = client.profile?.logistics?.sessions_per_week;
+        return spw ? `${spw}x` : "—";
+      },
+    },
+    {
+      key: "conditions",
+      header: "Conditions",
+      render: (client) => {
+        const count = client.profile?.health?.conditions?.length ?? 0;
+        return count > 0 ? String(count) : "—";
+      },
+      sortValue: (client) => client.profile?.health?.conditions?.length ?? 0,
+    },
+    {
+      key: "goals",
+      header: "Goals",
+      render: (client) => (
+        <span className="truncate block max-w-32" title={client.profile?.goals?.primary ?? ""}>
+          {getGoalsLabel(client.profile?.goals?.primary)}
+        </span>
+      ),
+    },
+    {
+      key: "compliance_status",
+      header: "Compliance",
+      render: (client) =>
+        client.compliance_status ? (
+          <StatusBadge status={client.compliance_status} />
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        ),
+      sortValue: (client) => client.compliance_status ?? "",
+    },
+    {
+      key: "created_at",
+      header: "Created",
+      sortable: true,
+      className: "text-muted-foreground whitespace-nowrap",
+      render: (client) =>
+        new Date(client.created_at).toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }),
+    },
+  ];
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Clients</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Clients</h1>
           <p className="text-muted-foreground mt-1">Manage client profiles and training blocks</p>
         </div>
         <Link href="/hub/clients/new">
@@ -28,74 +121,27 @@ export default async function ClientsPage() {
       </div>
 
       {clients && clients.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {clients.map((client) => {
-            const initials = client.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
-            const sessionsPerWeek = client.profile?.logistics?.sessions_per_week;
-            const timeTier = client.profile?.logistics?.time_tier;
-            const conditions = client.profile?.health?.conditions;
-            const goals = client.profile?.goals?.primary;
-
-            return (
-              <div key={client.id} className="relative">
-                {client.compliance_status && client.compliance_status !== 'clear' && (
-                  <div className="absolute -top-2 -right-2 z-10">
-                    <Badge className={getComplianceBadgeClass(client.compliance_status)}>
-                      {getComplianceLabel(client.compliance_status)}
-                    </Badge>
-                  </div>
-                )}
-                <Link href={`/hub/clients/${client.client_number}`}>
-                  <Card className="transition-all duration-150 hover:shadow-md hover:border-rose/20 border-border/60 rounded-2xl group h-full pt-4">
-                    <CardContent className="p-5">
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-full bg-rose/15 text-rose flex items-center justify-center text-sm font-bold shrink-0">
-                          {initials}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-foreground truncate group-hover:text-rose transition-colors">{client.name}</h3>
-                          <div className="space-y-1 mt-2 text-sm text-muted-foreground">
-                            {sessionsPerWeek && (
-                              <p className="flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-rose/40" />
-                                {sessionsPerWeek}x per week{timeTier ? ` · ${timeTier}` : ""}
-                              </p>
-                            )}
-                            {conditions?.length > 0 && (
-                              <p className="flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-teal/40" />
-                                {conditions.length} condition(s)
-                              </p>
-                            )}
-                            {goals && (
-                              <p className="flex items-center gap-1.5 truncate" title={goals}>
-                                <span className="w-1.5 h-1.5 rounded-full bg-dark-navy/30" />
-                                {goals}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      {client.pace_mode && (
-                        <div className="mt-3 pt-3 border-t border-border/60">
-                          <p className="text-xs text-muted-foreground">
-                            {client.pace_mode === 'fast' ? 'Fast pace' : client.pace_mode === 'medium' ? 'Med pace' : 'Slow pace'}
-                          </p>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </Link>
-              </div>
-            );
-          })}
-        </div>
+        <HubTable
+          data={clients}
+          columns={columns}
+          getRowHref={(client) => `/hub/clients/${client.client_number}`}
+          searchPlaceholder="Search clients by name..."
+          searchKeys={["name"]}
+          emptyState={
+            <div className="flex items-center justify-center py-12">
+              <p className="text-sm text-muted-foreground">No clients match your search.</p>
+            </div>
+          }
+        />
       ) : (
-        <Card className="shadow-sm border-border/60 rounded-2xl">
-          <CardContent>
-            <EmptyState icon={<IconUsers className="w-9 h-9" />} title="No clients yet" description="Add your first client to start building training blocks" cta={{ label: "Add Your First Client", href: "/hub/clients/new" }} />
-          </CardContent>
-        </Card>
+        <div className="rounded-2xl border border-border/60 shadow-sm">
+          <EmptyState
+            icon={<IconUsers className="w-9 h-9" />}
+            title="No clients yet"
+            description="Add your first client to start building training blocks"
+            cta={{ label: "Add Your First Client", href: "/hub/clients/new" }}
+          />
+        </div>
       )}
     </div>
   );

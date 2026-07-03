@@ -81,7 +81,7 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
           <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold tracking-tight">Review & Approve</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Review & Approve</h1>
           <p className="text-muted-foreground">Block {block.block_number} — {sessions.length} sessions</p>
         </div>
       </div>

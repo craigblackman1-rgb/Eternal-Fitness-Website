@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { IconAlertCircle, IconArrowLeft, IconCalendar, IconCheckCircle, IconCopy, IconEdit3, IconFileText, IconMail, IconMapPin, IconPhone, IconPrinter, IconSave, IconSend, IconX } from "@/components/icons";
+import { HubCardHeader } from "@/components/hub/HubCardHeader";
 import AgreementPrintView from "./AgreementPrintView";
 import { parqSections } from "@/lib/parq-data";
 
@@ -427,12 +428,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
 
       {/* Client details */}
       <Card className="shadow-sm border-border/60 rounded-2xl transition-shadow hover:shadow-md">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <IconFileText className="w-4 h-4 text-primary" />
-            Client Details
-          </CardTitle>
-        </CardHeader>
+        <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Client Details" />
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Field label="Full name" value={data.client_name} />
@@ -656,12 +652,7 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
 
       {/* Trainer Information — Editable */}
       <Card className="shadow-sm border-border/60 rounded-2xl transition-shadow hover:shadow-md">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <IconEdit3 className="w-4 h-4 text-primary" />
-            Trainer Information
-          </CardTitle>
-        </CardHeader>
+        <HubCardHeader icon={<IconEdit3 className="w-4 h-4" />} title="Trainer Information" />
         <CardContent>
           {!editingTrainer ? (
             <div className="space-y-4">

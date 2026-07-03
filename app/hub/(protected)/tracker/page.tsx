@@ -355,7 +355,7 @@ export default function TrackerPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Medical Clearance Tracker</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Medical Clearance Tracker</h1>
           <p className="text-muted-foreground mt-1">Track PAR-Qs, clearance letters, and annual reviews</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) resetForm(); setDialogOpen(open); }}>
