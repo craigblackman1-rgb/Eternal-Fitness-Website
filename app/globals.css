@@ -278,3 +278,23 @@
     padding-bottom: 72px;
   }
 }
+
+/* Plan Agent chat — rendered markdown inside assistant bubbles */
+.plan-agent-md h1,
+.plan-agent-md h2 { font-size: 0.95rem; font-weight: 700; margin: 0.9em 0 0.35em; }
+.plan-agent-md h3,
+.plan-agent-md h4 { font-size: 0.875rem; font-weight: 600; margin: 0.8em 0 0.3em; }
+.plan-agent-md p { margin: 0.4em 0; }
+.plan-agent-md ul,
+.plan-agent-md ol { margin: 0.4em 0; padding-left: 1.25em; }
+.plan-agent-md ul { list-style: disc; }
+.plan-agent-md ol { list-style: decimal; }
+.plan-agent-md li { margin: 0.15em 0; }
+.plan-agent-md strong { font-weight: 600; color: var(--color-near-black); }
+.plan-agent-md hr { border: none; border-top: 1px solid var(--hub-border); margin: 0.8em 0; }
+.plan-agent-md table { width: 100%; border-collapse: collapse; margin: 0.6em 0; font-size: 0.8rem; }
+.plan-agent-md th { text-align: left; font-weight: 600; text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.04em; color: var(--color-body); background: var(--hub-hover); padding: 6px 8px; border: 1px solid var(--hub-border); }
+.plan-agent-md td { padding: 6px 8px; border: 1px solid var(--hub-border); vertical-align: top; }
+.plan-agent-md code { background: var(--hub-hover); border: 1px solid var(--hub-border); border-radius: 4px; padding: 0 4px; font-size: 0.8em; }
+.plan-agent-md > :first-child { margin-top: 0; }
+.plan-agent-md > :last-child { margin-bottom: 0; }

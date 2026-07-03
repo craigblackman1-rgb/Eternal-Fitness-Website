@@ -63,6 +63,25 @@ export async function POST(request: Request) {
     sessions = generateFallback(profile, blockNumber);
   }
 
+  const invalid =
+    !Array.isArray(sessions) ||
+    sessions.length === 0 ||
+    sessions.some(
+      (s) =>
+        !s?.session_number ||
+        !s?.versions?.studio?.main_block?.length ||
+        !s?.versions?.home?.main_block?.length,
+    );
+  if (invalid) {
+    console.error(
+      `[generate-block] rejected invalid session plan (provider=${aiConfig.provider ?? "fallback"}, count=${Array.isArray(sessions) ? sessions.length : "not-array"}) — no block created`,
+    );
+    return NextResponse.json(
+      { error: "Generation produced an invalid or empty session plan — no block was created. Try again; if this persists the AI provider is misconfigured or underpowered." },
+      { status: 502 },
+    );
+  }
+
   const { data: block, error: blockError } = await supabase
     .from("blocks")
     .insert({

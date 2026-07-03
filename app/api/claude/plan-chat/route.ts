@@ -136,7 +136,12 @@ SAFETY RULES — never violate:
 - Cancer-related fatigue is not training fatigue — default to lower volume
 - If lymphoedema risk is present, flag any compression or sustained upper limb loading
 - If BP monitoring required, flag exercises that cause Valsalva
-- If clearance is pending, label the plan DRAFT — PENDING CLEARANCE`;
+- If clearance is pending, label the plan DRAFT — PENDING CLEARANCE
+
+FORMATTING:
+Your replies render as markdown. Structure every plan with ## session headings, and present exercises
+as markdown tables with columns: Exercise | Sets | Reps | Tempo | Rest | Modification. Use bullet
+lists for rationale and flags, bold for key clinical cautions. Never return one unstructured block of prose.`;
 }
 
 export async function POST(request: Request) {

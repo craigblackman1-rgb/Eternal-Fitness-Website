@@ -6,6 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { IconBot, IconLoader2, IconPlus, IconSend } from "@/components/icons";
 import { useRouter } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface Message {
   role: "user" | "assistant";
@@ -212,6 +214,10 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
                       <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40 animate-bounce [animation-delay:150ms]" />
                       <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40 animate-bounce [animation-delay:300ms]" />
                     </span>
+                  ) : message.role === "assistant" ? (
+                    <div className="plan-agent-md leading-relaxed">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+                    </div>
                   ) : (
                     <div className="whitespace-pre-wrap leading-relaxed">{message.content}</div>
                   )}

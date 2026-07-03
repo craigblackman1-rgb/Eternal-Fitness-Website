@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { IconChevronLeft, IconChevronRight, IconVideo, IconCheckCircle, IconActivity } from "@/components/icons";
+import { IconChevronLeft, IconChevronRight, IconVideo, IconCheckCircle, IconActivity, IconPencil, IconSearch } from "@/components/icons";
 import { HubCardHeader } from "@/components/hub/HubCardHeader";
 import Link from "next/link";
 import { Textarea } from "@/components/ui/textarea";
@@ -302,8 +302,10 @@ function SessionSection({
   if (exercises.length === 0) {
     return (
       <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-        <CardHeader><CardTitle className="text-base">{title}</CardTitle></CardHeader>
-        <CardContent><p className="text-sm text-muted-foreground">No exercises</p></CardContent>
+        <CardContent className="flex items-center justify-between py-4">
+          <p className="text-sm font-medium text-foreground">{title}</p>
+          <p className="text-sm text-muted-foreground">No exercises in this section.</p>
+        </CardContent>
       </Card>
     );
   }
@@ -362,103 +364,148 @@ function SessionSection({
   };
 
   return (
-    <Card className="shadow-sm border-border/60 rounded-2xl">
-      <CardHeader><CardTitle className="text-base">{title}</CardTitle></CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {exercises.map((ex, i) => (
-            <div key={i} className="rounded-xl border border-border/60 shadow-sm p-3 text-sm transition-shadow hover:shadow-md">
-              <div className="flex items-start justify-between">
-                <p className="font-medium">{ex.exercise_name}</p>
-                <span className="text-xs text-muted-foreground">{ex.sets}×{ex.reps}</span>
-              </div>
-              <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                {ex.tempo && <span>Tempo: {ex.tempo}</span>}
-                {ex.rest && <span>Rest: {ex.rest}</span>}
-                {ex.equipment?.length > 0 && <span>Equipment: {ex.equipment.join(", ")}</span>}
-              </div>
-              {ex.coaching_cue && <p className="mt-1 text-xs italic">{ex.coaching_cue}</p>}
-              {ex.modification && <p className="mt-1 text-xs text-amber-700">Mod: {ex.modification}</p>}
-
-              <div className="mt-2 flex items-center gap-2">
-                {ex.media?.video_url ? (
-                  <>
-                    <a
-                      href={ex.media.video_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-rose hover:underline"
-                    >
-                      <IconVideo className="h-3 w-3" />
-                      Watch
-                    </a>
-                    <span className="text-xs text-muted-foreground">|</span>
-                    <button
-                      onClick={() => {
-                        setEditingUrl(editingUrl === i ? null : i);
-                        setUrlInput(ex.media?.video_url || "");
-                      }}
-                      className="text-xs text-muted-foreground hover:text-foreground"
-                    >
-                      Change
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    onClick={() => {
-                      setEditingUrl(editingUrl === i ? null : i);
-                      setUrlInput("");
-                    }}
-                    className="inline-flex items-center gap-1 text-xs text-rose hover:underline"
-                  >
-                    <IconVideo className="h-3 w-3" />
-                    Add video
-                  </button>
-                )}
-                <span className="text-xs text-muted-foreground">|</span>
-                <button
-                  onClick={() => searchYoutube(ex.exercise_name)}
-                  className="text-xs text-muted-foreground hover:text-foreground"
-                >
-                  Search YouTube
-                </button>
-                <span className="text-xs text-muted-foreground">|</span>
-                <button
-                  onClick={() => setSwapping(swapping === i ? null : i)}
-                  className="text-xs text-rose hover:underline"
-                >
-                  Swap
-                </button>
-              </div>
-
-              {swapping === i && (
-                <SwapExerciseDialog
-                  open={swapping === i}
-                  onOpenChange={(open) => { if (!open) setSwapping(null); }}
-                  onSelect={(selected) => handleSwapExercise(i, selected)}
-                />
-              )}
-
-              {editingUrl === i && (
-                <div className="mt-2 flex gap-2">
-                  <input
-                    type="text"
-                    value={urlInput}
-                    onChange={(e) => setUrlInput(e.target.value)}
-                    placeholder="YouTube or video URL..."
-                    className="min-w-0 flex-1 rounded-md border px-2 py-1 text-xs"
-                    onKeyDown={(e) => e.key === "Enter" && updateExerciseMedia(i, urlInput.trim())}
-                  />
-                  <button
-                    onClick={() => updateExerciseMedia(i, urlInput.trim())}
-                    className="rounded-md bg-rose px-2 py-1 text-xs text-white"
-                  >
-                    Save
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
+    <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+        <CardTitle className="text-base">{title}</CardTitle>
+        <span className="text-xs text-muted-foreground">
+          {exercises.length} exercise{exercises.length === 1 ? "" : "s"}
+        </span>
+      </CardHeader>
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-[var(--hub-hover)]">
+                <th className="px-4 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Exercise</th>
+                <th className="px-4 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Sets</th>
+                <th className="px-4 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Reps</th>
+                <th className="px-4 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Tempo</th>
+                <th className="px-4 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Rest</th>
+                <th className="px-4 py-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground" />
+              </tr>
+            </thead>
+            <tbody>
+              {exercises.map((ex, i) => {
+                const hasDetail = Boolean(ex.coaching_cue || ex.modification);
+                return (
+                  <Fragment key={i}>
+                    <tr className={hasDetail || editingUrl === i ? "" : "border-b border-[var(--hub-border)]"}>
+                      <td className="px-4 py-2 align-top">
+                        <p className="text-sm font-medium text-foreground">{ex.exercise_name}</p>
+                        {ex.equipment?.length > 0 && (
+                          <p className="text-[11px] text-muted-foreground">{ex.equipment.join(", ")}</p>
+                        )}
+                      </td>
+                      <td className="px-4 py-2 align-top text-sm tabular-nums whitespace-nowrap">{ex.sets ?? "—"}</td>
+                      <td className="px-4 py-2 align-top text-sm tabular-nums whitespace-nowrap">{ex.reps ?? "—"}</td>
+                      <td className="px-4 py-2 align-top text-sm tabular-nums whitespace-nowrap">{ex.tempo || "—"}</td>
+                      <td className="px-4 py-2 align-top text-sm tabular-nums whitespace-nowrap">{ex.rest || "—"}</td>
+                      <td className="px-4 py-2 align-top">
+                        <div className="flex items-center justify-end gap-1">
+                          {ex.media?.video_url ? (
+                            <>
+                              <a
+                                href={ex.media.video_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Watch video"
+                                className="inline-flex h-7 w-7 items-center justify-center rounded-full text-rose hover:bg-[var(--hub-hover)]"
+                              >
+                                <IconVideo className="h-3.5 w-3.5" />
+                              </a>
+                              <button
+                                title="Change video"
+                                onClick={() => {
+                                  setEditingUrl(editingUrl === i ? null : i);
+                                  setUrlInput(ex.media?.video_url || "");
+                                }}
+                                className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
+                              >
+                                <IconPencil className="h-3.5 w-3.5" />
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              title="Add video"
+                              onClick={() => {
+                                setEditingUrl(editingUrl === i ? null : i);
+                                setUrlInput("");
+                              }}
+                              className="inline-flex h-7 w-7 items-center justify-center rounded-full text-rose hover:bg-[var(--hub-hover)]"
+                            >
+                              <IconVideo className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                          <button
+                            title="Search YouTube"
+                            onClick={() => searchYoutube(ex.exercise_name)}
+                            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
+                          >
+                            <IconSearch className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            title="Swap exercise"
+                            onClick={() => setSwapping(swapping === i ? null : i)}
+                            className="inline-flex h-7 items-center justify-center rounded-full px-2 text-xs font-medium text-rose hover:bg-[var(--hub-hover)]"
+                          >
+                            Swap
+                          </button>
+                        </div>
+                        {swapping === i && (
+                          <SwapExerciseDialog
+                            open={swapping === i}
+                            onOpenChange={(open) => { if (!open) setSwapping(null); }}
+                            onSelect={(selected) => handleSwapExercise(i, selected)}
+                          />
+                        )}
+                      </td>
+                    </tr>
+                    {hasDetail && (
+                      <tr key={`detail-${i}`} className={editingUrl === i ? "" : "border-b border-[var(--hub-border)]"}>
+                        <td colSpan={6} className="px-4 pb-2 text-xs">
+                          <span className="text-muted-foreground">
+                            {ex.coaching_cue && <span className="italic">Cue: {ex.coaching_cue}</span>}
+                            {ex.coaching_cue && ex.modification && " · "}
+                            {ex.modification && (
+                              <span className="text-[var(--status-warning)]">Mod: {ex.modification}</span>
+                            )}
+                          </span>
+                        </td>
+                      </tr>
+                    )}
+                    {editingUrl === i && (
+                      <tr key={`edit-${i}`} className="border-b border-[var(--hub-border)]">
+                        <td colSpan={6} className="px-4 pb-3">
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={urlInput}
+                              onChange={(e) => setUrlInput(e.target.value)}
+                              placeholder="YouTube or video URL..."
+                              className="min-w-0 flex-1 rounded-md border px-2 py-1 text-xs"
+                              onKeyDown={(e) => e.key === "Enter" && updateExerciseMedia(i, urlInput.trim())}
+                            />
+                            <button
+                              onClick={() => updateExerciseMedia(i, urlInput.trim())}
+                              className="rounded-md bg-rose px-2 py-1 text-xs text-white"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => { setEditingUrl(null); setUrlInput(""); }}
+                              className="rounded-md border px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </CardContent>
     </Card>
