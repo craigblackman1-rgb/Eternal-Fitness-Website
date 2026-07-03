@@ -4,21 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { IconActivity, IconArrowUpRight, IconCalendar, IconCheckCircle, IconFileText, IconPlus, IconUserPlus, IconUsers } from "@/components/icons";
-import type { DBClient, DBBlock } from "@/types";
-
-function KpiTile({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
-  return (
-    <div className="rounded-2xl bg-dark-navy text-white p-5 flex items-center gap-4">
-      <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
-        <span className="text-white/80">{icon}</span>
-      </div>
-      <div>
-        <p className="text-2xl font-bold tracking-tight text-white">{value}</p>
-        <p className="text-sm text-white/60">{label}</p>
-      </div>
-    </div>
-  );
-}
+import { KpiTile } from "@/components/hub/KpiTile";
+import { EmptyState } from "@/components/hub/EmptyState";
 
 function StatusDot({ status }: { status: string }) {
   const color =
@@ -160,7 +147,7 @@ export default async function DashboardPage() {
               })}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground text-center py-6">No active blocks right now — approve a block to see it here.</p>
+            <EmptyState title="No active blocks right now — approve a block to see it here." />
           )}
         </CardContent>
       </Card>
@@ -211,18 +198,7 @@ export default async function DashboardPage() {
                 })}
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-4 py-10">
-                <div className="w-16 h-16 rounded-full bg-rose/10 flex items-center justify-center">
-                  <IconUsers className="w-7 h-7 text-rose/50" />
-                </div>
-                <p className="text-sm text-muted-foreground">No clients yet</p>
-                <Link href="/hub/clients/new">
-                  <Button size="sm" className="rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white">
-                    <IconPlus className="w-4 h-4" />
-                    Add Your First Client
-                  </Button>
-                </Link>
-              </div>
+              <EmptyState icon={<IconUsers className="w-7 h-7" />} title="No clients yet" cta={{ label: "Add Your First Client", href: "/hub/clients/new" }} />
             )}
           </CardContent>
         </Card>
@@ -233,8 +209,8 @@ export default async function DashboardPage() {
           <Card className="shadow-sm border-border/60 rounded-2xl">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-teal/10 flex items-center justify-center">
-                  <IconFileText className="w-4 h-4 text-teal" />
+                <div className="w-8 h-8 rounded-lg bg-rose/10 flex items-center justify-center">
+                  <IconFileText className="w-4 h-4 text-rose" />
                 </div>
                 Recent Blocks
               </CardTitle>
@@ -256,9 +232,7 @@ export default async function DashboardPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  No blocks generated yet
-                </p>
+                <EmptyState title="No blocks generated yet" />
               )}
             </CardContent>
           </Card>

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IconChevronLeft, IconClipboardList, IconFileText, IconHeart, IconMail, IconPencil, IconPlus, IconTarget, IconTriangleAlert } from "@/components/icons";
-import { getComplianceBadgeClass, getComplianceLabel } from "@/lib/complianceStatus";
+import { EmptyState } from "@/components/hub/EmptyState";
 import type { DBClientComplianceStatus, DBClientGroupType, DBClientPaceMode } from "@/types";
 import { PlanAgentTab } from "./PlanAgentTab";
 
@@ -195,13 +195,8 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             </Card>
           ) : (
             <Card className="shadow-sm border-border/60 rounded-2xl">
-              <CardContent className="flex items-center justify-between p-4">
-                <span className="text-muted-foreground">No blocks yet</span>
-                <Link href={`/hub/clients/${client.client_number}/blocks/new`}>
-                  <Button variant="outline" size="sm" className="rounded-full">
-                    Create Block
-                  </Button>
-                </Link>
+              <CardContent>
+                <EmptyState title="No blocks yet" cta={{ label: "Create Block", href: `/hub/clients/${client.client_number}/blocks/new` }} />
               </CardContent>
             </Card>
           )}
@@ -250,11 +245,11 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           )}
 
           {p?.health && (
-            <Card className="shadow-sm border-border/60 rounded-2xl">
+            <Card className="shadow-sm border-border/60 rounded-2xl bg-off-white">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-teal/10 flex items-center justify-center">
-                    <IconHeart className="w-3.5 h-3.5 text-teal" />
+                  <div className="w-7 h-7 rounded-lg bg-rose/10 flex items-center justify-center">
+                    <IconHeart className="w-3.5 h-3.5 text-rose" />
                   </div>
                   Health
                 </CardTitle>
@@ -360,11 +355,11 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           )}
 
           {p?.goals && (
-            <Card className="shadow-sm border-border/60 rounded-2xl">
+            <Card className="shadow-sm border-border/60 rounded-2xl bg-off-white">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-dark-navy/10 flex items-center justify-center">
-                    <IconTarget className="w-3.5 h-3.5 text-dark-navy" />
+                  <div className="w-7 h-7 rounded-lg bg-rose/10 flex items-center justify-center">
+                    <IconTarget className="w-3.5 h-3.5 text-rose" />
                   </div>
                   Goals
                 </CardTitle>
@@ -453,44 +448,6 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             </Card>
           )}
 
-          {/* Separator */}
-          <div className="border-t border-border/60 my-2" />
-
-          {/* Compliance content */}
-          <Card className="shadow-sm border-border/60 rounded-2xl mb-4">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Medical Clearance</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">GP Clearance</span>
-                <Badge variant={p?.health?.gp_clearance ? "default" : "destructive"} className="rounded-full">
-                  {p?.health?.gp_clearance ? "Yes" : "No"}
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-sm border-border/60 rounded-2xl mb-4">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Compliance Status</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm">
-              <Badge className={getComplianceBadgeClass(client.compliance_status)}>
-                {getComplianceLabel(client.compliance_status)}
-              </Badge>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-sm border-border/60 rounded-2xl mb-4">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Outstanding Actions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <OutstandingActionsList actions={client.outstanding_actions} />
-            </CardContent>
-          </Card>
-
           <Card className="shadow-sm border-border/60 rounded-2xl">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Documents</CardTitle>
@@ -550,17 +507,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-col items-center gap-3 py-10">
-                  <div className="w-16 h-16 rounded-full bg-rose/10 flex items-center justify-center">
-                    <IconFileText className="w-7 h-7 text-rose/40" />
-                  </div>
-                  <p className="text-sm text-muted-foreground">No blocks yet</p>
-                  <Link href={`/hub/clients/${client.client_number}/blocks/new`}>
-                    <Button variant="outline" size="sm" className="rounded-full">
-                      Generate First Block
-                    </Button>
-                  </Link>
-                </div>
+                <EmptyState icon={<IconFileText className="w-7 h-7" />} title="No blocks yet" cta={{ label: "Generate First Block", href: `/hub/clients/${client.client_number}/blocks/new` }} />
               )}
             </CardContent>
           </Card>
@@ -607,7 +554,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                   </tbody>
                 </table>
               ) : (
-                <p className="text-muted-foreground">No sessions logged yet.</p>
+                <EmptyState title="No sessions logged yet." />
               )}
             </CardContent>
           </Card>

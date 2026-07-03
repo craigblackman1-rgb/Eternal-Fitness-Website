@@ -31,6 +31,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IconPlus, IconAlertTriangle, IconCheckCircle, IconFileText, IconEdit3, IconTrash2, IconX, IconClipboardCheck } from "@/components/icons";
+import { EmptyState } from "@/components/hub/EmptyState";
 import { format, addMonths, parseISO } from "date-fns";
 import { toast } from "sonner";
 
@@ -620,19 +621,9 @@ export default function TrackerPage() {
       {loading ? (
         <p className="text-muted-foreground">Loading...</p>
       ) : filteredRows.length === 0 ? (
-        <Card className="border-border/60 rounded-2xl">
-          <CardContent className="flex flex-col items-center gap-4 py-16">
-            <div className="w-20 h-20 rounded-full bg-rose/10 flex items-center justify-center">
-              <IconFileText className="w-9 h-9 text-rose/40" />
-            </div>
-            <div className="text-center">
-              <p className="font-semibold text-foreground">No clients in tracker yet</p>
-              <p className="text-sm text-muted-foreground mt-1">Add your first client to start tracking clearances</p>
-            </div>
-            <Button onClick={() => { resetForm(); setDialogOpen(true); }} className="rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white">
-              <IconPlus className="mr-2 h-4 w-4" />
-              Add First Client
-            </Button>
+        <Card className="shadow-sm border-border/60 rounded-2xl">
+          <CardContent>
+            <EmptyState icon={<IconFileText className="w-9 h-9" />} title="No clients in tracker yet" description="Add your first client to start tracking clearances" cta={{ label: "Add First Client", onClick: () => { resetForm(); setDialogOpen(true); } }} />
           </CardContent>
         </Card>
       ) : (
