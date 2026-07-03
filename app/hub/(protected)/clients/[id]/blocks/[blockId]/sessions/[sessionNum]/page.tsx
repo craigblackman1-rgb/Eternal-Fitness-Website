@@ -279,6 +279,36 @@ export default function SessionViewPage({
   );
 }
 
+interface ExerciseGroup {
+  label: string;
+  exercises: { exercise: Exercise; index: number }[];
+}
+
+/** Groups a list of exercises into consecutive runs by group_label, keeping original array indices.
+ * Ungrouped exercises fall under "Main Block". If every exercise is ungrouped, returns a single
+ * group with an empty label so the caller can skip rendering section headers for legacy data. */
+function groupExercisesWithIndex(exercises: Exercise[]): ExerciseGroup[] {
+  const allUngrouped = exercises.every((ex) => !ex.group_label);
+  if (allUngrouped) {
+    return [{ label: "", exercises: exercises.map((exercise, index) => ({ exercise, index })) }];
+  }
+  const groups: ExerciseGroup[] = [];
+  exercises.forEach((exercise, index) => {
+    const label = exercise.group_label || "Main Block";
+    const last = groups[groups.length - 1];
+    if (last && last.label === label) {
+      last.exercises.push({ exercise, index });
+    } else {
+      groups.push({ label, exercises: [{ exercise, index }] });
+    }
+  });
+  return groups;
+}
+
+function isSuperset(label: string): boolean {
+  return label.toLowerCase().startsWith("superset");
+}
+
 function SessionSection({
   title,
   exercises,
@@ -385,12 +415,34 @@ function SessionSection({
               </tr>
             </thead>
             <tbody>
-              {exercises.map((ex, i) => {
+              {(sectionKey === "main_block"
+                ? groupExercisesWithIndex(exercises)
+                : [{ label: "", exercises: exercises.map((exercise, index) => ({ exercise, index })) }]
+              ).map((group, gi) => (
+                <Fragment key={`group-${gi}`}>
+                  {group.label && (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className="bg-rose/5 text-rose text-xs font-semibold uppercase tracking-wide px-4 py-1.5"
+                      >
+                        {group.label}
+                        {isSuperset(group.label) && group.exercises.length > 1 && (
+                          <span className="normal-case font-normal text-muted-foreground">
+                            {" "}
+                            — perform together, rest after the pair
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                  {group.exercises.map(({ exercise: ex, index: i }) => {
                 const hasDetail = Boolean(ex.coaching_cue || ex.modification);
+                const superset = group.label ? isSuperset(group.label) : false;
                 return (
                   <Fragment key={i}>
                     <tr className={hasDetail || editingUrl === i ? "" : "border-b border-[var(--hub-border)]"}>
-                      <td className="px-4 py-2 align-top">
+                      <td className={`px-4 py-2 align-top${superset ? " border-l-2 border-rose/30" : ""}`}>
                         <p className="text-sm font-medium text-foreground">{ex.exercise_name}</p>
                         {ex.equipment?.length > 0 && (
                           <p className="text-[11px] text-muted-foreground">{ex.equipment.join(", ")}</p>
@@ -503,7 +555,9 @@ function SessionSection({
                     )}
                   </Fragment>
                 );
-              })}
+                  })}
+                </Fragment>
+              ))}
             </tbody>
           </table>
         </div>

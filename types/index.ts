@@ -68,6 +68,8 @@ export interface Exercise {
   modification: string;
   equipment: string[];
   media?: ExerciseMedia;
+  /** Section within the main block, e.g. "Superset A", "Superset B", "Arms + Core", "Finisher". Absent on legacy data. */
+  group_label?: string;
 }
 
 export interface SessionVersion {

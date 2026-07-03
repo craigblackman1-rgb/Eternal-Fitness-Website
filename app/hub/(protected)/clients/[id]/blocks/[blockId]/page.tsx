@@ -8,7 +8,6 @@ import { KpiTile } from "@/components/hub/KpiTile";
 import { StatusBadge } from "@/components/hub/StatusBadge";
 import {
   IconChevronLeft,
-  IconChevronRight,
   IconPrinter,
   IconFileText,
   IconClipboardList,
@@ -18,6 +17,7 @@ import {
 } from "@/components/icons";
 import { DeleteBlockButton } from "./delete-block-button";
 import { ExportSpreadsheetButton } from "./export-spreadsheet";
+import { PrescriptionTable } from "@/components/hub/PrescriptionTable";
 import type { Session } from "@/types";
 
 // Phase colors — brand-consistent (rose, teal, slate, navy, off-white)
@@ -51,12 +51,6 @@ interface SessionRow {
   week: number;
   phase: string;
   data: Session;
-}
-
-function exerciseCount(session: SessionRow): number {
-  const studio = session.data?.versions?.studio;
-  if (!studio) return 0;
-  return (studio.warm_up?.length || 0) + (studio.main_block?.length || 0) + (studio.cooldown?.length || 0);
 }
 
 export default async function BlockViewPage({
@@ -215,42 +209,49 @@ export default async function BlockViewPage({
                   {weekSessions.length} session{weekSessions.length === 1 ? "" : "s"}
                 </span>
               </div>
-              <div className="rounded-2xl border border-[var(--hub-border)] bg-[var(--hub-card)] shadow-sm divide-y divide-[var(--hub-border)]">
-                {weekSessions.map((session) => {
+              <div className="space-y-3">
+                {weekSessions.map((session, dayIndex) => {
                   const info = archetypeInfo[session.archetype];
                   const focusLabel = session.data?.focus_label || info?.name || "—";
-                  const count = exerciseCount(session);
                   const completedAt = session.data?.session_log?.completed_at;
+                  const sessionUrl = `/hub/clients/${clientId}/blocks/${params.blockId}/sessions/${session.session_number}`;
+                  const studioVersion = session.data?.versions?.studio;
 
                   return (
-                    <Link
+                    <details
                       key={session.id}
-                      href={`/hub/clients/${clientId}/blocks/${params.blockId}/sessions/${session.session_number}`}
-                      className="group flex items-center gap-4 px-4 py-3 hover:bg-[var(--hub-hover)] transition-colors"
+                      open
+                      className="rounded-2xl border border-[var(--hub-border)] bg-[var(--hub-card)] shadow-sm overflow-hidden"
                     >
-                      <div className="w-8 h-8 rounded-lg bg-[var(--hub-hover)] border border-[var(--hub-border)] flex items-center justify-center text-xs font-bold shrink-0">
-                        {session.session_number}
+                      <summary className="list-none cursor-pointer flex items-center gap-4 px-4 py-3 hover:bg-[var(--hub-hover)] transition-colors">
+                        <span className="w-14 shrink-0 text-xs font-bold text-rose uppercase">
+                          Day {dayIndex + 1}
+                        </span>
+                        <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold shrink-0 ${info?.tint || "bg-muted text-muted-foreground"}`}>
+                          {session.archetype} · {info?.name || "Session"}
+                        </span>
+                        <span className="text-sm font-medium flex-1 truncate">{focusLabel}</span>
+                        {completedAt ? (
+                          <span className="bg-[var(--status-success-bg)] text-[var(--status-success)] rounded-full px-2 py-0.5 text-[11px] font-semibold shrink-0">
+                            Done
+                          </span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground shrink-0">Not logged</span>
+                        )}
+                      </summary>
+                      <div className="px-4 pt-2 text-right">
+                        <Link href={sessionUrl} className="text-xs text-rose hover:underline">
+                          Open full session (log, swap, home version)
+                        </Link>
                       </div>
-                      <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold shrink-0 ${info?.tint || "bg-muted text-muted-foreground"}`}>
-                        {session.archetype} · {info?.name || "Session"}
-                      </span>
-                      <span className="text-sm font-medium text-foreground flex-1 min-w-0 truncate">
-                        {focusLabel}
-                      </span>
-                      {count > 0 && (
-                        <span className="text-xs text-muted-foreground tabular-nums shrink-0">
-                          {count} exercises
-                        </span>
-                      )}
-                      {completedAt ? (
-                        <span className="bg-[var(--status-success-bg)] text-[var(--status-success)] rounded-full px-2 py-0.5 text-[11px] font-semibold shrink-0">
-                          Done
-                        </span>
-                      ) : (
-                        <span className="text-xs text-muted-foreground shrink-0">Not logged</span>
-                      )}
-                      <IconChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                    </Link>
+                      <div className="px-4 pb-4 pt-2 overflow-x-auto">
+                        {studioVersion ? (
+                          <PrescriptionTable version={studioVersion} />
+                        ) : (
+                          <p className="text-sm text-muted-foreground">No exercise data for this session.</p>
+                        )}
+                      </div>
+                    </details>
                   );
                 })}
               </div>

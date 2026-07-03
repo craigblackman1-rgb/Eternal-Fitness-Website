@@ -162,6 +162,15 @@ Each session has studio and home versions with warm_up, main_block, cooldown.
 Time tier: ${profile.logistics.time_tier}
 Equipment: dumbbells, resistance bands, kettlebells, barbell+plates, TRX, stationary bike, treadmill, rowing machine, step/box, mats, foam roller, stability ball
 
+MAIN BLOCK STRUCTURE (Esther's 60-minute session format — follow exactly):
+Every exercise in main_block MUST carry a "group_label" field structuring the session:
+- "Superset A" — first hypertrophy pairing (2-3 exercises performed as a superset, 60-75s rest, mobility drill in the rest period)
+- "Superset B" — second hypertrophy pairing (2-3 exercises, same pattern)
+- "Arms + Core" — 2-3 accessory exercises, 60s rest, flow through
+- "Finisher" — one focused 5-min conditioning effort (battle rope / KB complex / loaded carry); omit for slow-pace clients
+Exercises within the same group_label are performed together as a superset/circuit. warm_up and cooldown
+exercises do not need group_label. Do not invent other group_label values.
+
 PROGRESSION RULES:
 - Foundation (weeks 1-2): basic regressions, learn patterns, low load, lower ROM
 - Build (week 3): increase load, add complexity to established patterns
@@ -307,7 +316,10 @@ function composeSessionVersion(
   }
 
   const warm_up = composeSection("warm_up");
-  const main_block = composeSection("main_block");
+  const main_block = composeSection("main_block").map((ex, i) => ({
+    ...ex,
+    group_label: i < 2 ? "Superset A" : "Arms + Core",
+  }));
   const cooldown = composeSection("cooldown");
 
   if (isHome) {
