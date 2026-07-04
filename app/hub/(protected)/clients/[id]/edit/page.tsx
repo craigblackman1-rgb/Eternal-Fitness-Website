@@ -45,6 +45,8 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [profile, setProfile] = useState<ClientProfile>(emptyProfile);
   const [complianceStatus, setComplianceStatus] = useState<DBClientComplianceStatus>("action_needed");
   const [outstandingActions, setOutstandingActions] = useState("");
@@ -64,6 +66,8 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
         return;
       }
       setName(data.name);
+      setEmail(data.email ?? "");
+      setPhone(data.phone ?? "");
       const p = data.profile || {};
       setProfile({
         client: { ...emptyProfile.client, ...(p.client || {}) },
@@ -113,6 +117,8 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
       .from("clients")
       .update({
         name: name.trim(),
+        email: email.trim() || null,
+        phone: phone.trim() || null,
         profile: fullProfile,
         compliance_status: complianceStatus,
         outstanding_actions: outstandingActions.split("\n").map((s) => s.trim()).filter(Boolean),
@@ -181,6 +187,29 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
                     <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="client@example.com"
+                />
+                <p className="text-xs text-muted-foreground">Used to send 6-week updates.</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="07…"
+                />
               </div>
             </div>
           </CardContent>

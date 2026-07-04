@@ -44,6 +44,8 @@ export default function NewClientPage() {
   const supabase = createClient();
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [profile, setProfile] = useState<ClientProfile>(emptyProfile);
 
   const updateProfile = <K extends keyof ClientProfile>(section: K, updates: Partial<ClientProfile[K]>) => {
@@ -70,6 +72,8 @@ export default function NewClientPage() {
 
     const { data, error } = await supabase.from("clients").insert({
       name: name.trim(),
+      email: email.trim() || null,
+      phone: phone.trim() || null,
       profile: fullProfile,
     }).select("client_number").single();
 
@@ -129,6 +133,29 @@ export default function NewClientPage() {
                     <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="client@example.com"
+                />
+                <p className="text-xs text-muted-foreground">Used to send 6-week updates.</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="07…"
+                />
               </div>
             </div>
           </CardContent>
