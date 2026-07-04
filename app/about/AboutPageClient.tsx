@@ -11,6 +11,7 @@ import {
   SectionHeading,
   PageHero,
   FeatureBand,
+  AccreditationStrip,
   StatBadge,
   Callout,
   CTABand,
@@ -108,6 +109,9 @@ export default function AboutPageClient() {
             <Image src="/images/esther-training.jpg" alt="Esther Fair, personal trainer at Eternal Fitness Worthing" fill sizes="(max-width: 1000px) 100vw, 50vw" style={{ objectFit: "cover" }} />
           </Reveal>
         </div>
+        <Reveal y={24} start="top 88%" style={{ marginTop: 56 }}>
+          <AccreditationStrip />
+        </Reveal>
       </Section>
 
       {/* Experience */}
@@ -167,10 +171,10 @@ export default function AboutPageClient() {
         />
         <Reveal className="ds-grid-2" stagger={0.12} y={40} start="top 82%" >
           <div className="ds-split-img" style={{ aspectRatio: "16/10" }}>
-            <Image src="/images/studio-1.jpg" alt="Eternal Fitness private training studio Worthing" fill sizes="(max-width: 1000px) 100vw, 50vw" style={{ objectFit: "cover" }} />
+            <Image src="/images/studio/studio-rack.jpg" alt="The real Eternal Fitness studio in Worthing — squat rack, free weights, and mirror wall" fill sizes="(max-width: 1000px) 100vw, 50vw" style={{ objectFit: "cover" }} />
           </div>
           <div className="ds-split-img" style={{ aspectRatio: "16/10" }}>
-            <Image src="/images/studio-2.jpg" alt="Training equipment at Eternal Fitness Worthing" fill sizes="(max-width: 1000px) 100vw, 50vw" style={{ objectFit: "cover" }} />
+            <Image src="/images/studio/studio-neon.jpg" alt="Inside the Eternal Fitness studio — Consistency is Key" fill sizes="(max-width: 1000px) 100vw, 50vw" style={{ objectFit: "cover" }} />
           </div>
         </Reveal>
         <Reveal y={40} start="top 82%" style={{ marginTop: 48 }}>

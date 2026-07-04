@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { IconPhone, IconMail, IconFacebook, IconInstagram, IconLinkedin, IconYoutube, IconMapPin } from "@/components/icons";
 import EternalFitnessLogo from "@/components/EternalFitnessLogo";
+import { AccreditationStrip } from "@/components/ds";
 
 const websiteSchema = {
   "@context": "https://schema.org",
@@ -160,8 +161,14 @@ const Footer = () => {
             </div>
           </div>
 
+          {/* Accreditations */}
+          <div className="max-w-[1320px] mx-auto mt-14 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
+            <span className="text-[11px] font-bold tracking-[0.1em] uppercase text-white/30 shrink-0">Registered &amp; accredited</span>
+            <AccreditationStrip variant="footer" />
+          </div>
+
           {/* Rose divider */}
-          <div className="max-w-[1320px] mx-auto mt-14 mb-6 h-px bg-rose/20" />
+          <div className="max-w-[1320px] mx-auto mt-8 mb-6 h-px bg-rose/20" />
 
           {/* Bottom bar */}
           <div className="max-w-[1320px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-[13px] text-white/35">

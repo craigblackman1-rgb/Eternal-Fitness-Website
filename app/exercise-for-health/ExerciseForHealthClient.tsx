@@ -17,13 +17,8 @@ import {
   MotionArcs,
   PulseLine,
   IndexList,
+  FaqSplit,
 } from "@/components/ds";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import {
   IconHeart,
   IconBloodPressure,
@@ -223,21 +218,14 @@ export default function ExerciseForHealthClient() {
 
       {/* FAQ */}
       <Section background="cream">
-        <SectionHeading eyebrow="Common Questions" heading="Questions About Exercising With a Health Condition" />
-        <div style={{ maxWidth: 760, margin: "24px auto 0" }}>
-          <Accordion type="single" collapsible className="w-full">
-            {faqs.map((f, i) => (
-              <AccordionItem key={f.title} value={`faq-${i}`} className="border-border-warm">
-                <AccordionTrigger className="font-body text-foreground text-left text-base py-5 hover:no-underline">
-                  {f.title}
-                </AccordionTrigger>
-                <AccordionContent className="ef-body text-sm pb-5">
-                  {f.body}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
+        <FaqSplit
+          eyebrow="Common Questions"
+          heading="Questions About Exercising With a Health Condition"
+          intro="If your question is not covered here, just ask — I would always rather you did."
+          accent="rose"
+          cta={bookCta}
+          items={faqs}
+        />
       </Section>
 
       <CTABand
