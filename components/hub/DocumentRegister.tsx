@@ -59,6 +59,9 @@ export function DocumentRegister({ clientNumber, parqs, agreements }: DocumentRe
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs text-muted-foreground">Document register</span>
         <div className="flex items-center gap-2">
+          <Link href={`/hub/clients/${clientNumber}/documents`} className="text-xs font-medium text-teal hover:underline mr-1">
+            All documents &amp; templates
+          </Link>
           <SendDocumentLink path="/parq" clientNumber={clientNumber} label="Send PAR-Q" />
           <SendDocumentLink path="/agreement" clientNumber={clientNumber} label="Send Agreement" />
         </div>
