@@ -15,5 +15,15 @@ export default async function AgreementDetailPage({ params }: { params: { id: st
     notFound();
   }
 
-  return <AgreementDetailClient agreement={agreement} />;
+  let clientNumber: number | null = null;
+  if (agreement.client_id) {
+    const { data: client } = await supabase
+      .from("clients")
+      .select("client_number")
+      .eq("id", agreement.client_id)
+      .maybeSingle();
+    clientNumber = client?.client_number ?? null;
+  }
+
+  return <AgreementDetailClient agreement={agreement} clientNumber={clientNumber} />;
 }

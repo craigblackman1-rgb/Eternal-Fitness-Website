@@ -69,7 +69,7 @@ interface AgreementData {
   client_status: string | null;
 }
 
-export default function AgreementDetailClient({ agreement }: { agreement: AgreementData }) {
+export default function AgreementDetailClient({ agreement, clientNumber }: { agreement: AgreementData; clientNumber: number | null }) {
   const [data, setData] = useState<AgreementData>(agreement);
   const [editingTrainer, setEditingTrainer] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -363,15 +363,14 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
               </>
             )}
           </Button>
-          <Button
-            variant={editingTrainer ? "default" : "outline"}
-            size="sm"
-            className="gap-1.5 rounded-lg"
-            onClick={() => setEditingTrainer(!editingTrainer)}
-          >
-<IconEdit3 className="w-4 h-4" />
-             {editingTrainer ? "Cancel" : "Edit Trainer Info"}
-          </Button>
+          {clientNumber != null && (
+            <Link href={`/hub/clients/${clientNumber}?tab=profile-compliance`}>
+              <Button variant="outline" size="sm" className="gap-1.5 rounded-lg">
+                <IconArrowLeft className="w-4 h-4" />
+                Open client profile
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -650,335 +649,60 @@ export default function AgreementDetailClient({ agreement }: { agreement: Agreem
         </CardContent>
       </Card>
 
-      {/* Trainer Information — Editable */}
+      {/* Client management — now managed on the client profile */}
       <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] transition-shadow hover:shadow-md">
-        <HubCardHeader icon={<IconEdit3 className="w-4 h-4" />} title="Trainer Information" />
-        <CardContent>
-          {!editingTrainer ? (
-            <div className="space-y-4">
-              {/* Quick summary view */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Field label="Package" value={data.package_type} />
-                <Field label="Sessions" value={data.sessions_purchased ? `${data.sessions_purchased} × ${data.session_duration || 60}min` : null} />
-                <Field label="Payment" value={data.payment_status ? data.payment_status.charAt(0).toUpperCase() + data.payment_status.slice(1) : null} />
-                <Field label="Sessions used / remaining" value={data.sessions_used !== null && data.sessions_used !== undefined ? `${data.sessions_used} / ${data.sessions_remaining ?? "?"}` : null} />
-                <Field label="Block expiry" value={formatDate(data.block_expiry_date)} />
-                <Field label="Risk level" value={data.risk_level ? data.risk_level.charAt(0).toUpperCase() + data.risk_level.slice(1) : null} />
-                <Field label="Client status" value={data.client_status ? data.client_status.charAt(0).toUpperCase() + data.client_status.slice(1) : null} />
-                <Field label="Referral source" value={data.referral_source} />
-                <Field label="Annual review due" value={formatDate(data.annual_review_due_date)} />
-              </div>
-
-              {data.trainer_notes && (
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Trainer notes</p>
-                  <p className="text-sm text-foreground whitespace-pre-wrap bg-muted/30 rounded-md p-3">{data.trainer_notes}</p>
-                </div>
-              )}
-              {data.trainer_observations && (
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Trainer observations</p>
-                  <p className="text-sm text-foreground whitespace-pre-wrap bg-muted/30 rounded-md p-3">{data.trainer_observations}</p>
-                </div>
-              )}
-              {data.exercise_modifications && (
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Exercise modifications</p>
-                  <p className="text-sm text-foreground whitespace-pre-wrap bg-muted/30 rounded-md p-3">{data.exercise_modifications}</p>
-                </div>
-              )}
-              {data.watch_for && (
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Watch for</p>
-                  <p className="text-sm text-rose whitespace-pre-wrap bg-rose/5 rounded-md p-3 border border-rose/10">{data.watch_for}</p>
-                </div>
-              )}
-
-              {!data.trainer_notes && !data.trainer_observations && !data.exercise_modifications && !data.watch_for && !data.package_type && (
-                <div className="text-center py-6">
-                  <p className="text-sm text-muted-foreground">No trainer information added yet</p>
-                  <Button variant="outline" size="sm" className="mt-3 gap-1.5 rounded-full" onClick={() => setEditingTrainer(true)}>
-                    <IconEdit3 className="w-4 h-4" />
-                    Add trainer information
-                  </Button>
-                </div>
+        <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Client Management" />
+        <CardContent className="space-y-4">
+          <div className="flex items-start gap-3 rounded-xl border border-[var(--hub-border)] bg-[var(--hub-canvas)] p-3">
+            <IconAlertCircle className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="text-sm">
+              <p className="text-foreground font-medium">Package, payments and compliance are managed on the client profile.</p>
+              <p className="text-muted-foreground mt-0.5">
+                This agreement is a signed record. The figures below are a snapshot from when it was last saved
+                {clientNumber != null ? " — edit the live values on the profile." : "."}
+              </p>
+              {clientNumber != null && (
+                <Link href={`/hub/clients/${clientNumber}?tab=profile-compliance`} className="inline-flex items-center gap-1.5 text-rose font-medium hover:underline mt-2">
+                  Open client profile
+                  <IconArrowLeft className="w-3.5 h-3.5 rotate-180" />
+                </Link>
               )}
             </div>
-          ) : (
-            <div className="space-y-6">
-              {/* Package & Sessions */}
-              <div>
-                <h4 className="text-sm font-semibold text-foreground mb-3">Package & Sessions</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="packageType" className="text-xs text-muted-foreground">Package type</Label>
-                    <Input
-                      id="packageType"
-                      value={trainerForm.packageType}
-                      onChange={(e) => handleTrainerChange("packageType", e.target.value)}
-                      placeholder="E.g. 12-session block, Rolling monthly"
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="sessionsPurchased" className="text-xs text-muted-foreground">Sessions purchased</Label>
-                    <Input
-                      id="sessionsPurchased"
-                      type="number"
-                      min={0}
-                      value={trainerForm.sessionsPurchased}
-                      onChange={(e) => handleTrainerChange("sessionsPurchased", parseInt(e.target.value) || 0)}
-                      placeholder="12"
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="sessionDuration" className="text-xs text-muted-foreground">Session duration (minutes)</Label>
-                    <Input
-                      id="sessionDuration"
-                      type="number"
-                      min={15}
-                      step={15}
-                      value={trainerForm.sessionDuration}
-                      onChange={(e) => handleTrainerChange("sessionDuration", parseInt(e.target.value) || 60)}
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="sessionsUsed" className="text-xs text-muted-foreground">Sessions used</Label>
-                    <Input
-                      id="sessionsUsed"
-                      type="number"
-                      min={0}
-                      value={trainerForm.sessionsUsed}
-                      onChange={(e) => handleTrainerChange("sessionsUsed", parseInt(e.target.value) || 0)}
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Sessions remaining</Label>
-                    <p className="text-lg font-semibold mt-1">{trainerForm.sessionsRemaining}</p>
-                  </div>
-                  <div>
-                    <Label htmlFor="blockExpiryDate" className="text-xs text-muted-foreground">Block expiry date</Label>
-                    <Input
-                      id="blockExpiryDate"
-                      type="date"
-                      value={trainerForm.blockExpiryDate}
-                      onChange={(e) => handleTrainerChange("blockExpiryDate", e.target.value)}
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-              </div>
+          </div>
 
-              <Separator />
-
-              {/* Payment */}
-              <div>
-                <h4 className="text-sm font-semibold text-foreground mb-3">Payment</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="paymentMethod" className="text-xs text-muted-foreground">Payment method</Label>
-                    <Input
-                      id="paymentMethod"
-                      value={trainerForm.paymentMethod}
-                      onChange={(e) => handleTrainerChange("paymentMethod", e.target.value)}
-                      placeholder="E.g. Bank transfer, Cash, Card"
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="paymentStatus" className="text-xs text-muted-foreground">Payment status</Label>
-                    <select
-                      id="paymentStatus"
-                      value={trainerForm.paymentStatus}
-                      onChange={(e) => handleTrainerChange("paymentStatus", e.target.value)}
-                      className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="deposit">Deposit paid</option>
-                      <option value="paid">Paid in full</option>
-                      <option value="overdue">Overdue</option>
-                      <option value="suspended">Suspended</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Medical Clearance Tracking */}
-              <div>
-                <h4 className="text-sm font-semibold text-foreground mb-3">Medical Clearance Tracking</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="medicalClearanceStatus" className="text-xs text-muted-foreground">Clearance status</Label>
-                    <select
-                      id="medicalClearanceStatus"
-                      value={trainerForm.medicalClearanceStatus}
-                      onChange={(e) => handleTrainerChange("medicalClearanceStatus", e.target.value)}
-                      className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    >
-                      <option value="not_required">Not required</option>
-                      <option value="not_yet_requested">Not yet requested</option>
-                      <option value="pending">Pending</option>
-                      <option value="cleared">Cleared</option>
-                    </select>
-                  </div>
-                  <div>
-                    <Label htmlFor="gpLetterRequestedDate" className="text-xs text-muted-foreground">GP letter requested</Label>
-                    <Input
-                      id="gpLetterRequestedDate"
-                      type="date"
-                      value={trainerForm.gpLetterRequestedDate}
-                      onChange={(e) => handleTrainerChange("gpLetterRequestedDate", e.target.value)}
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="gpLetterReceivedDate" className="text-xs text-muted-foreground">GP letter received</Label>
-                    <Input
-                      id="gpLetterReceivedDate"
-                      type="date"
-                      value={trainerForm.gpLetterReceivedDate}
-                      onChange={(e) => handleTrainerChange("gpLetterReceivedDate", e.target.value)}
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="annualReviewDueDate" className="text-xs text-muted-foreground">Annual review due</Label>
-                    <Input
-                      id="annualReviewDueDate"
-                      type="date"
-                      value={trainerForm.annualReviewDueDate}
-                      onChange={(e) => handleTrainerChange("annualReviewDueDate", e.target.value)}
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Risk Assessment */}
-              <div>
-                <h4 className="text-sm font-semibold text-foreground mb-3">Risk Assessment</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <Label htmlFor="riskLevel" className="text-xs text-muted-foreground">Risk level</Label>
-                    <select
-                      id="riskLevel"
-                      value={trainerForm.riskLevel}
-                      onChange={(e) => handleTrainerChange("riskLevel", e.target.value)}
-                      className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    >
-                      <option value="low">Low</option>
-                      <option value="medium">Medium</option>
-                      <option value="high">High</option>
-                    </select>
-                  </div>
-                  <div>
-                    <Label htmlFor="clientStatus" className="text-xs text-muted-foreground">Client status</Label>
-                    <select
-                      id="clientStatus"
-                      value={trainerForm.clientStatus}
-                      onChange={(e) => handleTrainerChange("clientStatus", e.target.value)}
-                      className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    >
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                      <option value="completed">Completed</option>
-                      <option value="suspended">Suspended</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <Label htmlFor="exerciseModifications" className="text-xs text-muted-foreground">Exercise modifications</Label>
-                    <Textarea
-                      id="exerciseModifications"
-                      value={trainerForm.exerciseModifications}
-                      onChange={(e) => handleTrainerChange("exerciseModifications", e.target.value)}
-                      placeholder="E.g. Avoid heavy spinal loading, no impact exercises..."
-                      className="mt-1 min-h-[80px]"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="watchFor" className="text-xs text-muted-foreground">Watch for</Label>
-                    <Textarea
-                      id="watchFor"
-                      value={trainerForm.watchFor}
-                      onChange={(e) => handleTrainerChange("watchFor", e.target.value)}
-                      placeholder="E.g. Signs of dizziness, shortness of breath..."
-                      className="mt-1 min-h-[80px]"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="trainerObservations" className="text-xs text-muted-foreground">Trainer observations</Label>
-                  <Textarea
-                    id="trainerObservations"
-                    value={trainerForm.trainerObservations}
-                    onChange={(e) => handleTrainerChange("trainerObservations", e.target.value)}
-                    placeholder="General observations about the client's health, fitness, progress..."
-                    className="mt-1 min-h-[100px]"
-                  />
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Notes & Referral */}
-              <div>
-                <h4 className="text-sm font-semibold text-foreground mb-3">Notes & Referral</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                  <div className="sm:col-span-2">
-                    <Label htmlFor="trainerNotes" className="text-xs text-muted-foreground">Trainer notes</Label>
-                    <Textarea
-                      id="trainerNotes"
-                      value={trainerForm.trainerNotes}
-                      onChange={(e) => handleTrainerChange("trainerNotes", e.target.value)}
-                      placeholder="Any additional notes about this client..."
-                      className="mt-1 min-h-[100px]"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="referralSource" className="text-xs text-muted-foreground">Referral source</Label>
-                    <Input
-                      id="referralSource"
-                      value={trainerForm.referralSource}
-                      onChange={(e) => handleTrainerChange("referralSource", e.target.value)}
-                      placeholder="E.g. Google, Friend, GP, Social media"
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Save/Cancel */}
-              <div className="flex items-center gap-3 pt-2">
-                <Button onClick={handleSave} disabled={saving} className="gap-1.5 bg-rose hover:bg-rose/90 text-white rounded-full">
-                  {saving ? (
-                    <>
-                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <IconSave className="w-4 h-4" />
-                      Save trainer information
-                    </>
-                  )}
-                </Button>
-                <Button variant="outline" onClick={() => { setEditingTrainer(false); setSaveError(null); }} className="gap-1.5 rounded-full">
-                  <IconX className="w-4 h-4" />
-                  Cancel
-                </Button>
-              </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Field label="Package" value={data.package_type} />
+            <Field label="Sessions" value={data.sessions_purchased ? `${data.sessions_purchased} × ${data.session_duration || 60}min` : null} />
+            <Field label="Payment" value={data.payment_status ? data.payment_status.charAt(0).toUpperCase() + data.payment_status.slice(1) : null} />
+            <Field label="Sessions used / remaining" value={data.sessions_used !== null && data.sessions_used !== undefined ? `${data.sessions_used} / ${data.sessions_remaining ?? "?"}` : null} />
+            <Field label="Block expiry" value={formatDate(data.block_expiry_date)} />
+            <Field label="Risk level" value={data.risk_level ? data.risk_level.charAt(0).toUpperCase() + data.risk_level.slice(1) : null} />
+            <Field label="Client status" value={data.client_status ? data.client_status.charAt(0).toUpperCase() + data.client_status.slice(1) : null} />
+            <Field label="Referral source" value={data.referral_source} />
+            <Field label="Annual review due" value={formatDate(data.annual_review_due_date)} />
+          </div>
+          {data.exercise_modifications && (
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Exercise modifications</p>
+              <p className="text-sm text-foreground">{data.exercise_modifications}</p>
+            </div>
+          )}
+          {data.watch_for && (
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Watch for</p>
+              <p className="text-sm text-foreground">{data.watch_for}</p>
+            </div>
+          )}
+          {data.trainer_observations && (
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Trainer observations</p>
+              <p className="text-sm text-foreground">{data.trainer_observations}</p>
+            </div>
+          )}
+          {data.trainer_notes && (
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Trainer notes</p>
+              <p className="text-sm text-foreground">{data.trainer_notes}</p>
             </div>
           )}
         </CardContent>

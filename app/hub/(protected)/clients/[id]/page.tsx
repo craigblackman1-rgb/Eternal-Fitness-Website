@@ -16,7 +16,9 @@ import type { DBClientGroupType, DBClientPaceMode } from "@/types";
 import { PlanAgentTab } from "./PlanAgentTab";
 import { ClientDetailTabs } from "./ClientDetailTabs";
 import { GpLetterCard } from "@/components/hub/GpLetterCard";
-import { SendDocumentLink } from "@/components/hub/SendDocumentLink";
+import { DocumentRegister } from "@/components/hub/DocumentRegister";
+import { ClinicalComplianceCard } from "@/components/hub/ClinicalComplianceCard";
+import { PackagePaymentsCard } from "@/components/hub/PackagePaymentsCard";
 
 function GroupTypeLabel({ groupType }: { groupType: DBClientGroupType | null }) {
   if (!groupType) return null;
@@ -55,23 +57,20 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
   if (!client) notFound();
 
-  const { data: documents } = await supabase.from("client_documents_summary").select("*").eq("client_id", client.id).maybeSingle();
-
-  const { data: latestParq } = await supabase
+  const { data: parqs } = await supabase
     .from("signed_parq")
     .select("*")
     .eq("client_id", client.id)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .order("created_at", { ascending: false });
 
-  const { data: latestAgreement } = await supabase
+  const { data: agreements } = await supabase
     .from("signed_agreements")
     .select("*")
     .eq("client_id", client.id)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .order("created_at", { ascending: false });
+
+  const latestParq = parqs?.[0] ?? null;
+  const latestAgreement = agreements?.[0] ?? null;
 
   const { data: blocks } = await supabase.from("blocks").select("*").eq("client_id", client.id).order("block_number", { ascending: false });
   const { data: sessions } = await supabase
@@ -525,51 +524,36 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
               <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
                 <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Compliance & Documents" color="teal" />
                 <CardContent className="space-y-4 pt-0">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3 text-sm">
-                    <div>
-                      <span className="text-xs text-muted-foreground block mb-0.5">Compliance Status</span>
-                      {complianceLookup ? <StatusBadge status={flags.effectiveStatus} /> : <span className="font-medium text-foreground">—</span>}
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground block mb-0.5">Medical Clearance</span>
-                      {p?.health ? (
-                        <Badge variant={gpClearance ? "default" : "destructive"} className="rounded-full">
-                          {gpClearance ? "Yes" : flags.requiresGpClearance ? "Required" : "No"}
-                        </Badge>
-                      ) : (
-                        <span className="font-medium text-foreground">—</span>
-                      )}
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground block mb-0.5">PAR-Q</span>
-                      <div className="flex items-center gap-2">
-                        {documents?.parq_id ? (
-                          <Link href={`/hub/clients/${client.client_number}/parq`} className="inline-flex items-center gap-1.5 text-rose hover:underline font-medium">
-                            <StatusBadge status={documents.parq_status} />
-                          </Link>
-                        ) : (
-                          <span className="font-medium text-foreground">No PAR-Q on file</span>
-                        )}
-                        <SendDocumentLink path="/parq" clientNumber={client.client_number} label="Send PAR-Q" />
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground block mb-0.5">Agreement</span>
-                      <div className="flex items-center gap-2">
-                        {documents?.agreement_id ? (
-                          <Link href={`/hub/agreements/${documents.agreement_id}`} className="inline-flex items-center gap-1.5 text-rose hover:underline font-medium">
-                            <StatusBadge status={documents.agreement_status} />
-                          </Link>
-                        ) : (
-                          <span className="font-medium text-foreground">No agreement on file</span>
-                        )}
-                        <SendDocumentLink path="/agreement" clientNumber={client.client_number} label="Send Agreement" />
-                      </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground block mb-0.5">Compliance Status</span>
+                    {complianceLookup ? <StatusBadge status={flags.effectiveStatus} /> : <span className="font-medium text-foreground">—</span>}
+                  </div>
+
+                  <div className="pt-1 border-t border-[var(--hub-border)]">
+                    <div className="pt-3">
+                      <ClinicalComplianceCard
+                        clientId={client.id}
+                        initial={{
+                          medical_clearance_status: client.medical_clearance_status ?? "not_required",
+                          risk_level: client.risk_level ?? "low",
+                          exercise_modifications: client.exercise_modifications ?? null,
+                        }}
+                      />
                     </div>
                   </div>
 
                   <div className="pt-1 border-t border-[var(--hub-border)]">
-                    <span className="text-xs text-muted-foreground block mb-2 pt-3">GP Clearance</span>
+                    <div className="pt-3">
+                      <DocumentRegister
+                        clientNumber={client.client_number}
+                        parqs={parqs ?? []}
+                        agreements={agreements ?? []}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-1 border-t border-[var(--hub-border)]">
+                    <span className="text-xs text-muted-foreground block mb-2 pt-3">GP Clearance Letter</span>
                     <GpLetterCard
                       clientId={client.id}
                       gpLetterStatus={client.gp_letter_status}
@@ -599,6 +583,22 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                   )}
                 </CardContent>
               </Card>
+
+              <PackagePaymentsCard
+                clientId={client.id}
+                initial={{
+                  package_type: client.package_type ?? null,
+                  sessions_purchased: client.sessions_purchased ?? null,
+                  sessions_used: client.sessions_used ?? 0,
+                  sessions_remaining: client.sessions_remaining ?? null,
+                  session_duration: client.session_duration ?? 60,
+                  payment_method: client.payment_method ?? null,
+                  payment_status: client.payment_status ?? "pending",
+                  block_expiry_date: client.block_expiry_date ?? null,
+                  client_status: client.client_status ?? "active",
+                  referral_source: client.referral_source ?? null,
+                }}
+              />
             </div>
             {rightRail}
           </div>

@@ -129,6 +129,10 @@ export type DBClientComplianceStatus = "clear" | "action_needed" | "do_not_train
 export type DBClientGroupType = "individual_journey" | "calendar_block";
 export type DBClientPaceMode = "fast" | "medium" | "slow";
 export type GpLetterStatus = "not_required" | "requested" | "received";
+export type MedicalClearanceStatus = "cleared" | "pending" | "not_required" | "not_yet_requested";
+export type RiskLevel = "low" | "medium" | "high";
+export type PaymentStatus = "paid" | "deposit" | "pending" | "overdue" | "suspended";
+export type ClientStatus = "active" | "inactive" | "completed" | "suspended";
 
 export interface BlockSummary {
   block_number: number;
@@ -167,6 +171,21 @@ export interface DBClient {
   annual_review_due_date: string | null;
   clearance_from: string | null;
   specialist_name: string | null;
+  // Clinical state (moved off signed_agreements — see 20260704_client_master_consolidation)
+  medical_clearance_status: MedicalClearanceStatus;
+  risk_level: RiskLevel;
+  exercise_modifications: string | null;
+  // Commercial state (moved off signed_agreements)
+  package_type: string | null;
+  sessions_purchased: number | null;
+  sessions_used: number | null;
+  sessions_remaining: number | null;
+  session_duration: number | null;
+  payment_method: string | null;
+  payment_status: PaymentStatus;
+  block_expiry_date: string | null;
+  client_status: ClientStatus;
+  referral_source: string | null;
 }
 
 export interface SentUpdate {
