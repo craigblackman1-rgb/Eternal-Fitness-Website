@@ -56,6 +56,27 @@ export default async function TemplatesPage() {
               </Card>
             </Link>
           ))}
+
+          {/* PAR-Q — a structured questionnaire, managed as its own form rather than an editable template */}
+          <Link href="/parq">
+            <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] hover:border-rose/40 transition">
+              <CardContent className="flex items-center justify-between p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-teal/10 flex items-center justify-center shrink-0">
+                    <IconFileText className="h-5 w-5 text-teal" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">PAR-Q</p>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
+                      <span>Health questionnaire · client-signed</span>
+                      <Badge variant="outline" className="rounded-full text-xs">Sent per client</Badge>
+                    </div>
+                  </div>
+                </div>
+                <Badge variant="secondary" className="rounded-full text-xs">Form</Badge>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
       )}
     </div>
