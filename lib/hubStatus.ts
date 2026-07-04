@@ -1,4 +1,4 @@
-import type { DBClientComplianceStatus } from "@/types";
+import type { DBClientComplianceStatus, DocumentStatus, ClearanceStatus } from "@/types";
 
 export type StatusToken = "primary" | "success" | "warning" | "danger" | "neutral";
 
@@ -55,6 +55,22 @@ const complianceStatusMap: Record<DBClientComplianceStatus, StatusLookup> = {
   clear:           { token: "success", label: "Clear" },
 };
 
+const documentStatusMap: Record<DocumentStatus, StatusLookup> = {
+  draft:        { token: "neutral", label: "Draft" },
+  sent:         { token: "warning", label: "Sent" },
+  received:     { token: "primary", label: "Received" },
+  signed:       { token: "success", label: "Signed" },
+  expired:      { token: "danger",  label: "Expired" },
+  needs_update: { token: "warning", label: "Needs Update" },
+};
+
+const clearanceStatusMap: Record<ClearanceStatus, StatusLookup> = {
+  CLEARED:                { token: "success", label: "Cleared" },
+  PENDING:                { token: "warning", label: "Pending" },
+  "NOT YET REQUESTED":    { token: "neutral", label: "Not Yet Requested" },
+  "NOT REQUIRED":         { token: "neutral", label: "Not Required" },
+};
+
 export function getStatusClasses(token: StatusToken): StatusClasses {
   return statusClassMap[token];
 }
@@ -68,5 +84,11 @@ export function getComplianceStatus(status: DBClientComplianceStatus): StatusLoo
 }
 
 export function lookupStatus(status: string): StatusLookup | null {
-  return blockStatusMap[status] ?? complianceStatusMap[status as DBClientComplianceStatus] ?? null;
+  return (
+    blockStatusMap[status] ??
+    complianceStatusMap[status as DBClientComplianceStatus] ??
+    documentStatusMap[status as DocumentStatus] ??
+    clearanceStatusMap[status as ClearanceStatus] ??
+    null
+  );
 }

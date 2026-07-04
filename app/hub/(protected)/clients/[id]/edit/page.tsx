@@ -12,10 +12,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { IconChevronLeft } from "@/components/icons";
 import Link from "next/link";
-import type { ClientProfile, DBClientComplianceStatus, DBClientGroupType, DBClientPaceMode } from "@/types";
+import { TagMultiSelect } from "@/components/hub/TagMultiSelect";
+import { InjuryHistoryTable } from "@/components/hub/InjuryHistoryTable";
+import type { ClientProfile, DBClientComplianceStatus, DBClientGroupType, DBClientPaceMode, Gender } from "@/types";
+
+function calculateAge(dob: string | null): number {
+  if (!dob) return 0;
+  const birth = new Date(dob);
+  if (Number.isNaN(birth.getTime())) return 0;
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+}
 
 const emptyProfile: ClientProfile = {
-  client: { id: "", name: "", age: 0, gender: "" },
+  client: { id: "", name: "", age: 0, date_of_birth: null, gender: "" },
   logistics: { training_location: "studio", sessions_per_week: 2, time_tier: "standard", package: "12-week", block_number: 1 },
   health: { gp_clearance: false, conditions: [], contraindications: [], medications_relevant: [], injury_history: [], pain_points: [] },
   physical_baseline: { fitness_level: 3, movement_quality_flags: [], strength_baseline: { lower_body: "beginner", upper_body: "beginner", core: "beginner" } },
@@ -94,7 +109,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
     setSaving(true);
     const fullProfile: ClientProfile = {
       ...profile,
-      client: { ...profile.client, name: name.trim() },
+      client: { ...profile.client, name: name.trim(), age: calculateAge(profile.client.date_of_birth) || profile.client.age },
     };
 
     const { error } = await supabase
@@ -147,12 +162,28 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
                 <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Client name" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="age">Age</Label>
-                <Input id="age" type="number" value={profile.client.age || ""} onChange={(e) => updateProfile("client", { age: parseInt(e.target.value) || 0 })} />
+                <Label htmlFor="dob">Date of Birth</Label>
+                <Input
+                  id="dob"
+                  type="date"
+                  value={profile.client.date_of_birth ?? ""}
+                  onChange={(e) => updateProfile("client", { date_of_birth: e.target.value || null })}
+                />
+                <p className="text-xs text-muted-foreground">
+                  {profile.client.date_of_birth ? `Age: ${calculateAge(profile.client.date_of_birth)}` : "Age will be calculated from date of birth"}
+                </p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="gender">Gender</Label>
-                <Input id="gender" value={profile.client.gender} onChange={(e) => updateProfile("client", { gender: e.target.value })} />
+                <Label>Gender</Label>
+                <Select value={profile.client.gender || undefined} onValueChange={(v: Gender) => updateProfile("client", { gender: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="non_binary">Non-binary</SelectItem>
+                    <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardContent>
@@ -225,23 +256,31 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
               />
               <Label htmlFor="gp_clearance">GP clearance obtained</Label>
             </div>
+            <div className="space-y-2">
+              <Label>Conditions</Label>
+              <TagMultiSelect
+                category="condition"
+                selected={profile.health.conditions}
+                onChange={(conditions) => updateProfile("health", { conditions })}
+                placeholder="Select known conditions or add new..."
+              />
+            </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Conditions (comma-separated)</Label>
-                <Input value={arrayToString(profile.health.conditions)} onChange={(e) => updateProfile("health", { conditions: stringToArray(e.target.value) })} />
-              </div>
               <div className="space-y-2">
                 <Label>Contraindications</Label>
                 <Input value={arrayToString(profile.health.contraindications)} onChange={(e) => updateProfile("health", { contraindications: stringToArray(e.target.value) })} />
               </div>
               <div className="space-y-2">
-                <Label>Injury History</Label>
-                <Input value={arrayToString(profile.health.injury_history)} onChange={(e) => updateProfile("health", { injury_history: stringToArray(e.target.value) })} />
-              </div>
-              <div className="space-y-2">
                 <Label>Pain Points</Label>
                 <Input value={arrayToString(profile.health.pain_points)} onChange={(e) => updateProfile("health", { pain_points: stringToArray(e.target.value) })} />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Injury History</Label>
+              <InjuryHistoryTable
+                value={profile.health.injury_history}
+                onChange={(injury_history) => updateProfile("health", { injury_history })}
+              />
             </div>
           </CardContent>
         </Card>
@@ -318,16 +357,12 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Movement Quality Flags (one per line)</Label>
-              <Textarea
-                value={profile.physical_baseline.movement_quality_flags.join("\n")}
-                onChange={(e) =>
-                  updateProfile("physical_baseline", {
-                    movement_quality_flags: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean),
-                  })
-                }
-                rows={3}
-                placeholder="e.g. Limited hip flexion&#10;Knee valgus under load"
+              <Label>Movement Quality Flags</Label>
+              <TagMultiSelect
+                category="movement_quality_flag"
+                selected={profile.physical_baseline.movement_quality_flags}
+                onChange={(movement_quality_flags) => updateProfile("physical_baseline", { movement_quality_flags })}
+                placeholder="Select observed movement quality flags or add new..."
               />
             </div>
           </CardContent>
@@ -406,7 +441,12 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
             </div>
             <div className="space-y-2">
               <Label>Milestones</Label>
-              <Input value={arrayToString(profile.goals.milestones)} onChange={(e) => updateProfile("goals", { milestones: stringToArray(e.target.value) })} placeholder="Comma-separated milestones" />
+              <TagMultiSelect
+                category="milestone"
+                selected={profile.goals.milestones}
+                onChange={(milestones) => updateProfile("goals", { milestones })}
+                placeholder="Select milestones or add new..."
+              />
             </div>
           </CardContent>
         </Card>
@@ -417,12 +457,12 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <Label>Adaptations (one per line)</Label>
-              <Textarea
-                value={profile.programming_adaptations.join("\n")}
-                onChange={(e) => setProfile({ ...profile, programming_adaptations: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean) })}
-                rows={6}
-                placeholder="Enter each adaptation on a new line"
+              <Label>Adaptations</Label>
+              <TagMultiSelect
+                category="adaptation"
+                selected={profile.programming_adaptations}
+                onChange={(programming_adaptations) => setProfile((prev) => ({ ...prev, programming_adaptations }))}
+                placeholder="Select adaptations or add new..."
               />
             </div>
           </CardContent>

@@ -51,6 +51,8 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
   if (!client) notFound();
 
+  const { data: documents } = await supabase.from("client_documents_summary").select("*").eq("client_id", client.id).maybeSingle();
+
   const { data: blocks } = await supabase.from("blocks").select("*").eq("client_id", client.id).order("block_number", { ascending: false });
   const { data: sessions } = await supabase
     .from("sessions")
@@ -322,12 +324,6 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                           <span className="font-medium text-foreground">{p.health.medications_relevant.join(", ")}</span>
                         </div>
                       )}
-                      {p.health.injury_history?.length > 0 && (
-                        <div>
-                          <span className="text-xs text-muted-foreground block mb-0.5">Injury History</span>
-                          <span className="font-medium text-foreground">{p.health.injury_history.join(", ")}</span>
-                        </div>
-                      )}
                       {p.health.pain_points?.length > 0 && (
                         <div>
                           <span className="text-xs text-muted-foreground block mb-0.5">Pain Points</span>
@@ -335,6 +331,42 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                         </div>
                       )}
                     </div>
+                    {p.health.injury_history?.length > 0 && (
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-1.5">Injury History</span>
+                        <div className="overflow-x-auto rounded-lg border border-[var(--hub-border)]">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="border-b border-[var(--hub-border)] bg-[var(--hub-canvas)] text-xs text-muted-foreground">
+                                <th className="px-3 py-1.5 text-left font-medium">Date</th>
+                                <th className="px-3 py-1.5 text-left font-medium">Description</th>
+                                <th className="px-3 py-1.5 text-left font-medium">Body Area</th>
+                                <th className="px-3 py-1.5 text-left font-medium">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {p.health.injury_history.map((injury: { id: string; date: string | null; description: string; body_area: string; status: string }) => (
+                                <tr key={injury.id} className="border-b border-[var(--hub-border)] last:border-0">
+                                  <td className="px-3 py-1.5 text-muted-foreground whitespace-nowrap">
+                                    {injury.date ? new Date(injury.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"}
+                                  </td>
+                                  <td className="px-3 py-1.5 text-foreground">{injury.description || "—"}</td>
+                                  <td className="px-3 py-1.5 text-foreground">{injury.body_area || "—"}</td>
+                                  <td className="px-3 py-1.5">
+                                    <Badge
+                                      variant={injury.status === "active" ? "destructive" : injury.status === "monitoring" ? "secondary" : "default"}
+                                      className="rounded-full capitalize"
+                                    >
+                                      {injury.status}
+                                    </Badge>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -486,12 +518,40 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                     </div>
                     <div>
                       <span className="text-xs text-muted-foreground block mb-0.5">PAR-Q</span>
-                      <span className="font-medium text-foreground">No signed PAR-Q on file</span>
+                      {documents?.parq_id ? (
+                        <StatusBadge status={documents.parq_status} />
+                      ) : (
+                        <span className="font-medium text-foreground">No PAR-Q on file</span>
+                      )}
                     </div>
                     <div>
                       <span className="text-xs text-muted-foreground block mb-0.5">Agreement</span>
-                      <span className="font-medium text-foreground">No signed agreement on file</span>
+                      {documents?.agreement_id ? (
+                        <Link href={`/hub/agreements/${documents.agreement_id}`} className="inline-flex items-center gap-1.5 text-rose hover:underline font-medium">
+                          <StatusBadge status={documents.agreement_status} />
+                        </Link>
+                      ) : (
+                        <span className="font-medium text-foreground">No agreement on file</span>
+                      )}
                     </div>
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-0.5">Medical Clearance Tracker</span>
+                      {documents?.tracker_id ? (
+                        <Link href="/hub/tracker" className="inline-flex items-center gap-1.5 text-rose hover:underline font-medium">
+                          <StatusBadge status={documents.clearance_status} />
+                        </Link>
+                      ) : (
+                        <Link href="/hub/tracker" className="text-rose hover:underline font-medium">Not on tracker — add now</Link>
+                      )}
+                    </div>
+                    {documents?.annual_review_due_date && (
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-0.5">Annual Review Due</span>
+                        <span className="font-medium text-foreground">
+                          {new Date(documents.annual_review_due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   {outstandingCount > 0 && (
                     <div>

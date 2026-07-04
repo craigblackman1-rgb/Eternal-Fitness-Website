@@ -9,12 +9,33 @@ export type Archetype = "A" | "B" | "C";
 export type Phase = "foundation" | "build" | "develop" | "peak" | "deload";
 export type BlockStatus = "draft" | "approved" | "active" | "complete";
 
+export type ProfileOptionCategory = "condition" | "movement_quality_flag" | "milestone" | "adaptation";
+
+export interface ProfileOption {
+  id: string;
+  category: ProfileOptionCategory;
+  value: string;
+  created_at: string;
+}
+
+export type Gender = "female" | "male" | "non_binary" | "prefer_not_to_say";
+
+export interface InjuryHistoryEntry {
+  id: string;
+  date: string | null;
+  description: string;
+  body_area: string;
+  status: "active" | "monitoring" | "resolved";
+}
+
 export interface ClientProfile {
   client: {
     id: string;
     name: string;
+    /** Derived from date_of_birth when present; kept for legacy records without a DOB. */
     age: number;
-    gender: string;
+    date_of_birth: string | null;
+    gender: Gender | "";
   };
   logistics: {
     training_location: TrainingLocation;
@@ -28,7 +49,7 @@ export interface ClientProfile {
     conditions: string[];
     contraindications: string[];
     medications_relevant: string[];
-    injury_history: string[];
+    injury_history: InjuryHistoryEntry[];
     pain_points: string[];
   };
   physical_baseline: {
