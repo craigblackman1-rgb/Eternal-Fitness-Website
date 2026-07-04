@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import BlogPageClient from "./BlogPageClient";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 export const metadata: Metadata = {
   title: "Health Conditions & Cancer Recovery Blog",

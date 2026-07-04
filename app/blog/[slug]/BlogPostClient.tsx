@@ -34,27 +34,27 @@ interface Props {
 export default function BlogPostClient({ post, relatedPosts, recentPosts }: Props) {
   const { open, setOpen, openDialog } = useConsultationDialog();
 
-  const tocItems = useMemo(() => {
-    if (!post.content) return [];
-    const items: { id: string; text: string; level: string }[] = [];
-    const regex = /<(h[23])[^>]*>([\s\S]*?)<\/\1>/gi;
-    let match;
-    let i = 0;
-    while ((match = regex.exec(post.content)) !== null) {
-      const text = match[2].replace(/<[^>]*>/g, "").trim();
-      items.push({ id: `heading-${i}`, text, level: match[1].toLowerCase() });
-      i++;
+  const { processedContent, tocItems } = useMemo(() => {
+    if (!post.content) return { processedContent: "", tocItems: [] as { id: string; text: string; level: string }[] };
+    let content = post.content;
+    // Drop a leading h1/h2 that just repeats the post title — the hero already shows it
+    const leading = content.match(/^\s*<(h[12])[^>]*>([\s\S]*?)<\/\1>/i);
+    const norm = (s: string) => s.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+    if (leading && norm(leading[2]) === norm(post.title)) {
+      content = content.slice(leading[0].length);
     }
-    return items;
-  }, [post.content]);
-
-  const processedContent = useMemo(() => {
-    if (!post.content) return "";
     let i = 0;
-    return post.content.replace(/<(h[23])([^>]*)>/gi, (_match, tag, attrs) => {
+    content = content.replace(/<(h[23])([^>]*)>/gi, (_match, tag, attrs) => {
       return `<${tag}${attrs} id="heading-${i++}">`;
     });
-  }, [post.content]);
+    const items: { id: string; text: string; level: string }[] = [];
+    const regex = /<(h[23])[^>]*id="(heading-\d+)"[^>]*>([\s\S]*?)<\/\1>/gi;
+    let match;
+    while ((match = regex.exec(content)) !== null) {
+      items.push({ id: match[2], text: match[3].replace(/<[^>]*>/g, "").trim(), level: match[1].toLowerCase() });
+    }
+    return { processedContent: content, tocItems: items };
+  }, [post.content, post.title]);
 
   // Related first, topped up with recent, minus the current post, max 3
   const keepReading = useMemo(() => {
@@ -136,23 +136,23 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts }: Prop
               {processedContent ? (
                 <div
                   className="prose prose-lg max-w-none font-body text-foreground
-                    prose-headings:font-display prose-headings:text-foreground
-                    prose-h1:font-extrabold prose-h1:text-3xl prose-h1:mt-10 prose-h1:mb-4
-                    prose-h2:font-bold prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:border-b prose-h2:border-[#E4DDD7] prose-h2:pb-2
-                    prose-h3:font-bold prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
-                    prose-h4:font-semibold prose-h4:text-lg prose-h4:mt-6 prose-h4:mb-2
-                    prose-h5:font-semibold prose-h5:text-base prose-h5:mt-6 prose-h5:mb-2
-                    prose-h6:font-medium prose-h6:text-base prose-h6:mt-4 prose-h6:mb-2
-                    prose-p:font-normal prose-p:text-[#525A61] prose-p:leading-[1.65] prose-p:mb-4
-                    prose-a:text-rose prose-a:underline prose-a:underline-offset-2 hover:prose-a:text-rose/80
+                    prose-headings:font-serif prose-headings:font-normal prose-headings:text-foreground prose-headings:tracking-[-0.02em]
+                    prose-h1:text-4xl prose-h1:leading-[1.1] prose-h1:mt-12 prose-h1:mb-5
+                    prose-h2:text-[32px] prose-h2:leading-[1.12] prose-h2:mt-12 prose-h2:mb-5
+                    prose-h3:text-2xl prose-h3:leading-[1.15] prose-h3:mt-10 prose-h3:mb-4
+                    prose-h4:text-xl prose-h4:mt-8 prose-h4:mb-3
+                    prose-h5:font-body prose-h5:font-semibold prose-h5:text-base prose-h5:tracking-normal prose-h5:mt-6 prose-h5:mb-2
+                    prose-h6:font-body prose-h6:font-semibold prose-h6:text-sm prose-h6:tracking-[0.08em] prose-h6:uppercase prose-h6:text-teal prose-h6:mt-6 prose-h6:mb-2
+                    prose-p:font-normal prose-p:text-[#525A61] prose-p:text-[17px] prose-p:leading-[1.75] prose-p:mb-5
+                    prose-a:text-rose prose-a:underline prose-a:underline-offset-4 prose-a:decoration-rose/40 hover:prose-a:decoration-rose
                     prose-strong:text-foreground prose-strong:font-semibold
                     prose-em:text-foreground/80 prose-em:italic
-                    prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-2
-                    prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-2
-                    prose-li:font-normal prose-li:text-[#525A61] prose-li:leading-[1.65]
-                    prose-blockquote:border-l-4 prose-blockquote:border-rose prose-blockquote:bg-rose/30 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:my-6 prose-blockquote:italic prose-blockquote:text-foreground/80
-                    prose-img:rounded-xl prose-img:my-6 prose-img:shadow-md
-                    prose-hr:border-[#E4DDD7] prose-hr:my-8"
+                    prose-ul:my-5 prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-2.5
+                    prose-ol:my-5 prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-2.5
+                    prose-li:font-normal prose-li:text-[#525A61] prose-li:text-[17px] prose-li:leading-[1.7] prose-li:marker:text-rose
+                    prose-blockquote:font-serif prose-blockquote:not-italic prose-blockquote:text-[22px] prose-blockquote:leading-[1.4] prose-blockquote:text-foreground prose-blockquote:border-l-2 prose-blockquote:border-rose prose-blockquote:bg-transparent prose-blockquote:py-1 prose-blockquote:pl-8 prose-blockquote:pr-0 prose-blockquote:my-10
+                    prose-img:rounded-2xl prose-img:my-8
+                    prose-hr:border-[#E4DDD7] prose-hr:my-12"
                   dangerouslySetInnerHTML={{ __html: processedContent }}
                 />
               ) : (
