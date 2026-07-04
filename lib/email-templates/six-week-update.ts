@@ -16,9 +16,9 @@ export interface SixWeekUpdateData {
 export function buildSixWeekUpdateHtml(data: SixWeekUpdateData): string {
   return buildBrandedUpdateEmail({
     documentTitle: "Your last 6 weeks with me",
-    emoji: "🏋️",
-    title: "YOUR LAST 6 WEEKS",
-    subtitle: "with me &mdash; Esther x",
+    previewText: "A short update on how the last six weeks have gone — and what's next.",
+    title: "Your last 6 weeks",
+    subtitle: "A training update from Esther",
     greetingName: data.clientName,
     introHtml: `<p style="margin:0;">Another six weeks done. I thought I'd write a short update on where we're at &mdash; the things that are going well, what I'm keeping an eye on, and what comes next for us in the studio.</p>`,
     sections: [

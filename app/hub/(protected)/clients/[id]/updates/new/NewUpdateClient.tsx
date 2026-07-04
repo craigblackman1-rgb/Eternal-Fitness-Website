@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,32 +9,56 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { IconChevronLeft, IconSend, IconAlertTriangle, IconEye, IconEyeOff, IconSave } from "@/components/icons";
+import { IconChevronLeft, IconSend, IconAlertTriangle, IconEye, IconEyeOff, IconSave, IconMail } from "@/components/icons";
 import Link from "next/link";
 import { toast } from "sonner";
 import { UpdateChatPanel } from "./UpdateChatPanel";
+import { RichTextEditor } from "@/components/hub/RichTextEditor";
 import { UPDATE_TEMPLATE_KINDS, getTemplateKind } from "@/lib/email-templates/registry";
+import { buildSixWeekUpdateHtml } from "@/lib/email-templates/six-week-update";
+import type { SixWeekUpdateData } from "@/lib/email-templates/six-week-update";
 
-type DraftState = {
-  subject: string;
-  html: string;
-  generatedAt: string;
-} | null;
+const TEST_RECIPIENTS = [
+  { label: "Craig (Decoded Ops)", email: "craig@decodedops.co.uk" },
+  { label: "Esther", email: "esther.fair@eternalfitness.co.uk" },
+];
+
+type SectionValues = Record<string, string>;
 
 interface NewUpdateClientProps {
   clientNumber: number;
   clientName: string;
+  defaultEmail?: string;
+  defaultEmailSource?: string;
 }
 
-export function NewUpdateClient({ clientNumber, clientName }: NewUpdateClientProps) {
+/** Rebuild the branded email HTML from the edited section values, per kind. */
+function buildHtmlForKind(_kind: string, clientName: string, sections: SectionValues): string {
+  // Only one kind implemented today; the registry keeps section keys aligned
+  // with SixWeekUpdateData, so a spread is safe.
+  return buildSixWeekUpdateHtml({ clientName, ...sections } as unknown as SixWeekUpdateData);
+}
+
+export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", defaultEmailSource }: NewUpdateClientProps) {
   const router = useRouter();
   const [templateKind, setTemplateKind] = useState(UPDATE_TEMPLATE_KINDS[0].id);
   const [generating, setGenerating] = useState(false);
   const [sending, setSending] = useState(false);
+  const [testingTo, setTestingTo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [draft, setDraft] = useState<DraftState>(null);
-  const [clientEmail, setClientEmail] = useState("");
+  const [hasDraft, setHasDraft] = useState(false);
+  const [subject, setSubject] = useState("");
+  const [sections, setSections] = useState<SectionValues>({});
+  const [clientEmail, setClientEmail] = useState(defaultEmail);
   const [showRaw, setShowRaw] = useState(false);
+
+  const kind = getTemplateKind(templateKind);
+
+  // Live-rebuild the full branded HTML whenever any section or subject changes.
+  const html = useMemo(() => {
+    if (!hasDraft) return "";
+    return buildHtmlForKind(templateKind, clientName, sections);
+  }, [hasDraft, templateKind, clientName, sections]);
 
   const handleCreateDraft = async (conversationSummary: string) => {
     setGenerating(true);
@@ -52,9 +76,16 @@ export function NewUpdateClient({ clientNumber, clientName }: NewUpdateClientPro
         throw new Error(err.error || "Failed to generate update");
       }
 
-      const data = await res.json();
-      setDraft({ subject: data.subject, html: data.html, generatedAt: data.generatedAt });
-      toast.success("Draft created!");
+      const draft = await res.json();
+      // draft.data holds the structured sections (keys match kind.sections keys).
+      const nextSections: SectionValues = {};
+      for (const s of kind.sections) {
+        nextSections[s.key] = draft.data?.[s.key] ?? "";
+      }
+      setSections(nextSections);
+      setSubject(draft.subject ?? kind.defaultSubject);
+      setHasDraft(true);
+      toast.success("Draft created — edit any section below");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -62,35 +93,41 @@ export function NewUpdateClient({ clientNumber, clientName }: NewUpdateClientPro
     }
   };
 
+  const post = async (payload: Record<string, unknown>) => {
+    const res = await fetch(`/api/clients/${clientNumber}/six-week-update/send`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subject, html, templateKind, ...payload }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.error || "Request failed");
+    return data;
+  };
+
+  const handleTestSend = async (email: string) => {
+    setTestingTo(email);
+    setError(null);
+    try {
+      const data = await post({ testRecipient: email });
+      toast.success(data.emailed ? `Test sent to ${email}` : "SMTP not configured — test not sent");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Something went wrong";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setTestingTo(null);
+    }
+  };
+
   const handleSend = async (skipSend: boolean) => {
-    if (!draft) return;
     if (!skipSend && !clientEmail.trim()) {
       toast.error("Enter the client's email address");
       return;
     }
-
     setSending(true);
     setError(null);
-
     try {
-      const res = await fetch(`/api/clients/${clientNumber}/six-week-update/send`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          subject: draft.subject,
-          html: draft.html,
-          clientEmail: clientEmail.trim(),
-          templateKind,
-          skipSend,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to send update");
-      }
-
+      const data = await post({ clientEmail: clientEmail.trim(), skipSend });
       toast.success(skipSend ? "Update logged" : data.emailed ? "Update sent!" : "SMTP not configured — logged without sending");
       router.push(`/hub/clients/${clientNumber}/updates`);
     } catch (err) {
@@ -98,8 +135,6 @@ export function NewUpdateClient({ clientNumber, clientName }: NewUpdateClientPro
       setSending(false);
     }
   };
-
-  const kind = getTemplateKind(templateKind);
 
   return (
     <div className="space-y-6">
@@ -109,7 +144,7 @@ export function NewUpdateClient({ clientNumber, clientName }: NewUpdateClientPro
         </Link>
         <div>
           <h1 className="text-xl font-semibold tracking-tight">New Update</h1>
-          <p className="text-muted-foreground">Chat through what to include, then review and send</p>
+          <p className="text-muted-foreground">Chat through what to include, then edit and send</p>
         </div>
       </div>
 
@@ -120,7 +155,7 @@ export function NewUpdateClient({ clientNumber, clientName }: NewUpdateClientPro
         </Alert>
       )}
 
-      {!draft && (
+      {!hasDraft && (
         <>
           {UPDATE_TEMPLATE_KINDS.length > 1 && (
             <div className="space-y-2 max-w-xs">
@@ -151,50 +186,62 @@ export function NewUpdateClient({ clientNumber, clientName }: NewUpdateClientPro
         </>
       )}
 
-      {draft && (
+      {hasDraft && (
         <>
+          {/* Editable content — per-section WYSIWYG */}
+          <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
+            <CardHeader>
+              <CardTitle>Edit the email</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Use the toolbar to format — no HTML needed. Changes update the preview live.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="subject">Subject line</Label>
+                <Input id="subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
+              </div>
+
+              {kind.sections.map((s) => (
+                <div key={s.key} className="space-y-2">
+                  <Label>{s.label}</Label>
+                  <RichTextEditor
+                    value={sections[s.key] ?? ""}
+                    onChange={(v) => setSections((prev) => ({ ...prev, [s.key]: v }))}
+                    placeholder={`Write the ${s.label.toLowerCase()} section…`}
+                  />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Preview */}
           <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Review Email</CardTitle>
+              <CardTitle>Preview</CardTitle>
               <Button variant="outline" size="sm" onClick={() => setShowRaw(!showRaw)} className="rounded-full gap-1.5">
                 {showRaw ? <IconEyeOff className="h-4 w-4" /> : <IconEye className="h-4 w-4" />}
-                {showRaw ? "Show Preview" : "Show HTML"}
+                {showRaw ? "Hide HTML" : "View HTML"}
               </Button>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="subject">Subject</Label>
-                <Input id="subject" value={draft.subject} onChange={(e) => setDraft({ ...draft, subject: e.target.value })} />
+              <div className="border border-border/60 rounded-xl overflow-hidden bg-[#F5F5F5]">
+                <iframe srcDoc={html} title="Email preview" className="w-full" style={{ height: "640px", border: "none" }} />
               </div>
-
-              {showRaw ? (
-                <div className="space-y-2">
-                  <Label>HTML Source</Label>
-                  <Textarea
-                    value={draft.html}
-                    onChange={(e) => setDraft({ ...draft, html: e.target.value })}
-                    rows={20}
-                    className="font-mono text-xs"
-                  />
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Label>Preview</Label>
-                  <div className="border border-border/60 rounded-xl overflow-hidden">
-                    <iframe srcDoc={draft.html} title="Email preview" className="w-full" style={{ height: "600px", border: "none" }} />
-                  </div>
-                </div>
+              {showRaw && (
+                <Textarea value={html} readOnly rows={16} className="font-mono text-xs" />
               )}
             </CardContent>
           </Card>
 
+          {/* Send */}
           <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
             <CardHeader>
               <CardTitle>Send</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email">Client Email Address</Label>
+                <Label htmlFor="email">Client email address</Label>
                 <Input
                   id="email"
                   type="email"
@@ -202,13 +249,44 @@ export function NewUpdateClient({ clientNumber, clientName }: NewUpdateClientPro
                   value={clientEmail}
                   onChange={(e) => setClientEmail(e.target.value)}
                 />
+                {defaultEmail && clientEmail === defaultEmail && (
+                  <p className="text-xs text-muted-foreground">
+                    Prefilled from {defaultEmailSource || "the client record"}. Edit if it&apos;s changed.
+                  </p>
+                )}
               </div>
-              <div className="flex justify-between gap-3">
+
+              {/* Test send */}
+              <div className="rounded-xl border border-[var(--hub-border)] bg-background p-4 space-y-3">
+                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <IconMail className="h-4 w-4 text-teal" />
+                  Send a test first
+                </div>
+                <p className="text-xs text-muted-foreground">Check how it lands in a real inbox before it goes to the client.</p>
+                <div className="flex flex-wrap gap-2">
+                  {TEST_RECIPIENTS.map((t) => (
+                    <Button
+                      key={t.email}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleTestSend(t.email)}
+                      disabled={testingTo !== null || sending}
+                      className="rounded-full gap-1.5"
+                    >
+                      <IconSend className="h-3.5 w-3.5" />
+                      {testingTo === t.email ? "Sending…" : `Test to ${t.label}`}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-between gap-3 pt-1">
                 <Button
                   variant="outline"
                   onClick={() => {
-                    setDraft(null);
-                    setClientEmail("");
+                    setHasDraft(false);
+                    setSections({});
+                    setSubject("");
                   }}
                 >
                   Discard
@@ -224,7 +302,7 @@ export function NewUpdateClient({ clientNumber, clientName }: NewUpdateClientPro
                     className="gap-2 bg-rose hover:bg-rose/90 text-white"
                   >
                     <IconSend className="h-4 w-4" />
-                    {sending ? "Sending..." : "Send Update"}
+                    {sending ? "Sending…" : "Send to client"}
                   </Button>
                 </div>
               </div>
