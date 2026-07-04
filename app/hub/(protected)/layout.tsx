@@ -12,7 +12,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex min-h-screen bg-[var(--hub-canvas)]">
+    <div className="hub-shell flex min-h-screen bg-[var(--hub-canvas)]">
       <HubSidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <HubTopbar />

@@ -76,6 +76,11 @@
     --hub-sidebar-hover: rgba(255, 255, 255, 0.06);
     --hub-sidebar-active: rgba(193, 131, 159, 0.14);
 
+    /* Stronger field/section definition, scoped to the hub only — see .hub-shell below */
+    --hub-field-border: #C7CCD4;
+    --hub-field-border-hover: #AFB5C0;
+    --hub-section-border: #D7DBE1;
+
     /* ===== SEMANTIC TAILWIND COLORS ===== */
     --background: 0 0% 100%;
     --foreground: 0 0% 18%;
@@ -167,6 +172,31 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  /* Hub admin forms need visibly defined fields and sections — the marketing-site
+     tokens (--input, --border, --hub-border) are tuned near-white for a soft look
+     that disappears on dense data-entry screens. Scope stronger values to the hub. */
+  .hub-shell {
+    --input: 220 14% 80%;
+    --border: 220 14% 83%;
+    --hub-border: var(--hub-section-border);
+  }
+
+  .hub-shell input,
+  .hub-shell textarea,
+  .hub-shell button[role="combobox"] {
+    border-color: var(--hub-field-border) !important;
+  }
+
+  .hub-shell input:hover,
+  .hub-shell textarea:hover,
+  .hub-shell button[role="combobox"]:hover {
+    border-color: var(--hub-field-border-hover) !important;
+  }
+
+  .hub-shell .shadow-sm {
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.07);
   }
 }
 
