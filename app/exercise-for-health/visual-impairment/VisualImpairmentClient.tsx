@@ -9,7 +9,7 @@ import {
   Section,
   SectionHeading,
   PageHero,
-  FeatureCard,
+  FeatureBand,
   StatBadge,
   StatStrip,
   CompareDiagram,
@@ -18,6 +18,12 @@ import {
   Reveal,
   CtaButton,
 } from "@/components/ds";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   IconEye,
   IconCheckCircle,
@@ -185,10 +191,11 @@ export default function VisualImpairmentClient() {
       {/* ADAPTATIONS */}
       <Section background="white">
         <SectionHeading eyebrow="How Sessions Are Adapted" heading="What Makes VIP Training Different" />
-        <Reveal className="ds-grid-3" stagger={0.1} y={48} start="top 80%">
-          {adaptations.map((a) => (
-            <FeatureCard key={a.title} icon={a.icon} accent="rose" title={a.title} body={a.body} />
-          ))}
+        <Reveal y={40} start="top 80%" style={{ marginTop: 40 }}>
+          <FeatureBand
+            accent="rose"
+            items={adaptations.map((a) => ({ icon: a.icon, title: a.title, body: a.body }))}
+          />
         </Reveal>
       </Section>
 
@@ -208,11 +215,20 @@ export default function VisualImpairmentClient() {
       {/* FAQ */}
       <Section background="white">
         <SectionHeading eyebrow="Common Questions" eyebrowColor="teal" heading="Questions About VIP Personal Training" />
-        <Reveal className="ds-grid-2" stagger={0.12} y={48} start="top 80%">
-          {faqs.map((f) => (
-            <FeatureCard key={f.title} icon={f.icon} accent="teal" title={f.title} body={f.body} />
-          ))}
-        </Reveal>
+        <div style={{ maxWidth: 760, margin: "24px auto 0" }}>
+          <Accordion type="single" collapsible className="w-full">
+            {faqs.map((f, i) => (
+              <AccordionItem key={f.title} value={`faq-${i}`} className="border-border-warm">
+                <AccordionTrigger className="font-body text-foreground text-left text-base py-5 hover:no-underline">
+                  {f.title}
+                </AccordionTrigger>
+                <AccordionContent className="ef-body text-sm pb-5">
+                  {f.body}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
       </Section>
 
       <CTABand

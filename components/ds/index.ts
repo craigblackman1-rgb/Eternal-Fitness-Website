@@ -20,6 +20,8 @@ export type { Stat } from "./StatStrip";
 export { CtaButton } from "./CtaButton";
 export { IndexList } from "./IndexList";
 export type { IndexItem } from "./IndexList";
+export { FeatureBand } from "./FeatureBand";
+export type { BandItem } from "./FeatureBand";
 export { Reveal } from "./Reveal";
 export type { CTA, Accent, SectionBg } from "./types";
 export { PulseLine } from "./artwork/PulseLine";

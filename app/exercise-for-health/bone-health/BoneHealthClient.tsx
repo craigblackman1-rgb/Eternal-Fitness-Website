@@ -8,7 +8,7 @@ import {
   Section,
   SectionHeading,
   PageHero,
-  FeatureCard,
+  FeatureBand,
   StatBadge,
   CTABand,
   Reveal,
@@ -17,6 +17,12 @@ import {
   MotionArcs,
   PulseLine,
 } from "@/components/ds";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { IconClipboardList, IconDumbbell, IconAccessibility } from "@/components/icons";
 
 const approachPoints = [
@@ -131,10 +137,11 @@ export default function BoneHealthClient() {
       {/* THE APPROACH */}
       <Section background="white">
         <SectionHeading eyebrow="The Approach" heading="Building Bone Safely" />
-        <Reveal className="ds-grid-3" stagger={0.13} y={48} start="top 80%">
-          {approachPoints.map((p) => (
-            <FeatureCard key={p.title} icon={p.icon} accent="rose" title={p.title} body={p.body} />
-          ))}
+        <Reveal y={40} start="top 80%" style={{ marginTop: 40 }}>
+          <FeatureBand
+            accent="rose"
+            items={approachPoints.map((p) => ({ icon: p.icon, title: p.title, body: p.body }))}
+          />
         </Reveal>
       </Section>
 
@@ -155,29 +162,19 @@ export default function BoneHealthClient() {
       {/* FAQ */}
       <Section background="white">
         <SectionHeading eyebrow="Common Questions" eyebrowColor="teal" heading="Questions About Exercising With Osteoporosis" />
-        <div className="ds-grid-2">
-          <div className="ds-featlist">
-            {faqs.slice(0, Math.ceil(faqs.length / 2)).map((f) => (
-              <div key={f.title} className="ds-feat">
-                <span className="ds-feat-dot" />
-                <div>
-                  <div className="ds-feat-t">{f.title}</div>
-                  <div className="ds-feat-c">{f.body}</div>
-                </div>
-              </div>
+        <div style={{ maxWidth: 760, margin: "24px auto 0" }}>
+          <Accordion type="single" collapsible className="w-full">
+            {faqs.map((f, i) => (
+              <AccordionItem key={f.title} value={`faq-${i}`} className="border-border-warm">
+                <AccordionTrigger className="font-body text-foreground text-left text-base py-5 hover:no-underline">
+                  {f.title}
+                </AccordionTrigger>
+                <AccordionContent className="ef-body text-sm pb-5">
+                  {f.body}
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </div>
-          <div className="ds-featlist">
-            {faqs.slice(Math.ceil(faqs.length / 2)).map((f) => (
-              <div key={f.title} className="ds-feat">
-                <span className="ds-feat-dot" />
-                <div>
-                  <div className="ds-feat-t">{f.title}</div>
-                  <div className="ds-feat-c">{f.body}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+          </Accordion>
         </div>
       </Section>
 

@@ -12,13 +12,6 @@ import { useConsultationDialog } from "@/hooks/useConsultationDialog";
 
 const categories = ["All", "Training", "Nutrition", "Recovery", "General"];
 
-const categoryImages: Record<string, string> = {
-  Training: "/images/strength-tasks.jpg",
-  Nutrition: "/images/mind-body.jpg",
-  Recovery: "/images/mobility-movement.jpg",
-  General: "/images/hero-gym.jpg",
-};
-
 interface BlogPost {
   id: string;
   title: string;
@@ -99,9 +92,9 @@ export default function BlogPageClient({ posts }: { posts: BlogPost[] }) {
               <p className="ef-body text-lg">{posts.length === 0 ? "No blog posts yet. Check back soon!" : "No posts match your search."}</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-12 max-w-[1160px] mx-auto">
               {filtered.map((post) => (
-                <BlogCard key={post.id} post={post} />
+                <BlogRow key={post.id} post={post} />
               ))}
             </div>
           )}
@@ -111,19 +104,24 @@ export default function BlogPageClient({ posts }: { posts: BlogPost[] }) {
       {/* Featured */}
       {featured.length > 0 && (
         <section className="ef-section px-6 md:px-12 bg-warm">
-          <div className="max-w-[1320px] mx-auto">
-            <div className="text-center mb-12">
-              <div className="ef-eyebrow ef-eyebrow-teal justify-center mb-5">Featured Blogs</div>
-              <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-4">Dive into My Top Posts</h2>
-              <p className="ef-body max-w-xl mx-auto">Explore my curated selection of top posts, offering insights and valuable tips.</p>
+          <div className="max-w-[1160px] mx-auto">
+            <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between mb-10 gap-4">
+              <h2 className="font-serif text-3xl md:text-4xl text-foreground tracking-[-0.02em]">Worth starting with</h2>
+              <p className="ef-body text-sm max-w-xs sm:text-right">The posts people most often find useful before their first session.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="row-span-2"><FeaturedCard post={featured[0]} large /></div>
-              <div className="flex flex-col gap-6">
-                {featured.slice(1, 4).map((post) => (
-                  <FeaturedCard key={post.id} post={post} />
-                ))}
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+              {featured.map((post, i) => (
+                <Link key={post.id} href={`/blog/${post.slug}`} className="group border-t border-[#D8CFC7] pt-6 block">
+                  <div className="flex items-baseline gap-3 mb-3">
+                    <span className="text-[11px] font-bold text-rose tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="text-[11px] font-bold tracking-[0.1em] uppercase text-teal">{post.category}</span>
+                  </div>
+                  <h3 className="font-serif text-2xl text-foreground leading-snug tracking-[-0.015em] mb-3 group-hover:text-rose transition-colors">
+                    {post.title}
+                  </h3>
+                  {post.excerpt && <p className="ef-body text-sm line-clamp-2">{post.excerpt}</p>}
+                </Link>
+              ))}
             </div>
           </div>
         </section>
@@ -136,46 +134,21 @@ export default function BlogPageClient({ posts }: { posts: BlogPost[] }) {
   );
 }
 
-function BlogCard({ post }: { post: BlogPost }) {
+function BlogRow({ post }: { post: BlogPost }) {
   const date = new Date(post.published_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
   return (
-    <Link href={`/blog/${post.slug}`} className="group block">
-      <div className="rounded-3xl overflow-hidden mb-4 aspect-[4/3] bg-white shadow-sm border border-border-warm">
-        <img src={post.image_url || categoryImages[post.category] || "/images/hero-gym.jpg"} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-      </div>
-      <h3 className="text-lg font-bold text-foreground tracking-tight mb-2 group-hover:text-rose transition-colors">{post.title}</h3>
-      {post.excerpt && <p className="ef-body text-base mb-4 line-clamp-2">{post.excerpt}</p>}
+    <Link href={`/blog/${post.slug}`} className="group block border-t border-border-warm pt-6">
+      {post.image_url && (
+        <div className="rounded-2xl overflow-hidden mb-5 aspect-[16/10] bg-white">
+          <img src={post.image_url} alt={post.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300" />
+        </div>
+      )}
+      <p className="text-[11px] font-bold tracking-[0.1em] uppercase text-teal mb-3">{post.category}</p>
+      <h3 className="font-serif text-xl text-foreground leading-snug tracking-[-0.015em] mb-3 group-hover:text-rose transition-colors">{post.title}</h3>
+      {post.excerpt && <p className="ef-body text-sm mb-4 line-clamp-2">{post.excerpt}</p>}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-rose/20 flex items-center justify-center text-rose text-xs font-bold">{post.author_name.charAt(0)}</div>
-          <div>
-            <p className="text-xs font-semibold text-foreground">{post.author_name}</p>
-            <p className="text-xs text-muted-foreground">{date}</p>
-          </div>
-        </div>
-        <span className="inline-flex items-center gap-1 text-xs font-medium text-rose">Read <IconArrowUpRight className="w-3 h-3" /></span>
-      </div>
-    </Link>
-  );
-}
-
-function FeaturedCard({ post, large }: { post: BlogPost; large?: boolean }) {
-  return (
-    <Link href={`/blog/${post.slug}`} className={`group block rounded-3xl overflow-hidden relative shadow-md ${large ? "h-full min-h-[400px]" : "h-48"}`}>
-      <img src={post.image_url || categoryImages[post.category] || "/images/hero-gym.jpg"} alt={post.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-      <div className="absolute bottom-0 left-0 right-0 p-5">
-        <div className="flex gap-2 mb-2">
-          <span className={`${post.category === 'Training' || post.category === 'Recovery' ? 'bg-teal' : 'bg-rose'} text-white text-xs font-semibold px-2.5 py-1 rounded-full`}>{post.category}</span>
-        </div>
-        <h3 className={`font-bold text-white tracking-tight ${large ? "text-xl" : "text-base"}`}>{post.title}</h3>
-        {large && post.excerpt && <p className="text-white/70 text-base mt-2 line-clamp-2">{post.excerpt}</p>}
-        {large && (
-          <div className="flex items-center gap-2 mt-3">
-            <div className="w-7 h-7 rounded-full bg-rose/30 flex items-center justify-center text-white text-xs font-bold">{post.author_name.charAt(0)}</div>
-            <span className="text-xs text-white/80">{post.author_name}</span>
-          </div>
-        )}
+        <p className="text-xs text-muted-foreground">{post.author_name} · {date}</p>
+        <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose">Read <IconArrowUpRight className="w-3 h-3" /></span>
       </div>
     </Link>
   );

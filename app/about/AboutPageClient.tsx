@@ -10,7 +10,7 @@ import {
   Section,
   SectionHeading,
   PageHero,
-  FeatureCard,
+  FeatureBand,
   StatBadge,
   Callout,
   CTABand,
@@ -173,10 +173,11 @@ export default function AboutPageClient() {
             <Image src="/images/studio-2.jpg" alt="Training equipment at Eternal Fitness Worthing" fill sizes="(max-width: 1000px) 100vw, 50vw" style={{ objectFit: "cover" }} />
           </div>
         </Reveal>
-        <Reveal className="ds-grid-3" stagger={0.13} y={48} start="top 82%" >
-          {studioCards.map((c) => (
-            <FeatureCard key={c.title} icon={c.icon} accent="teal" title={c.title} body={c.desc} />
-          ))}
+        <Reveal y={40} start="top 82%" style={{ marginTop: 48 }}>
+          <FeatureBand
+            accent="teal"
+            items={studioCards.map((c) => ({ icon: c.icon, title: c.title, body: c.desc }))}
+          />
         </Reveal>
       </Section>
 

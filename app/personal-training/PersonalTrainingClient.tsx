@@ -18,8 +18,6 @@ import {
   Section,
   SectionHeading,
   PageHero,
-  FeatureCard,
-  SpecialistGrid,
   StatBadge,
   CTABand,
   Reveal,
@@ -28,6 +26,8 @@ import {
   StatStrip,
   PulseLine,
   MotionArcs,
+  IndexList,
+  FeatureBand,
 } from "@/components/ds";
 
 const specialistAreas = [
@@ -182,7 +182,19 @@ export default function PersonalTrainingClient() {
           heading="Who I Work With"
           intro="I specialise in working with people who have been underserved by mainstream fitness. If your situation is not listed here, please still get in touch — the answer is almost always yes."
         />
-        <SpecialistGrid items={specialistAreas} />
+        <Reveal y={40} start="top 80%" style={{ marginTop: 40 }}>
+          <IndexList
+            accent="rose"
+            panelEyebrow="Specialist areas"
+            items={specialistAreas.map((a) => ({
+              title: a.title,
+              body: a.desc,
+              cta: a.href
+                ? { label: "Learn more", href: a.href }
+                : { label: "Book a consultation", onClick: openDialog },
+            }))}
+          />
+        </Reveal>
       </Section>
 
       {/* What I Work On */}
@@ -239,10 +251,11 @@ export default function PersonalTrainingClient() {
           heading="Condition-Specific Training"
           intro="Each of my specialist areas has a dedicated page with more detail about how I work with specific conditions."
         />
-        <Reveal className="ds-grid-3" stagger={0.13} y={48} start="top 80%">
-          {specialistPages.map((p) => (
-            <FeatureCard key={p.href} image={p.image} imageAlt={p.imageAlt} accent="teal" title={p.title} body={p.desc} href={p.href} />
-          ))}
+        <Reveal y={40} start="top 82%" style={{ marginTop: 40 }}>
+          <FeatureBand
+            accent="teal"
+            items={specialistPages.map((p) => ({ title: p.title, body: p.desc, href: p.href, linkLabel: "Read more" }))}
+          />
         </Reveal>
       </Section>
 
@@ -267,10 +280,11 @@ export default function PersonalTrainingClient() {
           heading="Related Articles"
           intro="Read more about training with health conditions, recovery strategies, and what makes specialist personal training different."
         />
-        <Reveal className="ds-grid-3" stagger={0.13} y={48} start="top 80%">
-          {relatedArticles.map((a) => (
-            <FeatureCard key={a.href} icon={a.icon} accent="rose" title={a.title} body={a.desc} href={a.href} />
-          ))}
+        <Reveal y={40} start="top 82%" style={{ marginTop: 40 }}>
+          <FeatureBand
+            accent="rose"
+            items={relatedArticles.map((a) => ({ icon: a.icon, title: a.title, body: a.desc, href: a.href, linkLabel: "Read article" }))}
+          />
         </Reveal>
         <div style={{ textAlign: "center", marginTop: 44 }}>
           <CtaButton cta={{ label: "View All Articles", href: "/blog", variant: "outline", arrow: true }} />
