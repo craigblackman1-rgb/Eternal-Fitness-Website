@@ -13,6 +13,7 @@ import { HubAlert } from "@/components/hub/HubAlert";
 import { lookupStatus } from "@/lib/hubStatus";
 import type { DBClientGroupType, DBClientPaceMode } from "@/types";
 import { PlanAgentTab } from "./PlanAgentTab";
+import { ClientDetailTabs } from "./ClientDetailTabs";
 
 function GroupTypeLabel({ groupType }: { groupType: DBClientGroupType | null }) {
   if (!groupType) return null;
@@ -129,7 +130,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           ) : (
             <div className="flex items-center justify-between py-1 text-sm">
               <span className="text-muted-foreground">No blocks yet</span>
-              <Link href={`/hub/clients/${client.client_number}/blocks/new`} className="text-rose font-medium hover:underline">
+              <Link href={`/hub/clients/${client.client_number}?tab=plan-agent`} className="text-rose font-medium hover:underline">
                 Create Block
               </Link>
             </div>
@@ -144,9 +145,9 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             <IconPencil className="w-4 h-4 text-muted-foreground" />
             Edit client
           </Link>
-          <Link href={`/hub/clients/${client.client_number}/blocks/new`} className="rounded-lg px-2.5 py-2 hover:bg-[var(--hub-hover)] text-sm font-medium flex items-center gap-2.5">
+          <Link href={`/hub/clients/${client.client_number}?tab=plan-agent`} className="rounded-lg px-2.5 py-2 hover:bg-[var(--hub-hover)] text-sm font-medium flex items-center gap-2.5">
             <IconPlus className="w-4 h-4 text-muted-foreground" />
-            New block
+            Plan a block
           </Link>
           <Link href={`/hub/clients/${client.client_number}/updates`} className="rounded-lg px-2.5 py-2 hover:bg-[var(--hub-hover)] text-sm font-medium flex items-center gap-2.5">
             <IconMail className="w-4 h-4 text-muted-foreground" />
@@ -195,10 +196,10 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
               Edit
             </Button>
           </Link>
-          <Link href={`/hub/clients/${client.client_number}/blocks/new`}>
+          <Link href={`/hub/clients/${client.client_number}?tab=plan-agent`}>
             <Button className="bg-rose hover:bg-rose/90 text-white rounded-lg px-3.5 py-1.5 h-auto text-sm font-semibold gap-1.5">
               <IconPlus className="h-4 w-4" />
-              New Block
+              Plan Block
             </Button>
           </Link>
         </div>
@@ -220,7 +221,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         </HubAlert>
       )}
 
-      <Tabs defaultValue="overview" className="w-full">
+      <ClientDetailTabs>
         <TabsList className="w-full justify-start gap-1 rounded-none border-b border-[var(--hub-border)] bg-transparent p-0 h-auto">
           <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Overview</TabsTrigger>
           <TabsTrigger value="profile-compliance" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Profile & Compliance</TabsTrigger>
@@ -605,7 +606,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
               ) : (
                 <div className="flex items-center justify-between rounded-lg py-2 px-1 text-sm">
                   <span className="text-muted-foreground">No blocks yet</span>
-                  <Link href={`/hub/clients/${client.client_number}/blocks/new`} className="text-rose font-medium hover:underline">
+                  <Link href={`/hub/clients/${client.client_number}?tab=plan-agent`} className="text-rose font-medium hover:underline">
                     Create Block
                   </Link>
                 </div>
@@ -686,7 +687,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
+      </ClientDetailTabs>
     </div>
   );
 }

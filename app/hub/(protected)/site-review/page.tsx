@@ -100,7 +100,7 @@ const sitemap: SitemapItem[] = [
   { url: "/hub/clients/[id]", title: "Client Detail", access: "Protected", type: "Hub" },
   { url: "/hub/clients/[id]/edit", title: "Edit Client", access: "Protected", type: "Hub" },
   { url: "/hub/clients/[id]/blocks", title: "Training Blocks", access: "Protected", type: "Hub" },
-  { url: "/hub/clients/[id]/blocks/new", title: "Create Block", access: "Protected", type: "Hub" },
+  { url: "/hub/clients/[id]?tab=plan-agent", title: "Plan Agent — Create Block", access: "Protected", type: "Hub" },
   { url: "/hub/clients/[id]/blocks/[blockId]", title: "Block Detail", access: "Protected", type: "Hub" },
   { url: "/hub/clients/[id]/blocks/[blockId]/sessions/[sessionNum]", title: "Session Detail", access: "Protected", type: "Hub" },
   { url: "/hub/agreements", title: "Agreements", access: "Protected", type: "Hub" },

@@ -119,7 +119,7 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
       }
 
       const { blockId } = await response.json();
-      router.push(`/hub/clients/${clientNumber}/blocks/${blockId}`);
+      router.push(`/hub/clients/${clientNumber}/blocks/${blockId}/review`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to generate block");
     } finally {
@@ -163,7 +163,7 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
             ) : (
               <IconPlus className="h-4 w-4" />
             )}
-            Generate Block
+            Create Block
           </Button>
         )}
       </div>
@@ -242,7 +242,7 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
           <Badge variant="outline" className="rounded-full text-xs">
             {messages.filter((m) => m.role === "user").length} messages
           </Badge>
-          <span>When ready, click Generate Block to create a draft from this conversation.</span>
+          <span>When ready, click Create Block to turn this conversation into a draft block.</span>
         </div>
       )}
 
