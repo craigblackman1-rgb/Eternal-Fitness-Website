@@ -19,8 +19,27 @@ export async function POST(request: Request, { params }: { params: { id: string 
     return NextResponse.json({ error: "Client not found" }, { status: 404 });
   }
 
-  const { subject, html, blockNumber, clientEmail, templateKind, skipSend } = await request.json();
+  const { subject, html, blockNumber, clientEmail, templateKind, skipSend, testRecipient } = await request.json();
   const resolvedSubject = subject || "Your last 6 weeks with me 🏋️";
+
+  // Test send — fire the real email to Craig/Esther so they can eyeball it in a
+  // real inbox. Deliberately NOT logged to sent_updates: it isn't a client send.
+  if (testRecipient) {
+    const sender = getEmailSender();
+    try {
+      const result = await sender.send({
+        to: testRecipient,
+        subject: `[TEST] ${resolvedSubject}`,
+        html,
+      });
+      return NextResponse.json({ success: true, emailed: !result.dryRun, test: true });
+    } catch (err) {
+      return NextResponse.json(
+        { error: err instanceof Error ? err.message : "Failed to send test email" },
+        { status: 500 },
+      );
+    }
+  }
 
   // "Save without sending" — Esther delivered the update another way but still wants it logged.
   if (skipSend) {
@@ -43,6 +62,14 @@ export async function POST(request: Request, { params }: { params: { id: string 
   if (!clientEmail) {
     return NextResponse.json({ error: "Client email address is required" }, { status: 400 });
   }
+
+  // Remember the address on the client record so it prefills next time.
+  // Best-effort: the email column may not exist yet on every environment.
+  await supabase
+    .from("clients")
+    .update({ email: clientEmail })
+    .eq("id", client.id)
+    .then(undefined, () => {});
 
   const sender = getEmailSender();
 

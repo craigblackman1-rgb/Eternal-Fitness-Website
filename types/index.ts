@@ -165,6 +165,8 @@ export interface DBClient {
   block_summaries?: BlockSummary[];
   client_number?: number;
   display_code?: string;
+  email?: string | null;
+  phone?: string | null;
   gp_letter_status: GpLetterStatus;
   gp_letter_requested_date: string | null;
   gp_letter_received_date: string | null;
