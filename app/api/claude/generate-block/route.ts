@@ -183,8 +183,48 @@ Return only a JSON array of ${totalSessions} Session objects.`;
   const text = await aiChat({ system, user, maxTokens: 16000 });
   if (!text) throw new Error("AI returned no response");
 
-  const cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-  return JSON.parse(cleaned) as Session[];
+  try {
+    return parseSessionJson(text);
+  } catch (firstErr) {
+    // Model JSON is occasionally malformed (trailing comma, stray prose,
+    // truncation). Ask it once to return the corrected array, nothing else.
+    const detail = firstErr instanceof Error ? firstErr.message : "invalid JSON";
+    const repaired = await aiChat({
+      system,
+      messages: [
+        { role: "user", content: user },
+        { role: "assistant", content: text },
+        {
+          role: "user",
+          content: `That response failed JSON parsing (${detail}). Return the same content as a single valid JSON array of Session objects. Output ONLY the JSON array — no markdown fences, no commentary, no trailing commas.`,
+        },
+      ],
+      maxTokens: 16000,
+    });
+    if (!repaired) throw firstErr;
+    return parseSessionJson(repaired);
+  }
+}
+
+/** Parse the model's session output, tolerating markdown fences, surrounding
+ *  prose, and trailing commas that otherwise break JSON.parse. */
+function parseSessionJson(text: string): Session[] {
+  let cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+
+  // Slice to the outermost JSON array so leading/trailing prose is ignored.
+  const start = cleaned.indexOf("[");
+  const end = cleaned.lastIndexOf("]");
+  if (start !== -1 && end > start) {
+    cleaned = cleaned.slice(start, end + 1);
+  }
+
+  try {
+    return JSON.parse(cleaned) as Session[];
+  } catch {
+    // Strip trailing commas before } or ] and retry.
+    const noTrailingCommas = cleaned.replace(/,(\s*[}\]])/g, "$1");
+    return JSON.parse(noTrailingCommas) as Session[];
+  }
 }
 
 /* ─── Fallback generator powered by exercise-db.json ─── */
