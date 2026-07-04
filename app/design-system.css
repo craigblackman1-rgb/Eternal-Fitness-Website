@@ -216,6 +216,29 @@ a.ds-card { display: block; }
 .ds-art-divider { max-width: 420px; margin: 18px auto 0; }
 .ds-art-inline { max-width: 340px; margin-top: 26px; }
 
+/* ── Editorial index (card-grid replacement) ── */
+.ds-index { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 72px; align-items: start; }
+.ds-index-row { border-top: 1px solid var(--color-border-warm); }
+.ds-index-row:last-child { border-bottom: 1px solid var(--color-border-warm); }
+.ds-index-rowbtn { display: flex; align-items: baseline; gap: 20px; width: 100%; text-align: left; background: none; border: none; cursor: pointer; padding: 24px 4px; }
+.ds-index-n { font-size: 11px; font-weight: 700; letter-spacing: .1em; color: var(--color-muted-text); transition: color .25s ease; flex-shrink: 0; }
+.ds-index-t { font-family: var(--font-serif); font-size: clamp(22px, 2.1vw, 30px); font-weight: 700; line-height: 1.12; letter-spacing: -.025em; color: var(--color-ink); opacity: .42; transition: opacity .25s ease; flex: 1; }
+.ds-index-row.is-active .ds-index-t { opacity: 1; }
+.ds-index-row.is-active .ds-index-n { color: var(--color-rose); }
+.ds-index-chev { color: var(--color-muted-text); flex-shrink: 0; align-self: center; transition: transform .25s ease; display: none; }
+.ds-index-row.is-open .ds-index-chev { transform: rotate(180deg); }
+.ds-index-inline { display: none; }
+.ds-index-cta { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 600; background: none; border: none; cursor: pointer; padding: 0; }
+.ds-index-cta-rose { color: var(--color-rose); }
+.ds-index-cta-teal { color: var(--color-teal); }
+.ds-index-cta:hover { text-decoration: underline; text-underline-offset: 3px; }
+.ds-index-panel { position: sticky; top: 110px; }
+.ds-index-panelcard { border-left: 2px solid var(--color-rose); padding: 8px 0 8px 36px; animation: dsIndexIn .45s cubic-bezier(.22,.9,.3,1) both; }
+.ds-index-panelcard h3 { font-family: var(--font-serif); font-size: clamp(24px, 2.2vw, 32px); font-weight: 700; letter-spacing: -.025em; line-height: 1.1; color: var(--color-ink); margin: 14px 0 12px; }
+.ds-index-panelcard p { font-size: 15.5px; color: var(--color-body); line-height: 1.7; margin-bottom: 20px; }
+.ds-index-panel-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--color-teal); display: block; margin-top: 14px; }
+@keyframes dsIndexIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
 /* ── Responsive ───────────────────── */
 @media (max-width: 1000px) {
   .ds-sec { padding: 72px 28px; }
@@ -238,6 +261,18 @@ a.ds-card { display: block; }
   .ds-hero-inner { padding: 64px 28px; }
   .ds-hero-badge { position: static; margin-top: 28px; }
   .ds-art-chip { width: 118px; left: 12px; bottom: 12px; }
+
+  /* index collapses to an accordion */
+  .ds-index { grid-template-columns: 1fr; gap: 0; }
+  .ds-index-panel { display: none; }
+  .ds-index-chev { display: block; }
+  .ds-index-rowbtn { padding: 20px 4px; }
+  .ds-index-t { opacity: 1; font-size: 19px; }
+  .ds-index-inline { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s cubic-bezier(.22,.9,.3,1); }
+  .ds-index-row.is-open .ds-index-inline { grid-template-rows: 1fr; }
+  .ds-index-inline-inner { overflow: hidden; }
+  .ds-index-inline-inner p { font-size: 14.5px; color: var(--color-body); line-height: 1.65; margin: 0 0 14px; padding-right: 8px; }
+  .ds-index-inline-inner .ds-index-cta { margin-bottom: 22px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

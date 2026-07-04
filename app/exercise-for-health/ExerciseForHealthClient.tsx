@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -17,7 +16,14 @@ import {
   ProcessFlow,
   MotionArcs,
   PulseLine,
+  IndexList,
 } from "@/components/ds";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   IconHeart,
   IconBloodPressure,
@@ -183,32 +189,26 @@ export default function ExerciseForHealthClient() {
         </div>
       </Section>
 
-      {/* CONDITIONS GRID */}
+      {/* CONDITIONS INDEX */}
       <Section background="cream" id="conditions">
         <SectionHeading
           eyebrow="Conditions Covered"
           heading="Who I Work With"
           intro="If your condition is not listed here, please still get in touch. The answer is almost always yes."
         />
-        <Reveal className="ds-grid-3" stagger={0.1} y={48} start="top 80%" >
-          {conditions.map(({ icon: Icon, title, slug, desc, available }) => (
-            <div key={slug} className="ds-card">
-              <div className="ds-card-ic ds-card-ic-teal">
-                <Icon className="w-5 h-5" />
-              </div>
-              <h4 className="ds-card-title">{title}</h4>
-              <p className="ds-card-body" style={{ marginBottom: 16 }}>{desc}</p>
-              {available ? (
-                <Link href={`/exercise-for-health/${slug}`} style={{ fontSize: 13, fontWeight: 600, color: "var(--color-rose)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  Learn more →
-                </Link>
-              ) : (
-                <button onClick={openDialog} style={{ fontSize: 13, fontWeight: 600, color: "var(--color-teal)", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-                  Book a consultation →
-                </button>
-              )}
-            </div>
-          ))}
+        <Reveal y={40} start="top 80%" style={{ marginTop: 40 }}>
+          <IndexList
+            accent="rose"
+            panelEyebrow="Conditions covered"
+            items={conditions.map(({ icon, title, slug, desc, available }) => ({
+              icon,
+              title,
+              body: desc,
+              cta: available
+                ? { label: "Learn more", href: `/exercise-for-health/${slug}` }
+                : { label: "Book a consultation", onClick: openDialog },
+            }))}
+          />
         </Reveal>
       </Section>
 
@@ -224,29 +224,19 @@ export default function ExerciseForHealthClient() {
       {/* FAQ */}
       <Section background="cream">
         <SectionHeading eyebrow="Common Questions" heading="Questions About Exercising With a Health Condition" />
-        <div className="ds-grid-2">
-          <div className="ds-featlist">
-            {faqs.slice(0, Math.ceil(faqs.length / 2)).map((f) => (
-              <div key={f.title} className="ds-feat">
-                <span className="ds-feat-dot" />
-                <div>
-                  <div className="ds-feat-t">{f.title}</div>
-                  <div className="ds-feat-c">{f.body}</div>
-                </div>
-              </div>
+        <div style={{ maxWidth: 760, margin: "24px auto 0" }}>
+          <Accordion type="single" collapsible className="w-full">
+            {faqs.map((f, i) => (
+              <AccordionItem key={f.title} value={`faq-${i}`} className="border-border-warm">
+                <AccordionTrigger className="font-body text-foreground text-left text-base py-5 hover:no-underline">
+                  {f.title}
+                </AccordionTrigger>
+                <AccordionContent className="ef-body text-sm pb-5">
+                  {f.body}
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </div>
-          <div className="ds-featlist">
-            {faqs.slice(Math.ceil(faqs.length / 2)).map((f) => (
-              <div key={f.title} className="ds-feat">
-                <span className="ds-feat-dot" />
-                <div>
-                  <div className="ds-feat-t">{f.title}</div>
-                  <div className="ds-feat-c">{f.body}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+          </Accordion>
         </div>
       </Section>
 

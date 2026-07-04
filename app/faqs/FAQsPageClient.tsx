@@ -141,7 +141,7 @@ export default function FAQsPageClient() {
       {/* FAQ Section */}
       <Section background="white" id="faq" innerClassName="grid md:grid-cols-[340px_1fr] gap-12 md:gap-20 items-start">
 
-          {/* Left — intro */}
+          {/* Left — intro + jump nav */}
           <div className="md:sticky md:top-24">
             <Eyebrow color="rose">Your Questions Answered</Eyebrow>
             <h2 className="ds-h2" style={{ margin: "16px 0" }}>
@@ -150,26 +150,51 @@ export default function FAQsPageClient() {
             <p className="ds-body" style={{ marginBottom: 16 }}>
               I work with people whose situations are rarely straightforward. If you are wondering whether your health, disability, or circumstances make you a difficult client — they almost certainly do not.
             </p>
-            <p className="ds-body" style={{ marginBottom: 28, fontSize: 14.5 }}>
-              The questions below cover the things people most commonly wonder about before getting in touch.
-            </p>
+            <nav aria-label="FAQ sections" className="mb-8 mt-7">
+              <p className="text-[11px] font-bold tracking-[0.1em] uppercase text-teal mb-3">Jump to</p>
+              <ul>
+                {faqGroups.map((group, gi) => (
+                  <li key={group.group} className="border-t border-border-warm last:border-b">
+                    <a
+                      href={`#faq-group-${gi}`}
+                      className="flex items-baseline justify-between gap-4 py-3 group"
+                    >
+                      <span className="font-serif text-lg text-foreground/70 group-hover:text-foreground transition-colors tracking-tight">
+                        {group.group}
+                      </span>
+                      <span className="text-[11px] font-bold text-rose tabular-nums">
+                        {String(group.faqs.length).padStart(2, "0")}
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
             <CtaButton cta={{ label: "Book a Free Consultation", onClick: openDialog, arrow: true }} />
           </div>
 
           {/* Right — grouped FAQs */}
-          <div className="space-y-12">
+          <div className="space-y-16">
             {faqGroups.map((group, gi) => (
-              <div key={group.group}>
-                <h3 className={`text-[11px] font-bold tracking-[0.1em] uppercase mb-4 pb-2 border-b border-border-warm ${gi % 2 === 0 ? "text-teal" : "text-rose"}`}>
-                  {group.group}
-                </h3>
+              <div key={group.group} id={`faq-group-${gi}`} style={{ scrollMarginTop: 110 }}>
+                <div className="flex items-baseline gap-4 mb-2 pb-4 border-b border-border-warm">
+                  <span className={`text-[11px] font-bold tabular-nums ${gi % 2 === 0 ? "text-teal" : "text-rose"}`}>
+                    {String(gi + 1).padStart(2, "0")}
+                  </span>
+                  <h3 className="font-serif text-2xl md:text-[28px] tracking-tight text-foreground">
+                    {group.group}
+                  </h3>
+                  <span className="ml-auto text-xs text-muted-foreground">
+                    {group.faqs.length} questions
+                  </span>
+                </div>
                 <Accordion type="single" collapsible className="w-full">
                   {group.faqs.map((faq, i) => (
                     <AccordionItem key={i} value={`${group.group}-${i}`} className="border-border-warm">
-                      <AccordionTrigger className="font-body text-foreground text-left text-base py-5 hover:no-underline">
+                      <AccordionTrigger className="font-body text-foreground text-left text-[17px] font-medium py-5 hover:no-underline">
                         {faq.question}
                       </AccordionTrigger>
-                      <AccordionContent className="ef-body text-sm pb-5">
+                      <AccordionContent className="ef-body text-[15px] leading-relaxed pb-6 max-w-[640px]">
                         {faq.answer}
                       </AccordionContent>
                     </AccordionItem>

@@ -2,19 +2,12 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
-import { IconArrowUpRight } from "@/components/icons";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SocialIcon from "@/components/SocialIcons";
 import ConsultationDialog from "@/components/ConsultationDialog";
 import { useConsultationDialog } from "@/hooks/useConsultationDialog";
-
-const categoryImages: Record<string, string> = {
-  Training: "/images/strength-tasks.jpg",
-  Nutrition: "/images/mind-body.jpg",
-  Recovery: "/images/mobility-movement.jpg",
-  General: "/images/hero-gym.jpg",
-};
+import { PulseLine } from "@/components/ds";
 
 interface BlogPostData {
   id: string;
@@ -38,7 +31,7 @@ interface Props {
   popularPosts: BlogPostData[];
 }
 
-export default function BlogPostClient({ post, relatedPosts, recentPosts, featuredPost, popularPosts }: Props) {
+export default function BlogPostClient({ post, relatedPosts, recentPosts }: Props) {
   const { open, setOpen, openDialog } = useConsultationDialog();
 
   const tocItems = useMemo(() => {
@@ -63,6 +56,19 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
     });
   }, [post.content]);
 
+  // Related first, topped up with recent, minus the current post, max 3
+  const keepReading = useMemo(() => {
+    const seen = new Set<string>([post.id]);
+    const pool: BlogPostData[] = [];
+    for (const p of [...relatedPosts, ...recentPosts]) {
+      if (!seen.has(p.id)) {
+        seen.add(p.id);
+        pool.push(p);
+      }
+    }
+    return pool.slice(0, 3);
+  }, [post.id, relatedPosts, recentPosts]);
+
   const formatDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
@@ -80,46 +86,52 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
     <div className="min-h-screen bg-background">
       <ConsultationDialog open={open} onOpenChange={setOpen} />
 
-      {/* Hero */}
-      <section className="relative min-h-[50vh] pt-[72px] flex items-center justify-center overflow-hidden">
-        <img src="/images/blog-hero.jpg" alt="Blog" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-hero-overlay/80" />
+      {/* Editorial hero — ink band, no stock photo */}
+      <section className="ds-bg-ink pt-[72px]">
         <Navbar onBookConsultation={openDialog} />
-        <div className="relative z-10 text-center px-6 pt-20">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl text-white mb-4">Blog</h1>
-          <p className="text-white/70 max-w-xl mx-auto text-sm md:text-base mb-8">
-            Practical articles on training, health, and moving well — written for people whose situations are rarely straightforward.
-          </p>
-          <div className="flex flex-wrap gap-3 justify-center">
-            <button onClick={openDialog} className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity">
-              Book an Initial Consultation
-            </button>
-            <Link href="/about" className="inline-flex items-center gap-2 border border-white/30 text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-white/10 transition-colors">
-              Visit the Studio
-            </Link>
+        <div className="max-w-[1320px] mx-auto px-6 md:px-12 py-16 md:py-24">
+          <div className="max-w-[820px]">
+            <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-semibold tracking-[0.1em] uppercase mb-6">
+              <Link href="/blog" className="text-white/50 hover:text-white transition-colors">Blog</Link>
+              <span className="text-white/30" aria-hidden>/</span>
+              <span className="text-rose">{post.category}</span>
+            </nav>
+            <h1 className="font-serif text-4xl md:text-5xl lg:text-[56px] text-white leading-[1.06] tracking-[-0.03em] mb-6">
+              {post.title}
+            </h1>
+            {post.excerpt && (
+              <p className="text-white/60 text-base md:text-lg leading-relaxed max-w-[640px] mb-8">{post.excerpt}</p>
+            )}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/60">
+              <span className="flex items-center gap-2">
+                {post.author_avatar ? (
+                  <img src={post.author_avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
+                ) : (
+                  <span className="w-7 h-7 rounded-full bg-rose/40 flex items-center justify-center text-white text-[11px] font-bold">
+                    {post.author_name.charAt(0)}
+                  </span>
+                )}
+                <span className="text-white/80 font-medium">{post.author_name}</span>
+              </span>
+              <span aria-hidden className="text-white/25">•</span>
+              <span>{formatDate(post.published_at)}</span>
+              <span aria-hidden className="text-white/25">•</span>
+              <span>{getReadTime(post.content)}</span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Main Content */}
+      {/* Article */}
       <section className="ef-section px-6 md:px-12">
-        <div className="max-w-[1320px] mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Left Column - Article */}
-            <div className="lg:col-span-2">
-              <div className="relative rounded-3xl overflow-hidden mb-8 shadow-md border border-[#E4DDD7]">
-                <img src={post.image_url || categoryImages[post.category] || "/images/hero-gym.jpg"} alt={post.title} className="w-full aspect-[16/9] object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                  <span className={`inline-block ${post.category === 'Training' || post.category === 'Recovery' ? 'bg-teal' : 'bg-rose'} text-white text-xs font-semibold px-3 py-1 rounded-full mb-3`}>{post.category}</span>
-                  <h2 className="text-xl md:text-2xl lg:text-3xl text-white font-bold tracking-tight mb-3">{post.title}</h2>
-                  <div className="flex items-center gap-4 text-white/70 text-sm">
-                    <span>{post.author_name}</span>
-                    <span>{formatDate(post.published_at)}</span>
-                    <span>{getReadTime(post.content)}</span>
-                  </div>
-                </div>
-              </div>
+        <div className="max-w-[1160px] mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12 lg:gap-20">
+            <div className="min-w-0">
+              {post.image_url && (
+                <figure className="rounded-3xl overflow-hidden mb-10 border border-[#E4DDD7]">
+                  <img src={post.image_url} alt={post.title} className="w-full aspect-[16/9] object-cover" />
+                </figure>
+              )}
 
               {processedContent ? (
                 <div
@@ -146,153 +158,103 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
               ) : (
                 <p className="ef-body">Full content coming soon.</p>
               )}
+
+              {/* Author strip */}
+              <div className="mt-14 pt-8 border-t border-[#E4DDD7] flex flex-col sm:flex-row sm:items-center gap-5">
+                {post.author_avatar ? (
+                  <img src={post.author_avatar} alt={post.author_name} className="w-14 h-14 rounded-full object-cover flex-shrink-0" />
+                ) : (
+                  <div className="w-14 h-14 rounded-full bg-rose/20 flex items-center justify-center text-rose text-lg font-bold flex-shrink-0">
+                    {post.author_name.charAt(0)}
+                  </div>
+                )}
+                <div className="flex-1">
+                  <p className="font-bold text-foreground">{post.author_name}</p>
+                  <p className="ef-body text-sm">
+                    Level 4 personal trainer in Worthing, specialising in exercise for people with health conditions and complex needs.
+                  </p>
+                </div>
+                <button
+                  onClick={openDialog}
+                  className="inline-flex items-center gap-2 bg-rose text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity self-start sm:self-auto"
+                >
+                  Book a Free Consultation
+                </button>
+              </div>
             </div>
 
-            {/* Right Column - Sidebar */}
-            <div className="space-y-8">
-              {/* Author Card */}
-              <div className="bg-warm rounded-3xl p-6 shadow-md">
-                <div className="flex items-start gap-4 mb-4">
-                  {post.author_avatar ? (
-                    <img src={post.author_avatar} alt={post.author_name} className="w-16 h-16 rounded-xl object-cover" />
-                  ) : (
-                    <div className="w-16 h-16 rounded-xl bg-rose/20 flex items-center justify-center text-rose text-xl font-bold">
-                      {post.author_name.charAt(0)}
-                    </div>
-                  )}
-                  <div>
-                    <h4 className="font-bold text-foreground text-base tracking-tight">{post.author_name}</h4>
-                    <p className="ef-body text-sm mt-1">Personal Trainer, Worthing</p>
-                  </div>
-                </div>
-                <p className="ef-body text-base mb-4">
-                  I am passionate about helping people achieve their fitness goals through personalised training and evidence-based coaching.
-                </p>
+            {/* Sidebar — sticky, minimal */}
+            <aside className="hidden lg:block">
+              <div className="sticky top-24 space-y-10">
+                {tocItems.length > 0 && (
+                  <nav aria-label="Table of contents">
+                    <p className="text-[11px] font-bold tracking-[0.1em] uppercase text-teal mb-4">In this article</p>
+                    <ul className="space-y-2.5 border-l border-[#E4DDD7]">
+                      {tocItems.map((item) => (
+                        <li key={item.id}>
+                          <a
+                            href={`#${item.id}`}
+                            className={`block text-sm leading-snug -ml-px border-l border-transparent pl-4 hover:border-rose hover:text-rose transition-colors ${
+                              item.level === "h3" ? "text-[#525A61] pl-7" : "text-foreground font-medium"
+                            }`}
+                          >
+                            {item.text}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+                )}
+
                 <div>
-                  <p className="text-sm text-[#525A61] mb-2">Share with your community!</p>
+                  <p className="text-[11px] font-bold tracking-[0.1em] uppercase text-teal mb-3">Share</p>
                   <div className="flex gap-2">
-                    <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" aria-label="Share on Facebook" className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center hover:bg-foreground/20 transition-colors text-foreground">
+                    <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" aria-label="Share on Facebook" className="w-9 h-9 rounded-full border border-[#E4DDD7] flex items-center justify-center hover:bg-rose hover:text-white hover:border-rose transition-colors text-foreground">
                       <SocialIcon name="facebook" />
                     </a>
-                    <a href={`https://wa.me/?text=${encodeURIComponent(post.title + " " + shareUrl)}`} target="_blank" rel="noopener noreferrer" aria-label="Share on WhatsApp" className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center hover:bg-foreground/20 transition-colors text-foreground">
+                    <a href={`https://wa.me/?text=${encodeURIComponent(post.title + " " + shareUrl)}`} target="_blank" rel="noopener noreferrer" aria-label="Share on WhatsApp" className="w-9 h-9 rounded-full border border-[#E4DDD7] flex items-center justify-center hover:bg-rose hover:text-white hover:border-rose transition-colors text-foreground">
                       <SocialIcon name="whatsapp" />
                     </a>
-                    <a href={`mailto:?subject=${encodeURIComponent(post.title)}&body=${encodeURIComponent(shareUrl)}`} aria-label="Share via Email" className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center hover:bg-foreground/20 transition-colors text-foreground">
+                    <a href={`mailto:?subject=${encodeURIComponent(post.title)}&body=${encodeURIComponent(shareUrl)}`} aria-label="Share via Email" className="w-9 h-9 rounded-full border border-[#E4DDD7] flex items-center justify-center hover:bg-rose hover:text-white hover:border-rose transition-colors text-foreground">
                       <SocialIcon name="email" />
                     </a>
                   </div>
                 </div>
+
+                <div className="border-t border-[#E4DDD7] pt-8">
+                  <div className="max-w-[180px] mb-4"><PulseLine accent="rose" /></div>
+                  <p className="font-serif text-xl text-foreground leading-snug mb-2">Not sure where to start?</p>
+                  <p className="ef-body text-sm mb-4">The first conversation is free, with no commitment.</p>
+                  <button onClick={openDialog} className="text-rose text-sm font-semibold hover:underline underline-offset-4">
+                    Book a Free Consultation →
+                  </button>
+                </div>
               </div>
-
-              {/* Table of Contents */}
-              {tocItems.length > 0 && (
-                <div>
-                  <h4 className="font-bold text-foreground text-base tracking-tight mb-4">In this article</h4>
-                  <ul className="space-y-2">
-                    {tocItems.map((item) => (
-                      <li key={item.id}>
-                        <a href={`#${item.id}`} className={`text-sm hover:text-rose transition-colors ${item.level === "h3" ? "text-[#525A61] pl-4" : "text-foreground font-medium"}`}>
-                          {item.text}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Related Posts */}
-              {relatedPosts.length > 0 && (
-                <div>
-                  <h4 className="font-bold text-foreground text-base tracking-tight mb-4">Related Articles</h4>
-                  <div className="space-y-4">
-                    {relatedPosts.map((rp) => (
-                      <Link key={rp.id} href={`/blog/${rp.slug}`} className="flex items-center gap-3 group">
-                        <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-muted">
-                          <img src={rp.image_url || categoryImages[rp.category] || "/images/hero-gym.jpg"} alt={rp.title} className="w-full h-full object-cover" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-foreground group-hover:text-rose transition-colors line-clamp-2">{rp.title}</p>
-                          <p className="text-xs text-[#525A61] mt-0.5">{rp.category}</p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Recent Posts */}
-              {recentPosts.length > 0 && (
-                <div>
-                  <h4 className="font-bold text-foreground text-base tracking-tight mb-4">Recent Articles</h4>
-                  <div className="space-y-4">
-                    {recentPosts.map((rp) => (
-                      <Link key={rp.id} href={`/blog/${rp.slug}`} className="flex items-center gap-3 group">
-                        <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-white border border-[#E4DDD7]">
-                          <img src={rp.image_url || categoryImages[rp.category] || "/images/hero-gym.jpg"} alt={rp.title} className="w-full h-full object-cover" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-foreground group-hover:text-rose transition-colors line-clamp-2">{rp.title}</p>
-                          <p className="text-xs text-[#525A61] mt-0.5">{rp.author_name}</p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Featured Post */}
-              {featuredPost && (
-                <div>
-                  <h4 className="font-bold text-foreground text-base tracking-tight mb-4">Featured Post</h4>
-                  <Link href={`/blog/${featuredPost.slug}`} className="group block rounded-3xl overflow-hidden relative h-64 shadow-md">
-                    <img src={featuredPost.image_url || categoryImages[featuredPost.category] || "/images/hero-gym.jpg"} alt={featuredPost.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-5">
-                      <div className="flex items-center gap-2 text-white/60 text-xs mb-2">
-                        <span>{formatDate(featuredPost.published_at)}</span>
-                        <span>{featuredPost.category}</span>
-                      </div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-6 h-6 rounded-full bg-rose/30 flex items-center justify-center text-white text-[10px] font-bold">{featuredPost.author_name.charAt(0)}</div>
-                        <span className="text-xs text-white/80">{featuredPost.author_name}</span>
-                      </div>
-                      <h5 className="text-base font-bold text-white tracking-tight">{featuredPost.title}</h5>
-                      <span className="inline-block bg-rose text-white text-xs font-semibold px-2.5 py-1 rounded-full mt-2">{featuredPost.category}</span>
-                    </div>
-                  </Link>
-                </div>
-              )}
-            </div>
+            </aside>
           </div>
         </div>
       </section>
 
-      {/* Popular Posts */}
-      {popularPosts.length > 0 && (
-        <section className="ef-section px-6 md:px-12">
-          <div className="max-w-[1320px] mx-auto">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-10 gap-4">
-              <h2 className="text-3xl md:text-4xl text-foreground ef-h2">Popular Posts</h2>
-              <Link href="/blog" className="inline-flex items-center gap-1 bg-rose text-white px-4 py-2 rounded-full text-sm font-medium hover:opacity-90 transition-opacity">
-                View All <IconArrowUpRight className="w-4 h-4" />
+      {/* Keep reading */}
+      {keepReading.length > 0 && (
+        <section className="bg-warm ef-section px-6 md:px-12">
+          <div className="max-w-[1160px] mx-auto">
+            <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between mb-10 gap-4">
+              <h2 className="font-serif text-3xl md:text-4xl text-foreground tracking-[-0.02em]">Keep reading</h2>
+              <Link href="/blog" className="text-rose text-sm font-semibold hover:underline underline-offset-4">
+                View all articles →
               </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {popularPosts.map((pp) => (
-                <div key={pp.id} className="group">
-                  <Link href={`/blog/${pp.slug}`} className="block rounded-3xl overflow-hidden mb-4 aspect-[4/3] bg-white shadow-sm border border-[#E4DDD7]">
-                    <img src={pp.image_url || categoryImages[pp.category] || "/images/hero-gym.jpg"} alt={pp.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                  </Link>
-                  <div className="flex items-center gap-2 text-xs text-[#525A61] mb-2">
-                    <span>{formatDate(pp.published_at)}</span>
-                    <span className="text-rose font-medium">{pp.category}</span>
-                  </div>
-                  <Link href={`/blog/${pp.slug}`}>
-                    <h3 className="text-lg font-bold text-foreground tracking-tight mb-2 group-hover:text-rose transition-colors">{pp.title}</h3>
-                  </Link>
-                  {pp.excerpt && <p className="ef-body text-base mb-3 line-clamp-3">{pp.excerpt}</p>}
-                  <Link href={`/blog/${pp.slug}`} className="text-rose text-sm font-semibold hover:underline">Read More...</Link>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-8">
+              {keepReading.map((rp) => (
+                <Link key={rp.id} href={`/blog/${rp.slug}`} className="group border-t border-[#D8CFC7] pt-6 block">
+                  <p className="text-[11px] font-bold tracking-[0.1em] uppercase text-teal mb-3">{rp.category}</p>
+                  <h3 className="font-serif text-xl text-foreground leading-snug tracking-[-0.015em] mb-3 group-hover:text-rose transition-colors">
+                    {rp.title}
+                  </h3>
+                  {rp.excerpt && <p className="ef-body text-sm line-clamp-2 mb-3">{rp.excerpt}</p>}
+                  <p className="text-xs text-[#525A61]">{formatDate(rp.published_at)} · {getReadTime(rp.content)}</p>
+                </Link>
               ))}
             </div>
           </div>
@@ -300,7 +262,7 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
       )}
 
       {/* CTA Section */}
-      <section className="bg-warm ef-section px-6 md:px-12">
+      <section className="ef-section px-6 md:px-12">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-4">
             Book a Personal Training Session in Worthing
@@ -310,10 +272,10 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts, featur
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <button onClick={openDialog} className="inline-flex items-center gap-2 bg-rose text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity">
-              Book Now <IconArrowUpRight className="w-4 h-4" />
+              Book a Free Consultation
             </button>
             <a href="tel:07517658128" className="inline-flex items-center gap-2 border border-[#E4DDD7] text-[#525A61] px-6 py-3 rounded-full font-medium hover:bg-rose hover:text-white transition-colors">
-              Give Me a Call <IconArrowUpRight className="w-4 h-4" />
+              Call: 07517 658 128
             </a>
           </div>
         </div>

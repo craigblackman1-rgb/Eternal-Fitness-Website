@@ -18,6 +18,8 @@ export { CompareDiagram } from "./CompareDiagram";
 export { StatStrip } from "./StatStrip";
 export type { Stat } from "./StatStrip";
 export { CtaButton } from "./CtaButton";
+export { IndexList } from "./IndexList";
+export type { IndexItem } from "./IndexList";
 export { Reveal } from "./Reveal";
 export type { CTA, Accent, SectionBg } from "./types";
 export { PulseLine } from "./artwork/PulseLine";
