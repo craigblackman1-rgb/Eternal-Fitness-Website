@@ -9,10 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IconChevronLeft, IconSave, IconPlus, IconTrash2 } from "@/components/icons";
 import { RichTextEditor } from "@/components/hub/RichTextEditor";
+import { SendTemplateToClient } from "./SendTemplateToClient";
 import { toast } from "sonner";
-import type { DocumentTemplate, DocumentBody, DocumentSection } from "@/lib/documents/types";
+import type { DocumentTemplate, DocumentBody, DocumentSection, DocumentKind } from "@/lib/documents/types";
 
-export function TemplateEditorClient({ template }: { template: DocumentTemplate }) {
+interface ClientOption { client_number: number; name: string }
+
+export function TemplateEditorClient({ template, clients }: { template: DocumentTemplate; clients: ClientOption[] }) {
   const router = useRouter();
   const [name, setName] = useState(template.name);
   const [body, setBody] = useState<DocumentBody>(template.body ?? { sections: [] });
@@ -67,6 +70,13 @@ export function TemplateEditorClient({ template }: { template: DocumentTemplate 
           <IconSave className="h-4 w-4" />{saving ? "Saving…" : "Save"}
         </Button>
       </div>
+
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
+        <CardHeader><CardTitle>Send to a client</CardTitle></CardHeader>
+        <CardContent>
+          <SendTemplateToClient kind={template.kind as DocumentKind} clients={clients} />
+        </CardContent>
+      </Card>
 
       <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
         <CardHeader><CardTitle>Settings</CardTitle></CardHeader>

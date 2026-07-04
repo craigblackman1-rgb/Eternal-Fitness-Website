@@ -25,13 +25,14 @@ const navGroups: { label: string; items: { href: string; label: string; icon: Re
     label: "Clients",
     items: [
       { href: "/hub/clients", label: "Clients", icon: IconUsers },
-      { href: "/hub/agreements", label: "Agreements", icon: IconFileSignature },
     ],
   },
   {
     label: "Documents",
     items: [
-      { href: "/hub/templates", label: "Templates", icon: IconFileText },
+      { href: "/hub/documents", label: "All Documents", icon: IconFileText },
+      { href: "/hub/templates", label: "Templates", icon: IconFileSignature },
+      { href: "/hub/agreements", label: "Agreements (legacy)", icon: IconFileSignature },
     ],
   },
   {
