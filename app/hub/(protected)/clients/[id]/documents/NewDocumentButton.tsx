@@ -8,8 +8,8 @@ import { IconPlus } from "@/components/icons";
 import { toast } from "sonner";
 import { DOCUMENT_KIND_LABEL, type DocumentKind } from "@/lib/documents/types";
 
-// Kinds that currently have a template seeded. Others arrive with later phases.
-const AVAILABLE_KINDS: DocumentKind[] = ["terms"];
+// Kinds that have a template seeded.
+const AVAILABLE_KINDS: DocumentKind[] = ["terms", "risk_assessment", "annual_review"];
 
 export function NewDocumentButton({ clientNumber }: { clientNumber: number }) {
   const router = useRouter();
