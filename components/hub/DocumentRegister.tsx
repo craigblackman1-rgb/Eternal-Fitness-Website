@@ -29,6 +29,7 @@ type Row = {
   status: string;
   date: string;
   href: string;
+  editHref?: string;
   icon: React.ReactNode;
 };
 
@@ -40,6 +41,7 @@ export function DocumentRegister({ clientNumber, parqs, agreements }: DocumentRe
       status: p.status,
       date: docDate(p.status, p.sent_date, p.received_date, p.signed_at, p.created_at),
       href: `/hub/clients/${clientNumber}/parq`,
+      editHref: `/hub/clients/${clientNumber}/parq/${p.id}/edit`,
       icon: <IconFileText className="h-4 w-4 text-muted-foreground" />,
     })),
     ...agreements.map((a) => ({
@@ -83,7 +85,10 @@ export function DocumentRegister({ clientNumber, parqs, agreements }: DocumentRe
                   </td>
                   <td className="px-3 py-2"><StatusBadge status={r.status} /></td>
                   <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">{formatDate(r.date)}</td>
-                  <td className="px-3 py-2 text-right">
+                  <td className="px-3 py-2 text-right whitespace-nowrap">
+                    {r.editHref && (
+                      <Link href={r.editHref} className="text-teal font-medium hover:underline mr-3">Edit</Link>
+                    )}
                     <Link href={r.href} className="text-rose font-medium hover:underline">View</Link>
                   </td>
                 </tr>

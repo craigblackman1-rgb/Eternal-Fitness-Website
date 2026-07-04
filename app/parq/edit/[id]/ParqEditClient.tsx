@@ -136,12 +136,33 @@ interface ValidationErrors {
 
 const yesNoOptions: ("yes" | "no")[] = ["yes", "no"];
 
-export default function ParqEditClient({ parq }: { parq: ParqData }) {
+export default function ParqEditClient({
+  parq,
+  adminMode = false,
+  clientNumber,
+}: {
+  parq: ParqData;
+  /** Esther editing in the hub — save without a signature, then hand the client a link to finish + sign. */
+  adminMode?: boolean;
+  clientNumber?: number;
+}) {
   const [formData, setFormData] = useState<ParqFormData>(toFormData(parq));
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const clientResumeUrl = typeof window !== "undefined" ? `${window.location.origin}/parq/edit/${parq.id}` : `/parq/edit/${parq.id}`;
+
+  const copyClientLink = async () => {
+    try {
+      await navigator.clipboard.writeText(clientResumeUrl);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2500);
+    } catch {
+      setLinkCopied(false);
+    }
+  };
   const [confirmedAccurate, setConfirmedAccurate] = useState(true);
   const [confirmedClearance, setConfirmedClearance] = useState(true);
   const [consentGpContact, setConsentGpContact] = useState(true);
@@ -165,6 +186,18 @@ export default function ParqEditClient({ parq }: { parq: ParqData }) {
 
   const validate = (): boolean => {
     const newErrors: ValidationErrors = {};
+
+    // Admin (Esther) saves are deliberately partial — she may be filling in a few
+    // fields and leaving the rest for the client to complete and sign. Only the
+    // email format is checked; nothing is mandatory.
+    if (adminMode) {
+      if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        newErrors.email = "Please enter a valid email address";
+      }
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    }
+
     const requiredFields: (keyof ParqFormData)[] = [
       "fullName", "dateOfBirth", "address", "email", "phone",
       "emergencyContactName", "emergencyContactPhone",
@@ -204,7 +237,7 @@ export default function ParqEditClient({ parq }: { parq: ParqData }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent | React.MouseEvent, opts: { copyLink?: boolean } = {}) => {
     e.preventDefault();
     setSubmitError(null);
     if (!validate()) {
@@ -218,6 +251,7 @@ export default function ParqEditClient({ parq }: { parq: ParqData }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: parq.id,
+          admin_save: adminMode || undefined,
           full_name: formData.fullName,
           date_of_birth: formData.dateOfBirth,
           address: formData.address,
@@ -252,6 +286,7 @@ export default function ParqEditClient({ parq }: { parq: ParqData }) {
         const err = await response.json();
         throw new Error(err.error || "Failed to save");
       }
+      if (opts.copyLink) await copyClientLink();
       setIsSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -288,6 +323,35 @@ export default function ParqEditClient({ parq }: { parq: ParqData }) {
   );
 
   if (isSubmitted) {
+    if (adminMode) {
+      return (
+        <div className="min-h-screen bg-[#F1F1F1] flex items-center justify-center p-4">
+          <div className="max-w-lg w-full bg-white rounded-lg shadow-md p-8 text-center">
+            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+            </div>
+            <h2 className="text-xl font-bold text-[#1E1E1E] mb-2">Changes saved</h2>
+            <p className="text-[#525A61] text-sm mb-5">
+              This PAR-Q is saved and still awaiting the client&apos;s signature. Send them the link below to finish and sign it.
+            </p>
+            <div className="text-left bg-[#F1F1F1] rounded-md p-3 mb-3">
+              <p className="text-xs text-[#525A61] mb-1 font-medium">Client link to finish &amp; sign</p>
+              <code className="text-xs text-[#1E1E1E] break-all">{clientResumeUrl}</code>
+            </div>
+            <div className="flex items-center justify-center gap-3">
+              <Button type="button" onClick={copyClientLink} className="bg-[#087E8B] text-white hover:bg-[#087E8B]/90">
+                {linkCopied ? "Copied!" : "Copy client link"}
+              </Button>
+              {clientNumber != null && (
+                <a href={`/hub/clients/${clientNumber}?tab=profile-compliance`} className="text-sm text-[#087E8B] font-medium hover:underline">
+                  Back to client
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="min-h-screen bg-[#F1F1F1] flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 text-center">
@@ -311,8 +375,17 @@ export default function ParqEditClient({ parq }: { parq: ParqData }) {
             <h2 className="text-xl sm:text-2xl font-bold text-[#087E8B] mt-2">PAR-Q · Physical Activity Readiness Questionnaire</h2>
             <p className="text-[#525A61] mt-2 text-sm italic" role="note">Medical Health Screening · Strictly Confidential</p>
             <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mt-4">
-              <p className="text-sm text-amber-900 font-semibold">Update your PAR-Q</p>
-              <p className="text-sm text-amber-800 mt-1">Please review your answers and complete any missing information. All fields marked with * are required.</p>
+              {adminMode ? (
+                <>
+                  <p className="text-sm text-amber-900 font-semibold">Editing as Esther</p>
+                  <p className="text-sm text-amber-800 mt-1">Update any fields you like — nothing is mandatory here. Save without signing, then send the client the link to finish and add their signature.</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-amber-900 font-semibold">Update your PAR-Q</p>
+                  <p className="text-sm text-amber-800 mt-1">Please review your answers and complete any missing information. All fields marked with * are required.</p>
+                </>
+              )}
             </div>
             <div className="bg-[#F1F1F1] rounded-md p-4 mt-4">
               <p className="text-sm text-[#1E1E1E] leading-relaxed">All information provided is treated as strictly confidential and held securely in accordance with UK data protection legislation (UK GDPR / Data Protection Act 2018). Information will not be shared with third parties without your written consent.</p>
@@ -565,10 +638,21 @@ export default function ParqEditClient({ parq }: { parq: ParqData }) {
               </div>
             </section>
 
-            <div className="flex justify-end pt-4 border-t">
-              <Button type="submit" disabled={isSubmitting} className="bg-[#087E8B] text-white hover:bg-[#087E8B]/90 px-8">
-                {isSubmitting ? "Saving..." : "Update PAR-Q"}
-              </Button>
+            <div className="flex flex-wrap justify-end gap-3 pt-4 border-t">
+              {adminMode ? (
+                <>
+                  <Button type="submit" disabled={isSubmitting} variant="outline" className="border-[#087E8B] text-[#087E8B] hover:bg-[#087E8B]/10 px-6">
+                    {isSubmitting ? "Saving..." : "Save without signing"}
+                  </Button>
+                  <Button type="button" disabled={isSubmitting} onClick={(e) => handleSubmit(e, { copyLink: true })} className="bg-[#087E8B] text-white hover:bg-[#087E8B]/90 px-6">
+                    {isSubmitting ? "Saving..." : "Save & copy client link"}
+                  </Button>
+                </>
+              ) : (
+                <Button type="submit" disabled={isSubmitting} className="bg-[#087E8B] text-white hover:bg-[#087E8B]/90 px-8">
+                  {isSubmitting ? "Saving..." : "Update PAR-Q"}
+                </Button>
+              )}
             </div>
 
             {/* Section 8 */}
