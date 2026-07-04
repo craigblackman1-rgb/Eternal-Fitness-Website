@@ -305,10 +305,9 @@ function composeSessionVersion(
       );
       while (picked.length < target && remaining.length > 0) {
         const entry = pickExercise(remaining, usedIds, false);
-        if (entry) {
-          usedInSession.add(entry.id);
-          picked.push(makeExercise(entry, phase, section));
-        }
+        if (!entry) break;
+        usedInSession.add(entry.id);
+        picked.push(makeExercise(entry, phase, section));
       }
     }
 
