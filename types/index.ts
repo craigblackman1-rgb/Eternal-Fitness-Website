@@ -9,7 +9,7 @@ export type Archetype = "A" | "B" | "C";
 export type Phase = "foundation" | "build" | "develop" | "peak" | "deload";
 export type BlockStatus = "draft" | "approved" | "active" | "complete";
 
-export type ProfileOptionCategory = "condition" | "movement_quality_flag" | "milestone" | "adaptation";
+export type ProfileOptionCategory = "condition" | "movement_quality_flag" | "milestone" | "adaptation" | "contraindication" | "pain_point";
 
 export interface ProfileOption {
   id: string;
@@ -128,6 +128,7 @@ export interface SessionLog {
 export type DBClientComplianceStatus = "clear" | "action_needed" | "do_not_train" | "pending_medical";
 export type DBClientGroupType = "individual_journey" | "calendar_block";
 export type DBClientPaceMode = "fast" | "medium" | "slow";
+export type GpLetterStatus = "not_required" | "requested" | "received";
 
 export interface BlockSummary {
   block_number: number;
@@ -160,6 +161,12 @@ export interface DBClient {
   block_summaries?: BlockSummary[];
   client_number?: number;
   display_code?: string;
+  gp_letter_status: GpLetterStatus;
+  gp_letter_requested_date: string | null;
+  gp_letter_received_date: string | null;
+  annual_review_due_date: string | null;
+  clearance_from: string | null;
+  specialist_name: string | null;
 }
 
 export interface SentUpdate {

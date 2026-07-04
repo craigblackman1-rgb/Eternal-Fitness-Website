@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { resolveClientId } from "@/lib/resolve-client-id";
 
 export async function POST(request: Request) {
   const supabase = createClient();
 
   const body = await request.json();
   const {
+    clientNumber,
     clientName,
     clientDob,
     clientAddress,
@@ -44,9 +46,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Client signature is required" }, { status: 400 });
   }
 
+  const clientId = await resolveClientId(supabase, clientNumber);
+
   const { data, error } = await supabase
     .from("signed_agreements")
     .insert({
+      ...(clientId ? { client_id: clientId } : {}),
       client_name: clientName.trim(),
       client_dob: clientDob || null,
       client_address: clientAddress || null,

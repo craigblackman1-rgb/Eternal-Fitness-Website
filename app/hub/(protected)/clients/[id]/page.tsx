@@ -11,9 +11,12 @@ import { HubCardHeader } from "@/components/hub/HubCardHeader";
 import { StatusBadge } from "@/components/hub/StatusBadge";
 import { HubAlert } from "@/components/hub/HubAlert";
 import { lookupStatus } from "@/lib/hubStatus";
+import { computeComplianceFlags } from "@/lib/compliance";
 import type { DBClientGroupType, DBClientPaceMode } from "@/types";
 import { PlanAgentTab } from "./PlanAgentTab";
 import { ClientDetailTabs } from "./ClientDetailTabs";
+import { GpLetterCard } from "@/components/hub/GpLetterCard";
+import { SendDocumentLink } from "@/components/hub/SendDocumentLink";
 
 function GroupTypeLabel({ groupType }: { groupType: DBClientGroupType | null }) {
   if (!groupType) return null;
@@ -54,6 +57,22 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
   const { data: documents } = await supabase.from("client_documents_summary").select("*").eq("client_id", client.id).maybeSingle();
 
+  const { data: latestParq } = await supabase
+    .from("signed_parq")
+    .select("*")
+    .eq("client_id", client.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const { data: latestAgreement } = await supabase
+    .from("signed_agreements")
+    .select("*")
+    .eq("client_id", client.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
   const { data: blocks } = await supabase.from("blocks").select("*").eq("client_id", client.id).order("block_number", { ascending: false });
   const { data: sessions } = await supabase
     .from("sessions")
@@ -81,9 +100,11 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   if (p?.logistics?.sessions_per_week) metaParts.push(`${p.logistics.sessions_per_week}x/week`);
   if (p?.logistics?.package) metaParts.push(p.logistics.package);
 
-  const complianceLookup = client.compliance_status ? lookupStatus(client.compliance_status) : null;
+  const flags = computeComplianceFlags({ client, latestParq: latestParq ?? null, latestAgreement: latestAgreement ?? null });
+  const complianceLookup = lookupStatus(flags.effectiveStatus);
   const gpClearance = p?.health?.gp_clearance;
-  const outstandingCount = client.outstanding_actions?.length ?? 0;
+  const manualActions = client.outstanding_actions ?? [];
+  const outstandingCount = flags.autoOutstanding.length + manualActions.length;
 
   const rightRail = (
     <div className="lg:col-span-4 space-y-5">
@@ -92,7 +113,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         <CardContent className="space-y-0 pt-0">
           <div className="flex items-center justify-between py-1.5 text-sm">
             <span className="text-muted-foreground">Compliance</span>
-            {complianceLookup ? <StatusBadge status={client.compliance_status} /> : <span className="text-muted-foreground">—</span>}
+            {complianceLookup ? <StatusBadge status={flags.effectiveStatus} /> : <span className="text-muted-foreground">—</span>}
           </div>
           <div className="flex items-center justify-between py-1.5 text-sm">
             <span className="text-muted-foreground">GP Clearance</span>
@@ -206,18 +227,20 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       </div>
 
       {/* Danger / warning banner */}
-      {client.compliance_status === "do_not_train" && (
+      {flags.effectiveStatus === "do_not_train" && (
         <HubAlert severity="danger" title="Do Not Train">
           Outstanding paperwork must be resolved before any further sessions.
-          <OutstandingActionsInline actions={client.outstanding_actions} />
+          <OutstandingActionsInline actions={flags.autoOutstanding} />
+          <OutstandingActionsInline actions={manualActions} />
         </HubAlert>
       )}
-      {(client.compliance_status === "pending_medical" || client.compliance_status === "action_needed") && (
-        <HubAlert severity="warning" title={lookupStatus(client.compliance_status)?.label ?? "Action Needed"}>
-          {client.compliance_status === "pending_medical"
+      {(flags.effectiveStatus === "pending_medical" || flags.effectiveStatus === "action_needed") && (
+        <HubAlert severity="warning" title={lookupStatus(flags.effectiveStatus)?.label ?? "Action Needed"}>
+          {flags.effectiveStatus === "pending_medical"
             ? "Do not train until clearance is confirmed."
             : "Actions outstanding — see Compliance tab."}
-          <OutstandingActionsInline actions={client.outstanding_actions} />
+          <OutstandingActionsInline actions={flags.autoOutstanding} />
+          <OutstandingActionsInline actions={manualActions} />
         </HubAlert>
       )}
 
@@ -501,17 +524,17 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
               <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
                 <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Compliance & Documents" color="teal" />
-                <CardContent className="space-y-3 pt-0">
+                <CardContent className="space-y-4 pt-0">
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3 text-sm">
                     <div>
                       <span className="text-xs text-muted-foreground block mb-0.5">Compliance Status</span>
-                      {complianceLookup ? <StatusBadge status={client.compliance_status} /> : <span className="font-medium text-foreground">—</span>}
+                      {complianceLookup ? <StatusBadge status={flags.effectiveStatus} /> : <span className="font-medium text-foreground">—</span>}
                     </div>
                     <div>
                       <span className="text-xs text-muted-foreground block mb-0.5">Medical Clearance</span>
                       {p?.health ? (
                         <Badge variant={gpClearance ? "default" : "destructive"} className="rounded-full">
-                          {gpClearance ? "Yes" : "No"}
+                          {gpClearance ? "Yes" : flags.requiresGpClearance ? "Required" : "No"}
                         </Badge>
                       ) : (
                         <span className="font-medium text-foreground">—</span>
@@ -519,47 +542,54 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                     </div>
                     <div>
                       <span className="text-xs text-muted-foreground block mb-0.5">PAR-Q</span>
-                      {documents?.parq_id ? (
-                        <StatusBadge status={documents.parq_status} />
-                      ) : (
-                        <span className="font-medium text-foreground">No PAR-Q on file</span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {documents?.parq_id ? (
+                          <Link href={`/hub/clients/${client.client_number}/parq`} className="inline-flex items-center gap-1.5 text-rose hover:underline font-medium">
+                            <StatusBadge status={documents.parq_status} />
+                          </Link>
+                        ) : (
+                          <span className="font-medium text-foreground">No PAR-Q on file</span>
+                        )}
+                        <SendDocumentLink path="/parq" clientNumber={client.client_number} label="Send PAR-Q" />
+                      </div>
                     </div>
                     <div>
                       <span className="text-xs text-muted-foreground block mb-0.5">Agreement</span>
-                      {documents?.agreement_id ? (
-                        <Link href={`/hub/agreements/${documents.agreement_id}`} className="inline-flex items-center gap-1.5 text-rose hover:underline font-medium">
-                          <StatusBadge status={documents.agreement_status} />
-                        </Link>
-                      ) : (
-                        <span className="font-medium text-foreground">No agreement on file</span>
-                      )}
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground block mb-0.5">Medical Clearance Tracker</span>
-                      {documents?.tracker_id ? (
-                        <Link href="/hub/tracker" className="inline-flex items-center gap-1.5 text-rose hover:underline font-medium">
-                          <StatusBadge status={documents.clearance_status} />
-                        </Link>
-                      ) : (
-                        <Link href="/hub/tracker" className="text-rose hover:underline font-medium">Not on tracker — add now</Link>
-                      )}
-                    </div>
-                    {documents?.annual_review_due_date && (
-                      <div>
-                        <span className="text-xs text-muted-foreground block mb-0.5">Annual Review Due</span>
-                        <span className="font-medium text-foreground">
-                          {new Date(documents.annual_review_due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                        </span>
+                      <div className="flex items-center gap-2">
+                        {documents?.agreement_id ? (
+                          <Link href={`/hub/agreements/${documents.agreement_id}`} className="inline-flex items-center gap-1.5 text-rose hover:underline font-medium">
+                            <StatusBadge status={documents.agreement_status} />
+                          </Link>
+                        ) : (
+                          <span className="font-medium text-foreground">No agreement on file</span>
+                        )}
+                        <SendDocumentLink path="/agreement" clientNumber={client.client_number} label="Send Agreement" />
                       </div>
-                    )}
+                    </div>
                   </div>
+
+                  <div className="pt-1 border-t border-[var(--hub-border)]">
+                    <span className="text-xs text-muted-foreground block mb-2 pt-3">GP Clearance</span>
+                    <GpLetterCard
+                      clientId={client.id}
+                      gpLetterStatus={client.gp_letter_status}
+                      requestedDate={client.gp_letter_requested_date}
+                      receivedDate={client.gp_letter_received_date}
+                    />
+                  </div>
+
                   {outstandingCount > 0 && (
-                    <div>
-                      <span className="text-xs text-muted-foreground block mb-1">Outstanding Actions</span>
+                    <div className="pt-1 border-t border-[var(--hub-border)]">
+                      <span className="text-xs text-muted-foreground block mb-1 pt-3">Outstanding</span>
                       <ul className="list-none space-y-1.5">
-                        {client.outstanding_actions!.map((action, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm">
+                        {flags.autoOutstanding.map((action, i) => (
+                          <li key={`auto-${i}`} className="flex items-start gap-2 text-sm">
+                            <IconTriangleAlert className="h-3.5 w-3.5 text-rose mt-0.5 shrink-0" />
+                            <span className="text-foreground">{action}</span>
+                          </li>
+                        ))}
+                        {manualActions.map((action, i) => (
+                          <li key={`manual-${i}`} className="flex items-start gap-2 text-sm">
                             <IconTriangleAlert className="h-3.5 w-3.5 text-amber-600 mt-0.5 shrink-0" />
                             <span className="text-foreground">{action}</span>
                           </li>

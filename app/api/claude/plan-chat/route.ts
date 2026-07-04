@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase-server";
 import { getAiConfig, aiChatStream } from "@/lib/ai-client";
 import { readFileSync } from "fs";
 import { join } from "path";
+import { questionTextMap } from "@/lib/parq-data";
+import type { SignedPARQ } from "@/types";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -14,7 +16,40 @@ const PACE_MODE_DESCRIPTIONS: Record<string, { label: string; superset_a: number
   slow:   { label: "Slow",   superset_a: 2, superset_b: 2, arms_core: 2, finisher: false, total: 6  },
 };
 
-function buildSystemPrompt(client: Record<string, unknown>, blocks: Record<string, unknown>[]): string {
+const PARQ_FREE_TEXT_FIELDS: { key: keyof SignedPARQ; label: string }[] = [
+  { key: "conditions", label: "Conditions" },
+  { key: "medications", label: "Medications" },
+  { key: "devices", label: "Devices" },
+  { key: "exercise_restrictions", label: "Exercise restrictions" },
+  { key: "surgeries", label: "Surgeries" },
+  { key: "other_info", label: "Other info" },
+];
+
+function buildParqSection(parq: SignedPARQ | null): string {
+  if (!parq) {
+    return "No PAR-Q on file for this client. Do not generate a plan until one is submitted and reviewed — flag this to Esther.";
+  }
+
+  const flaggedAnswers = Object.entries(questionTextMap)
+    .filter(([q]) => parq[q as keyof SignedPARQ] === "yes")
+    .map(([q, text]) => `- ${text}`)
+    .join("\n");
+
+  const freeText = PARQ_FREE_TEXT_FIELDS
+    .filter((f) => parq[f.key])
+    .map((f) => `${f.label}: ${parq[f.key]}`)
+    .join("\n");
+
+  return `PAR-Q submitted ${parq.created_at}.
+
+Flagged (YES) screening answers:
+${flaggedAnswers || "None — no risk factors flagged."}
+
+Client-provided detail:
+${freeText || "None provided."}`;
+}
+
+function buildSystemPrompt(client: Record<string, unknown>, blocks: Record<string, unknown>[], parq: SignedPARQ | null): string {
   const profile = client.profile as Record<string, unknown>;
   const pace = PACE_MODE_DESCRIPTIONS[(client.pace_mode as string) ?? "medium"];
 
@@ -68,6 +103,11 @@ ${JSON.stringify(profile, null, 2)}
 
 BLOCK HISTORY:
 ${blockHistory}
+
+---
+
+PAR-Q SCREENING:
+${buildParqSection(parq)}
 
 ---
 
@@ -137,6 +177,7 @@ SAFETY RULES — never violate:
 - If lymphoedema risk is present, flag any compression or sustained upper limb loading
 - If BP monitoring required, flag exercises that cause Valsalva
 - If clearance is pending, label the plan DRAFT — PENDING CLEARANCE
+- If there is no PAR-Q on file, refuse to produce a full plan — tell Esther it must be completed first
 
 FORMATTING:
 Your replies render as markdown. Structure every plan with ## session headings, and present exercises
@@ -180,7 +221,15 @@ export async function POST(request: Request) {
     .order("block_number", { ascending: false })
     .limit(5);
 
-  const systemPrompt = buildSystemPrompt(client, blocks ?? []);
+  const { data: parq } = await supabase
+    .from("signed_parq")
+    .select("*")
+    .eq("client_id", client.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const systemPrompt = buildSystemPrompt(client, blocks ?? [], parq);
 
   let readable: ReadableStream<Uint8Array> | null;
   try {

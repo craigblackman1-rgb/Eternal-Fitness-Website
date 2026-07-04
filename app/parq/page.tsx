@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { Suspense, useState, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { SignaturePad } from "@/components/SignaturePad";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -106,6 +107,16 @@ const initialFormData: ParqFormData = {
 const yesNoOptions: ("yes" | "no")[] = ["yes", "no"];
 
 export default function ParqPage() {
+  return (
+    <Suspense fallback={null}>
+      <ParqPageInner />
+    </Suspense>
+  );
+}
+
+function ParqPageInner() {
+  const searchParams = useSearchParams();
+  const clientNumber = searchParams.get("client");
   const [formData, setFormData] = useState<ParqFormData>(initialFormData);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -218,7 +229,38 @@ export default function ParqPage() {
       const response = await fetch("/api/parq", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          client_number: clientNumber,
+          full_name: formData.fullName,
+          date_of_birth: formData.dateOfBirth,
+          address: formData.address,
+          email: formData.email,
+          phone: formData.phone,
+          emergency_contact_name: formData.emergencyContactName,
+          emergency_contact_phone: formData.emergencyContactPhone,
+          gp_name: formData.gpName,
+          gp_surgery: formData.gpSurgery,
+          gp_phone: formData.gpPhone,
+          q1: formData.q1, q2: formData.q2, q3: formData.q3, q4: formData.q4, q5: formData.q5,
+          q6: formData.q6, q7: formData.q7, q8: formData.q8, q9: formData.q9, q10: formData.q10,
+          q11: formData.q11, q12: formData.q12, q13: formData.q13, q14: formData.q14, q15: formData.q15,
+          q16: formData.q16, q17: formData.q17, q18: formData.q18,
+          q19: formData.q19, q20: formData.q20, q21: formData.q21, q22: formData.q22, q23: formData.q23,
+          q24: formData.q24, q25: formData.q25, q26: formData.q26,
+          q27: formData.q27, q28: formData.q28, q29: formData.q29,
+          conditions: formData.conditions,
+          medications: formData.medications,
+          devices: formData.devices,
+          exercise_restrictions: formData.exerciseRestrictions,
+          surgeries: formData.surgeries,
+          other_info: formData.otherInfo,
+          current_exercise: formData.currentExercise,
+          training_goals: formData.trainingGoals,
+          client_name_print: formData.clientNamePrint,
+          client_signature_date: formData.clientSignatureDate,
+          client_signature: formData.clientSignature,
+          client_typed_signature: formData.clientTypedSignature,
+        }),
       });
 
       if (!response.ok) {

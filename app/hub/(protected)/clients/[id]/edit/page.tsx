@@ -97,9 +97,6 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
     }));
   };
 
-  const arrayToString = (items: string[]) => items.join(", ");
-  const stringToArray = (val: string) => val.split(",").map((s) => s.trim()).filter(Boolean);
-
   const handleSave = async () => {
     if (!name.trim()) {
       toast.error("Client name is required");
@@ -268,11 +265,21 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label>Contraindications</Label>
-                <Input value={arrayToString(profile.health.contraindications)} onChange={(e) => updateProfile("health", { contraindications: stringToArray(e.target.value) })} />
+                <TagMultiSelect
+                  category="contraindication"
+                  selected={profile.health.contraindications}
+                  onChange={(contraindications) => updateProfile("health", { contraindications })}
+                  placeholder="Select contraindications or add new..."
+                />
               </div>
               <div className="space-y-2">
                 <Label>Pain Points</Label>
-                <Input value={arrayToString(profile.health.pain_points)} onChange={(e) => updateProfile("health", { pain_points: stringToArray(e.target.value) })} />
+                <TagMultiSelect
+                  category="pain_point"
+                  selected={profile.health.pain_points}
+                  onChange={(pain_points) => updateProfile("health", { pain_points })}
+                  placeholder="Select pain points or add new..."
+                />
               </div>
             </div>
             <div className="space-y-2">
@@ -375,16 +382,18 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label>Compliance Status</Label>
+                <Label>Compliance Override</Label>
                 <Select value={complianceStatus} onValueChange={(v: DBClientComplianceStatus) => setComplianceStatus(v)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="clear">Clear — all paperwork in order</SelectItem>
-                    <SelectItem value="action_needed">Action Needed</SelectItem>
-                    <SelectItem value="pending_medical">Pending Medical Clearance</SelectItem>
-                    <SelectItem value="do_not_train">Do Not Train</SelectItem>
+                    <SelectItem value="clear">No override — status computed automatically</SelectItem>
+                    <SelectItem value="do_not_train">Do Not Train (hard stop)</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">
+                  Action Needed / Pending Medical are now worked out automatically from PAR-Q, agreement,
+                  and GP clearance status — see the Compliance & Documents card on the profile.
+                </p>
               </div>
               <div className="space-y-2">
                 <Label>Pace Mode</Label>

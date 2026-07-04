@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { resolveClientId } from "@/lib/resolve-client-id";
 
 export async function GET(request: Request) {
   const supabase = createClient();
@@ -32,6 +33,7 @@ export async function POST(request: Request) {
   const {
     id,
     client_name,
+    client_number,
     full_name,
     date_of_birth,
     address,
@@ -60,7 +62,10 @@ export async function POST(request: Request) {
     client_typed_signature,
   } = body;
 
+  const clientId = id ? undefined : await resolveClientId(supabase, client_number);
+
   const record = {
+    ...(clientId ? { client_id: clientId } : {}),
     full_name: (full_name || client_name || "").trim(),
     date_of_birth: date_of_birth || null,
     address: address || null,

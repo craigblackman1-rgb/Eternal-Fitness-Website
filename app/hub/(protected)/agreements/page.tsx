@@ -13,7 +13,7 @@ export default async function AgreementsPage() {
 
   const { data: agreements, error } = await supabase
     .from("signed_agreements")
-    .select("*")
+    .select("*, clients(client_number)")
     .order("signed_at", { ascending: false });
 
   return (
@@ -103,6 +103,14 @@ export default async function AgreementsPage() {
                         year: "numeric",
                       })}
                     </span>
+                    {agreement.clients?.client_number && (
+                      <Link
+                        href={`/hub/clients/${agreement.clients.client_number}?tab=profile-compliance`}
+                        className="text-xs text-rose hover:underline font-medium whitespace-nowrap"
+                      >
+                        View profile
+                      </Link>
+                    )}
                     <Link href={`/hub/agreements/${agreement.id}`}>
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full hover:bg-rose/10 hover:text-rose">
                         <IconEye className="w-4 h-4" />
