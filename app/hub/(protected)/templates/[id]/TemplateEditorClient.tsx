@@ -1,0 +1,124 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { IconChevronLeft, IconSave, IconPlus, IconTrash2 } from "@/components/icons";
+import { RichTextEditor } from "@/components/hub/RichTextEditor";
+import { toast } from "sonner";
+import type { DocumentTemplate, DocumentBody, DocumentSection } from "@/lib/documents/types";
+
+export function TemplateEditorClient({ template }: { template: DocumentTemplate }) {
+  const router = useRouter();
+  const [name, setName] = useState(template.name);
+  const [body, setBody] = useState<DocumentBody>(template.body ?? { sections: [] });
+  const [reqClient, setReqClient] = useState(template.requires_client_signature);
+  const [reqTrainer, setReqTrainer] = useState(template.requires_trainer_signature);
+  const [saving, setSaving] = useState(false);
+
+  const setSection = (id: string, patch: Partial<DocumentSection>) =>
+    setBody((p) => ({ ...p, sections: p.sections.map((s) => (s.id === id ? { ...s, ...patch } : s)) }));
+  const addSection = () =>
+    setBody((p) => ({ ...p, sections: [...p.sections, { id: `sec-${Date.now()}`, title: "New section", html: "<p></p>" }] }));
+  const removeSection = (id: string) =>
+    setBody((p) => ({ ...p, sections: p.sections.filter((s) => s.id !== id) }));
+  const move = (idx: number, dir: -1 | 1) =>
+    setBody((p) => {
+      const next = [...p.sections];
+      const j = idx + dir;
+      if (j < 0 || j >= next.length) return p;
+      [next[idx], next[j]] = [next[j], next[idx]];
+      return { ...p, sections: next };
+    });
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/templates/${template.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, body, requires_client_signature: reqClient, requires_trainer_signature: reqTrainer }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || "Failed to save");
+      toast.success("Template saved");
+      router.refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Something went wrong");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <Link href="/hub/templates" className="text-muted-foreground hover:text-foreground">
+          <IconChevronLeft className="h-5 w-5" />
+        </Link>
+        <div className="flex-1">
+          <h1 className="text-xl font-semibold tracking-tight">Edit template</h1>
+          <p className="text-muted-foreground">Changes apply to documents created from now on. Already-signed documents keep the version they were signed against.</p>
+        </div>
+        <Button onClick={save} disabled={saving} className="rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white">
+          <IconSave className="h-4 w-4" />{saving ? "Saving…" : "Save"}
+        </Button>
+      </div>
+
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
+        <CardHeader><CardTitle>Settings</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Template name</Label>
+            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+          <div className="flex flex-wrap gap-6">
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" checked={reqClient} onChange={(e) => setReqClient(e.target.checked)} className="h-4 w-4 rounded accent-rose" />
+              Requires client signature
+            </label>
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" checked={reqTrainer} onChange={(e) => setReqTrainer(e.target.checked)} className="h-4 w-4 rounded accent-rose" />
+              Requires trainer signature
+            </label>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
+        <CardHeader><CardTitle>Intro</CardTitle></CardHeader>
+        <CardContent>
+          <RichTextEditor value={body.intro ?? ""} onChange={(html) => setBody((p) => ({ ...p, intro: html }))} placeholder="Optional introduction…" />
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Sections</CardTitle>
+          <Button variant="outline" size="sm" onClick={addSection} className="rounded-full gap-1.5">
+            <IconPlus className="h-4 w-4" />Add section
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {body.sections.map((s, idx) => (
+            <div key={s.id} className="space-y-2 border-b border-[var(--hub-border)] pb-5 last:border-0 last:pb-0">
+              <div className="flex items-center gap-2">
+                <Input value={s.title} onChange={(e) => setSection(s.id, { title: e.target.value })} className="font-medium" />
+                <Button variant="ghost" size="sm" onClick={() => move(idx, -1)} disabled={idx === 0} className="px-2">↑</Button>
+                <Button variant="ghost" size="sm" onClick={() => move(idx, 1)} disabled={idx === body.sections.length - 1} className="px-2">↓</Button>
+                <Button variant="ghost" size="sm" onClick={() => removeSection(s.id)} className="px-2 text-red-500 hover:text-red-600">
+                  <IconTrash2 className="h-4 w-4" />
+                </Button>
+              </div>
+              <RichTextEditor value={s.html} onChange={(html) => setSection(s.id, { html })} />
+            </div>
+          ))}
+          {body.sections.length === 0 && <p className="text-sm text-muted-foreground">No sections yet — add one above.</p>}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

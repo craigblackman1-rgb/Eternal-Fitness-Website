@@ -10,6 +10,7 @@ import {
   IconCheckSquare,
   IconClipboardList,
   IconFileSignature,
+  IconFileText,
   IconLayoutDashboard,
   IconLogOut,
   IconUsers,
@@ -24,8 +25,19 @@ const navGroups: { label: string; items: { href: string; label: string; icon: Re
     label: "Clients",
     items: [
       { href: "/hub/clients", label: "Clients", icon: IconUsers },
-      { href: "/hub/tracker", label: "Medical Tracker", icon: IconClipboardList },
       { href: "/hub/agreements", label: "Agreements", icon: IconFileSignature },
+    ],
+  },
+  {
+    label: "Documents",
+    items: [
+      { href: "/hub/templates", label: "Templates", icon: IconFileText },
+    ],
+  },
+  {
+    label: "Reports",
+    items: [
+      { href: "/hub/tracker", label: "Medical Tracker", icon: IconClipboardList },
     ],
   },
   {
