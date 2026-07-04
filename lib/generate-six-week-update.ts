@@ -12,7 +12,10 @@ export interface SixWeekUpdateDraft {
   provider: string | null;
 }
 
-export async function generateSixWeekUpdate(clientNumber: number): Promise<SixWeekUpdateDraft> {
+export async function generateSixWeekUpdate(
+  clientNumber: number,
+  options: { conversationSummary?: string } = {},
+): Promise<SixWeekUpdateDraft> {
   const supabase = createClient();
 
   const { data: client } = await supabase
@@ -52,7 +55,7 @@ export async function generateSixWeekUpdate(clientNumber: number): Promise<SixWe
   const aiConfig = getAiConfig();
 
   if (aiConfig.provider) {
-    return generateViaAi(aiConfig, profile, blocks, summaries, nextBlock, dbClient.name, blockNumber);
+    return generateViaAi(aiConfig, profile, blocks, summaries, nextBlock, dbClient.name, blockNumber, options.conversationSummary);
   }
 
   return generateFallback(profile, blocks, summaries, nextBlock, dbClient.name, blockNumber);
@@ -162,6 +165,7 @@ async function generateViaAi(
   nextBlock: DBBlock | null,
   clientName: string,
   _blockNumber: number,
+  conversationSummary?: string,
 ): Promise<SixWeekUpdateDraft> {
   const system = `You are Esther Fair, a Level 4 Personal Trainer in Worthing, West Sussex.
 You write warm, expert, first-person emails to your clients. You speak as you would in person — not corporate, not hypey.
@@ -187,7 +191,7 @@ ${JSON.stringify(summaries, null, 2)}
 
 Next Block:
 ${JSON.stringify(nextBlock, null, 2)}
-
+${conversationSummary ? `\nEsther's notes from a chat about this update (use this as the primary source for what to say — it's more current and specific than the stored data above):\n${conversationSummary}\n` : ""}
 Return valid JSON with these fields:
 {
   "subject": "string",

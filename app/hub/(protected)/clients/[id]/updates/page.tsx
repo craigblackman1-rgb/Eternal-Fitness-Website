@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { IconChevronLeft, IconMail, IconPlus, IconCalendar } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
+import { getTemplateKind } from "@/lib/email-templates/registry";
 import type { SentUpdate } from "@/types";
 
 export default async function UpdatesHistoryPage({ params }: { params: { id: string } }) {
@@ -75,6 +76,12 @@ export default async function UpdatesHistoryPage({ params }: { params: { id: str
                       </span>
                       <Badge variant="outline" className="rounded-full text-xs">
                         Block {update.block_number}
+                      </Badge>
+                      <Badge variant="outline" className="rounded-full text-xs">
+                        {getTemplateKind(update.template_kind).label}
+                      </Badge>
+                      <Badge variant={update.emailed ? "default" : "secondary"} className="rounded-full text-xs">
+                        {update.emailed ? "Emailed" : "Logged"}
                       </Badge>
                     </div>
                   </div>

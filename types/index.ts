@@ -176,6 +176,8 @@ export interface SentUpdate {
   body_html: string;
   block_number: number;
   sent_at: string;
+  template_kind: string;
+  emailed: boolean;
 }
 
 export interface DBBlock {

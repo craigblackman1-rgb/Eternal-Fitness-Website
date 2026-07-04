@@ -19,7 +19,26 @@ export async function POST(request: Request, { params }: { params: { id: string 
     return NextResponse.json({ error: "Client not found" }, { status: 404 });
   }
 
-  const { subject, html, blockNumber, clientEmail } = await request.json();
+  const { subject, html, blockNumber, clientEmail, templateKind, skipSend } = await request.json();
+  const resolvedSubject = subject || "Your last 6 weeks with me 🏋️";
+
+  // "Save without sending" — Esther delivered the update another way but still wants it logged.
+  if (skipSend) {
+    const { error: insertError } = await supabase.from("sent_updates").insert({
+      client_id: client.id,
+      subject: resolvedSubject,
+      body_html: html,
+      block_number: blockNumber || 0,
+      template_kind: templateKind || "six_week_update",
+      emailed: false,
+    });
+
+    if (insertError) {
+      return NextResponse.json({ error: insertError.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, emailed: false });
+  }
 
   if (!clientEmail) {
     return NextResponse.json({ error: "Client email address is required" }, { status: 400 });
@@ -30,31 +49,35 @@ export async function POST(request: Request, { params }: { params: { id: string 
   try {
     const result = await sender.send({
       to: clientEmail,
-      subject: subject || "Your last 6 weeks with me 🏋️",
+      subject: resolvedSubject,
       html,
     });
 
-    // SMTP not configured: nothing was actually sent, so don't record it as sent.
-    if (result.dryRun) {
-      return NextResponse.json({
-        success: false,
-        dryRun: true,
-        error: "SMTP is not configured — the email was NOT sent. Set SMTP_HOST/PORT/USER/PASS/FROM in the environment.",
-      });
-    }
-
+    // Still log it even on a dry run (SMTP unconfigured) — the history is the point,
+    // not just send confirmation. `emailed` records whether it actually went out.
     const { error: insertError } = await supabase.from("sent_updates").insert({
       client_id: client.id,
-      subject: subject || "Your last 6 weeks with me 🏋️",
+      subject: resolvedSubject,
       body_html: html,
       block_number: blockNumber || 0,
+      template_kind: templateKind || "six_week_update",
+      emailed: !result.dryRun,
     });
 
     if (insertError) {
       return NextResponse.json({ error: insertError.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, messageId: result.messageId });
+    if (result.dryRun) {
+      return NextResponse.json({
+        success: true,
+        dryRun: true,
+        emailed: false,
+        error: "SMTP is not configured — the email was NOT sent, but the update was logged. Set SMTP_HOST/PORT/USER/PASS/FROM to actually send.",
+      });
+    }
+
+    return NextResponse.json({ success: true, emailed: true, messageId: result.messageId });
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Failed to send email" },
