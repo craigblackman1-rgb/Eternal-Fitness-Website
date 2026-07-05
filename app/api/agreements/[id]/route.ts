@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase-server";
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json();
   const {

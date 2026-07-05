@@ -18,9 +18,11 @@ const nextConfig = {
         ],
       },
       {
+        // API responses can carry authenticated, client-specific data (PII,
+        // PAR-Q medical answers). Keep them out of shared/CDN caches.
         source: "/api/:path*",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+          { key: "Cache-Control", value: "private, no-store" },
         ],
       },
       {
