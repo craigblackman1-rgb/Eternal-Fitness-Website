@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, notFound } from "@/lib/api";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { isFullySigned } from "@/lib/documents/types";
 
@@ -9,10 +10,10 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const { role, name, signature, date } = await request.json();
 
   if (role !== "client" && role !== "trainer") {
-    return NextResponse.json({ error: "role must be 'client' or 'trainer'" }, { status: 400 });
+    return jsonError("role must be 'client' or 'trainer'", 400);
   }
   if (!name?.trim() || !signature?.trim()) {
-    return NextResponse.json({ error: "Name and signature are required" }, { status: 400 });
+    return jsonError("Name and signature are required", 400);
   }
 
   const { data: doc, error: readErr } = await admin
@@ -20,7 +21,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     .select("*")
     .eq("id", params.id)
     .single();
-  if (readErr || !doc) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (readErr || !doc) return notFound();
 
   const signedDate = date || new Date().toISOString().slice(0, 10);
   const update: Record<string, unknown> =
@@ -38,6 +39,6 @@ export async function POST(request: Request, { params }: { params: { id: string 
   update.updated_at = new Date().toISOString();
 
   const { error } = await admin.from("client_documents").update(update).eq("id", params.id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonError(error.message, 500);
   return NextResponse.json({ success: true, signed: update.status === "signed" });
 }

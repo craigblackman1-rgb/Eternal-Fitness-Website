@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { jsonError } from "@/lib/api";
 import { resolveClientId } from "@/lib/resolve-client-id";
 
 export async function POST(request: Request) {
@@ -34,16 +35,16 @@ export async function POST(request: Request) {
   } = body;
 
   if (!clientName?.trim()) {
-    return NextResponse.json({ error: "Client name is required" }, { status: 400 });
+    return jsonError("Client name is required", 400);
   }
 
   if (!agreedToTerms) {
-    return NextResponse.json({ error: "Agreement terms must be accepted" }, { status: 400 });
+    return jsonError("Agreement terms must be accepted", 400);
   }
 
   const hasSignature = clientSignature || clientTypedSignature;
   if (!hasSignature) {
-    return NextResponse.json({ error: "Client signature is required" }, { status: 400 });
+    return jsonError("Client signature is required", 400);
   }
 
   const clientId = await resolveClientId(supabase, clientNumber);
@@ -78,7 +79,7 @@ export async function POST(request: Request) {
     });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonError(error.message, 500);
   }
 
   return NextResponse.json(data, { status: 201 });

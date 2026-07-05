@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { getLatestSignedParq, jsonError } from "@/lib/api";
 import { resolveClientId } from "@/lib/resolve-client-id";
 
 export async function GET(request: Request) {
@@ -8,20 +9,10 @@ export async function GET(request: Request) {
   const clientName = searchParams.get("client_name");
 
   if (!clientName) {
-    return NextResponse.json({ error: "client_name is required" }, { status: 400 });
+    return jsonError("client_name is required", 400);
   }
 
-  const { data, error } = await supabase
-    .from("signed_parq")
-    .select("*")
-    .eq("full_name", clientName)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  const data = await getLatestSignedParq(supabase, { fullName: clientName });
 
   return NextResponse.json(data);
 }
@@ -104,7 +95,7 @@ export async function POST(request: Request) {
     // Esther saving her edits without a signature — keep the PAR-Q awaiting the
     // client and never overwrite the signature columns. Requires an existing record.
     if (!id) {
-      return NextResponse.json({ error: "admin_save requires an existing PAR-Q id" }, { status: 400 });
+      return jsonError("admin_save requires an existing PAR-Q id", 400);
     }
     const res = await supabase
       .from("signed_parq")
@@ -135,7 +126,7 @@ export async function POST(request: Request) {
   }
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonError(error.message, 500);
   }
 
   return NextResponse.json(result, { status: id ? 200 : 201 });

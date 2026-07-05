@@ -1,13 +1,9 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase-server";
+import { getAuthenticatedUser, jsonError, unauthorized } from "@/lib/api";
 
 export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { supabase, user } = await getAuthenticatedUser();
+  if (!user) return unauthorized();
 
   const { error } = await supabase
     .from("blocks")
@@ -15,7 +11,7 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
     .eq("id", params.id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonError(error.message, 500);
   }
 
   return NextResponse.json({ success: true });

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { getLatestSignedParq, jsonError, notFound } from "@/lib/api";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { AgreementPDF } from "@/lib/agreement-pdf";
 import { Resend } from "resend";
@@ -14,21 +15,14 @@ export async function POST(request: Request, { params }: { params: { id: string 
     .single();
 
   if (!agreement) {
-    return NextResponse.json({ error: "Agreement not found" }, { status: 404 });
+    return notFound("Agreement not found");
   }
 
   if (!agreement.client_email) {
-    return NextResponse.json({ error: "No client email on file" }, { status: 400 });
+    return jsonError("No client email on file", 400);
   }
 
-  // Fetch PAR-Q data
-  const { data: parqData } = await supabase
-    .from("signed_parq")
-    .select("*")
-    .eq("full_name", agreement.client_name)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const parqData = await getLatestSignedParq(supabase, { fullName: agreement.client_name });
 
   const resendApiKey = process.env.RESEND_API_KEY;
   if (!resendApiKey) {
@@ -64,14 +58,11 @@ export async function POST(request: Request, { params }: { params: { id: string 
     });
 
     if (emailError) {
-      return NextResponse.json({ error: emailError.message }, { status: 500 });
+      return jsonError(emailError.message, 500);
     }
 
     return NextResponse.json({ success: true, emailId: emailData?.id });
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to send email" },
-      { status: 500 }
-    );
+    return jsonError(err instanceof Error ? err.message : "Failed to send email", 500);
   }
 }

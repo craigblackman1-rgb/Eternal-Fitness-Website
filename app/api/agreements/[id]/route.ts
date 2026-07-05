@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { jsonError } from "@/lib/api";
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -55,7 +56,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonError(error.message, 500);
   }
 
   return NextResponse.json(data);

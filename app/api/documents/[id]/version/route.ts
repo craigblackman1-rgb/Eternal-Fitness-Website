@@ -1,19 +1,18 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase-server";
+import { getAuthenticatedUser, jsonError, notFound, unauthorized } from "@/lib/api";
 
 // Create a new iteration: the current document is marked superseded and a fresh
 // draft copy (version + 1, signatures cleared) is created that points back to it.
 export async function POST(_request: Request, { params }: { params: { id: string } }) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { supabase, user } = await getAuthenticatedUser();
+  if (!user) return unauthorized();
 
   const { data: current, error: readErr } = await supabase
     .from("client_documents")
     .select("*")
     .eq("id", params.id)
     .single();
-  if (readErr || !current) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (readErr || !current) return notFound();
 
   const { data: inserted, error: insErr } = await supabase
     .from("client_documents")
@@ -32,13 +31,13 @@ export async function POST(_request: Request, { params }: { params: { id: string
     })
     .select("id")
     .single();
-  if (insErr) return NextResponse.json({ error: insErr.message }, { status: 500 });
+  if (insErr) return jsonError(insErr.message, 500);
 
   const { error: updErr } = await supabase
     .from("client_documents")
     .update({ status: "superseded", updated_at: new Date().toISOString() })
     .eq("id", current.id);
-  if (updErr) return NextResponse.json({ error: updErr.message }, { status: 500 });
+  if (updErr) return jsonError(updErr.message, 500);
 
   return NextResponse.json({ id: inserted.id }, { status: 201 });
 }

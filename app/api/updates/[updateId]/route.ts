@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase-server";
+import { getAuthenticatedUser, jsonError, notFound, unauthorized } from "@/lib/api";
 
 /** Draft/scheduled/failed updates can be edited or deleted — sent ones are history. */
 const EDITABLE = ["draft", "scheduled", "failed"];
@@ -7,9 +7,8 @@ const EDITABLE = ["draft", "scheduled", "failed"];
 const SETTABLE = ["draft", "scheduled"];
 
 export async function PATCH(request: Request, { params }: { params: { updateId: string } }) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { supabase, user } = await getAuthenticatedUser();
+  if (!user) return unauthorized();
 
   const { data: existing } = await supabase
     .from("sent_updates")
@@ -17,9 +16,9 @@ export async function PATCH(request: Request, { params }: { params: { updateId: 
     .eq("id", params.updateId)
     .single();
 
-  if (!existing) return NextResponse.json({ error: "Update not found" }, { status: 404 });
+  if (!existing) return notFound("Update not found");
   if (!EDITABLE.includes(existing.status)) {
-    return NextResponse.json({ error: "Only draft or scheduled updates can be edited" }, { status: 409 });
+    return jsonError("Only draft or scheduled updates can be edited", 409);
   }
 
   const body = await request.json();
@@ -43,7 +42,7 @@ export async function PATCH(request: Request, { params }: { params: { updateId: 
   // Allow flipping between draft and scheduled (and rescheduling).
   if (status !== undefined) {
     if (!SETTABLE.includes(status)) {
-      return NextResponse.json({ error: "status must be draft or scheduled" }, { status: 400 });
+      return jsonError("status must be draft or scheduled", 400);
     }
     patch.status = status;
   }
@@ -52,9 +51,9 @@ export async function PATCH(request: Request, { params }: { params: { updateId: 
       patch.scheduled_for = null;
     } else {
       const when = new Date(scheduledFor);
-      if (isNaN(when.getTime())) return NextResponse.json({ error: "Invalid scheduled time" }, { status: 400 });
+      if (isNaN(when.getTime())) return jsonError("Invalid scheduled time", 400);
       if (when.getTime() < Date.now() - 60_000) {
-        return NextResponse.json({ error: "Scheduled time is in the past" }, { status: 400 });
+        return jsonError("Scheduled time is in the past", 400);
       }
       patch.scheduled_for = when.toISOString();
     }
@@ -65,19 +64,18 @@ export async function PATCH(request: Request, { params }: { params: { updateId: 
   if (finalStatus === "scheduled") {
     const finalScheduled = patch.scheduled_for !== undefined ? patch.scheduled_for : undefined;
     if (finalScheduled === null) {
-      return NextResponse.json({ error: "A scheduled update needs a send time" }, { status: 400 });
+      return jsonError("A scheduled update needs a send time", 400);
     }
   }
 
   const { error } = await supabase.from("sent_updates").update(patch).eq("id", params.updateId);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonError(error.message, 500);
   return NextResponse.json({ success: true });
 }
 
 export async function DELETE(_request: Request, { params }: { params: { updateId: string } }) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { supabase, user } = await getAuthenticatedUser();
+  if (!user) return unauthorized();
 
   // Any update can be deleted — including sent history (Esther may want to tidy
   // up test rows or records logged in error). This is an intentional hard delete.
@@ -87,9 +85,9 @@ export async function DELETE(_request: Request, { params }: { params: { updateId
     .eq("id", params.updateId)
     .single();
 
-  if (!existing) return NextResponse.json({ error: "Update not found" }, { status: 404 });
+  if (!existing) return notFound("Update not found");
 
   const { error } = await supabase.from("sent_updates").delete().eq("id", params.updateId);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonError(error.message, 500);
   return NextResponse.json({ success: true });
 }

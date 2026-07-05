@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase-server";
+import { getAuthenticatedUser, jsonError, notFound, unauthorized } from "@/lib/api";
 import { dispatchUpdateEmail } from "@/lib/updates/send";
 
 /**
@@ -7,9 +7,8 @@ import { dispatchUpdateEmail } from "@/lib/updates/send";
  * waiting" button). Marks the record sent/failed just like the cron dispatcher.
  */
 export async function POST(request: Request, { params }: { params: { updateId: string } }) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { supabase, user } = await getAuthenticatedUser();
+  if (!user) return unauthorized();
 
   const { data: update } = await supabase
     .from("sent_updates")
@@ -17,15 +16,15 @@ export async function POST(request: Request, { params }: { params: { updateId: s
     .eq("id", params.updateId)
     .single();
 
-  if (!update) return NextResponse.json({ error: "Update not found" }, { status: 404 });
+  if (!update) return notFound("Update not found");
   if (!["draft", "scheduled", "failed"].includes(update.status)) {
-    return NextResponse.json({ error: "This update has already been sent" }, { status: 409 });
+    return jsonError("This update has already been sent", 409);
   }
 
   // Allow overriding the recipient from the request (edit screen may have a fresher one).
   const body = await request.json().catch(() => ({}));
   const to = (body.clientEmail as string) || update.client_email;
-  if (!to) return NextResponse.json({ error: "No recipient email on this update" }, { status: 400 });
+  if (!to) return jsonError("No recipient email on this update", 400);
 
   const result = await dispatchUpdateEmail({ to, subject: update.subject, html: update.body_html });
 
@@ -34,7 +33,7 @@ export async function POST(request: Request, { params }: { params: { updateId: s
       .from("sent_updates")
       .update({ status: "failed", send_error: result.error, updated_at: new Date().toISOString() })
       .eq("id", update.id);
-    return NextResponse.json({ error: result.error }, { status: 500 });
+    return jsonError(result.error, 500);
   }
 
   const { error } = await supabase
@@ -48,7 +47,7 @@ export async function POST(request: Request, { params }: { params: { updateId: s
       updated_at: new Date().toISOString(),
     })
     .eq("id", update.id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonError(error.message, 500);
 
   return NextResponse.json({ success: true, emailed: result.emailed, dryRun: result.dryRun });
 }
