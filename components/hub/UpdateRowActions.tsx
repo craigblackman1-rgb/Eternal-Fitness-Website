@@ -30,7 +30,7 @@ export function UpdateRowActions({ clientNumber, updateId, status, hasEmail }: U
       const res = await fetch(`/api/updates/${updateId}/send`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || "Failed to send");
-      toast.success(data.emailed ? "Update sent" : "SMTP not configured — logged without sending");
+      toast.success(data.emailed ? "Update sent" : "Email sending isn't configured — logged without sending");
       router.refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");

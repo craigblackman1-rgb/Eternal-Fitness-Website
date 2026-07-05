@@ -127,7 +127,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
         success: true,
         dryRun: true,
         emailed: false,
-        error: "SMTP is not configured — the email was NOT sent, but the update was logged. Set SMTP_HOST/PORT/USER/PASS/FROM to actually send.",
+        error: "Email sending isn't configured — the email was NOT sent, but the update was logged. Set SENDGRID_API_KEY (or SMTP_*) to actually send.",
       });
     }
     return NextResponse.json({ success: true, emailed: true, messageId: result.messageId });

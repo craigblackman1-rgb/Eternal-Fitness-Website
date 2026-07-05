@@ -3,7 +3,7 @@ import { getEmailSender } from "@/lib/email";
 export interface DispatchResult {
   /** true when the email actually left the building (SMTP configured + no error). */
   emailed: boolean;
-  /** true when SMTP is not configured — nothing was sent, but the caller may still log it. */
+  /** true when no email backend is configured — nothing was sent, but the caller may still log it. */
   dryRun: boolean;
   /** Provider message id, when a real send happened. */
   messageId?: string;
@@ -14,7 +14,7 @@ export interface DispatchResult {
 /**
  * Single place that turns an update into an actual email. Shared by the
  * immediate send route, the send-a-saved-draft route, and the cron dispatcher
- * so they all behave identically (including the "SMTP not configured" dry run).
+ * so they all behave identically (including the "no backend configured" dry run).
  */
 export async function dispatchUpdateEmail(input: {
   to: string;

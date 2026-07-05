@@ -77,7 +77,7 @@ async function handle(request: Request) {
         status: "sent",
         emailed: res.emailed,
         sent_at: new Date().toISOString(),
-        send_error: res.dryRun ? "SMTP not configured — logged, not emailed" : null,
+        send_error: res.dryRun ? "Email sending isn't configured — logged, not emailed" : null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", update.id);

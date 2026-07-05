@@ -129,7 +129,7 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
     setError(null);
     try {
       const data = await postCreate("test", { testRecipient: email });
-      toast.success(data.emailed ? `Test sent to ${email}` : "SMTP not configured — test not sent");
+      toast.success(data.emailed ? `Test sent to ${email}` : "Email sending isn't configured — test not sent");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong";
       setError(msg);
@@ -159,10 +159,10 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
         });
         const data = await res.json();
         if (!res.ok || !data.success) throw new Error(data.error || "Request failed");
-        toast.success(data.emailed ? "Update sent!" : "SMTP not configured — logged without sending");
+        toast.success(data.emailed ? "Update sent!" : "Email sending isn't configured — logged without sending");
       } else {
         const data = await postCreate("send", { clientEmail: clientEmail.trim() });
-        toast.success(data.emailed ? "Update sent!" : "SMTP not configured — logged without sending");
+        toast.success(data.emailed ? "Update sent!" : "Email sending isn't configured — logged without sending");
       }
       goBack();
     } catch (err) {
