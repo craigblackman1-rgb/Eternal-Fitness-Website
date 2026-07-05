@@ -14,13 +14,13 @@ interface UpdateRowActionsProps {
   hasEmail: boolean;
 }
 
-/** Edit / Send-now / Delete controls for a draft or scheduled update row. */
+/** Edit / Send-now / Delete controls for an update row. Edit + Send-now show only
+ *  for draft/scheduled/failed; Delete is available on any update (incl. sent). */
 export function UpdateRowActions({ clientNumber, updateId, status, hasEmail }: UpdateRowActionsProps) {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
 
   const editable = status === "draft" || status === "scheduled" || status === "failed";
-  if (!editable) return null;
 
   const handleSendNow = async () => {
     if (!hasEmail) return toast.error("This update has no recipient — open it to add one");
@@ -57,16 +57,20 @@ export function UpdateRowActions({ clientNumber, updateId, status, hasEmail }: U
 
   return (
     <div className="flex items-center gap-1.5 shrink-0">
-      <Link href={`/hub/clients/${clientNumber}/updates/${updateId}/edit`}>
-        <Button variant="outline" size="sm" className="rounded-full gap-1.5 h-8" disabled={busy !== null}>
-          <IconEdit3 className="h-3.5 w-3.5" />
-          Edit
-        </Button>
-      </Link>
-      <Button variant="outline" size="sm" className="rounded-full gap-1.5 h-8" onClick={handleSendNow} disabled={busy !== null}>
-        <IconSend className="h-3.5 w-3.5" />
-        {busy === "send" ? "Sending…" : "Send now"}
-      </Button>
+      {editable && (
+        <>
+          <Link href={`/hub/clients/${clientNumber}/updates/${updateId}/edit`}>
+            <Button variant="outline" size="sm" className="rounded-full gap-1.5 h-8" disabled={busy !== null}>
+              <IconEdit3 className="h-3.5 w-3.5" />
+              Edit
+            </Button>
+          </Link>
+          <Button variant="outline" size="sm" className="rounded-full gap-1.5 h-8" onClick={handleSendNow} disabled={busy !== null}>
+            <IconSend className="h-3.5 w-3.5" />
+            {busy === "send" ? "Sending…" : "Send now"}
+          </Button>
+        </>
+      )}
       <Button
         variant="ghost"
         size="sm"

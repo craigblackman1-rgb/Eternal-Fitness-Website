@@ -79,16 +79,15 @@ export async function DELETE(_request: Request, { params }: { params: { updateId
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  // Any update can be deleted — including sent history (Esther may want to tidy
+  // up test rows or records logged in error). This is an intentional hard delete.
   const { data: existing } = await supabase
     .from("sent_updates")
-    .select("id, status")
+    .select("id")
     .eq("id", params.updateId)
     .single();
 
   if (!existing) return NextResponse.json({ error: "Update not found" }, { status: 404 });
-  if (!EDITABLE.includes(existing.status)) {
-    return NextResponse.json({ error: "Only draft or scheduled updates can be deleted" }, { status: 409 });
-  }
 
   const { error } = await supabase.from("sent_updates").delete().eq("id", params.updateId);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

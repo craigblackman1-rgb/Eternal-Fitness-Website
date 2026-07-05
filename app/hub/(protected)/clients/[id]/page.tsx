@@ -19,6 +19,8 @@ import { GpLetterCard } from "@/components/hub/GpLetterCard";
 import { DocumentRegister } from "@/components/hub/DocumentRegister";
 import { ClinicalComplianceCard } from "@/components/hub/ClinicalComplianceCard";
 import { PackagePaymentsCard } from "@/components/hub/PackagePaymentsCard";
+import { ClientUpdatesPanel } from "@/components/hub/ClientUpdatesPanel";
+import type { SentUpdate } from "@/types";
 
 function GroupTypeLabel({ groupType }: { groupType: DBClientGroupType | null }) {
   if (!groupType) return null;
@@ -91,6 +93,12 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
     .eq("blocks.client_id", client.id)
     .order("session_number", { ascending: false })
     .limit(50);
+
+  const { data: clientUpdates } = await supabase
+    .from("sent_updates")
+    .select("*")
+    .eq("client_id", client.id)
+    .order("created_at", { ascending: false });
 
   if (!client) notFound();
 
@@ -711,16 +719,17 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         {/* Tab 5: Updates */}
         <TabsContent value="updates" className="space-y-4 mt-4">
           <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
               <CardTitle className="text-base">6-Week Updates</CardTitle>
+              <Link href={`/hub/clients/${client.client_number}/updates`} className="text-xs font-medium text-teal hover:underline">
+                Full history &amp; report
+              </Link>
             </CardHeader>
             <CardContent>
-                <EmptyState
-                  icon={<IconMail className="w-7 h-7" />}
-                  title="6-Week Updates"
-                  description="Generate branded 6-week update emails from training data."
-                  cta={{ label: "View Updates", href: `/hub/clients/${client.client_number}/updates` }}
-                />
+              <ClientUpdatesPanel
+                clientNumber={client.client_number}
+                updates={(clientUpdates || []) as SentUpdate[]}
+              />
             </CardContent>
           </Card>
         </TabsContent>

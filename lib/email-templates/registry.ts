@@ -24,15 +24,15 @@ export const UPDATE_TEMPLATE_KINDS: UpdateTemplateKind[] = [
     defaultSubject: "Your last 6 weeks with me 🏋️",
     sections: [
       { key: "attendanceSection", label: "Attendance & Consistency" },
+      { key: "bigWinSection", label: "The Big Win This Block" },
       { key: "highlightsSection", label: "Strength & Fitness Highlights" },
-      { key: "areasToDevelopSection", label: "Areas to Keep Developing" },
       { key: "whatsNextSection", label: "What's Next for You" },
       { key: "worthSayingSection", label: "Worth Saying" },
     ],
     starterPrompts: [
       "How has attendance and consistency been this block?",
+      "What's the single biggest win this block?",
       "What strength/fitness wins should we highlight?",
-      "What are we keeping an eye on or still developing?",
       "What's the focus for the next block?",
     ],
   },

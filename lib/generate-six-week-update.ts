@@ -100,14 +100,12 @@ function buildSections(
     highlightsSection = `<p>[HIGHLIGHTS — describe what's improved, movements added, strength gains]</p>`;
   }
 
-  // Areas to develop
-  let areasSection: string;
-  if (latestSummary?.areas_to_develop) {
-    areasSection = `<p>${latestSummary.areas_to_develop}</p>`;
-  } else if (profile.notes.watch_for) {
-    areasSection = `<p>${profile.notes.watch_for}</p>`;
+  // The big win this block — the single standout moment worth leading with.
+  let bigWinSection: string;
+  if (latestSummary?.big_win) {
+    bigWinSection = `<p>${latestSummary.big_win}</p>`;
   } else {
-    areasSection = `<p>[AREAS TO DEVELOP — what we're keeping an eye on, what needs more work]</p>`;
+    bigWinSection = `<p>[THE BIG WIN — the single standout achievement this block and why it matters]</p>`;
   }
 
   // What's next
@@ -133,8 +131,8 @@ function buildSections(
   return {
     clientName,
     attendanceSection,
+    bigWinSection,
     highlightsSection,
-    areasToDevelopSection: areasSection,
     whatsNextSection,
     worthSayingSection,
   };
@@ -198,8 +196,8 @@ Return valid JSON with these fields:
 {
   "subject": "string",
   "attendanceSection": "HTML string for attendance & consistency section",
+  "bigWinSection": "HTML string for the single biggest win this block and why it matters",
   "highlightsSection": "HTML string for strength & fitness highlights section",
-  "areasToDevelopSection": "HTML string for areas to keep developing section",
   "whatsNextSection": "HTML string for what's next section",
   "worthSayingSection": "HTML string for worth saying section"
 }
@@ -215,8 +213,8 @@ No markdown, no preamble, no explanation.`;
   const data: SixWeekUpdateData = {
     clientName,
     attendanceSection: parsed.attendanceSection || "[ATTENDANCE]",
+    bigWinSection: parsed.bigWinSection || "[THE BIG WIN]",
     highlightsSection: parsed.highlightsSection || "[HIGHLIGHTS]",
-    areasToDevelopSection: parsed.areasToDevelopSection || "[AREAS TO DEVELOP]",
     whatsNextSection: parsed.whatsNextSection || "[WHAT'S NEXT]",
     worthSayingSection: parsed.worthSayingSection || "[WORTH SAYING]",
   };

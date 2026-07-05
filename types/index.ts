@@ -145,6 +145,8 @@ export interface BlockSummary {
   };
   movements_introduced: string[];
   highlights: string;
+  /** The single standout achievement of the block (leads the update email). */
+  big_win?: string;
   areas_to_develop: string;
   discoveries: string;
   next_block_focus: string;

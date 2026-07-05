@@ -2,12 +2,14 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { IconSearch, IconEye, IconEdit3, IconMail, IconClock, IconExternalLink } from "@/components/icons";
+import { IconSearch, IconEye, IconEdit3, IconTrash2, IconMail, IconClock, IconExternalLink } from "@/components/icons";
 import { updateStatusMeta, formatUpdateTime } from "@/lib/updates/status";
 import { getTemplateKind } from "@/lib/email-templates/registry";
 import type { UpdateWithClient, UpdateStatus } from "@/types";
@@ -21,9 +23,27 @@ const FILTERS: { id: "all" | UpdateStatus; label: string }[] = [
 ];
 
 export function UpdatesReport({ updates }: { updates: UpdateWithClient[] }) {
+  const router = useRouter();
   const [filter, setFilter] = useState<"all" | UpdateStatus>("all");
   const [query, setQuery] = useState("");
   const [preview, setPreview] = useState<UpdateWithClient | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
+
+  const handleDelete = async (u: UpdateWithClient) => {
+    if (!confirm(`Delete this ${u.status} update for ${u.client?.name ?? "this client"}? This can't be undone.`)) return;
+    setDeleting(u.id);
+    try {
+      const res = await fetch(`/api/updates/${u.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || "Failed to delete");
+      toast.success("Update deleted");
+      router.refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   const counts = useMemo(() => {
     const c: Record<string, number> = { all: updates.length };
@@ -137,6 +157,16 @@ export function UpdatesReport({ updates }: { updates: UpdateWithClient[] }) {
                         </Button>
                       </Link>
                     )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="rounded-full h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                      title="Delete"
+                      onClick={() => handleDelete(u)}
+                      disabled={deleting === u.id}
+                    >
+                      <IconTrash2 className="h-3.5 w-3.5" />
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
