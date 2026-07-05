@@ -37,6 +37,8 @@ export interface ChatRequest {
   messages?: ChatMessage[];
   maxTokens?: number;
   temperature?: number;
+  /** Override the configured model for this call (provider-appropriate id). */
+  model?: string;
 }
 
 function toMessages(req: ChatRequest): ChatMessage[] {
@@ -47,11 +49,13 @@ export async function aiChat(req: ChatRequest): Promise<string | null> {
   const config = getAiConfig();
   if (!config.provider) return null;
 
+  const model = req.model ?? config.model;
+
   if (config.provider === "openrouter") {
-    return openRouterChat(config.model, req);
+    return openRouterChat(model, req);
   }
 
-  return claudeChat(config.model, req);
+  return claudeChat(model, req);
 }
 
 export async function aiChatStream(req: ChatRequest): Promise<ReadableStream<Uint8Array> | null> {

@@ -116,32 +116,100 @@ export async function POST(request: Request) {
   return NextResponse.json({ blockId: block.id }, { status: 201 });
 }
 
+/** Model for plan generation. A full 6-week block is far too large to return in
+ *  one response (~5k output tokens *per session*), so we generate one session
+ *  per call and assemble. That keeps each response small enough to parse
+ *  reliably and lets us retry individual sessions. Overridable via PLAN_MODEL;
+ *  Haiku is capable enough for structured session JSON and ~10x cheaper. */
+const PLAN_MODEL = process.env.PLAN_MODEL || "anthropic/claude-haiku-4.5";
+
+const archetypeFocusLabels: Record<Archetype, string> = {
+  A: "Mobility & Movement Quality",
+  B: "Strength & Stability",
+  C: "Power & Conditioning",
+};
+
+interface SessionSlot {
+  session_number: number;
+  week: number;
+  phase: Phase;
+  archetype: Archetype;
+}
+
+/** Build the ordered list of sessions with a pre-assigned, evenly-distributed
+ *  archetype per slot (reusing the goal-biased rotation the fallback uses). */
+function buildSessionSlots(profile: ClientProfile): SessionSlot[] {
+  const spw = profile.logistics.sessions_per_week;
+  const slots: SessionSlot[] = [];
+  let n = 0;
+  for (let weekIndex = 0; weekIndex < 6; weekIndex++) {
+    const wp = weekPhases[weekIndex];
+    const archetypes = getWeeklyArchetypes(spw, weekIndex, profile.goals.primary);
+    for (const archetype of archetypes) {
+      n++;
+      slots.push({ session_number: n, week: wp.week, phase: wp.phase, archetype });
+    }
+  }
+  return slots;
+}
+
 async function generateViaAi(
   profile: ClientProfile,
   blockNote?: string,
   previousSummary?: string,
   _blockNumber?: number
 ): Promise<Session[]> {
-  const spw = profile.logistics.sessions_per_week;
-  const totalSessions = spw * 6;
+  const slots = buildSessionSlots(profile);
 
-  const sessionDistribution = weekPhases.map((wp, wi) => {
-    const start = wi * spw + 1;
-    const end = (wi + 1) * spw;
-    return `Sessions ${start}-${end}: Week ${wp.week} (${wp.phase})`;
-  }).join("\n");
+  // Generate sessions concurrently — one call each — so the route completes
+  // well within serverless limits even for a full 3x/week block (18 calls).
+  const settled = await Promise.allSettled(
+    slots.map((slot) => generateOneSession(profile, slot, blockNote, previousSummary)),
+  );
 
-  const system = `You are an expert exercise physiologist supporting Esther Fair, a Level 4 Personal Trainer
+  const sessions: Session[] = [];
+  const failures: string[] = [];
+  settled.forEach((result, i) => {
+    if (result.status === "fulfilled") {
+      sessions.push(result.value);
+    } else {
+      const reason = result.reason instanceof Error ? result.reason.message : "unknown";
+      failures.push(`session ${slots[i].session_number}: ${reason}`);
+    }
+  });
+
+  if (failures.length > 0) {
+    throw new Error(`${failures.length}/${slots.length} sessions failed — ${failures.slice(0, 3).join("; ")}`);
+  }
+
+  sessions.sort((a, b) => a.session_number - b.session_number);
+  return sessions;
+}
+
+const planSystem = `You are an expert exercise physiologist supporting Esther Fair, a Level 4 Personal Trainer
 specialising in cancer rehabilitation, exercise referral, adaptive training, and complex health needs.
 
 Your output will be reviewed by Esther before any client sees it. Generate safe, clinically-aware
 sessions. Every exercise must include a modification specific to this client's contraindications.
 Never exceed the client's implied intensity ceiling based on their conditions and fitness level.
-Flag anything Esther should review in a top-level "esther_review_flags" array.
 
-Return valid JSON matching the Session[] schema. No markdown, no preamble, no explanation.`;
+Return one valid JSON object matching the Session schema. No markdown, no preamble, no explanation.`;
 
-  const user = `Generate a ${totalSessions}-session training block for this client over 6 weeks:
+function sessionPrompt(
+  profile: ClientProfile,
+  slot: SessionSlot,
+  blockNote?: string,
+  previousSummary?: string,
+): string {
+  const phaseGuidance: Record<Phase, string> = {
+    foundation: "basic regressions, learn patterns, low load, lower ROM",
+    build: "increase load, add complexity to established patterns",
+    develop: "compound movements, greater ROM, higher challenge",
+    peak: "highest intensity/volume of the block",
+    deload: "drop volume, submax loads, active recovery focus, easier exercises",
+  };
+
+  return `Generate ONE training session (number ${slot.session_number} of a 6-week block) for this client:
 
 Client Profile:
 ${JSON.stringify(profile, null, 2)}
@@ -149,82 +217,110 @@ ${JSON.stringify(profile, null, 2)}
 ${blockNote ? `Esther's note: ${blockNote}` : ""}
 ${previousSummary ? `Previous block summary: ${previousSummary}` : ""}
 
-FREQUENCY: ${spw}x/week (${totalSessions} sessions total)
+THIS SESSION:
+- session_number: ${slot.session_number}
+- week: ${slot.week}
+- phase: ${slot.phase} (${phaseGuidance[slot.phase]})
+- archetype: ${slot.archetype} (${archetypeFocusLabels[slot.archetype]})
+- time_tier: ${profile.logistics.time_tier}
 
-SESSION DISTRIBUTION:
-${sessionDistribution}
+Equipment available: dumbbells, resistance bands, kettlebells, barbell+plates, TRX, stationary bike, treadmill, rowing machine, step/box, mats, foam roller, stability ball
 
-Each session has an archetype: A (Mobility & Movement Quality), B (Strength & Stability), or C (Power & Conditioning).
-Assign archetypes dynamically based on this client's goals and needs — do not use a fixed rotation.
-Ensure each archetype appears roughly evenly across the block.
+Return a single JSON object with this exact shape:
+{
+  "session_number": ${slot.session_number},
+  "archetype": "${slot.archetype}",
+  "week": ${slot.week},
+  "phase": "${slot.phase}",
+  "focus_label": "<short focus label>",
+  "versions": {
+    "studio": { "warm_up": [Exercise], "main_block": [Exercise], "cooldown": [Exercise] },
+    "home":   { "warm_up": [Exercise], "main_block": [Exercise], "cooldown": [Exercise] }
+  }
+}
 
-Each session has studio and home versions with warm_up, main_block, cooldown.
-Time tier: ${profile.logistics.time_tier}
-Equipment: dumbbells, resistance bands, kettlebells, barbell+plates, TRX, stationary bike, treadmill, rowing machine, step/box, mats, foam roller, stability ball
+Each Exercise is: { "exercise_name", "sets" (number), "reps", "tempo", "rest", "coaching_cue", "modification", "equipment" (string array) }.
+Every main_block exercise MUST also carry a "group_label" of exactly one of: "Superset A", "Superset B", "Arms + Core", "Finisher" (warm_up and cooldown do not need group_label). Do not invent other group_label values.
+The "home" version must substitute bodyweight/band alternatives where studio equipment is unavailable, keeping every exercise's clinical modification.
 
-MAIN BLOCK STRUCTURE (Esther's 60-minute session format — follow exactly):
-Every exercise in main_block MUST carry a "group_label" field structuring the session:
-- "Superset A" — first hypertrophy pairing (2-3 exercises performed as a superset, 60-75s rest, mobility drill in the rest period)
-- "Superset B" — second hypertrophy pairing (2-3 exercises, same pattern)
-- "Arms + Core" — 2-3 accessory exercises, 60s rest, flow through
-- "Finisher" — one focused 5-min conditioning effort (battle rope / KB complex / loaded carry); omit for slow-pace clients
-Exercises within the same group_label are performed together as a superset/circuit. warm_up and cooldown
-exercises do not need group_label. Do not invent other group_label values.
+Return ONLY the JSON object — no markdown fences, no commentary.`;
+}
 
-PROGRESSION RULES:
-- Foundation (weeks 1-2): basic regressions, learn patterns, low load, lower ROM
-- Build (week 3): increase load, add complexity to established patterns
-- Develop (week 4): compound movements, greater ROM, higher challenge
-- Peak (week 5): highest intensity/volume of the block
-- Deload (week 6): drop volume, submax loads, active recovery focus, easier exercises
+async function generateOneSession(
+  profile: ClientProfile,
+  slot: SessionSlot,
+  blockNote?: string,
+  previousSummary?: string,
+): Promise<Session> {
+  const user = sessionPrompt(profile, slot, blockNote, previousSummary);
 
-Return only a JSON array of ${totalSessions} Session objects.`;
-
-  const text = await aiChat({ system, user, maxTokens: 16000 });
+  const text = await aiChat({ system: planSystem, user, model: PLAN_MODEL, maxTokens: 6000 });
   if (!text) throw new Error("AI returned no response");
 
+  let parsed: Partial<Session>;
   try {
-    return parseSessionJson(text);
+    parsed = parseSessionObject(text);
   } catch (firstErr) {
-    // Model JSON is occasionally malformed (trailing comma, stray prose,
-    // truncation). Ask it once to return the corrected array, nothing else.
     const detail = firstErr instanceof Error ? firstErr.message : "invalid JSON";
     const repaired = await aiChat({
-      system,
+      system: planSystem,
       messages: [
         { role: "user", content: user },
         { role: "assistant", content: text },
         {
           role: "user",
-          content: `That response failed JSON parsing (${detail}). Return the same content as a single valid JSON array of Session objects. Output ONLY the JSON array — no markdown fences, no commentary, no trailing commas.`,
+          content: `That response failed JSON parsing (${detail}). Return the same session as a single valid JSON object. Output ONLY the JSON object — no markdown fences, no commentary, no trailing commas.`,
         },
       ],
-      maxTokens: 16000,
+      model: PLAN_MODEL,
+      maxTokens: 6000,
     });
     if (!repaired) throw firstErr;
-    return parseSessionJson(repaired);
+    parsed = parseSessionObject(repaired);
   }
+
+  // Stamp the slot metadata authoritatively so numbering/phase never drift.
+  return {
+    session_id: "",
+    block_id: "",
+    client_id: profile.client.id,
+    session_number: slot.session_number,
+    archetype: slot.archetype,
+    week: slot.week,
+    phase: slot.phase,
+    focus_label:
+      parsed.focus_label ||
+      `${archetypeFocusLabels[slot.archetype]} (Week ${slot.week})`,
+    time_tier: profile.logistics.time_tier,
+    versions: parsed.versions as Session["versions"],
+    coaching_notes: parsed.coaching_notes,
+    client_intro: parsed.client_intro ?? archetypeFocusLabels[slot.archetype],
+  } as Session;
 }
 
-/** Parse the model's session output, tolerating markdown fences, surrounding
- *  prose, and trailing commas that otherwise break JSON.parse. */
-function parseSessionJson(text: string): Session[] {
+/** Parse a single session object, tolerating markdown fences, surrounding prose,
+ *  and trailing commas that otherwise break JSON.parse. */
+function parseSessionObject(text: string): Partial<Session> {
   let cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
 
-  // Slice to the outermost JSON array so leading/trailing prose is ignored.
-  const start = cleaned.indexOf("[");
-  const end = cleaned.lastIndexOf("]");
+  // Slice to the outermost JSON object so leading/trailing prose is ignored.
+  const start = cleaned.indexOf("{");
+  const end = cleaned.lastIndexOf("}");
   if (start !== -1 && end > start) {
     cleaned = cleaned.slice(start, end + 1);
   }
 
+  let obj: Partial<Session>;
   try {
-    return JSON.parse(cleaned) as Session[];
+    obj = JSON.parse(cleaned) as Partial<Session>;
   } catch {
-    // Strip trailing commas before } or ] and retry.
-    const noTrailingCommas = cleaned.replace(/,(\s*[}\]])/g, "$1");
-    return JSON.parse(noTrailingCommas) as Session[];
+    obj = JSON.parse(cleaned.replace(/,(\s*[}\]])/g, "$1")) as Partial<Session>;
   }
+
+  if (!obj?.versions?.studio?.main_block?.length || !obj?.versions?.home?.main_block?.length) {
+    throw new Error("session object missing studio/home main_block");
+  }
+  return obj;
 }
 
 /* ─── Fallback generator powered by exercise-db.json ─── */
