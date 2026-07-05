@@ -195,9 +195,13 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
     }
   };
 
-  const handleCopyEmail = () => {
+  const handleCopyEmail = async () => {
     if (!data.client_email) return;
-    navigator.clipboard.writeText(data.client_email);
+    try {
+      await navigator.clipboard.writeText(data.client_email);
+    } catch {
+      console.warn("Clipboard write failed — likely non-HTTPS context");
+    }
   };
 
   const handleCopyParqEditLink = async () => {
@@ -216,13 +220,17 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
           }
         }
       } catch (err) {
-        console.error("Error copying link:", err);
+        console.warn("Failed to copy PAR-Q edit link:", err);
       }
     } else {
       const url = `${window.location.origin}/parq/edit/${parqId}`;
-      await navigator.clipboard.writeText(url);
-      setLinkCopied(true);
-      setTimeout(() => setLinkCopied(false), 3000);
+      try {
+        await navigator.clipboard.writeText(url);
+        setLinkCopied(true);
+        setTimeout(() => setLinkCopied(false), 3000);
+      } catch {
+        console.warn("Clipboard write failed — likely non-HTTPS context");
+      }
     }
   };
 
@@ -267,7 +275,8 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
         }
       }
     } catch (err) {
-      console.error("Error loading PAR-Q:", err);
+      console.warn("Failed to load PAR-Q data:", err);
+      setParqSaveError("Could not load PAR-Q data. Please try again.");
     }
   };
 

@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { resolveClientId } from "@/lib/resolve-client-id";
+import { safeRequestJson } from "@/lib/safe-request-json";
 
 export async function POST(request: Request) {
   const supabase = createClient();
 
-  const body = await request.json();
+  const parsed = await safeRequestJson<Record<string, string | number | boolean | null | undefined>>(request);
+  if ("error" in parsed) return parsed.error;
+  const body = parsed.data;
   const {
     clientNumber,
     clientName,
@@ -33,7 +36,7 @@ export async function POST(request: Request) {
     agreedToTerms,
   } = body;
 
-  if (!clientName?.trim()) {
+  if (!(clientName as string)?.trim()) {
     return NextResponse.json({ error: "Client name is required" }, { status: 400 });
   }
 
@@ -52,7 +55,7 @@ export async function POST(request: Request) {
     .from("signed_agreements")
     .insert({
       ...(clientId ? { client_id: clientId } : {}),
-      client_name: clientName.trim(),
+      client_name: (clientName as string).trim(),
       client_dob: clientDob || null,
       client_address: clientAddress || null,
       client_email: clientEmail || null,

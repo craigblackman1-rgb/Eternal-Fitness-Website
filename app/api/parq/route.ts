@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { resolveClientId } from "@/lib/resolve-client-id";
+import { safeRequestJson } from "@/lib/safe-request-json";
 
 export async function GET(request: Request) {
   const supabase = createClient();
@@ -29,7 +30,9 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const supabase = createClient();
 
-  const body = await request.json();
+  const parsed = await safeRequestJson(request);
+  if ("error" in parsed) return parsed.error;
+  const body = parsed.data as Record<string, string | number | boolean | null | undefined>;
   const {
     id,
     admin_save,
@@ -69,7 +72,7 @@ export async function POST(request: Request) {
   // so an admin "save without signing" never touches the signature or marks it signed.
   const editableFields = {
     ...(clientId ? { client_id: clientId } : {}),
-    full_name: (full_name || client_name || "").trim(),
+    full_name: (String(full_name || client_name || "")).trim(),
     date_of_birth: date_of_birth || null,
     address: address || null,
     email: email || null,

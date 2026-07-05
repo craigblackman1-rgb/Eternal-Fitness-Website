@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { dispatchUpdateEmail, DEFAULT_UPDATE_SUBJECT } from "@/lib/updates/send";
+import { safeRequestJson } from "@/lib/safe-request-json";
 
 type Action = "test" | "send" | "log" | "draft" | "schedule";
 
@@ -34,7 +35,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const client = await resolveClient(supabase, params.id);
   if (!client) return NextResponse.json({ error: "Client not found" }, { status: 404 });
 
-  const body = (await request.json()) as CreateBody;
+  const parsed = await safeRequestJson<CreateBody>(request);
+  if ("error" in parsed) return parsed.error;
+  const body = parsed.data;
   const {
     action,
     html = "",
@@ -57,7 +60,10 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
   // Remember the client's email on their record so it prefills next time.
   if (clientEmail) {
-    await supabase.from("clients").update({ email: clientEmail }).eq("id", client.id).then(undefined, () => {});
+    const { error: emailUpdateErr } = await supabase.from("clients").update({ email: clientEmail }).eq("id", client.id);
+    if (emailUpdateErr) {
+      console.warn(`[updates] Failed to update client email for client ${client.id}: ${emailUpdateErr.message}`);
+    }
   }
 
   const base = {

@@ -4,6 +4,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { buildParqSection } from "@/lib/parq-summary";
 import { buildRecentUpdatesSection } from "@/lib/recent-updates-summary";
+import { safeRequestJson } from "@/lib/safe-request-json";
 import type { SentUpdate, SignedPARQ } from "@/types";
 
 interface ChatMessage {
@@ -171,7 +172,9 @@ export async function POST(request: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const { clientNumber, messages } = await request.json() as { clientNumber: number; messages: ChatMessage[] };
+  const parsed = await safeRequestJson<{ clientNumber?: number; messages?: ChatMessage[] }>(request);
+  if ("error" in parsed) return new Response("Invalid or missing JSON body", { status: 400 });
+  const { clientNumber, messages } = parsed.data;
 
   if (!clientNumber || !messages) {
     return new Response("clientNumber and messages are required", { status: 400 });

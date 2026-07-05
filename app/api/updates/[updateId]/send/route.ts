@@ -30,10 +30,11 @@ export async function POST(request: Request, { params }: { params: { updateId: s
   const result = await dispatchUpdateEmail({ to, subject: update.subject, html: update.body_html });
 
   if (result.error) {
-    await supabase
+    const { error: markErr } = await supabase
       .from("sent_updates")
       .update({ status: "failed", send_error: result.error, updated_at: new Date().toISOString() })
       .eq("id", update.id);
+    if (markErr) console.error(`[send] Failed to mark update ${update.id} as failed: ${markErr.message}`);
     return NextResponse.json({ error: result.error }, { status: 500 });
   }
 

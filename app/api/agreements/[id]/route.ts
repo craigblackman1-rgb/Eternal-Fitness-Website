@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { safeRequestJson } from "@/lib/safe-request-json";
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   const supabase = createClient();
 
-  const body = await request.json();
+  const parsed = await safeRequestJson(request);
+  if ("error" in parsed) return parsed.error;
+  const body = parsed.data as Record<string, unknown>;
   const {
     trainerNotes,
     packageType,

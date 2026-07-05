@@ -208,7 +208,12 @@ No markdown, no preamble, no explanation.`;
   if (!text) throw new Error("AI returned no response");
 
   const cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-  const parsed = JSON.parse(cleaned);
+  let parsed: Record<string, string>;
+  try {
+    parsed = JSON.parse(cleaned);
+  } catch {
+    throw new Error(`AI returned invalid JSON: ${cleaned.slice(0, 200)}`);
+  }
 
   const data: SixWeekUpdateData = {
     clientName,
