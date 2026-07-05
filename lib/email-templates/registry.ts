@@ -28,6 +28,7 @@ export const UPDATE_TEMPLATE_KINDS: UpdateTemplateKind[] = [
       { key: "highlightsSection", label: "Strength & Fitness Highlights" },
       { key: "whatsNextSection", label: "What's Next for You" },
       { key: "worthSayingSection", label: "Worth Saying" },
+      { key: "psSection", label: "P.S. — note after sign-off (optional)" },
     ],
     starterPrompts: [
       "How has attendance and consistency been this block?",

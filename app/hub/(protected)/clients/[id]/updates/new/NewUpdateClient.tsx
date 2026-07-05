@@ -46,9 +46,21 @@ interface NewUpdateClientProps {
   existing?: EditableUpdate;
 }
 
-/** Rebuild the branded email HTML from the edited section values, per kind. */
-function buildHtmlForKind(_kind: string, clientName: string, sections: SectionValues): string {
-  return buildSixWeekUpdateHtml({ clientName, ...sections } as unknown as SixWeekUpdateData);
+/** Rebuild the branded email HTML from the edited section values, per kind.
+ *  greetingName/introText win over anything carried in `sections`. */
+function buildHtmlForKind(
+  _kind: string,
+  clientName: string,
+  greetingName: string,
+  introText: string,
+  sections: SectionValues,
+): string {
+  return buildSixWeekUpdateHtml({ clientName, ...sections, greetingName, introText } as unknown as SixWeekUpdateData);
+}
+
+/** First word of a name, for the default "Hi …," greeting. */
+function firstName(name: string): string {
+  return (name || "").trim().split(/\s+/)[0] || name;
 }
 
 /** ISO -> value for <input type="datetime-local"> in the viewer's local time. */
@@ -71,6 +83,8 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
   const [error, setError] = useState<string | null>(null);
   const [hasDraft, setHasDraft] = useState(isEdit);
   const [subject, setSubject] = useState(existing?.subject ?? "");
+  const [greetingName, setGreetingName] = useState(existing?.sections?.greetingName || firstName(clientName));
+  const [introText, setIntroText] = useState(existing?.sections?.introText ?? "");
   const [sections, setSections] = useState<SectionValues>(existing?.sections ?? {});
   const [blockNumber, setBlockNumber] = useState(existing?.blockNumber ?? 0);
   const [clientEmail, setClientEmail] = useState(existing?.clientEmail ?? defaultEmail);
@@ -81,8 +95,11 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
 
   const html = useMemo(() => {
     if (!hasDraft) return "";
-    return buildHtmlForKind(templateKind, clientName, sections);
-  }, [hasDraft, templateKind, clientName, sections]);
+    return buildHtmlForKind(templateKind, clientName, greetingName, introText, sections);
+  }, [hasDraft, templateKind, clientName, greetingName, introText, sections]);
+
+  /** Section values plus the greeting/intro, for persisting to the DB. */
+  const sectionsForSave = () => ({ ...sections, greetingName, introText });
 
   const handleCreateDraft = async (conversationSummary: string) => {
     setGenerating(true);
@@ -117,7 +134,7 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
     const res = await fetch(`/api/clients/${clientNumber}/updates`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action, subject, html, sections, blockNumber, templateKind, ...extra }),
+      body: JSON.stringify({ action, subject, html, sections: sectionsForSave(), blockNumber, templateKind, ...extra }),
     });
     const data = await res.json();
     if (!res.ok || !data.success) throw new Error(data.error || "Request failed");
@@ -231,7 +248,7 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
       body: JSON.stringify({
         subject,
         html,
-        sections,
+        sections: sectionsForSave(),
         blockNumber,
         clientEmail: clientEmail.trim() || null,
         ...extra,
@@ -308,6 +325,29 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
               <div className="space-y-2">
                 <Label htmlFor="subject">Subject line</Label>
                 <Input id="subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="greeting">Greeting name</Label>
+                  <Input
+                    id="greeting"
+                    value={greetingName}
+                    onChange={(e) => setGreetingName(e.target.value)}
+                    placeholder="First name"
+                  />
+                  <p className="text-xs text-muted-foreground">Shown as &ldquo;Hi {greetingName || "…"},&rdquo;</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="intro">Opening line</Label>
+                  <Input
+                    id="intro"
+                    value={introText}
+                    onChange={(e) => setIntroText(e.target.value)}
+                    placeholder="I'd like to take a moment to look back over your last 6 weeks of training."
+                  />
+                  <p className="text-xs text-muted-foreground">Leave blank to use the standard opener.</p>
+                </div>
               </div>
 
               {kind.sections.map((s) => (

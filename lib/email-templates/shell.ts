@@ -24,6 +24,8 @@ export interface BrandedUpdateEmailInput {
   greetingName: string;
   introHtml: string;
   sections: EmailSection[];
+  /** Optional P.S. block rendered after the sign-off (already includes its own "P.S." if wanted). */
+  psHtml?: string;
   footerNote?: string;
 }
 
@@ -134,6 +136,17 @@ export function buildBrandedUpdateEmail(input: BrandedUpdateEmailInput): string 
               </div>
             </td>
           </tr>
+          ${input.psHtml && input.psHtml.trim()
+            ? `
+          <!-- P.S. -->
+          <tr>
+            <td style="padding:0 40px 32px;">
+              <div style="font-size:14px;line-height:1.7;color:${BODY_COLOR};font-style:italic;background-color:${OFF_WHITE};border-radius:12px;padding:16px 18px;">
+                ${input.psHtml}
+              </div>
+            </td>
+          </tr>`
+            : ""}
 
           <!-- Footer -->
           <tr>
