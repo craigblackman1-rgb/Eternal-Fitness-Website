@@ -95,7 +95,9 @@ export default function AgreementPrintView({ agreement, onClose }: { agreement: 
     fetch(`/api/parq?client_name=${encodeURIComponent(agreement.client_name)}`)
       .then((r) => r.ok ? r.json() : null)
       .then((d) => { if (d) setParqData(d); })
-      .catch(() => {});
+      .catch((err) => {
+        console.warn("Failed to load PAR-Q data for print view:", err);
+      });
   }, [agreement.client_name]);
 
   const handlePrint = () => {

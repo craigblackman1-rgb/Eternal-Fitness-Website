@@ -13,8 +13,12 @@ interface SendDocumentLinkProps {
 export function SendDocumentLink({ path, clientNumber, label }: SendDocumentLinkProps) {
   const copyLink = async () => {
     const url = `${window.location.origin}${path}?client=${clientNumber}`;
-    await navigator.clipboard.writeText(url);
-    toast.success(`${label} link copied — send it to the client`);
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success(`${label} link copied — send it to the client`);
+    } catch {
+      toast.error("Could not copy link — clipboard access is unavailable");
+    }
   };
 
   return (

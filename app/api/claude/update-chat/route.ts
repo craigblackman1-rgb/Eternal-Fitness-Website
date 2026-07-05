@@ -3,6 +3,7 @@ import { getAiConfig, aiChatStream } from "@/lib/ai-client";
 import { buildParqSection } from "@/lib/parq-summary";
 import { buildRecentUpdatesSection } from "@/lib/recent-updates-summary";
 import { getTemplateKind } from "@/lib/email-templates/registry";
+import { safeRequestJson } from "@/lib/safe-request-json";
 import type { BlockSummary, DBBlock, SentUpdate, SignedPARQ } from "@/types";
 
 interface ChatMessage {
@@ -77,11 +78,9 @@ export async function POST(request: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const { clientNumber, messages, templateKind } = (await request.json()) as {
-    clientNumber: number;
-    messages: ChatMessage[];
-    templateKind?: string;
-  };
+  const parsed = await safeRequestJson<{ clientNumber?: number; messages?: ChatMessage[]; templateKind?: string }>(request);
+  if ("error" in parsed) return new Response("Invalid or missing JSON body", { status: 400 });
+  const { clientNumber, messages, templateKind } = parsed.data;
 
   if (!clientNumber || !messages) {
     return new Response("clientNumber and messages are required", { status: 400 });

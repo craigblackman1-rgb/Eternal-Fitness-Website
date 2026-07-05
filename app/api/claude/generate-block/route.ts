@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { getAiConfig, aiChat } from "@/lib/ai-client";
+import { safeRequestJson } from "@/lib/safe-request-json";
 import type { ClientProfile, Session, Archetype, Phase, Exercise, SessionVersion } from "@/types";
 
 const weekPhases: { week: number; phase: Phase }[] = [
@@ -20,7 +21,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { clientId, blockNote, previousSummary } = await request.json();
+  const parsed = await safeRequestJson<{ clientId?: string; blockNote?: string; previousSummary?: string }>(request);
+  if ("error" in parsed) return parsed.error;
+  const { clientId, blockNote, previousSummary } = parsed.data;
 
   if (!clientId) {
     return NextResponse.json({ error: "clientId is required" }, { status: 400 });

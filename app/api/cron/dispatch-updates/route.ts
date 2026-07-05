@@ -48,10 +48,11 @@ async function handle(request: Request) {
 
   for (const update of due ?? []) {
     if (!update.client_email) {
-      await supabase
+      const { error: markErr } = await supabase
         .from("sent_updates")
         .update({ status: "failed", send_error: "No recipient email", updated_at: new Date().toISOString() })
         .eq("id", update.id);
+      if (markErr) console.error(`[dispatch-updates] Failed to mark update ${update.id} as failed: ${markErr.message}`);
       results.push({ id: update.id, outcome: "failed:no-email" });
       continue;
     }
@@ -63,15 +64,16 @@ async function handle(request: Request) {
     });
 
     if (res.error) {
-      await supabase
+      const { error: markErr } = await supabase
         .from("sent_updates")
         .update({ status: "failed", send_error: res.error, updated_at: new Date().toISOString() })
         .eq("id", update.id);
+      if (markErr) console.error(`[dispatch-updates] Failed to mark update ${update.id} as failed: ${markErr.message}`);
       results.push({ id: update.id, outcome: "failed" });
       continue;
     }
 
-    await supabase
+    const { error: sentErr } = await supabase
       .from("sent_updates")
       .update({
         status: "sent",
@@ -81,6 +83,7 @@ async function handle(request: Request) {
         updated_at: new Date().toISOString(),
       })
       .eq("id", update.id);
+    if (sentErr) console.error(`[dispatch-updates] Failed to mark update ${update.id} as sent: ${sentErr.message}`);
     results.push({ id: update.id, outcome: res.emailed ? "sent" : "logged-dry-run" });
   }
 

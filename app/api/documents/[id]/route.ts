@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
+import { safeRequestJson } from "@/lib/safe-request-json";
 
 // Public read for the client sign page — mediated by the unguessable UUID.
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
@@ -20,7 +21,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { title, body, action } = await request.json();
+  const parsed = await safeRequestJson<{ title?: string; body?: string; action?: string }>(request);
+  if ("error" in parsed) return parsed.error;
+  const { title, body, action } = parsed.data;
   const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
 
   if (action === "send") {

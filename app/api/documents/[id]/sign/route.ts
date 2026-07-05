@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { isFullySigned } from "@/lib/documents/types";
+import { safeRequestJson } from "@/lib/safe-request-json";
 
 // Apply a signature. The client signs unauthenticated via the document UUID, so
 // this uses the service-role client. role = 'client' | 'trainer'.
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   const admin = createAdminClient();
-  const { role, name, signature, date } = await request.json();
+  const parsed = await safeRequestJson<{ role?: string; name?: string; signature?: string; date?: string }>(request);
+  if ("error" in parsed) return parsed.error;
+  const { role, name, signature, date } = parsed.data;
 
   if (role !== "client" && role !== "trainer") {
     return NextResponse.json({ error: "role must be 'client' or 'trainer'" }, { status: 400 });

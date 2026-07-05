@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { safeRequestJson } from "@/lib/safe-request-json";
 
 // Create a new client document by snapshotting the active template for a kind.
 export async function POST(request: Request) {
@@ -7,7 +8,9 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { clientNumber, kind } = await request.json();
+  const parsed = await safeRequestJson<{ clientNumber?: number; kind?: string }>(request);
+  if ("error" in parsed) return parsed.error;
+  const { clientNumber, kind } = parsed.data;
   if (!clientNumber || !kind) {
     return NextResponse.json({ error: "clientNumber and kind are required" }, { status: 400 });
   }
