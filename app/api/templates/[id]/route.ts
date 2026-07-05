@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase-server";
+import { getAuthenticatedUser, jsonError, unauthorized } from "@/lib/api";
 
 // Edit a document template (name, body, signature requirements, active flag).
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { supabase, user } = await getAuthenticatedUser();
+  if (!user) return unauthorized();
 
   const { name, body, requires_client_signature, requires_trainer_signature, is_active } = await request.json();
   const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
@@ -16,6 +15,6 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   if (is_active !== undefined) update.is_active = is_active;
 
   const { error } = await supabase.from("document_templates").update(update).eq("id", params.id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonError(error.message, 500);
   return NextResponse.json({ success: true });
 }

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase-server";
+import { getAuthenticatedUser, getClientByNumber, getLatestSignedParq } from "@/lib/api";
 import { getAiConfig, aiChatStream } from "@/lib/ai-client";
 import { buildParqSection } from "@/lib/parq-summary";
 import { buildRecentUpdatesSection } from "@/lib/recent-updates-summary";
@@ -70,8 +70,7 @@ ${buildRecentUpdatesSection(recentUpdates)}`;
 }
 
 export async function POST(request: Request) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { supabase, user } = await getAuthenticatedUser();
 
   if (!user) {
     return new Response("Unauthorized", { status: 401 });
@@ -87,11 +86,7 @@ export async function POST(request: Request) {
     return new Response("clientNumber and messages are required", { status: 400 });
   }
 
-  const { data: client } = await supabase
-    .from("clients")
-    .select("*")
-    .eq("client_number", clientNumber)
-    .single();
+  const client = await getClientByNumber(supabase, clientNumber);
 
   if (!client) {
     return new Response("Client not found", { status: 404 });
@@ -110,13 +105,7 @@ export async function POST(request: Request) {
     .order("block_number", { ascending: false })
     .limit(3);
 
-  const { data: parq } = await supabase
-    .from("signed_parq")
-    .select("*")
-    .eq("client_id", client.id)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const parq = await getLatestSignedParq(supabase, { clientId: client.id });
 
   const { data: recentUpdates } = await supabase
     .from("sent_updates")

@@ -1,23 +1,18 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase-server";
+import { getAuthenticatedUser, getClientByNumber, jsonError, notFound, unauthorized } from "@/lib/api";
 
 // Create a new client document by snapshotting the active template for a kind.
 export async function POST(request: Request) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { supabase, user } = await getAuthenticatedUser();
+  if (!user) return unauthorized();
 
   const { clientNumber, kind } = await request.json();
   if (!clientNumber || !kind) {
-    return NextResponse.json({ error: "clientNumber and kind are required" }, { status: 400 });
+    return jsonError("clientNumber and kind are required", 400);
   }
 
-  const { data: client } = await supabase
-    .from("clients")
-    .select("id, name")
-    .eq("client_number", clientNumber)
-    .single();
-  if (!client) return NextResponse.json({ error: "Client not found" }, { status: 404 });
+  const client = await getClientByNumber(supabase, clientNumber, "id, name");
+  if (!client) return notFound("Client not found");
 
   const { data: template } = await supabase
     .from("document_templates")
@@ -29,7 +24,7 @@ export async function POST(request: Request) {
     .maybeSingle();
 
   if (!template) {
-    return NextResponse.json({ error: `No active template for "${kind}"` }, { status: 400 });
+    return jsonError(`No active template for "${kind}"`, 400);
   }
 
   const { data: inserted, error } = await supabase
@@ -49,6 +44,6 @@ export async function POST(request: Request) {
     .select("id")
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return jsonError(error.message, 500);
   return NextResponse.json({ id: inserted.id }, { status: 201 });
 }

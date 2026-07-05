@@ -1,13 +1,9 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase-server";
+import { getAuthenticatedUser, jsonError, notFound, unauthorized } from "@/lib/api";
 
 export async function POST(_request: Request, { params }: { params: { id: string } }) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { supabase, user } = await getAuthenticatedUser();
+  if (!user) return unauthorized();
 
   const { data: block, error: fetchError } = await supabase
     .from("blocks")
@@ -16,11 +12,11 @@ export async function POST(_request: Request, { params }: { params: { id: string
     .single();
 
   if (fetchError || !block) {
-    return NextResponse.json({ error: "Block not found" }, { status: 404 });
+    return notFound("Block not found");
   }
 
   if (block.status !== "draft") {
-    return NextResponse.json({ error: `Block is already ${block.status}` }, { status: 400 });
+    return jsonError(`Block is already ${block.status}`, 400);
   }
 
   const { data, error } = await supabase
@@ -31,7 +27,7 @@ export async function POST(_request: Request, { params }: { params: { id: string
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonError(error.message, 500);
   }
 
   return NextResponse.json(data);
