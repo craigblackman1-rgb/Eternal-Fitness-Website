@@ -45,6 +45,9 @@ type Row = {
 };
 
 export function DocumentRegister({ clientNumber, parqs, agreements, documents = [] }: DocumentRegisterProps) {
+  // Latest PAR-Q on file (parqs arrive newest-first). If one exists, "Send PAR-Q"
+  // links the client to their existing document to update it, not a blank form.
+  const latestParqId = parqs[0]?.id;
   const rows: Row[] = [
     ...parqs.map((p) => ({
       key: `parq-${p.id}`,
@@ -79,7 +82,12 @@ export function DocumentRegister({ clientNumber, parqs, agreements, documents = 
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs text-muted-foreground">Document register</span>
         <div className="flex items-center gap-2">
-          <SendDocumentLink path="/parq" clientNumber={clientNumber} label="Send PAR-Q" />
+          <SendDocumentLink
+            path="/parq"
+            clientNumber={clientNumber}
+            label={latestParqId ? "Send PAR-Q update" : "Send PAR-Q"}
+            existingId={latestParqId}
+          />
           <Link
             href={`/hub/clients/${clientNumber}/documents`}
             className="inline-flex items-center gap-1 rounded-full bg-rose px-2.5 h-7 text-xs font-medium text-white hover:bg-rose/90"

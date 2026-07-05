@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { createAdminClient } from "@/lib/supabase-admin";
 import { resolveClientId } from "@/lib/resolve-client-id";
 
 export async function GET(request: Request) {
@@ -97,6 +98,12 @@ export async function POST(request: Request) {
     client_name_print: client_name_print || null,
   };
 
+  // Updates target an existing PAR-Q by its unguessable id — a logged-out client
+  // (or Esther) may be saving, and RLS hides the row from anon. Writes keyed on
+  // that id go through the service-role client; a brand-new insert stays on the
+  // request client (anon insert is allowed for first submissions).
+  const writer = id ? createAdminClient() : supabase;
+
   let result;
   let error;
 
@@ -106,7 +113,7 @@ export async function POST(request: Request) {
     if (!id) {
       return NextResponse.json({ error: "admin_save requires an existing PAR-Q id" }, { status: 400 });
     }
-    const res = await supabase
+    const res = await writer
       .from("signed_parq")
       .update({ ...editableFields, status: "sent" })
       .eq("id", id)
@@ -124,7 +131,7 @@ export async function POST(request: Request) {
       status: "signed",
     };
     if (id) {
-      const res = await supabase.from("signed_parq").update(record).eq("id", id).select().single();
+      const res = await writer.from("signed_parq").update(record).eq("id", id).select().single();
       result = res.data;
       error = res.error;
     } else {

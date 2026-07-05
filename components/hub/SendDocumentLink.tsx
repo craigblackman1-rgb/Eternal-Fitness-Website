@@ -8,13 +8,23 @@ interface SendDocumentLinkProps {
   path: "/parq" | "/agreement";
   clientNumber: number;
   label: string;
+  /** When set, link the client to their existing document to update it, not a blank form. */
+  existingId?: string;
 }
 
-export function SendDocumentLink({ path, clientNumber, label }: SendDocumentLinkProps) {
+export function SendDocumentLink({ path, clientNumber, label, existingId }: SendDocumentLinkProps) {
   const copyLink = async () => {
-    const url = `${window.location.origin}${path}?client=${clientNumber}`;
+    // Existing PAR-Q → send the prefilled edit link so the client updates their
+    // own document. No existing doc → send the blank form for a first submission.
+    const url = existingId
+      ? `${window.location.origin}${path}/edit/${existingId}`
+      : `${window.location.origin}${path}?client=${clientNumber}`;
     await navigator.clipboard.writeText(url);
-    toast.success(`${label} link copied — send it to the client`);
+    toast.success(
+      existingId
+        ? "Link to the client's existing PAR-Q copied — send it so they can update it"
+        : `${label} link copied — send it to the client`,
+    );
   };
 
   return (
