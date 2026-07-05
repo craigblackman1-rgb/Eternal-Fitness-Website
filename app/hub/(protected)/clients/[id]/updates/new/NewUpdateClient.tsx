@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { IconChevronLeft, IconSend, IconAlertTriangle, IconEye, IconEyeOff, IconSave, IconMail } from "@/components/icons";
+import { IconChevronLeft, IconSend, IconAlertTriangle, IconEye, IconEyeOff, IconSave, IconMail, IconClock } from "@/components/icons";
 import Link from "next/link";
 import { toast } from "sonner";
 import { UpdateChatPanel } from "./UpdateChatPanel";
@@ -25,36 +25,60 @@ const TEST_RECIPIENTS = [
 
 type SectionValues = Record<string, string>;
 
+/** Existing draft/scheduled record being edited (null = compose new). */
+export interface EditableUpdate {
+  id: string;
+  status: "draft" | "scheduled";
+  subject: string;
+  sections: SectionValues;
+  templateKind: string;
+  blockNumber: number;
+  clientEmail: string | null;
+  scheduledFor: string | null;
+}
+
 interface NewUpdateClientProps {
   clientNumber: number;
   clientName: string;
   defaultEmail?: string;
   defaultEmailSource?: string;
+  /** When present, the component edits this saved update instead of composing new. */
+  existing?: EditableUpdate;
 }
 
 /** Rebuild the branded email HTML from the edited section values, per kind. */
 function buildHtmlForKind(_kind: string, clientName: string, sections: SectionValues): string {
-  // Only one kind implemented today; the registry keeps section keys aligned
-  // with SixWeekUpdateData, so a spread is safe.
   return buildSixWeekUpdateHtml({ clientName, ...sections } as unknown as SixWeekUpdateData);
 }
 
-export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", defaultEmailSource }: NewUpdateClientProps) {
+/** ISO -> value for <input type="datetime-local"> in the viewer's local time. */
+function toLocalInput(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", defaultEmailSource, existing }: NewUpdateClientProps) {
   const router = useRouter();
-  const [templateKind, setTemplateKind] = useState(UPDATE_TEMPLATE_KINDS[0].id);
+  const isEdit = !!existing;
+
+  const [templateKind, setTemplateKind] = useState(existing?.templateKind ?? UPDATE_TEMPLATE_KINDS[0].id);
   const [generating, setGenerating] = useState(false);
-  const [sending, setSending] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null); // which action is running
   const [testingTo, setTestingTo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [hasDraft, setHasDraft] = useState(false);
-  const [subject, setSubject] = useState("");
-  const [sections, setSections] = useState<SectionValues>({});
-  const [clientEmail, setClientEmail] = useState(defaultEmail);
+  const [hasDraft, setHasDraft] = useState(isEdit);
+  const [subject, setSubject] = useState(existing?.subject ?? "");
+  const [sections, setSections] = useState<SectionValues>(existing?.sections ?? {});
+  const [blockNumber, setBlockNumber] = useState(existing?.blockNumber ?? 0);
+  const [clientEmail, setClientEmail] = useState(existing?.clientEmail ?? defaultEmail);
+  const [scheduledFor, setScheduledFor] = useState(toLocalInput(existing?.scheduledFor ?? null));
   const [showRaw, setShowRaw] = useState(false);
 
   const kind = getTemplateKind(templateKind);
 
-  // Live-rebuild the full branded HTML whenever any section or subject changes.
   const html = useMemo(() => {
     if (!hasDraft) return "";
     return buildHtmlForKind(templateKind, clientName, sections);
@@ -63,27 +87,22 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
   const handleCreateDraft = async (conversationSummary: string) => {
     setGenerating(true);
     setError(null);
-
     try {
       const res = await fetch(`/api/clients/${clientNumber}/six-week-update/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ templateKind, conversationSummary: conversationSummary || undefined }),
       });
-
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error || "Failed to generate update");
       }
-
       const draft = await res.json();
-      // draft.data holds the structured sections (keys match kind.sections keys).
       const nextSections: SectionValues = {};
-      for (const s of kind.sections) {
-        nextSections[s.key] = draft.data?.[s.key] ?? "";
-      }
+      for (const s of kind.sections) nextSections[s.key] = draft.data?.[s.key] ?? "";
       setSections(nextSections);
       setSubject(draft.subject ?? kind.defaultSubject);
+      setBlockNumber(draft.blockNumber ?? 0);
       setHasDraft(true);
       toast.success("Draft created — edit any section below");
     } catch (err) {
@@ -93,11 +112,12 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
     }
   };
 
-  const post = async (payload: Record<string, unknown>) => {
-    const res = await fetch(`/api/clients/${clientNumber}/six-week-update/send`, {
+  /** POST an action to the create endpoint (compose mode). */
+  const postCreate = async (action: string, extra: Record<string, unknown> = {}) => {
+    const res = await fetch(`/api/clients/${clientNumber}/updates`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ subject, html, templateKind, ...payload }),
+      body: JSON.stringify({ action, subject, html, sections, blockNumber, templateKind, ...extra }),
     });
     const data = await res.json();
     if (!res.ok || !data.success) throw new Error(data.error || "Request failed");
@@ -108,7 +128,7 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
     setTestingTo(email);
     setError(null);
     try {
-      const data = await post({ testRecipient: email });
+      const data = await postCreate("test", { testRecipient: email });
       toast.success(data.emailed ? `Test sent to ${email}` : "SMTP not configured — test not sent");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong";
@@ -119,21 +139,107 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
     }
   };
 
-  const handleSend = async (skipSend: boolean) => {
-    if (!skipSend && !clientEmail.trim()) {
-      toast.error("Enter the client's email address");
-      return;
-    }
-    setSending(true);
+  const goBack = () => router.push(`/hub/clients/${clientNumber}/updates`);
+
+  // --- Compose-mode actions -------------------------------------------------
+
+  const handleSendNow = async () => {
+    if (!clientEmail.trim()) return toast.error("Enter the client's email address");
+    setBusy("send");
     setError(null);
     try {
-      const data = await post({ clientEmail: clientEmail.trim(), skipSend });
-      toast.success(skipSend ? "Update logged" : data.emailed ? "Update sent!" : "SMTP not configured — logged without sending");
-      router.push(`/hub/clients/${clientNumber}/updates`);
+      if (isEdit) {
+        // Persist the current editor content first — the send route emails the
+        // saved html — then dispatch it now.
+        await patchExisting({ clientEmail: clientEmail.trim() });
+        const res = await fetch(`/api/updates/${existing!.id}/send`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ clientEmail: clientEmail.trim() }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || "Request failed");
+        toast.success(data.emailed ? "Update sent!" : "SMTP not configured — logged without sending");
+      } else {
+        const data = await postCreate("send", { clientEmail: clientEmail.trim() });
+        toast.success(data.emailed ? "Update sent!" : "SMTP not configured — logged without sending");
+      }
+      goBack();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
-      setSending(false);
+      setBusy(null);
     }
+  };
+
+  const handleLog = async () => {
+    setBusy("log");
+    setError(null);
+    try {
+      await postCreate("log", { clientEmail: clientEmail.trim() || undefined });
+      toast.success("Update logged");
+      goBack();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+      setBusy(null);
+    }
+  };
+
+  const handleSaveDraft = async () => {
+    setBusy("draft");
+    setError(null);
+    try {
+      if (isEdit) {
+        await patchExisting({ status: "draft", scheduledFor: null });
+        toast.success("Draft saved");
+      } else {
+        await postCreate("draft", { clientEmail: clientEmail.trim() || undefined });
+        toast.success("Draft saved");
+      }
+      goBack();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+      setBusy(null);
+    }
+  };
+
+  const handleSchedule = async () => {
+    if (!scheduledFor) return toast.error("Pick a date and time to send");
+    if (!clientEmail.trim()) return toast.error("Enter the client's email address");
+    const iso = new Date(scheduledFor).toISOString();
+    setBusy("schedule");
+    setError(null);
+    try {
+      if (isEdit) {
+        await patchExisting({ status: "scheduled", scheduledFor: iso });
+        toast.success("Update rescheduled");
+      } else {
+        await postCreate("schedule", { clientEmail: clientEmail.trim(), scheduledFor: iso });
+        toast.success("Update scheduled");
+      }
+      goBack();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+      setBusy(null);
+    }
+  };
+
+  /** PATCH the saved record with the current editor content + status/schedule. */
+  const patchExisting = async (extra: Record<string, unknown>) => {
+    const res = await fetch(`/api/updates/${existing!.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        subject,
+        html,
+        sections,
+        blockNumber,
+        clientEmail: clientEmail.trim() || null,
+        ...extra,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.error || "Request failed");
+    return data;
   };
 
   return (
@@ -143,8 +249,10 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
           <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">New Update</h1>
-          <p className="text-muted-foreground">Chat through what to include, then edit and send</p>
+          <h1 className="text-xl font-semibold tracking-tight">{isEdit ? "Edit Update" : "New Update"}</h1>
+          <p className="text-muted-foreground">
+            {isEdit ? "Make your changes, then reschedule, save, or send" : "Chat through what to include, then edit and send"}
+          </p>
         </div>
       </div>
 
@@ -228,16 +336,14 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
               <div className="border border-border/60 rounded-xl overflow-hidden bg-[#F5F5F5]">
                 <iframe srcDoc={html} title="Email preview" className="w-full" style={{ height: "640px", border: "none" }} />
               </div>
-              {showRaw && (
-                <Textarea value={html} readOnly rows={16} className="font-mono text-xs" />
-              )}
+              {showRaw && <Textarea value={html} readOnly rows={16} className="font-mono text-xs" />}
             </CardContent>
           </Card>
 
-          {/* Send */}
+          {/* Send / schedule */}
           <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
             <CardHeader>
-              <CardTitle>Send</CardTitle>
+              <CardTitle>Send or schedule</CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="space-y-2">
@@ -256,6 +362,38 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
                 )}
               </div>
 
+              {/* Schedule */}
+              <div className="rounded-xl border border-[var(--hub-border)] bg-background p-4 space-y-3">
+                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <IconClock className="h-4 w-4 text-teal" />
+                  Schedule for later
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Pick a date and time and it&apos;ll send automatically. Leave blank to send now or save as a draft.
+                </p>
+                <div className="flex flex-wrap items-end gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="scheduledFor" className="text-xs">Send at</Label>
+                    <Input
+                      id="scheduledFor"
+                      type="datetime-local"
+                      value={scheduledFor}
+                      onChange={(e) => setScheduledFor(e.target.value)}
+                      className="w-auto"
+                    />
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={handleSchedule}
+                    disabled={busy !== null || !scheduledFor}
+                    className="gap-2 rounded-full"
+                  >
+                    <IconClock className="h-4 w-4" />
+                    {busy === "schedule" ? "Scheduling…" : isEdit && existing?.status === "scheduled" ? "Reschedule" : "Schedule send"}
+                  </Button>
+                </div>
+              </div>
+
               {/* Test send */}
               <div className="rounded-xl border border-[var(--hub-border)] bg-background p-4 space-y-3">
                 <div className="flex items-center gap-2 text-sm font-medium text-foreground">
@@ -270,7 +408,7 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
                       variant="outline"
                       size="sm"
                       onClick={() => handleTestSend(t.email)}
-                      disabled={testingTo !== null || sending}
+                      disabled={testingTo !== null || busy !== null}
                       className="rounded-full gap-1.5"
                     >
                       <IconSend className="h-3.5 w-3.5" />
@@ -280,29 +418,26 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
                 </div>
               </div>
 
-              <div className="flex justify-between gap-3 pt-1">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setHasDraft(false);
-                    setSections({});
-                    setSubject("");
-                  }}
-                >
-                  Discard
+              <div className="flex flex-wrap justify-between gap-3 pt-1">
+                <Button variant="outline" onClick={goBack} disabled={busy !== null}>
+                  Cancel
                 </Button>
-                <div className="flex gap-3">
-                  <Button variant="outline" onClick={() => handleSend(true)} disabled={sending} className="gap-2">
+                <div className="flex flex-wrap gap-3">
+                  <Button variant="outline" onClick={handleSaveDraft} disabled={busy !== null} className="gap-2">
                     <IconSave className="h-4 w-4" />
-                    Save without sending
+                    {busy === "draft" ? "Saving…" : "Save draft"}
+                  </Button>
+                  <Button variant="outline" onClick={handleLog} disabled={busy !== null} className="gap-2">
+                    <IconSave className="h-4 w-4" />
+                    {busy === "log" ? "Logging…" : "Log without sending"}
                   </Button>
                   <Button
-                    onClick={() => handleSend(false)}
-                    disabled={sending || !clientEmail.trim()}
+                    onClick={handleSendNow}
+                    disabled={busy !== null || !clientEmail.trim()}
                     className="gap-2 bg-rose hover:bg-rose/90 text-white"
                   >
                     <IconSend className="h-4 w-4" />
-                    {sending ? "Sending…" : "Send to client"}
+                    {busy === "send" ? "Sending…" : "Send now"}
                   </Button>
                 </div>
               </div>

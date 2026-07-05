@@ -9,6 +9,7 @@ const crumbLabels: Record<string, string> = {
   "/hub/tracker": "Medical Tracker",
   "/hub/agreements": "Agreements",
   "/hub/site-review": "Site Review",
+  "/hub/reports/updates": "Email Updates",
 };
 
 function resolveLabel(pathname: string): string {
@@ -20,6 +21,7 @@ function resolveLabel(pathname: string): string {
     return "Block";
   }
   if (pathname.startsWith("/hub/clients/") && pathname.endsWith("/updates/new")) return "New Update";
+  if (pathname.startsWith("/hub/clients/") && pathname.includes("/updates/") && pathname.endsWith("/edit")) return "Edit Update";
   if (pathname.startsWith("/hub/clients/") && pathname.includes("/updates")) return "Updates";
   if (pathname.startsWith("/hub/clients/") && pathname.endsWith("/edit")) return "Edit Client";
   if (pathname.startsWith("/hub/clients/new")) return "New Client";

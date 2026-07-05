@@ -190,15 +190,33 @@ export interface DBClient {
   referral_source: string | null;
 }
 
+/** Lifecycle of an update record. */
+export type UpdateStatus = "draft" | "scheduled" | "sent" | "failed" | "cancelled";
+
 export interface SentUpdate {
   id: string;
   client_id: string;
   subject: string;
   body_html: string;
   block_number: number;
-  sent_at: string;
+  /** Actual send time — null until the update goes out (drafts/scheduled). */
+  sent_at: string | null;
   template_kind: string;
   emailed: boolean;
+  status: UpdateStatus;
+  /** When a scheduled update should send — null for drafts/immediate. */
+  scheduled_for: string | null;
+  client_email: string | null;
+  /** Structured section values (keys match the template registry). */
+  sections: Record<string, string> | null;
+  send_error: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** A sent_update row joined with its client, for the global report. */
+export interface UpdateWithClient extends SentUpdate {
+  client: { name: string; client_number: number } | null;
 }
 
 export interface DBBlock {

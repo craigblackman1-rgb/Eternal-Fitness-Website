@@ -13,6 +13,7 @@ import {
   IconFileText,
   IconLayoutDashboard,
   IconLogOut,
+  IconMail,
   IconUsers,
 } from "@/components/icons";
 
@@ -38,6 +39,7 @@ const navGroups: { label: string; items: { href: string; label: string; icon: Re
   {
     label: "Reports",
     items: [
+      { href: "/hub/reports/updates", label: "Email Updates", icon: IconMail },
       { href: "/hub/tracker", label: "Medical Tracker", icon: IconClipboardList },
     ],
   },

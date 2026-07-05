@@ -8,6 +8,7 @@ export interface SixWeekUpdateDraft {
   subject: string;
   html: string;
   data: SixWeekUpdateData;
+  blockNumber: number;
   generatedAt: string;
   provider: string | null;
 }
@@ -145,13 +146,14 @@ function generateFallback(
   summaries: BlockSummary[],
   nextBlock: DBBlock | null,
   clientName: string,
-  _blockNumber: number,
+  blockNumber: number,
 ): SixWeekUpdateDraft {
   const data = buildSections(profile, blocks, summaries, nextBlock, clientName);
   return {
     subject: "Your last 6 weeks with me 🏋️",
     html: buildSixWeekUpdateHtml(data),
     data,
+    blockNumber,
     generatedAt: new Date().toISOString(),
     provider: null,
   };
@@ -164,7 +166,7 @@ async function generateViaAi(
   summaries: BlockSummary[],
   nextBlock: DBBlock | null,
   clientName: string,
-  _blockNumber: number,
+  blockNumber: number,
   conversationSummary?: string,
 ): Promise<SixWeekUpdateDraft> {
   const system = `You are Esther Fair, a Level 4 Personal Trainer in Worthing, West Sussex.
@@ -223,6 +225,7 @@ No markdown, no preamble, no explanation.`;
     subject: parsed.subject || "Your last 6 weeks with me 🏋️",
     html: buildSixWeekUpdateHtml(data),
     data,
+    blockNumber,
     generatedAt: new Date().toISOString(),
     provider: aiConfig.provider,
   };
