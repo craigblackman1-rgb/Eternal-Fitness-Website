@@ -30,9 +30,9 @@ export default async function TemplatesPage() {
           description="Templates are seeded via the document engine. Once available they appear here for editing."
         />
       ) : (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-4">
           {templates.map((t) => (
-            <Link key={t.id} href={`/hub/templates/${t.id}`}>
+            <Link key={t.id} href={`/hub/templates/${t.id}`} className="block">
               <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] hover:border-rose/40 transition">
                 <CardContent className="flex items-center justify-between p-4">
                   <div className="flex items-center gap-3">
@@ -58,7 +58,7 @@ export default async function TemplatesPage() {
           ))}
 
           {/* PAR-Q — a structured questionnaire, managed as its own form rather than an editable template */}
-          <Link href="/parq">
+          <Link href="/parq" className="block">
             <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] hover:border-rose/40 transition">
               <CardContent className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-3">
