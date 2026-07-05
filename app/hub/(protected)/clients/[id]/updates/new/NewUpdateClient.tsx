@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { UpdateChatPanel } from "./UpdateChatPanel";
 import { RichTextEditor } from "@/components/hub/RichTextEditor";
 import { UPDATE_TEMPLATE_KINDS, getTemplateKind } from "@/lib/email-templates/registry";
-import { buildSixWeekUpdateHtml } from "@/lib/email-templates/six-week-update";
+import { buildSixWeekUpdateHtml, DEFAULT_INTRO } from "@/lib/email-templates/six-week-update";
 import type { SixWeekUpdateData } from "@/lib/email-templates/six-week-update";
 
 const TEST_RECIPIENTS = [
@@ -84,7 +84,7 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
   const [hasDraft, setHasDraft] = useState(isEdit);
   const [subject, setSubject] = useState(existing?.subject ?? "");
   const [greetingName, setGreetingName] = useState(existing?.sections?.greetingName || firstName(clientName));
-  const [introText, setIntroText] = useState(existing?.sections?.introText ?? "");
+  const [introText, setIntroText] = useState(existing?.sections?.introText || DEFAULT_INTRO);
   const [sections, setSections] = useState<SectionValues>(existing?.sections ?? {});
   const [blockNumber, setBlockNumber] = useState(existing?.blockNumber ?? 0);
   const [clientEmail, setClientEmail] = useState(existing?.clientEmail ?? defaultEmail);

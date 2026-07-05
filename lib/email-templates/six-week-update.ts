@@ -19,7 +19,7 @@ export interface SixWeekUpdateData {
   psSection?: string;
 }
 
-const DEFAULT_INTRO = "I'd like to take a moment to look back over your last 6 weeks of training.";
+export const DEFAULT_INTRO = "I'd like to take a moment to look back over your last 6 weeks of training.";
 
 export function buildSixWeekUpdateHtml(data: SixWeekUpdateData): string {
   const intro = (data.introText ?? "").trim() || DEFAULT_INTRO;
