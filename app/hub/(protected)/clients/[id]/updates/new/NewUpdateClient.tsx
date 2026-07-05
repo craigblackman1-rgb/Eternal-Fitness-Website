@@ -20,7 +20,7 @@ import type { SixWeekUpdateData } from "@/lib/email-templates/six-week-update";
 
 const TEST_RECIPIENTS = [
   { label: "Craig (Decoded Ops)", email: "craig@decodedops.co.uk" },
-  { label: "Esther", email: "esther.fair@eternalfitness.co.uk" },
+  { label: "Esther", email: "esther.fair@eternal-fitness.co.uk" },
 ];
 
 type SectionValues = Record<string, string>;
