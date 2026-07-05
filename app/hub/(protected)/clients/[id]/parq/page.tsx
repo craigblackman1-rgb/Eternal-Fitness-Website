@@ -8,6 +8,7 @@ import { SendDocumentLink } from "@/components/hub/SendDocumentLink";
 import { IconChevronLeft, IconFileText, IconTriangleAlert, IconPencil } from "@/components/icons";
 import { parqSections } from "@/lib/parq-data";
 import { diffParq } from "@/lib/parq-diff";
+import { mintParqLinkParams } from "@/lib/parq-link";
 import type { SignedPARQ } from "@/types";
 
 function formatDate(value: string | null) {
@@ -144,6 +145,7 @@ export default async function ParqHistoryPage({ params }: { params: { id: string
 
   const rows = (submissions ?? []) as SignedPARQ[];
   const [latest, ...earlier] = rows;
+  const parqLink = latest ? mintParqLinkParams(latest.id) : null;
 
   return (
     <div className="space-y-5">
@@ -157,7 +159,7 @@ export default async function ParqHistoryPage({ params }: { params: { id: string
         </div>
         {latest && (
           <div className="flex items-center gap-2">
-            <SendDocumentLink path="/parq" clientNumber={client.client_number} label="Send PAR-Q update" existingId={latest.id} />
+            <SendDocumentLink path="/parq" clientNumber={client.client_number} label="Send PAR-Q update" existingId={latest.id} exp={parqLink?.exp} sig={parqLink?.sig} />
             <Link
               href={`/hub/clients/${client.client_number}/parq/${latest.id}/edit`}
               className="inline-flex items-center gap-1 rounded-full border border-border/60 px-2.5 h-7 text-xs font-medium text-teal hover:bg-[var(--hub-hover)]"

@@ -3,6 +3,7 @@ import { StatusBadge } from "@/components/hub/StatusBadge";
 import { SendDocumentLink } from "@/components/hub/SendDocumentLink";
 import { IconFileText, IconFileSignature, IconPlus } from "@/components/icons";
 import { DOCUMENT_KIND_LABEL, type DocumentKind } from "@/lib/documents/types";
+import { mintParqLinkParams } from "@/lib/parq-link";
 import type { SignedAgreement, SignedPARQ } from "@/types";
 
 interface RegisterDocument {
@@ -48,6 +49,7 @@ export function DocumentRegister({ clientNumber, parqs, agreements, documents = 
   // Latest PAR-Q on file (parqs arrive newest-first). If one exists, "Send PAR-Q"
   // links the client to their existing document to update it, not a blank form.
   const latestParqId = parqs[0]?.id;
+  const parqLink = latestParqId ? mintParqLinkParams(latestParqId) : null;
   const rows: Row[] = [
     ...parqs.map((p) => ({
       key: `parq-${p.id}`,
@@ -87,6 +89,8 @@ export function DocumentRegister({ clientNumber, parqs, agreements, documents = 
             clientNumber={clientNumber}
             label={latestParqId ? "Send PAR-Q update" : "Send PAR-Q"}
             existingId={latestParqId}
+            exp={parqLink?.exp}
+            sig={parqLink?.sig}
           />
           <Link
             href={`/hub/clients/${clientNumber}/documents`}
