@@ -1,5 +1,29 @@
 import { createAdminClient } from "@/lib/supabase-admin";
 
+/**
+ * Fetches all editable content blocks for a page in one query, keyed by block_key.
+ * Server Components should call this once per page and pass the map down as a prop
+ * (Client components can't hit the DB directly) — e.g.
+ *   const content = await getPageContentBlocks("pricing");
+ *   <PricingPageClient content={content} />
+ * and in the client component: {content.hero_heading ?? "Simple, Transparent Pricing"}
+ */
+export async function getPageContentBlocks(
+  pageSlug: string,
+): Promise<Record<string, string>> {
+  try {
+    const supabase = createAdminClient();
+    const { data } = await supabase
+      .from("page_content_blocks")
+      .select("block_key, content")
+      .eq("page_slug", pageSlug);
+    if (!data) return {};
+    return Object.fromEntries(data.map((row) => [row.block_key, row.content]));
+  } catch {
+    return {};
+  }
+}
+
 export async function getPageContent(
   pageSlug: string,
   blockKey: string,
