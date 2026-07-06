@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getPageContentBlocks } from "@/lib/pageContent";
 import CancerRehabClient from "./CancerRehabClient";
 
 const schema = {
@@ -66,12 +67,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://eternalfitness.co.uk/cancer-rehabilitation" },
 };
 
-export default function CancerRehabPage() {
+export default async function CancerRehabPage() {
+  const content = await getPageContentBlocks("cancer-rehabilitation");
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
-      <CancerRehabClient />
+      <CancerRehabClient content={content} />
     </>
   );
 }

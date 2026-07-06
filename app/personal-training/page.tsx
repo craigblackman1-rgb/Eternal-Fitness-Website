@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getPageContentBlocks } from "@/lib/pageContent";
 import PersonalTrainingClient from "./PersonalTrainingClient";
 
 const ptSchema = {
@@ -28,11 +29,12 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://eternalfitness.co.uk/personal-training" },
 };
 
-export default function PersonalTrainingPage() {
+export default async function PersonalTrainingPage() {
+  const content = await getPageContentBlocks("personal-training");
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ptSchema) }} />
-      <PersonalTrainingClient />
+      <PersonalTrainingClient content={content} />
     </>
   );
 }

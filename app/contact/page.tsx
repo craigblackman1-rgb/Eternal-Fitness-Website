@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getPageContentBlocks } from "@/lib/pageContent";
 import ContactPageClient from "./ContactPageClient";
 
 const contactSchema = {
@@ -23,11 +24,12 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://eternalfitness.co.uk/contact" },
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const content = await getPageContentBlocks("contact");
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(contactSchema) }} />
-      <ContactPageClient />
+      <ContactPageClient content={content} />
     </>
   );
 }

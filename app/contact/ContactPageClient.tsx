@@ -26,7 +26,7 @@ const initialForm: FormData = {
   agree: false,
 };
 
-export default function ContactPageClient() {
+export default function ContactPageClient({ content = {} }: { content?: Record<string, string> }) {
   const [form, setForm] = useState<FormData>(initialForm);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -72,24 +72,24 @@ export default function ContactPageClient() {
       <PageHero
         image="/images/contact-hero.jpg"
         imageAlt="Contact Eternal Fitness in Worthing"
-        eyebrow="Contact"
-        heading="Get in Touch"
-        subhead="Whether you have a question, want to learn more, or are ready to book your free consultation — I would love to hear from you."
-        primaryCta={{ label: "Send a Message", href: "#form", arrow: true }}
-        secondaryCta={{ label: "Find the Studio", href: "#map", variant: "ghost-white" }}
-        badge={<StatBadge value="Free" label="First conversation" sublabel="No pressure, no commitment" />}
+        eyebrow={content.hero_eyebrow ?? "Contact"}
+        heading={content.hero_heading ?? "Get in Touch"}
+        subhead={content.hero_subhead ?? "Whether you have a question, want to learn more, or are ready to book your free consultation — I would love to hear from you."}
+        primaryCta={{ label: content.hero_btn_primary ?? "Send a Message", href: "#form", arrow: true }}
+        secondaryCta={{ label: content.hero_btn_secondary ?? "Find the Studio", href: "#map", variant: "ghost-white" }}
+        badge={<StatBadge value={content.badge_value ?? "Free"} label={content.badge_label ?? "First conversation"} sublabel={content.badge_sublabel ?? "No pressure, no commitment"} />}
       />
 
       {/* Contact Form + Info */}
       <Section background="white" id="form">
-          <SectionHeading align="center" eyebrow="Contact" heading="Send Me a Message" />
+          <SectionHeading align="center" eyebrow={content.form_eyebrow ?? "Contact"} heading={content.form_heading ?? "Send Me a Message"} />
           <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto" style={{ marginTop: 48 }}>
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="firstName" className="block text-sm font-medium text-foreground mb-1.5">
-                    First Name <span className="text-rose">*</span>
+                    {content.form_firstname_label ?? "First Name"} <span className="text-rose">*</span>
                   </label>
                   <input
                     id="firstName"
@@ -103,7 +103,7 @@ export default function ContactPageClient() {
                 </div>
                 <div>
                   <label htmlFor="lastName" className="block text-sm font-medium text-foreground mb-1.5">
-                    Last Name
+                    {content.form_lastname_label ?? "Last Name"}
                   </label>
                   <input
                     id="lastName"
@@ -119,7 +119,7 @@ export default function ContactPageClient() {
 
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1.5">
-                  Email <span className="text-rose">*</span>
+                  {content.form_email_label ?? "Email"} <span className="text-rose">*</span>
                 </label>
                 <input
                   id="email"
@@ -134,7 +134,7 @@ export default function ContactPageClient() {
 
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-foreground mb-1.5">
-                  Phone
+                  {content.form_phone_label ?? "Phone"}
                 </label>
                 <input
                   id="phone"
@@ -149,7 +149,7 @@ export default function ContactPageClient() {
 
               <div>
                 <label htmlFor="message" className="block text-sm font-medium text-foreground mb-1.5">
-                  Message <span className="text-rose">*</span>
+                  {content.form_message_label ?? "Message"} <span className="text-rose">*</span>
                 </label>
                 <textarea
                   id="message"
@@ -181,7 +181,7 @@ export default function ContactPageClient() {
               </div>
 
               <button type="submit" className="ef-btn ef-btn-primary w-full justify-center">
-                Send Message <IconArrowUpRight className="w-4 h-4" />
+                {content.form_submit_btn ?? "Send Message"} <IconArrowUpRight className="w-4 h-4" />
               </button>
             </form>
 
@@ -193,7 +193,7 @@ export default function ContactPageClient() {
                   <IconPhone className="w-5 h-5 text-teal" />
                 </div>
                 <div>
-                  <h3 className="text-foreground text-sm font-bold tracking-tight mb-1">Phone</h3>
+                  <h3 className="text-foreground text-sm font-bold tracking-tight mb-1">{content.info_phone_heading ?? "Phone"}</h3>
                   <a href="tel:07517658128" className="ef-body hover:text-teal transition-colors">
                     07517 658 128
                   </a>
@@ -206,7 +206,7 @@ export default function ContactPageClient() {
                   <IconMail className="w-5 h-5 text-teal" />
                 </div>
                 <div>
-                  <h3 className="text-foreground text-sm font-bold tracking-tight mb-1">Email</h3>
+                  <h3 className="text-foreground text-sm font-bold tracking-tight mb-1">{content.info_email_heading ?? "Email"}</h3>
                   <a href="mailto:esther.fair@eternal-fitness.co.uk" className="ef-body hover:text-teal transition-colors">
                     esther.fair@eternal-fitness.co.uk
                   </a>
@@ -219,10 +219,10 @@ export default function ContactPageClient() {
                   <IconMapPin className="w-5 h-5 text-teal" />
                 </div>
                 <div>
-                  <h3 className="text-foreground text-sm font-bold tracking-tight mb-1">Studio Location</h3>
-                  <p className="ef-body">Worthing, West Sussex</p>
+                  <h3 className="text-foreground text-sm font-bold tracking-tight mb-1">{content.info_location_heading ?? "Studio Location"}</h3>
+                  <p className="ef-body">{content.info_location_body ?? "Worthing, West Sussex"}</p>
                   <p className="ef-body text-sm mt-1 opacity-70">
-                    Exact address shared after booking confirmation.
+                    {content.info_location_note ?? "Exact address shared after booking confirmation."}
                   </p>
                 </div>
               </div>
@@ -234,15 +234,15 @@ export default function ContactPageClient() {
                     <IconMessageCircle className="w-5 h-5 text-rose" />
                   </div>
                   <div>
-                    <h3 className="text-foreground text-base font-bold tracking-tight mb-1">Not Sure Where to Start?</h3>
+                    <h3 className="text-foreground text-base font-bold tracking-tight mb-1">{content.help_heading ?? "Not Sure Where to Start?"}</h3>
                     <p className="text-[14.5px] text-slate leading-relaxed mb-4">
-                      That is completely normal. Send me a message or give me a call and we can have an informal chat — no pressure, no commitment. I will help you figure out whether personal training is the right next step.
+                      {content.help_body ?? "That is completely normal. Send me a message or give me a call and we can have an informal chat — no pressure, no commitment. I will help you figure out whether personal training is the right next step."}
                     </p>
                     <a
                       href="tel:07517658128"
                       className="inline-flex items-center gap-2 text-rose font-semibold text-sm hover:underline"
                     >
-                      Call me now <IconArrowUpRight className="w-3.5 h-3.5" />
+                      {content.help_cta ?? "Call me now"} <IconArrowUpRight className="w-3.5 h-3.5" />
                     </a>
                   </div>
                 </div>
@@ -250,7 +250,7 @@ export default function ContactPageClient() {
 
               {/* Social Icons */}
               <div>
-                <h3 className="text-foreground text-sm font-bold tracking-tight mb-3">Follow Me</h3>
+                <h3 className="text-foreground text-sm font-bold tracking-tight mb-3">{content.social_heading ?? "Follow Me"}</h3>
                 <div className="flex items-center gap-3">
                   <a
                     href="https://www.facebook.com/profile.php?id=61576413498498"
@@ -292,10 +292,10 @@ export default function ContactPageClient() {
       <Section background="cream" id="map">
           <SectionHeading
             align="center"
-            eyebrow="Location"
+            eyebrow={content.map_eyebrow ?? "Location"}
             eyebrowColor="teal"
-            heading="Find the Studio"
-            intro="Based in Worthing, West Sussex. The private studio is easily accessible by car and public transport."
+            heading={content.map_heading ?? "Find the Studio"}
+            intro={content.map_intro ?? "Based in Worthing, West Sussex. The private studio is easily accessible by car and public transport."}
           />
           <div className="rounded-3xl overflow-hidden border border-border-warm shadow-sm" style={{ marginTop: 48 }}>
             <iframe
@@ -313,10 +313,10 @@ export default function ContactPageClient() {
 
       <CTABand
         image="/images/studio-1.jpg"
-        heading="Ready to find out if this is right for you?"
-        body="The first conversation is free, with no commitment. I work with a small number of clients at a time — so every person gets my full attention."
-        primaryCta={{ label: "Send a Message", href: "#form" }}
-        secondaryCta={{ label: "Call: 07517 658 128", href: "tel:07517658128", variant: "ghost-white" }}
+        heading={content.cta_heading ?? "Ready to find out if this is right for you?"}
+        body={content.cta_body ?? "The first conversation is free, with no commitment. I work with a small number of clients at a time — so every person gets my full attention."}
+        primaryCta={{ label: content.cta_btn_primary ?? "Send a Message", href: "#form" }}
+        secondaryCta={{ label: content.cta_btn_secondary ?? "Call: 07517 658 128", href: "tel:07517658128", variant: "ghost-white" }}
       />
       <Footer />
     </div>

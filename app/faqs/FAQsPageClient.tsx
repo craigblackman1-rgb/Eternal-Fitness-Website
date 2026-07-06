@@ -120,7 +120,7 @@ const faqGroups = [
   },
 ];
 
-export default function FAQsPageClient() {
+export default function FAQsPageClient({ content = {} }: { content?: Record<string, string> }) {
   const { open, setOpen, openDialog } = useConsultationDialog();
 
   return (
@@ -130,12 +130,12 @@ export default function FAQsPageClient() {
       <PageHero
         image="/images/hero-gym.jpg"
         imageAlt="Frequently Asked Questions — Eternal Fitness Worthing"
-        eyebrow="FAQs"
-        heading="Frequently Asked Questions"
-        subhead="If something is stopping you from getting in touch, the answer is probably here. And if it is not — just ask."
-        primaryCta={{ label: "Book a Free Consultation", onClick: openDialog, arrow: true }}
-        secondaryCta={{ label: "Read the FAQs", href: "#faq", variant: "ghost-white" }}
-        badge={<StatBadge value="?" label="No question too small" sublabel="Just ask — I would rather you did" />}
+        eyebrow={content?.hero_eyebrow ?? "FAQs"}
+        heading={content?.hero_heading ?? "Frequently Asked Questions"}
+        subhead={content?.hero_subhead ?? "If something is stopping you from getting in touch, the answer is probably here. And if it is not — just ask."}
+        primaryCta={{ label: content?.hero_btn_primary ?? "Book a Free Consultation", onClick: openDialog, arrow: true }}
+        secondaryCta={{ label: content?.hero_btn_secondary ?? "Read the FAQs", href: "#faq", variant: "ghost-white" }}
+        badge={<StatBadge value="?" label={content?.badge_label ?? "No question too small"} sublabel={content?.badge_sublabel ?? "Just ask — I would rather you did"} />}
       />
 
       {/* FAQ Section */}
@@ -143,15 +143,15 @@ export default function FAQsPageClient() {
 
           {/* Left — intro + jump nav */}
           <div className="md:sticky md:top-24">
-            <Eyebrow color="rose">Your Questions Answered</Eyebrow>
+            <Eyebrow color="rose">{content?.sidebar_eyebrow ?? "Your Questions Answered"}</Eyebrow>
             <h2 className="ds-h2" style={{ margin: "16px 0" }}>
-              No question is too complicated
+              {content?.sidebar_heading ?? "No question is too complicated"}
             </h2>
             <p className="ds-body" style={{ marginBottom: 16 }}>
-              I work with people whose situations are rarely straightforward. If you are wondering whether your health, disability, or circumstances make you a difficult client — they almost certainly do not.
+              {content?.sidebar_body ?? "I work with people whose situations are rarely straightforward. If you are wondering whether your health, disability, or circumstances make you a difficult client — they almost certainly do not."}
             </p>
             <nav aria-label="FAQ sections" className="mb-8 mt-7">
-              <p className="text-[11px] font-bold tracking-[0.1em] uppercase text-teal mb-3">Jump to</p>
+              <p className="text-[11px] font-bold tracking-[0.1em] uppercase text-teal mb-3">{content?.sidebar_jump_label ?? "Jump to"}</p>
               <ul>
                 {faqGroups.map((group, gi) => (
                   <li key={group.group} className="border-t border-border-warm last:border-b">
@@ -160,7 +160,7 @@ export default function FAQsPageClient() {
                       className="flex items-baseline justify-between gap-4 py-3 group"
                     >
                       <span className="font-serif text-lg text-foreground/70 group-hover:text-foreground transition-colors tracking-tight">
-                        {group.group}
+                        {content?.[`group_${gi + 1}_name`] ?? group.group}
                       </span>
                       <span className="text-[11px] font-bold text-rose tabular-nums">
                         {String(group.faqs.length).padStart(2, "0")}
@@ -170,7 +170,7 @@ export default function FAQsPageClient() {
                 ))}
               </ul>
             </nav>
-            <CtaButton cta={{ label: "Book a Free Consultation", onClick: openDialog, arrow: true }} />
+            <CtaButton cta={{ label: content?.sidebar_btn ?? "Book a Free Consultation", onClick: openDialog, arrow: true }} />
           </div>
 
           {/* Right — grouped FAQs */}
@@ -182,7 +182,7 @@ export default function FAQsPageClient() {
                     {String(gi + 1).padStart(2, "0")}
                   </span>
                   <h3 className="font-serif text-2xl md:text-[28px] tracking-tight text-foreground">
-                    {group.group}
+                    {content?.[`group_${gi + 1}_name`] ?? group.group}
                   </h3>
                   <span className="ml-auto text-xs text-muted-foreground">
                     {group.faqs.length} questions
@@ -192,10 +192,10 @@ export default function FAQsPageClient() {
                   {group.faqs.map((faq, i) => (
                     <AccordionItem key={i} value={`${group.group}-${i}`} className="border-border-warm">
                       <AccordionTrigger className="font-body text-foreground text-left text-[17px] font-medium py-5 hover:no-underline">
-                        {faq.question}
+                        {content?.[`faq_${gi + 1}_${i + 1}_q`] ?? faq.question}
                       </AccordionTrigger>
                       <AccordionContent className="ef-body text-[15px] leading-relaxed pb-6 max-w-[640px]">
-                        {faq.answer}
+                        {content?.[`faq_${gi + 1}_${i + 1}_a`] ?? faq.answer}
                       </AccordionContent>
                     </AccordionItem>
                   ))}
@@ -207,10 +207,10 @@ export default function FAQsPageClient() {
 
       <CTABand
         image="/images/studio-1.jpg"
-        heading="Ready to find out if this is right for you?"
-        body="The first conversation is free, with no commitment. I work with a small number of clients at a time — so every person gets my full attention."
-        primaryCta={{ label: "Book a Free Consultation", onClick: openDialog }}
-        secondaryCta={{ label: "Call: 07517 658 128", href: "tel:07517658128", variant: "ghost-white" }}
+        heading={content?.cta_heading ?? "Ready to find out if this is right for you?"}
+        body={content?.cta_body ?? "The first conversation is free, with no commitment. I work with a small number of clients at a time — so every person gets my full attention."}
+        primaryCta={{ label: content?.cta_btn_primary ?? "Book a Free Consultation", onClick: openDialog }}
+        secondaryCta={{ label: content?.cta_btn_secondary ?? "Call: 07517 658 128", href: "tel:07517658128", variant: "ghost-white" }}
       />
       <Footer />
       <ConsultationDialog open={open} onOpenChange={setOpen} />

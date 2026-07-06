@@ -132,9 +132,9 @@ const relatedArticles = [
   },
 ];
 
-export default function PersonalTrainingClient() {
+export default function PersonalTrainingClient({ content = {} }: { content?: Record<string, string> }) {
   const { open, setOpen, openDialog } = useConsultationDialog();
-  const bookCta = { label: "Book a Free Consultation", onClick: openDialog, arrow: true };
+  const bookCta = { label: content.hero_btn_primary ?? "Book a Free Consultation", onClick: openDialog, arrow: true };
 
   return (
     <div className="min-h-screen bg-background">
@@ -143,12 +143,12 @@ export default function PersonalTrainingClient() {
       <PageHero
         image="/images/pt-hero.jpg"
         imageAlt="Personal training in Worthing for health conditions and complex needs"
-        eyebrow="Personal Training"
-        heading="Cancer Rehabilitation and Recovery Training in Worthing"
-        subhead="Private one-to-one sessions with a Cancer Rehabilitation Specialist and Exercise Referral Specialist (Level 4 qualified). Whether you are in cancer treatment, post-surgery recovery, managing a chronic condition, living with a disability, or have complex medical needs — there is a specialist programme here for you."
+        eyebrow={content.hero_eyebrow ?? "Personal Training"}
+        heading={content.hero_heading ?? "Cancer Rehabilitation and Recovery Training in Worthing"}
+        subhead={content.hero_subhead ?? "Private one-to-one sessions with a Cancer Rehabilitation Specialist and Exercise Referral Specialist (Level 4 qualified). Whether you are in cancer treatment, post-surgery recovery, managing a chronic condition, living with a disability, or have complex medical needs — there is a specialist programme here for you."}
         primaryCta={bookCta}
-        secondaryCta={{ label: "What Sessions Involve", href: "#what", variant: "ghost-white" }}
-        badge={<StatBadge variant="rose" value="L4" label="Cancer Rehab & Exercise Referral" />}
+        secondaryCta={{ label: content.hero_btn_secondary ?? "What Sessions Involve", href: "#what", variant: "ghost-white" }}
+        badge={<StatBadge variant="rose" value="L4" label={content.badge_label ?? "Cancer Rehab & Exercise Referral"} />}
       />
 
       {/* What to Expect */}
@@ -156,15 +156,15 @@ export default function PersonalTrainingClient() {
         <div className="ds-split">
           <div>
             <SectionHeading
-              eyebrow="What to Expect"
-              heading="This Is Not Like Other Personal Training"
+              eyebrow={content.what_eyebrow ?? "What to Expect"}
+              heading={content.what_heading ?? "This Is Not Like Other Personal Training"}
             />
             <Reveal y={24}>
               <p className="ds-body" style={{ marginTop: 20, marginBottom: 16 }}>
-                Personal training at Eternal Fitness is not about pushing harder, going faster, or doing more. It is about rehabilitation, recovery, and what your body needs right now — whether managing a health condition, recovering from cancer treatment, or living with a disability — and building a sustainable programme around that. Sessions are private, one-to-one, and held in a small studio in Worthing where there is no gym floor, no other clients watching, and no comparison to anyone else.
+                {content.what_p1 ?? "Personal training at Eternal Fitness is not about pushing harder, going faster, or doing more. It is about rehabilitation, recovery, and what your body needs right now — whether managing a health condition, recovering from cancer treatment, or living with a disability — and building a sustainable programme around that. Sessions are private, one-to-one, and held in a small studio in Worthing where there is no gym floor, no other clients watching, and no comparison to anyone else."}
               </p>
               <p className="ds-body" style={{ marginBottom: 28 }}>
-                My specialist training in cancer rehabilitation and exercise referral means I am trained to adapt to medical conditions, medication side-effects, fatigue cycles, and variable capacity. I work within your GP&apos;s or specialist&apos;s guidance. I do not guess — I ask, I listen, and I adjust every session based on your body&apos;s actual needs that day.
+                {content.what_p2 ?? "My specialist training in cancer rehabilitation and exercise referral means I am trained to adapt to medical conditions, medication side-effects, fatigue cycles, and variable capacity. I work within your GP's or specialist's guidance. I do not guess — I ask, I listen, and I adjust every session based on your body's actual needs that day."}
               </p>
               <CtaButton cta={bookCta} />
             </Reveal>
@@ -178,20 +178,20 @@ export default function PersonalTrainingClient() {
       {/* Specialist Areas */}
       <Section background="cream" id="specialist-areas">
         <SectionHeading
-          eyebrow="Specialist Areas"
-          heading="Who I Work With"
-          intro="I specialise in working with people who have been underserved by mainstream fitness. If your situation is not listed here, please still get in touch — the answer is almost always yes."
+          eyebrow={content.spec_eyebrow ?? "Specialist Areas"}
+          heading={content.spec_heading ?? "Who I Work With"}
+          intro={content.spec_intro ?? "I specialise in working with people who have been underserved by mainstream fitness. If your situation is not listed here, please still get in touch — the answer is almost always yes."}
         />
         <Reveal y={40} start="top 80%" style={{ marginTop: 40 }}>
           <IndexList
             accent="rose"
-            panelEyebrow="Specialist areas"
-            items={specialistAreas.map((a) => ({
-              title: a.title,
-              body: a.desc,
+            panelEyebrow={content.spec_panel_eyebrow ?? "Specialist areas"}
+            items={specialistAreas.map((a, i) => ({
+              title: content[`area_${i + 1}_title`] ?? a.title,
+              body: content[`area_${i + 1}_desc`] ?? a.desc,
               cta: a.href
-                ? { label: "Learn more", href: a.href }
-                : { label: "Book a consultation", onClick: openDialog },
+                ? { label: content.spec_cta_learn ?? "Learn more", href: a.href }
+                : { label: content.spec_cta_book ?? "Book a consultation", onClick: openDialog },
             }))}
           />
         </Reveal>
@@ -208,18 +208,18 @@ export default function PersonalTrainingClient() {
           </Reveal>
           <div>
             <SectionHeading
-              eyebrow="What I Work On"
+              eyebrow={content.focus_eyebrow ?? "What I Work On"}
               eyebrowColor="teal"
-              heading="Recovery and Rehabilitation for Real Life"
-              intro="The focus is functional rehabilitation — building strength, mobility, endurance, and capability for real life during and after health conditions. Not aesthetics. Not performance metrics. Real outcomes: returning to activities after cancer treatment, climbing stairs without pain, managing fatigue, walking further, recovering independence, sleeping better, regaining confidence in your own body."
+              heading={content.focus_heading ?? "Recovery and Rehabilitation for Real Life"}
+              intro={content.focus_intro ?? "The focus is functional rehabilitation — building strength, mobility, endurance, and capability for real life during and after health conditions. Not aesthetics. Not performance metrics. Real outcomes: returning to activities after cancer treatment, climbing stairs without pain, managing fatigue, walking further, recovering independence, sleeping better, regaining confidence in your own body."}
             />
             <div className="ds-featlist">
-              {focusCards.map((c) => (
+              {focusCards.map((c, i) => (
                 <div key={c.title} className="ds-feat">
                   <span className="ds-feat-dot" />
                   <div>
-                    <div className="ds-feat-t">{c.title}</div>
-                    <div className="ds-feat-c">{c.desc}</div>
+                    <div className="ds-feat-t">{content[`focus_${i + 1}_title`] ?? c.title}</div>
+                    <div className="ds-feat-c">{content[`focus_${i + 1}_desc`] ?? c.desc}</div>
                   </div>
                 </div>
               ))}
@@ -230,12 +230,12 @@ export default function PersonalTrainingClient() {
 
       {/* How It Works */}
       <Section background="cream">
-        <SectionHeading align="center" eyebrow="The Process" heading="How It Works" />
+        <SectionHeading align="center" eyebrow={content.process_eyebrow ?? "The Process"} heading={content.process_heading ?? "How It Works"} />
         <div className="ds-art-divider">
           <PulseLine accent="rose" />
         </div>
         <div style={{ marginTop: 48 }}>
-          <ProcessFlow steps={steps.map((s) => ({ title: s.title, body: s.desc }))} />
+          <ProcessFlow steps={steps.map((s, i) => ({ title: content[`step_${i + 1}_title`] ?? s.title, body: content[`step_${i + 1}_desc`] ?? s.desc }))} />
         </div>
         <div style={{ textAlign: "center", marginTop: 44 }}>
           <CtaButton cta={bookCta} />
@@ -246,15 +246,15 @@ export default function PersonalTrainingClient() {
       <Section background="white">
         <SectionHeading
           align="center"
-          eyebrow="Specialist Pages"
+          eyebrow={content.pages_eyebrow ?? "Specialist Pages"}
           eyebrowColor="teal"
-          heading="Condition-Specific Training"
-          intro="Each of my specialist areas has a dedicated page with more detail about how I work with specific conditions."
+          heading={content.pages_heading ?? "Condition-Specific Training"}
+          intro={content.pages_intro ?? "Each of my specialist areas has a dedicated page with more detail about how I work with specific conditions."}
         />
         <Reveal y={40} start="top 82%" style={{ marginTop: 40 }}>
           <FeatureBand
             accent="teal"
-            items={specialistPages.map((p) => ({ title: p.title, body: p.desc, href: p.href, linkLabel: "Read more" }))}
+            items={specialistPages.map((p, i) => ({ title: content[`page_${i + 1}_title`] ?? p.title, body: content[`page_${i + 1}_desc`] ?? p.desc, href: p.href, linkLabel: "Read more" }))}
           />
         </Reveal>
       </Section>
@@ -264,10 +264,10 @@ export default function PersonalTrainingClient() {
         <StatStrip
           background="ink"
           stats={[
-            { icon: IconAward, value: "L4", label: "Cancer rehab & exercise referral qualified" },
-            { icon: IconUsers, value: "1:1", label: "Private one-to-one sessions only" },
-            { icon: IconMessageCircle, value: "30 min", label: "Free, no-pressure consultation" },
-            { icon: IconClipboardList, value: "Worthing", label: "Private studio, West Sussex" },
+            { icon: IconAward, value: "L4", label: content.stat_1_label ?? "Cancer rehab & exercise referral qualified" },
+            { icon: IconUsers, value: "1:1", label: content.stat_2_label ?? "Private one-to-one sessions only" },
+            { icon: IconMessageCircle, value: "30 min", label: content.stat_3_label ?? "Free, no-pressure consultation" },
+            { icon: IconClipboardList, value: "Worthing", label: content.stat_4_label ?? "Private studio, West Sussex" },
           ]}
         />
       </Section>
@@ -276,27 +276,27 @@ export default function PersonalTrainingClient() {
       <Section background="white">
         <SectionHeading
           align="center"
-          eyebrow="Learn More"
-          heading="Related Articles"
-          intro="Read more about training with health conditions, recovery strategies, and what makes specialist personal training different."
+          eyebrow={content.blog_eyebrow ?? "Learn More"}
+          heading={content.blog_heading ?? "Related Articles"}
+          intro={content.blog_intro ?? "Read more about training with health conditions, recovery strategies, and what makes specialist personal training different."}
         />
         <Reveal y={40} start="top 82%" style={{ marginTop: 40 }}>
           <FeatureBand
             accent="rose"
-            items={relatedArticles.map((a) => ({ icon: a.icon, title: a.title, body: a.desc, href: a.href, linkLabel: "Read article" }))}
+            items={relatedArticles.map((a, i) => ({ icon: a.icon, title: content[`article_${i + 1}_title`] ?? a.title, body: content[`article_${i + 1}_desc`] ?? a.desc, href: a.href, linkLabel: content.blog_link_label ?? "Read article" }))}
           />
         </Reveal>
         <div style={{ textAlign: "center", marginTop: 44 }}>
-          <CtaButton cta={{ label: "View All Articles", href: "/blog", variant: "outline", arrow: true }} />
+          <CtaButton cta={{ label: content.blog_btn ?? "View All Articles", href: "/blog", variant: "outline", arrow: true }} />
         </div>
       </Section>
 
       <CTABand
         image="/images/studio-1.jpg"
-        heading="Ready to find out if this is right for you?"
-        body="The first conversation is free, with no commitment. I work with a small number of clients at a time — so every person gets my full attention."
-        primaryCta={{ label: "Book a Free Consultation", onClick: openDialog }}
-        secondaryCta={{ label: "Call: 07517 658 128", href: "tel:07517658128", variant: "ghost-white" }}
+        heading={content.cta_heading ?? "Ready to find out if this is right for you?"}
+        body={content.cta_body ?? "The first conversation is free, with no commitment. I work with a small number of clients at a time — so every person gets my full attention."}
+        primaryCta={{ label: content.cta_btn_primary ?? "Book a Free Consultation", onClick: openDialog }}
+        secondaryCta={{ label: content.cta_btn_secondary ?? "Call: 07517 658 128", href: "tel:07517658128", variant: "ghost-white" }}
       />
       <Footer />
       <ConsultationDialog open={open} onOpenChange={setOpen} />

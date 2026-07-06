@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getPageContentBlocks } from "@/lib/pageContent";
 import AboutPageClient from "./AboutPageClient";
 
 const aboutSchema = {
@@ -25,11 +26,12 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://eternalfitness.co.uk/about" },
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const content = await getPageContentBlocks("about");
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutSchema) }} />
-      <AboutPageClient />
+      <AboutPageClient content={content} />
     </>
   );
 }
