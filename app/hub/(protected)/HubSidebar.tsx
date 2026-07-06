@@ -9,6 +9,7 @@ import {
   IconBookText,
   IconCheckSquare,
   IconClipboardList,
+  IconEdit3,
   IconFileSignature,
   IconFileText,
   IconLayoutDashboard,
@@ -48,6 +49,7 @@ const navGroups: { label: string; items: { href: string; label: string; icon: Re
     items: [
       { href: "/hub/exercises", label: "Exercise Library", icon: IconBookText },
       { href: "/hub/site-review", label: "Site Review", icon: IconCheckSquare },
+      { href: "/hub/site-content", label: "Site Content", icon: IconEdit3 },
     ],
   },
 ];

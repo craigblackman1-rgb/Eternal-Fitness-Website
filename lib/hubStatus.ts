@@ -64,6 +64,12 @@ const documentStatusMap: Record<DocumentStatus, StatusLookup> = {
   needs_update: { token: "warning", label: "Needs Update" },
 };
 
+const keywordStatusMap: Record<string, StatusLookup> = {
+  pending:       { token: "neutral", label: "Pending" },
+  reviewed:      { token: "success", label: "Reviewed" },
+  needs_rewrite: { token: "warning", label: "Needs Rewrite" },
+};
+
 const clearanceStatusMap: Record<ClearanceStatus, StatusLookup> = {
   CLEARED:                { token: "success", label: "Cleared" },
   PENDING:                { token: "warning", label: "Pending" },
@@ -89,6 +95,7 @@ export function lookupStatus(status: string): StatusLookup | null {
     complianceStatusMap[status as DBClientComplianceStatus] ??
     documentStatusMap[status as DocumentStatus] ??
     clearanceStatusMap[status as ClearanceStatus] ??
+    keywordStatusMap[status] ??
     null
   );
 }
