@@ -15,7 +15,7 @@ export default async function SiteContentPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">Site Content</h1>
+        <h1 className="text-xl font-semibold tracking-tight">Site Content</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Manage SEO keywords and editable content blocks for each page.
         </p>
