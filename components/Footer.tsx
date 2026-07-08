@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Phone, Mail, Facebook, Instagram, Linkedin, Youtube } from "lucide-react";
+import { IconPhone, IconMail, IconFacebook, IconInstagram, IconLinkedin, IconYoutube, IconMapPin } from "@/components/icons";
 import EternalFitnessLogo from "@/components/EternalFitnessLogo";
+import { AccreditationStrip } from "@/components/ds";
 
 const websiteSchema = {
   "@context": "https://schema.org",
@@ -15,6 +16,8 @@ const websiteSchema = {
   }
 };
 
+const focusRing = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose focus-visible:ring-offset-2 focus-visible:ring-offset-dark-navy rounded-sm";
+
 const Footer = () => {
   return (
     <>
@@ -23,126 +26,156 @@ const Footer = () => {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
       />
 
-      <footer id="contact" className="bg-[#131313]">
-        {/* Top */}
-        <div className="border-b border-white/[0.07] px-6 md:px-12 py-16 md:py-20">
-          <div className="max-w-[1320px] mx-auto flex flex-col md:flex-row md:items-end md:justify-between gap-10">
-            <Link href="/" aria-label="Eternal Fitness home">
-              <EternalFitnessLogo variant="light" className="h-9 md:h-10 w-auto" />
-            </Link>
-            <div className="text-left md:text-right">
-              <div className="text-[10px] font-bold text-white/30 tracking-[0.14em] uppercase mb-3">Qualifications</div>
-              <div className="flex items-center gap-3 text-[13px] text-white/40 mb-1.5 md:justify-end">
-                Level 4 Personal Trainer
-                <span className="w-[18px] h-[1px] bg-rose/70 shrink-0" />
-              </div>
-              <div className="flex items-center gap-3 text-[13px] text-white/40 mb-1.5 md:justify-end">
-                Cancer Rehabilitation Specialist
-                <span className="w-[18px] h-[1px] bg-rose/70 shrink-0" />
-              </div>
-              <div className="flex items-center gap-3 text-[13px] text-white/40 md:justify-end">
-                Exercise Referral Specialist
-                <span className="w-[18px] h-[1px] bg-rose/70 shrink-0" />
+      <footer className="bg-dark-navy text-white">
+        {/* Main grid */}
+        <div className="px-6 md:px-12 py-16 md:py-20">
+          <div className="max-w-[1320px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-12 lg:gap-16">
+            {/* Brand + Credentials */}
+            <div>
+              <Link href="/" aria-label="Eternal Fitness home" className={`inline-block ${focusRing}`}>
+                <EternalFitnessLogo variant="light" className="h-10 w-auto" />
+              </Link>
+              <p className="text-[15px] text-white/60 leading-relaxed mt-5 max-w-xs">
+                Private one-to-one training in Worthing for people with complex health needs.
+              </p>
+              <div className="mt-6 flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-rose flex items-center justify-center text-white text-sm font-bold shrink-0">
+                  4
+                </div>
+                <div>
+                  <div className="text-[13px] font-bold text-white/80">Level 4 Qualified</div>
+                  <div className="text-[12px] text-white/40">Highest PT qualification in the UK</div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Grid */}
-        <div className="border-b border-white/[0.07] px-6 md:px-12 py-14 md:py-16">
-          <div className="max-w-[1320px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.7fr_1fr_1fr_.9fr] gap-10 lg:gap-12">
-            {/* Brand + Contact */}
+            {/* Contact */}
             <div>
-              <p className="text-[13px] text-white/40 leading-[1.7] mb-6 max-w-[280px]">
-                Private, one-to-one personal training in Worthing for people with complex health needs. Level 4 qualified. GP-referred clients welcome.
-              </p>
-              <div className="text-[10px] font-bold text-white/30 tracking-[0.14em] uppercase mb-5">Get in Touch</div>
-              <a href="tel:07517658128" className="flex items-center gap-3 text-[13.5px] text-white/50 hover:text-white transition-colors mb-2.5">
-                <Phone className="w-4 h-4 text-rose shrink-0" /> 07517 658 128
-              </a>
-              <a href="mailto:esther.fair@eternal-fitness.co.uk" className="flex items-center gap-3 text-[13.5px] text-white/50 hover:text-white transition-colors">
-                <Mail className="w-4 h-4 text-rose shrink-0" /> esther.fair@eternal-fitness.co.uk
-              </a>
+              <h2 className="text-[13px] font-bold text-white/40 tracking-widest uppercase mb-6">Get in Touch</h2>
+              <ul className="space-y-3.5">
+                <li>
+                  <a
+                    href="tel:07517658128"
+                    className={`inline-flex items-center gap-3 text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}
+                  >
+                    <IconPhone className="w-4 h-4 text-rose shrink-0" aria-hidden="true" />
+                    07517 658 128
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="mailto:esther.fair@eternal-fitness.co.uk"
+                    className={`inline-flex items-center gap-3 text-[15px] text-white/65 hover:text-rose transition-colors break-all ${focusRing}`}
+                  >
+                    <IconMail className="w-4 h-4 text-rose shrink-0" aria-hidden="true" />
+                    esther.fair@eternal-fitness.co.uk
+                  </a>
+                </li>
+                <li className="inline-flex items-center gap-3 text-[15px] text-white/45">
+                  <IconMapPin className="w-4 h-4 text-rose shrink-0" aria-hidden="true" />
+                  Worthing, West Sussex
+                </li>
+              </ul>
             </div>
 
             {/* Services */}
             <div>
-              <div className="text-[10px] font-bold text-white/30 tracking-[0.14em] uppercase mb-5">Services</div>
-              <ul className="space-y-2.5 text-[13.5px] text-white/50">
-                <li><Link href="/personal-training" className="hover:text-rose transition-colors">Personal Training</Link></li>
-                <li className="hover:text-rose transition-colors cursor-pointer">Cancer Rehabilitation</li>
-                <li className="hover:text-rose transition-colors cursor-pointer">Exercise Referral</li>
-                <li className="hover:text-rose transition-colors cursor-pointer">Adaptive Training</li>
-                <li className="hover:text-rose transition-colors cursor-pointer">Injury Recovery</li>
+              <h2 className="text-[13px] font-bold text-white/40 tracking-widest uppercase mb-6">Services</h2>
+              <ul className="space-y-3.5">
+                <li>
+                  <Link href="/personal-training" className={`text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}>
+                    Personal Training
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/cancer-rehabilitation" className={`text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}>
+                    Cancer Rehabilitation
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/exercise-for-health" className={`text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}>
+                    Exercise for Health
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/exercise-for-health/visual-impairment" className={`text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}>
+                    Visual Impairment
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/personal-training" className={`text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}>
+                    Adaptive Training
+                  </Link>
+                </li>
               </ul>
             </div>
 
-            {/* Information */}
+            {/* Information + Social */}
             <div>
-              <div className="text-[10px] font-bold text-white/30 tracking-[0.14em] uppercase mb-5">Information</div>
-              <ul className="space-y-2.5 text-[13.5px] text-white/50">
-                <li><Link href="/about" className="hover:text-rose transition-colors">About Me</Link></li>
-                <li><Link href="/pricing" className="hover:text-rose transition-colors">Pricing</Link></li>
-                <li><Link href="/faqs" className="hover:text-rose transition-colors">FAQs</Link></li>
-                <li><Link href="/contact" className="hover:text-rose transition-colors">Contact</Link></li>
-                <li><Link href="/terms" className="hover:text-rose transition-colors">Terms &amp; Conditions</Link></li>
+              <h2 className="text-[13px] font-bold text-white/40 tracking-widest uppercase mb-6">More</h2>
+              <ul className="space-y-3.5 mb-8">
+                <li><Link href="/about" className={`text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}>About Me</Link></li>
+                <li><Link href="/pricing" className={`text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}>Pricing</Link></li>
+                <li><Link href="/faqs" className={`text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}>FAQs</Link></li>
+                <li><Link href="/blog" className={`text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}>Blog</Link></li>
+                <li><Link href="/contact" className={`text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}>Contact</Link></li>
               </ul>
-            </div>
-
-            {/* Follow */}
-            <div>
-              <div className="text-[10px] font-bold text-white/30 tracking-[0.14em] uppercase mb-5">Follow me</div>
-              <div className="flex gap-2.5 flex-wrap mb-8">
+              <div className="flex gap-3">
                 <a
                   href="https://www.facebook.com/EternalFitnessPersonalTraining/"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"
-                  className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/45 hover:bg-rose hover:border-rose hover:text-white transition-all"
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-white/40 hover:text-rose hover:bg-rose/10 transition-all ${focusRing}`}
                 >
-                  <Facebook className="w-4 h-4" />
+                  <IconFacebook className="w-4 h-4" />
                 </a>
                 <a
                   href="https://instagram.com/eternalfitness/"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
-                  className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/45 hover:bg-rose hover:border-rose hover:text-white transition-all"
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-white/40 hover:text-rose hover:bg-rose/10 transition-all ${focusRing}`}
                 >
-                  <Instagram className="w-4 h-4" />
+                  <IconInstagram className="w-4 h-4" />
                 </a>
                 <a
                   href="https://linkedin.com/in/esther-fair/"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="LinkedIn"
-                  className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/45 hover:bg-rose hover:border-rose hover:text-white transition-all"
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-white/40 hover:text-rose hover:bg-rose/10 transition-all ${focusRing}`}
                 >
-                  <Linkedin className="w-4 h-4" />
+                  <IconLinkedin className="w-4 h-4" />
                 </a>
                 <a
                   href="https://youtube.com/eternalfitness/"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="YouTube"
-                  className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/45 hover:bg-rose hover:border-rose hover:text-white transition-all"
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-white/40 hover:text-rose hover:bg-rose/10 transition-all ${focusRing}`}
                 >
-                  <Youtube className="w-4 h-4" />
+                  <IconYoutube className="w-4 h-4" />
                 </a>
               </div>
-              <div className="text-[10px] font-bold text-white/30 tracking-[0.14em] uppercase mb-2">Location</div>
-              <p className="text-[13px] text-white/40 leading-[1.7]">Worthing<br />West Sussex</p>
             </div>
           </div>
-        </div>
 
-        {/* Bottom bar */}
-        <div className="px-6 md:px-12 py-5">
-          <div className="max-w-[1320px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-[12px] text-white/25">
-            <span>© 2026 Eternal Fitness · Esther Fair · Worthing, West Sussex</span>
+          {/* Accreditations */}
+          <div className="max-w-[1320px] mx-auto mt-14 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
+            <span className="text-[11px] font-bold tracking-[0.1em] uppercase text-white/30 shrink-0">Registered &amp; accredited</span>
+            <AccreditationStrip variant="footer" />
+          </div>
+
+          {/* Rose divider */}
+          <div className="max-w-[1320px] mx-auto mt-8 mb-6 h-px bg-rose/20" />
+
+          {/* Bottom bar */}
+          <div className="max-w-[1320px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-[13px] text-white/35">
+            <span>&copy; {new Date().getFullYear()} Eternal Fitness &middot; Esther Fair</span>
             <div className="flex gap-6">
-              <Link href="/privacy-policy" className="hover:text-white/50 transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="hover:text-white/50 transition-colors">Terms &amp; Conditions</Link>
+              <Link href="/privacy-policy" className={`hover:text-white/55 transition-colors ${focusRing}`}>Privacy Policy</Link>
+              <Link href="/terms" className={`hover:text-white/55 transition-colors ${focusRing}`}>Terms &amp; Conditions</Link>
             </div>
           </div>
         </div>

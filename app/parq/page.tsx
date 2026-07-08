@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { Suspense, useState, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { SignaturePad } from "@/components/SignaturePad";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -106,6 +107,16 @@ const initialFormData: ParqFormData = {
 const yesNoOptions: ("yes" | "no")[] = ["yes", "no"];
 
 export default function ParqPage() {
+  return (
+    <Suspense fallback={null}>
+      <ParqPageInner />
+    </Suspense>
+  );
+}
+
+function ParqPageInner() {
+  const searchParams = useSearchParams();
+  const clientNumber = searchParams.get("client");
   const [formData, setFormData] = useState<ParqFormData>(initialFormData);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -218,7 +229,38 @@ export default function ParqPage() {
       const response = await fetch("/api/parq", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          client_number: clientNumber,
+          full_name: formData.fullName,
+          date_of_birth: formData.dateOfBirth,
+          address: formData.address,
+          email: formData.email,
+          phone: formData.phone,
+          emergency_contact_name: formData.emergencyContactName,
+          emergency_contact_phone: formData.emergencyContactPhone,
+          gp_name: formData.gpName,
+          gp_surgery: formData.gpSurgery,
+          gp_phone: formData.gpPhone,
+          q1: formData.q1, q2: formData.q2, q3: formData.q3, q4: formData.q4, q5: formData.q5,
+          q6: formData.q6, q7: formData.q7, q8: formData.q8, q9: formData.q9, q10: formData.q10,
+          q11: formData.q11, q12: formData.q12, q13: formData.q13, q14: formData.q14, q15: formData.q15,
+          q16: formData.q16, q17: formData.q17, q18: formData.q18,
+          q19: formData.q19, q20: formData.q20, q21: formData.q21, q22: formData.q22, q23: formData.q23,
+          q24: formData.q24, q25: formData.q25, q26: formData.q26,
+          q27: formData.q27, q28: formData.q28, q29: formData.q29,
+          conditions: formData.conditions,
+          medications: formData.medications,
+          devices: formData.devices,
+          exercise_restrictions: formData.exerciseRestrictions,
+          surgeries: formData.surgeries,
+          other_info: formData.otherInfo,
+          current_exercise: formData.currentExercise,
+          training_goals: formData.trainingGoals,
+          client_name_print: formData.clientNamePrint,
+          client_signature_date: formData.clientSignatureDate,
+          client_signature: formData.clientSignature,
+          client_typed_signature: formData.clientTypedSignature,
+        }),
       });
 
       if (!response.ok) {
@@ -477,36 +519,6 @@ export default function ParqPage() {
               </div>
             </section>
 
-            {/* Section 8: Annual Review */}
-            <section>
-              <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
-                Section 8 — Annual Review Record
-              </h2>
-              <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-4">
-                <p className="text-sm text-amber-900 font-semibold">This form must be reviewed every 12 months or following any change in health status.</p>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm border-collapse" role="table" aria-label="Annual review record">
-                  <thead>
-                    <tr className="bg-[#087E8B] text-white">
-                      <th className="text-left p-3 font-semibold" scope="col">Review date</th>
-                      <th className="text-left p-3 font-semibold" scope="col">Changes to health, medications, or conditions</th>
-                      <th className="text-left p-3 font-semibold" scope="col">Client signature</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[0, 1, 2, 3].map((i) => (
-                      <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-[#F1F1F1]"}>
-                        <td className="p-3 border-t border-[#D9D9D9] h-12">&nbsp;</td>
-                        <td className="p-3 border-t border-[#D9D9D9]">&nbsp;</td>
-                        <td className="p-3 border-t border-[#D9D9D9]">&nbsp;</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-
             {/* Section 9: Declaration and Signature */}
             <section>
               <h2 className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
@@ -573,6 +585,7 @@ export default function ParqPage() {
                 </div>
               </div>
             </section>
+
           </div>
 
           {/* Footer */}
@@ -861,37 +874,6 @@ export default function ParqPage() {
               </div>
             </section>
 
-            {/* Section 8: Annual Review Record */}
-            <section aria-labelledby="review-heading">
-              <h2 id="review-heading" className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
-                Section 8 — Annual Review Record
-              </h2>
-              <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-4">
-                <p className="text-sm text-amber-900 font-semibold">This form must be reviewed every 12 months or following any change in health status.</p>
-                <p className="text-sm text-amber-800 mt-1">You must inform your trainer immediately of any change to your health, new diagnosis, new medication, or any hospital admission. Do not wait until your next session.</p>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm border-collapse" role="table" aria-label="Annual review record">
-                  <thead>
-                    <tr className="bg-[#087E8B] text-white">
-                      <th className="text-left p-3 font-semibold" scope="col">Review date</th>
-                      <th className="text-left p-3 font-semibold" scope="col">Changes to health, medications, or conditions</th>
-                      <th className="text-left p-3 font-semibold" scope="col">Client signature</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[0, 1, 2, 3].map((i) => (
-                      <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-[#F1F1F1]"}>
-                        <td className="p-3 border-t border-[#D9D9D9] h-12">&nbsp;</td>
-                        <td className="p-3 border-t border-[#D9D9D9]">&nbsp;</td>
-                        <td className="p-3 border-t border-[#D9D9D9]">&nbsp;</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-
             {/* Section 9: Declaration and Signature */}
             <section aria-labelledby="declaration-heading">
               <h2 id="declaration-heading" className="text-lg font-bold text-[#1E1E1E] mb-4 pb-2 border-b border-[#D9D9D9]">
@@ -995,6 +977,7 @@ export default function ParqPage() {
                 Print PAR-Q
               </Button>
             </div>
+
           </form>
 
           {/* Footer */}

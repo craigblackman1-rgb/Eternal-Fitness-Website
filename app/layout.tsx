@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, DM_Serif_Display } from "next/font/google";
 import "./globals.css";
+import "./design-system.css";
 import { Providers } from "@/components/Providers";
 
 const dmSans = DM_Sans({
@@ -30,7 +31,7 @@ export const metadata: Metadata = {
     siteName: "Eternal Fitness",
     locale: "en_GB",
     type: "website",
-    images: [{ url: "/og-image.svg", width: 1200, height: 630 }],
+    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "Eternal Fitness — Level 4 Personal Trainer in Worthing" }],
   },
   twitter: {
     card: "summary_large_image",

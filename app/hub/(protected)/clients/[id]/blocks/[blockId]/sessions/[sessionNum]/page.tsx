@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronLeft, ChevronRight, Video, ExternalLink } from "lucide-react";
+import { IconChevronLeft, IconChevronRight, IconVideo, IconCheckCircle, IconActivity, IconPencil, IconSearch } from "@/components/icons";
+import { HubCardHeader } from "@/components/hub/HubCardHeader";
 import Link from "next/link";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import type { DBSession, Exercise } from "@/types";
+import type { DBSession, Exercise, SessionLog } from "@/types";
 import type { ExerciseEntry } from "@/app/hub/(protected)/exercises/page";
 import { SwapExerciseDialog } from "../swap-exercise-dialog";
 
@@ -25,6 +26,11 @@ export default function SessionViewPage({
   const [editingNotes, setEditingNotes] = useState(false);
   const [coachingNotes, setCoachingNotes] = useState("");
   const [totalSessions, setTotalSessions] = useState(0);
+  const [editingLog, setEditingLog] = useState(false);
+  const [rpe, setRpe] = useState<string>("");
+  const [fatigue, setFatigue] = useState<SessionLog["fatigue"]>(null);
+  const [logNotes, setLogNotes] = useState("");
+  const [savingLog, setSavingLog] = useState(false);
 
   const sessionNum = parseInt(params.sessionNum);
 
@@ -38,6 +44,10 @@ export default function SessionViewPage({
         .single();
       setSession(data);
       setCoachingNotes(data?.data?.coaching_notes || "");
+      const log: SessionLog | undefined = data?.data?.session_log;
+      setRpe(log?.rpe != null ? String(log.rpe) : "");
+      setFatigue(log?.fatigue ?? null);
+      setLogNotes(log?.notes || "");
 
       const { count } = await supabase
         .from("sessions")
@@ -65,6 +75,32 @@ export default function SessionViewPage({
     setEditingNotes(false);
   };
 
+  const currentLog: SessionLog | undefined = session?.data?.session_log;
+
+  const saveLog = async (markComplete: boolean) => {
+    if (!session) return;
+    setSavingLog(true);
+    const updatedLog: SessionLog = {
+      completed_at: markComplete ? new Date().toISOString() : currentLog?.completed_at ?? null,
+      rpe: rpe.trim() === "" ? null : Number(rpe),
+      fatigue,
+      notes: logNotes,
+    };
+    const updatedData = { ...session.data, session_log: updatedLog };
+    const { error } = await supabase
+      .from("sessions")
+      .update({ data: updatedData })
+      .eq("id", session.id);
+    setSavingLog(false);
+    if (error) {
+      toast.error("Failed to save session log");
+      return;
+    }
+    setSession({ ...session, data: updatedData });
+    toast.success(markComplete ? "Session marked complete" : "Session log saved");
+    setEditingLog(false);
+  };
+
   if (loading) return <div className="p-8 text-center text-muted-foreground">Loading...</div>;
   if (!session) return <div className="p-8 text-center text-muted-foreground">Session not found</div>;
 
@@ -78,11 +114,11 @@ export default function SessionViewPage({
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}`} className="text-muted-foreground hover:text-foreground">
-          <ChevronLeft className="h-5 w-5" />
+          <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold tracking-tight">Session {sessionNum}</h1>
+            <h1 className="text-xl font-semibold tracking-tight">Session {sessionNum}</h1>
             <Badge variant="outline" className="text-sm">{session.archetype}</Badge>
             <span className="text-sm capitalize text-muted-foreground">Week {session.week} · {session.phase}</span>
           </div>
@@ -91,19 +127,19 @@ export default function SessionViewPage({
         <div className="flex gap-2">
           {sessionNum > 1 && (
             <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}/sessions/${sessionNum - 1}`}>
-              <Button variant="outline" size="icon"><ChevronLeft className="h-4 w-4" /></Button>
+              <Button variant="outline" size="icon" className="rounded-full"><IconChevronLeft className="h-4 w-4" /></Button>
             </Link>
           )}
           {sessionNum < totalSessions && (
             <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}/sessions/${sessionNum + 1}`}>
-              <Button variant="outline" size="icon"><ChevronRight className="h-4 w-4" /></Button>
+              <Button variant="outline" size="icon" className="rounded-full"><IconChevronRight className="h-4 w-4" /></Button>
             </Link>
           )}
         </div>
       </div>
 
       {session.data?.client_intro && (
-        <Card className="border-rose/20 bg-rose/5">
+        <Card className="shadow-sm border-rose/20 bg-rose/5 rounded-2xl">
           <CardContent className="pt-4">
             <p className="text-sm italic text-muted-foreground">Client intro</p>
             <p className="mt-1">{session.data.client_intro}</p>
@@ -147,7 +183,78 @@ export default function SessionViewPage({
         ))}
       </Tabs>
 
-      <Card>
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
+        <HubCardHeader
+          icon={<IconActivity className="w-4 h-4" />}
+          title="Session Log"
+          color="teal"
+          action={currentLog?.completed_at ? (
+            <Badge className="bg-teal/15 text-teal border-teal/20 rounded-full gap-1">
+              <IconCheckCircle className="w-3 h-3" />
+              Completed {new Date(currentLog.completed_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+            </Badge>
+          ) : undefined}
+        />
+        <CardContent className="space-y-3">
+          {editingLog ? (
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">RPE (1-10)</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={10}
+                    value={rpe}
+                    onChange={(e) => setRpe(e.target.value)}
+                    className="w-full rounded-lg border border-border/60 px-3 py-2 text-sm"
+                    placeholder="e.g. 7"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Fatigue</label>
+                  <select
+                    value={fatigue ?? ""}
+                    onChange={(e) => setFatigue((e.target.value || null) as SessionLog["fatigue"])}
+                    className="w-full rounded-lg border border-border/60 px-3 py-2 text-sm bg-background"
+                  >
+                    <option value="">—</option>
+                    <option value="low">Low</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+              </div>
+              <Textarea value={logNotes} onChange={(e) => setLogNotes(e.target.value)} rows={3} placeholder="How the session went, adjustments made, anything for next time..." />
+              <div className="flex gap-2">
+                <Button onClick={() => saveLog(true)} disabled={savingLog} className="bg-rose hover:bg-rose/90 text-white gap-1.5 rounded-full">
+                  <IconCheckCircle className="w-4 h-4" />
+                  Mark Complete & Save
+                </Button>
+                <Button variant="outline" onClick={() => saveLog(false)} disabled={savingLog} className="rounded-full">Save Without Completing</Button>
+                <Button variant="ghost" onClick={() => setEditingLog(false)} disabled={savingLog} className="rounded-full">Cancel</Button>
+              </div>
+            </>
+          ) : (
+            <>
+              {currentLog?.rpe != null || currentLog?.fatigue || currentLog?.notes ? (
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+                  {currentLog.rpe != null && <span>RPE: <span className="font-medium text-foreground">{currentLog.rpe}/10</span></span>}
+                  {currentLog.fatigue && <span className="capitalize">Fatigue: <span className="font-medium text-foreground">{currentLog.fatigue}</span></span>}
+                  {currentLog.notes && <p className="w-full text-muted-foreground whitespace-pre-wrap">{currentLog.notes}</p>}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Not logged yet.</p>
+              )}
+              <Button variant="outline" size="sm" onClick={() => setEditingLog(true)} className="rounded-full">
+                {currentLog?.completed_at ? "Edit Log" : "Log This Session"}
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
         <CardHeader>
           <CardTitle className="text-lg">Coaching Notes</CardTitle>
         </CardHeader>
@@ -156,20 +263,50 @@ export default function SessionViewPage({
             <>
               <Textarea value={coachingNotes} onChange={(e) => setCoachingNotes(e.target.value)} rows={4} />
               <div className="flex gap-2">
-                <Button onClick={saveNotes}>Save</Button>
-                <Button variant="outline" onClick={() => setEditingNotes(false)}>Cancel</Button>
+                <Button onClick={saveNotes} className="rounded-full">Save</Button>
+                <Button variant="outline" onClick={() => setEditingNotes(false)} className="rounded-full">Cancel</Button>
               </div>
             </>
           ) : (
             <>
               <p className="text-sm whitespace-pre-wrap">{coachingNotes || "No notes yet"}</p>
-              <Button variant="outline" size="sm" onClick={() => setEditingNotes(true)}>Edit Notes</Button>
+              <Button variant="outline" size="sm" onClick={() => setEditingNotes(true)} className="rounded-full">Edit Notes</Button>
             </>
           )}
         </CardContent>
       </Card>
     </div>
   );
+}
+
+interface ExerciseGroup {
+  label: string;
+  exercises: { exercise: Exercise; index: number }[];
+}
+
+/** Groups a list of exercises into consecutive runs by group_label, keeping original array indices.
+ * Ungrouped exercises fall under "Main Block". If every exercise is ungrouped, returns a single
+ * group with an empty label so the caller can skip rendering section headers for legacy data. */
+function groupExercisesWithIndex(exercises: Exercise[]): ExerciseGroup[] {
+  const allUngrouped = exercises.every((ex) => !ex.group_label);
+  if (allUngrouped) {
+    return [{ label: "", exercises: exercises.map((exercise, index) => ({ exercise, index })) }];
+  }
+  const groups: ExerciseGroup[] = [];
+  exercises.forEach((exercise, index) => {
+    const label = exercise.group_label || "Main Block";
+    const last = groups[groups.length - 1];
+    if (last && last.label === label) {
+      last.exercises.push({ exercise, index });
+    } else {
+      groups.push({ label, exercises: [{ exercise, index }] });
+    }
+  });
+  return groups;
+}
+
+function isSuperset(label: string): boolean {
+  return label.toLowerCase().startsWith("superset");
 }
 
 function SessionSection({
@@ -194,9 +331,11 @@ function SessionSection({
 
   if (exercises.length === 0) {
     return (
-      <Card>
-        <CardHeader><CardTitle className="text-base">{title}</CardTitle></CardHeader>
-        <CardContent><p className="text-sm text-muted-foreground">No exercises</p></CardContent>
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
+        <CardContent className="flex items-center justify-between py-4">
+          <p className="text-sm font-medium text-foreground">{title}</p>
+          <p className="text-sm text-muted-foreground">No exercises in this section.</p>
+        </CardContent>
       </Card>
     );
   }
@@ -255,103 +394,172 @@ function SessionSection({
   };
 
   return (
-    <Card>
-      <CardHeader><CardTitle className="text-base">{title}</CardTitle></CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {exercises.map((ex, i) => (
-            <div key={i} className="rounded-md border p-3 text-sm">
-              <div className="flex items-start justify-between">
-                <p className="font-medium">{ex.exercise_name}</p>
-                <span className="text-xs text-muted-foreground">{ex.sets}×{ex.reps}</span>
-              </div>
-              <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                {ex.tempo && <span>Tempo: {ex.tempo}</span>}
-                {ex.rest && <span>Rest: {ex.rest}</span>}
-                {ex.equipment?.length > 0 && <span>Equipment: {ex.equipment.join(", ")}</span>}
-              </div>
-              {ex.coaching_cue && <p className="mt-1 text-xs italic">{ex.coaching_cue}</p>}
-              {ex.modification && <p className="mt-1 text-xs text-amber-700">Mod: {ex.modification}</p>}
-
-              <div className="mt-2 flex items-center gap-2">
-                {ex.media?.video_url ? (
-                  <>
-                    <a
-                      href={ex.media.video_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-rose hover:underline"
-                    >
-                      <Video className="h-3 w-3" />
-                      Watch
-                    </a>
-                    <span className="text-xs text-muted-foreground">|</span>
-                    <button
-                      onClick={() => {
-                        setEditingUrl(editingUrl === i ? null : i);
-                        setUrlInput(ex.media?.video_url || "");
-                      }}
-                      className="text-xs text-muted-foreground hover:text-foreground"
-                    >
-                      Change
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    onClick={() => {
-                      setEditingUrl(editingUrl === i ? null : i);
-                      setUrlInput("");
-                    }}
-                    className="inline-flex items-center gap-1 text-xs text-rose hover:underline"
-                  >
-                    <Video className="h-3 w-3" />
-                    Add video
-                  </button>
-                )}
-                <span className="text-xs text-muted-foreground">|</span>
-                <button
-                  onClick={() => searchYoutube(ex.exercise_name)}
-                  className="text-xs text-muted-foreground hover:text-foreground"
-                >
-                  Search YouTube
-                </button>
-                <span className="text-xs text-muted-foreground">|</span>
-                <button
-                  onClick={() => setSwapping(swapping === i ? null : i)}
-                  className="text-xs text-rose hover:underline"
-                >
-                  Swap
-                </button>
-              </div>
-
-              {swapping === i && (
-                <SwapExerciseDialog
-                  open={swapping === i}
-                  onOpenChange={(open) => { if (!open) setSwapping(null); }}
-                  onSelect={(selected) => handleSwapExercise(i, selected)}
-                />
-              )}
-
-              {editingUrl === i && (
-                <div className="mt-2 flex gap-2">
-                  <input
-                    type="text"
-                    value={urlInput}
-                    onChange={(e) => setUrlInput(e.target.value)}
-                    placeholder="YouTube or video URL..."
-                    className="min-w-0 flex-1 rounded-md border px-2 py-1 text-xs"
-                    onKeyDown={(e) => e.key === "Enter" && updateExerciseMedia(i, urlInput.trim())}
-                  />
-                  <button
-                    onClick={() => updateExerciseMedia(i, urlInput.trim())}
-                    className="rounded-md bg-rose px-2 py-1 text-xs text-white"
-                  >
-                    Save
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
+    <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+        <CardTitle className="text-base">{title}</CardTitle>
+        <span className="text-xs text-muted-foreground">
+          {exercises.length} exercise{exercises.length === 1 ? "" : "s"}
+        </span>
+      </CardHeader>
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-[var(--hub-hover)]">
+                <th className="px-4 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Exercise</th>
+                <th className="px-4 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Sets</th>
+                <th className="px-4 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Reps</th>
+                <th className="px-4 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Tempo</th>
+                <th className="px-4 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Rest</th>
+                <th className="px-4 py-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground" />
+              </tr>
+            </thead>
+            <tbody>
+              {(sectionKey === "main_block"
+                ? groupExercisesWithIndex(exercises)
+                : [{ label: "", exercises: exercises.map((exercise, index) => ({ exercise, index })) }]
+              ).map((group, gi) => (
+                <Fragment key={`group-${gi}`}>
+                  {group.label && (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className="bg-rose/5 text-rose text-xs font-semibold uppercase tracking-wide px-4 py-1.5"
+                      >
+                        {group.label}
+                        {isSuperset(group.label) && group.exercises.length > 1 && (
+                          <span className="normal-case font-normal text-muted-foreground">
+                            {" "}
+                            — perform together, rest after the pair
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                  {group.exercises.map(({ exercise: ex, index: i }) => {
+                const hasDetail = Boolean(ex.coaching_cue || ex.modification);
+                const superset = group.label ? isSuperset(group.label) : false;
+                return (
+                  <Fragment key={i}>
+                    <tr className={hasDetail || editingUrl === i ? "" : "border-b border-[var(--hub-border)]"}>
+                      <td className={`px-4 py-2 align-top${superset ? " border-l-2 border-rose/30" : ""}`}>
+                        <p className="text-sm font-medium text-foreground">{ex.exercise_name}</p>
+                        {ex.equipment?.length > 0 && (
+                          <p className="text-[11px] text-muted-foreground">{ex.equipment.join(", ")}</p>
+                        )}
+                      </td>
+                      <td className="px-4 py-2 align-top text-sm tabular-nums whitespace-nowrap">{ex.sets ?? "—"}</td>
+                      <td className="px-4 py-2 align-top text-sm tabular-nums whitespace-nowrap">{ex.reps ?? "—"}</td>
+                      <td className="px-4 py-2 align-top text-sm tabular-nums whitespace-nowrap">{ex.tempo || "—"}</td>
+                      <td className="px-4 py-2 align-top text-sm tabular-nums whitespace-nowrap">{ex.rest || "—"}</td>
+                      <td className="px-4 py-2 align-top">
+                        <div className="flex items-center justify-end gap-1">
+                          {ex.media?.video_url ? (
+                            <>
+                              <a
+                                href={ex.media.video_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Watch video"
+                                className="inline-flex h-7 w-7 items-center justify-center rounded-full text-rose hover:bg-[var(--hub-hover)]"
+                              >
+                                <IconVideo className="h-3.5 w-3.5" />
+                              </a>
+                              <button
+                                title="Change video"
+                                onClick={() => {
+                                  setEditingUrl(editingUrl === i ? null : i);
+                                  setUrlInput(ex.media?.video_url || "");
+                                }}
+                                className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
+                              >
+                                <IconPencil className="h-3.5 w-3.5" />
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              title="Add video"
+                              onClick={() => {
+                                setEditingUrl(editingUrl === i ? null : i);
+                                setUrlInput("");
+                              }}
+                              className="inline-flex h-7 w-7 items-center justify-center rounded-full text-rose hover:bg-[var(--hub-hover)]"
+                            >
+                              <IconVideo className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                          <button
+                            title="Search YouTube"
+                            onClick={() => searchYoutube(ex.exercise_name)}
+                            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
+                          >
+                            <IconSearch className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            title="Swap exercise"
+                            onClick={() => setSwapping(swapping === i ? null : i)}
+                            className="inline-flex h-7 items-center justify-center rounded-full px-2 text-xs font-medium text-rose hover:bg-[var(--hub-hover)]"
+                          >
+                            Swap
+                          </button>
+                        </div>
+                        {swapping === i && (
+                          <SwapExerciseDialog
+                            open={swapping === i}
+                            onOpenChange={(open) => { if (!open) setSwapping(null); }}
+                            onSelect={(selected) => handleSwapExercise(i, selected)}
+                          />
+                        )}
+                      </td>
+                    </tr>
+                    {hasDetail && (
+                      <tr key={`detail-${i}`} className={editingUrl === i ? "" : "border-b border-[var(--hub-border)]"}>
+                        <td colSpan={6} className="px-4 pb-2 text-xs">
+                          <span className="text-muted-foreground">
+                            {ex.coaching_cue && <span className="italic">Cue: {ex.coaching_cue}</span>}
+                            {ex.coaching_cue && ex.modification && " · "}
+                            {ex.modification && (
+                              <span className="text-[var(--status-warning)]">Mod: {ex.modification}</span>
+                            )}
+                          </span>
+                        </td>
+                      </tr>
+                    )}
+                    {editingUrl === i && (
+                      <tr key={`edit-${i}`} className="border-b border-[var(--hub-border)]">
+                        <td colSpan={6} className="px-4 pb-3">
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={urlInput}
+                              onChange={(e) => setUrlInput(e.target.value)}
+                              placeholder="YouTube or video URL..."
+                              className="min-w-0 flex-1 rounded-md border px-2 py-1 text-xs"
+                              onKeyDown={(e) => e.key === "Enter" && updateExerciseMedia(i, urlInput.trim())}
+                            />
+                            <button
+                              onClick={() => updateExerciseMedia(i, urlInput.trim())}
+                              className="rounded-md bg-rose px-2 py-1 text-xs text-white"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => { setEditingUrl(null); setUrlInput(""); }}
+                              className="rounded-md border px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+                  })}
+                </Fragment>
+              ))}
+            </tbody>
+          </table>
         </div>
       </CardContent>
     </Card>

@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import BlogPostClient from "./BlogPostClient";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 interface BlogPostData {
   id: string;

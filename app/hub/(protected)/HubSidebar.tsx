@@ -1,28 +1,57 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard,
-  Users,
-  BookText,
-  LogOut,
-  ClipboardList,
-  FileSignature,
-  CheckSquare,
-} from "lucide-react";
+  IconBookText,
+  IconCheckSquare,
+  IconClipboardList,
+  IconEdit3,
+  IconFileSignature,
+  IconFileText,
+  IconLayoutDashboard,
+  IconLogOut,
+  IconMail,
+  IconUsers,
+} from "@/components/icons";
 
-const navItems = [
-  { href: "/hub", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/hub/clients", label: "Clients", icon: Users },
-  { href: "/hub/exercises", label: "Exercise Library", icon: BookText },
-  { href: "/hub/tracker", label: "Medical Tracker", icon: ClipboardList },
-  { href: "/hub/agreements", label: "Agreements", icon: FileSignature },
-  { href: "/hub/site-review", label: "Site Review Tasks", icon: CheckSquare },
+const navGroups: { label: string; items: { href: string; label: string; icon: React.ComponentType<{ className?: string }> }[] }[] = [
+  {
+    label: "Overview",
+    items: [{ href: "/hub", label: "Dashboard", icon: IconLayoutDashboard }],
+  },
+  {
+    label: "Clients",
+    items: [
+      { href: "/hub/clients", label: "Clients", icon: IconUsers },
+    ],
+  },
+  {
+    label: "Documents",
+    items: [
+      { href: "/hub/documents", label: "All Documents", icon: IconFileText },
+      { href: "/hub/templates", label: "Templates", icon: IconFileSignature },
+      { href: "/hub/agreements", label: "Agreements (legacy)", icon: IconFileSignature },
+    ],
+  },
+  {
+    label: "Reports",
+    items: [
+      { href: "/hub/reports/updates", label: "Email Updates", icon: IconMail },
+      { href: "/hub/tracker", label: "Medical Tracker", icon: IconClipboardList },
+    ],
+  },
+  {
+    label: "Resources",
+    items: [
+      { href: "/hub/exercises", label: "Exercise Library", icon: IconBookText },
+      { href: "/hub/site-review", label: "Site Review", icon: IconCheckSquare },
+      { href: "/hub/site-content", label: "Site Content", icon: IconEdit3 },
+    ],
+  },
 ];
 
 export function HubSidebar() {
@@ -36,68 +65,72 @@ export function HubSidebar() {
   };
 
   return (
-    <aside className="flex w-64 flex-col border-r bg-white">
-      {/* Brand header — uses Eternal Fitness rose + real identity */}
-      <div className="flex items-center gap-3 p-5 border-b border-border/50">
-        <div className="w-9 h-9 rounded-xl bg-rose flex items-center justify-center">
-          <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M16 26c-5.5 0-10-4.5-10-10S10.5 6 16 6s10 4.5 10 10-4.5 10-10 10z" fill="white" opacity="0.3" />
-            <path d="M16 24c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="white" opacity="0.5" />
-            <path d="M16 22c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z" fill="white" />
-            <path d="M19 10l-3 10-3-4-4 3" stroke="var(--color-rose)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-          </svg>
+    <aside className="flex w-60 flex-col bg-[var(--hub-sidebar)] text-white shrink-0">
+      {/* Brand */}
+      <div className="flex items-center gap-3 px-5 h-16 border-b border-white/[0.07]">
+        <div className="w-8 h-8 relative shrink-0">
+          <Image src="/images/ef-heart-logo-white.svg" alt="Eternal Fitness" fill />
         </div>
-        <div>
-          <span className="text-sm font-bold text-rose leading-tight block">Eternal Fitness</span>
-          <span className="text-xs text-muted-foreground">Trainer Hub</span>
+        <div className="min-w-0">
+          <span className="text-sm font-semibold text-white leading-tight block truncate">Eternal Fitness</span>
+          <span className="text-[11px] text-white/40 tracking-wide uppercase">Trainer Hub</span>
         </div>
       </div>
 
-      {/* Navigation — rose active state matching website */}
-      <nav className="flex-1 space-y-1 p-3">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href || (item.href !== "/hub" && pathname.startsWith(item.href + "/"));
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
-                isActive
-                  ? "bg-rose/10 text-rose font-semibold"
-                  : "text-slate hover:bg-off-white hover:text-foreground"
-              )}
-            >
-              <Icon className={cn("h-4 w-4 transition-colors", isActive ? "text-rose" : "text-muted-foreground")} />
-              {item.label}
-            </Link>
-          );
-        })}
+      {/* Navigation */}
+      <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
+        {navGroups.map((group) => (
+          <div key={group.label}>
+            <p className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/30">
+              {group.label}
+            </p>
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const Icon = item.icon;
+                const isActive =
+                  pathname === item.href || (item.href !== "/hub" && pathname.startsWith(item.href + "/"));
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "relative flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-100",
+                      isActive
+                        ? "bg-[var(--hub-sidebar-active)] text-white"
+                        : "text-white/55 hover:text-white hover:bg-[var(--hub-sidebar-hover)]",
+                    )}
+                  >
+                    {isActive && (
+                      <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-rose" />
+                    )}
+                    <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-rose" : "text-white/45")} />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
-      <Separator className="mx-3" />
-
-      {/* User section — warm, personal */}
-      <div className="p-3 space-y-1">
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-off-white/60 mx-1">
-          <div className="w-8 h-8 rounded-full bg-rose text-white flex items-center justify-center text-xs font-bold shrink-0">
+      {/* User */}
+      <div className="px-3 py-3 border-t border-white/[0.07]">
+        <div className="flex items-center gap-2.5 px-2 py-1.5">
+          <div className="w-8 h-8 rounded-full bg-rose/20 text-rose flex items-center justify-center text-xs font-bold shrink-0">
             EF
           </div>
-          <div className="text-xs min-w-0">
-            <p className="font-semibold text-foreground truncate">Esther Fair</p>
-            <p className="text-muted-foreground">Level 4 PT</p>
+          <div className="text-xs min-w-0 flex-1">
+            <p className="font-semibold text-white truncate">Esther Fair</p>
+            <p className="text-white/40">Level 4 PT</p>
           </div>
+          <button
+            onClick={handleSignOut}
+            title="Sign out"
+            className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-[var(--hub-sidebar-hover)] transition-colors"
+          >
+            <IconLogOut className="h-4 w-4" />
+          </button>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground hover:bg-off-white rounded-xl mt-1"
-          onClick={handleSignOut}
-        >
-          <LogOut className="h-4 w-4" />
-          Sign out
-        </Button>
       </div>
     </aside>
   );

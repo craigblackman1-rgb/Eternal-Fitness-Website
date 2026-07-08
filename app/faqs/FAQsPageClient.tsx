@@ -1,11 +1,10 @@
 "use client";
 
-import { ArrowUpRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
 import ConsultationDialog from "@/components/ConsultationDialog";
 import { useConsultationDialog } from "@/hooks/useConsultationDialog";
+import { Section, PageHero, StatBadge, CTABand, Eyebrow, CtaButton } from "@/components/ds";
 import {
   Accordion,
   AccordionContent,
@@ -121,71 +120,82 @@ const faqGroups = [
   },
 ];
 
-export default function FAQsPageClient() {
+export default function FAQsPageClient({ content = {} }: { content?: Record<string, string> }) {
   const { open, setOpen, openDialog } = useConsultationDialog();
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar onBookConsultation={openDialog} />
 
-      {/* Hero */}
-      <section className="relative min-h-[60vh] pt-[72px] flex items-center justify-center overflow-hidden">
-        <img src="/images/hero-gym.jpg" alt="Frequently Asked Questions — Eternal Fitness Worthing" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-b from-hero-overlay/55 via-hero-overlay/65 to-hero-overlay/75" />
-        <div className="relative z-10 text-center max-w-2xl px-6">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-4">
-            Frequently Asked Questions
-          </h1>
-          <p className="text-white/70 font-body text-lg md:text-xl mb-8 max-w-lg mx-auto">
-            If something is stopping you from getting in touch, the answer is probably here. And if it is not — just ask.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <button onClick={openDialog} className="ef-btn ef-btn-primary shadow-lg shadow-rose/30">
-              Book a Free Consultation
-            </button>
-            <a href="#faq" className="ef-btn ef-btn-ghost-white">Read the FAQs</a>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        image="/images/hero-gym.jpg"
+        imageAlt="Frequently Asked Questions — Eternal Fitness Worthing"
+        eyebrow={content?.hero_eyebrow ?? "FAQs"}
+        heading={content?.hero_heading ?? "Frequently Asked Questions"}
+        subhead={content?.hero_subhead ?? "If something is stopping you from getting in touch, the answer is probably here. And if it is not — just ask."}
+        primaryCta={{ label: content?.hero_btn_primary ?? "Book a Free Consultation", onClick: openDialog, arrow: true }}
+        secondaryCta={{ label: content?.hero_btn_secondary ?? "Read the FAQs", href: "#faq", variant: "ghost-white" }}
+        badge={<StatBadge value="?" label={content?.badge_label ?? "No question too small"} sublabel={content?.badge_sublabel ?? "Just ask — I would rather you did"} />}
+      />
 
       {/* FAQ Section */}
-      <section id="faq" className="ef-section px-6 md:px-12 bg-background">
-        <div className="max-w-[1320px] mx-auto grid md:grid-cols-[340px_1fr] gap-12 md:gap-20 items-start">
+      <Section background="white" id="faq" innerClassName="grid md:grid-cols-[340px_1fr] gap-12 md:gap-20 items-start">
 
-          {/* Left — intro */}
+          {/* Left — intro + jump nav */}
           <div className="md:sticky md:top-24">
-            <div className="ef-eyebrow ef-eyebrow-rose mb-5">
-              Your Questions Answered
-            </div>
-            <h2 className="text-3xl md:text-4xl text-foreground ef-h2 mb-4">
-              No question is too complicated
+            <Eyebrow color="rose">{content?.sidebar_eyebrow ?? "Your Questions Answered"}</Eyebrow>
+            <h2 className="ds-h2" style={{ margin: "16px 0" }}>
+              {content?.sidebar_heading ?? "No question is too complicated"}
             </h2>
-            <p className="ef-body mb-6">
-              I work with people whose situations are rarely straightforward. If you are wondering whether your health, disability, or circumstances make you a difficult client — they almost certainly do not.
+            <p className="ds-body" style={{ marginBottom: 16 }}>
+              {content?.sidebar_body ?? "I work with people whose situations are rarely straightforward. If you are wondering whether your health, disability, or circumstances make you a difficult client — they almost certainly do not."}
             </p>
-            <p className="ef-body text-sm mb-8">
-              The questions below cover the things people most commonly wonder about before getting in touch.
-            </p>
-            <button onClick={openDialog} className="ef-btn ef-btn-primary">
-              Book a Free Consultation <ArrowUpRight className="w-4 h-4" />
-            </button>
+            <nav aria-label="FAQ sections" className="mb-8 mt-7">
+              <p className="text-[11px] font-bold tracking-[0.1em] uppercase text-teal mb-3">{content?.sidebar_jump_label ?? "Jump to"}</p>
+              <ul>
+                {faqGroups.map((group, gi) => (
+                  <li key={group.group} className="border-t border-border-warm last:border-b">
+                    <a
+                      href={`#faq-group-${gi}`}
+                      className="flex items-baseline justify-between gap-4 py-3 group"
+                    >
+                      <span className="font-serif text-lg text-foreground/70 group-hover:text-foreground transition-colors tracking-tight">
+                        {content?.[`group_${gi + 1}_name`] ?? group.group}
+                      </span>
+                      <span className="text-[11px] font-bold text-rose tabular-nums">
+                        {String(group.faqs.length).padStart(2, "0")}
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            <CtaButton cta={{ label: content?.sidebar_btn ?? "Book a Free Consultation", onClick: openDialog, arrow: true }} />
           </div>
 
           {/* Right — grouped FAQs */}
-          <div className="space-y-12">
+          <div className="space-y-16">
             {faqGroups.map((group, gi) => (
-              <div key={group.group}>
-                <h3 className={`text-[11px] font-bold tracking-[0.1em] uppercase mb-4 pb-2 border-b border-border-warm ${gi % 2 === 0 ? "text-teal" : "text-rose"}`}>
-                  {group.group}
-                </h3>
+              <div key={group.group} id={`faq-group-${gi}`} style={{ scrollMarginTop: 110 }}>
+                <div className="flex items-baseline gap-4 mb-2 pb-4 border-b border-border-warm">
+                  <span className={`text-[11px] font-bold tabular-nums ${gi % 2 === 0 ? "text-teal" : "text-rose"}`}>
+                    {String(gi + 1).padStart(2, "0")}
+                  </span>
+                  <h3 className="font-serif text-2xl md:text-[28px] tracking-tight text-foreground">
+                    {content?.[`group_${gi + 1}_name`] ?? group.group}
+                  </h3>
+                  <span className="ml-auto text-xs text-muted-foreground">
+                    {group.faqs.length} questions
+                  </span>
+                </div>
                 <Accordion type="single" collapsible className="w-full">
                   {group.faqs.map((faq, i) => (
                     <AccordionItem key={i} value={`${group.group}-${i}`} className="border-border-warm">
-                      <AccordionTrigger className="font-body text-foreground text-left text-base py-5 hover:no-underline">
-                        {faq.question}
+                      <AccordionTrigger className="font-body text-foreground text-left text-[17px] font-medium py-5 hover:no-underline">
+                        {content?.[`faq_${gi + 1}_${i + 1}_q`] ?? faq.question}
                       </AccordionTrigger>
-                      <AccordionContent className="ef-body text-sm pb-5">
-                        {faq.answer}
+                      <AccordionContent className="ef-body text-[15px] leading-relaxed pb-6 max-w-[640px]">
+                        {content?.[`faq_${gi + 1}_${i + 1}_a`] ?? faq.answer}
                       </AccordionContent>
                     </AccordionItem>
                   ))}
@@ -193,10 +203,15 @@ export default function FAQsPageClient() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
+      </Section>
 
-      <CTASection onBookConsultation={openDialog} />
+      <CTABand
+        image="/images/studio-1.jpg"
+        heading={content?.cta_heading ?? "Ready to find out if this is right for you?"}
+        body={content?.cta_body ?? "The first conversation is free, with no commitment. I work with a small number of clients at a time — so every person gets my full attention."}
+        primaryCta={{ label: content?.cta_btn_primary ?? "Book a Free Consultation", onClick: openDialog }}
+        secondaryCta={{ label: content?.cta_btn_secondary ?? "Call: 07517 658 128", href: "tel:07517658128", variant: "ghost-white" }}
+      />
       <Footer />
       <ConsultationDialog open={open} onOpenChange={setOpen} />
     </div>

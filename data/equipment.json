@@ -1,0 +1,33 @@
+{
+  "gym": [
+    { "name": "Olympic bar", "home_equivalent": "Dumbbell or resistance band" },
+    { "name": "Trap bar", "home_equivalent": "Dumbbell deadlift" },
+    { "name": "Barbells", "home_equivalent": "Dumbbells" },
+    { "name": "Dumbbells", "detail": "2kg – 40kg", "home_equivalent": "Client's own dumbbells" },
+    { "name": "Single kettlebells", "detail": "2kg – 24kg. Pairs: 6kg, 8kg, 10kg", "home_equivalent": "Dumbbells" },
+    { "name": "Bench", "detail": "Incline only — NO decline", "home_equivalent": "Floor, sofa or chair" },
+    { "name": "Hip thrust bench", "home_equivalent": "Sofa or sturdy chair" },
+    { "name": "Sissy squat", "home_equivalent": null },
+    { "name": "Squat rack", "home_equivalent": null },
+    { "name": "Cable machine", "detail": "Non-adjustable high and low — fixed positions only", "home_equivalent": "Resistance band (anchor needed)" },
+    { "name": "Slam balls", "detail": "3 – 15kg", "home_equivalent": "Dumbbell squat + press" },
+    { "name": "Boxes", "detail": "2 boxes", "home_equivalent": "Stairs or low step" },
+    { "name": "Adjustable step", "home_equivalent": "Bottom stair" },
+    { "name": "Wobble cushion", "home_equivalent": null },
+    { "name": "Resistance bands + bar attachment", "home_equivalent": "Resistance bands" },
+    { "name": "Pull-up bar", "home_equivalent": null },
+    { "name": "Landmine", "detail": "Custom videos needed for all landmine exercises", "home_equivalent": "Single arm DB press / row" },
+    { "name": "Battle ropes", "home_equivalent": "Band squat + pull-apart" },
+    { "name": "Swiss balls", "home_equivalent": null },
+    { "name": "Yoga blocks / foam rollers / mats", "home_equivalent": null }
+  ],
+  "space_constraints": "3-4 steps in any direction. Separate mat area (up a slight step). NO walking exercises.",
+  "custom_video_needed": [
+    "Landmine Romanian Deadlift — single arm",
+    "Landmine Meadows Row",
+    "Landmine Press — half kneeling, single arm",
+    "Landmine Rotational Press — standing",
+    "Hip 90/90 Switch — active",
+    "Thread-the-Needle — thoracic rotation"
+  ]
+}

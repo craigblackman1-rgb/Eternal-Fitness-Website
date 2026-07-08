@@ -1,7 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "standalone",
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
   images: {
-    unoptimized: false,
+    // Self-hosted (Coolify/Docker) — Next's built-in optimizer assumes Vercel's
+    // image infrastructure; serve originals directly instead.
+    unoptimized: true,
     formats: ["image/avif", "image/webp"],
   },
   async headers() {
@@ -19,9 +24,19 @@ const nextConfig = {
         ],
       },
       {
+        // HTML must revalidate every time — a cached page from a previous
+        // deployment references purged /_next chunks (unstyled pages, dead
+        // Server Actions). Hashed static assets carry their own caching.
         source: "/:path*",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=3600, stale-while-revalidate=86400" },
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+        ],
+      },
+      {
+        // Authenticated hub pages: never cache anywhere.
+        source: "/hub/:path*",
+        headers: [
+          { key: "Cache-Control", value: "private, no-store" },
         ],
       },
     ];

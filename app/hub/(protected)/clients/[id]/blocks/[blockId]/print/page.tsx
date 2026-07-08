@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
+import { IconChevronLeft } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { PrintButton } from "./print-button";
 import type { DBSession, Exercise } from "@/types";
@@ -68,10 +68,10 @@ export default async function BlockPrintPage({
           href={`/hub/clients/${client?.client_number || params.id}/blocks/${params.blockId}`}
           className="text-muted-foreground hover:text-foreground"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl font-semibold tracking-tight">
             Block {block.block_number} &mdash; Print View
           </h1>
         </div>

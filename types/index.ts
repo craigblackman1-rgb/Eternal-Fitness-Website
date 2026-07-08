@@ -9,12 +9,33 @@ export type Archetype = "A" | "B" | "C";
 export type Phase = "foundation" | "build" | "develop" | "peak" | "deload";
 export type BlockStatus = "draft" | "approved" | "active" | "complete";
 
+export type ProfileOptionCategory = "condition" | "movement_quality_flag" | "milestone" | "adaptation" | "contraindication" | "pain_point";
+
+export interface ProfileOption {
+  id: string;
+  category: ProfileOptionCategory;
+  value: string;
+  created_at: string;
+}
+
+export type Gender = "female" | "male" | "non_binary" | "prefer_not_to_say";
+
+export interface InjuryHistoryEntry {
+  id: string;
+  date: string | null;
+  description: string;
+  body_area: string;
+  status: "active" | "monitoring" | "resolved";
+}
+
 export interface ClientProfile {
   client: {
     id: string;
     name: string;
+    /** Derived from date_of_birth when present; kept for legacy records without a DOB. */
     age: number;
-    gender: string;
+    date_of_birth: string | null;
+    gender: Gender | "";
   };
   logistics: {
     training_location: TrainingLocation;
@@ -28,7 +49,7 @@ export interface ClientProfile {
     conditions: string[];
     contraindications: string[];
     medications_relevant: string[];
-    injury_history: string[];
+    injury_history: InjuryHistoryEntry[];
     pain_points: string[];
   };
   physical_baseline: {
@@ -40,6 +61,7 @@ export interface ClientProfile {
       core: StrengthLevel;
     };
   };
+  programming_adaptations: string[];
   goals: {
     primary: PrimaryGoal;
     secondary: string[];
@@ -67,6 +89,8 @@ export interface Exercise {
   modification: string;
   equipment: string[];
   media?: ExerciseMedia;
+  /** Section within the main block, e.g. "Superset A", "Superset B", "Arms + Core", "Finisher". Absent on legacy data. */
+  group_label?: string;
 }
 
 export interface SessionVersion {
@@ -91,6 +115,42 @@ export interface Session {
   };
   coaching_notes: string;
   client_intro: string;
+  session_log?: SessionLog;
+}
+
+export interface SessionLog {
+  completed_at: string | null;
+  rpe: number | null;
+  fatigue: "low" | "moderate" | "high" | null;
+  notes: string;
+}
+
+export type DBClientComplianceStatus = "clear" | "action_needed" | "do_not_train" | "pending_medical";
+export type DBClientGroupType = "individual_journey" | "calendar_block";
+export type DBClientPaceMode = "fast" | "medium" | "slow";
+export type GpLetterStatus = "not_required" | "requested" | "received";
+export type MedicalClearanceStatus = "cleared" | "pending" | "not_required" | "not_yet_requested";
+export type RiskLevel = "low" | "medium" | "high";
+export type PaymentStatus = "paid" | "deposit" | "pending" | "overdue" | "suspended";
+export type ClientStatus = "active" | "inactive" | "completed" | "suspended";
+
+export interface BlockSummary {
+  block_number: number;
+  period_start: string;
+  period_end: string;
+  attendance: {
+    sessions_attended: number;
+    sessions_scheduled: number;
+    attendance_notes: string;
+  };
+  movements_introduced: string[];
+  highlights: string;
+  /** The single standout achievement of the block (leads the update email). */
+  big_win?: string;
+  areas_to_develop: string;
+  discoveries: string;
+  next_block_focus: string;
+  worth_saying: string;
 }
 
 export interface DBClient {
@@ -100,6 +160,65 @@ export interface DBClient {
   gender: string | null;
   profile: ClientProfile;
   created_at: string;
+  compliance_status: DBClientComplianceStatus;
+  outstanding_actions: string[];
+  group_type: DBClientGroupType;
+  pace_mode: DBClientPaceMode;
+  block_summaries?: BlockSummary[];
+  client_number?: number;
+  display_code?: string;
+  email?: string | null;
+  phone?: string | null;
+  gp_letter_status: GpLetterStatus;
+  gp_letter_requested_date: string | null;
+  gp_letter_received_date: string | null;
+  annual_review_due_date: string | null;
+  clearance_from: string | null;
+  specialist_name: string | null;
+  // Clinical state (moved off signed_agreements — see 20260704_client_master_consolidation)
+  medical_clearance_status: MedicalClearanceStatus;
+  risk_level: RiskLevel;
+  exercise_modifications: string | null;
+  // Commercial state (moved off signed_agreements)
+  package_type: string | null;
+  sessions_purchased: number | null;
+  sessions_used: number | null;
+  sessions_remaining: number | null;
+  session_duration: number | null;
+  payment_method: string | null;
+  payment_status: PaymentStatus;
+  block_expiry_date: string | null;
+  client_status: ClientStatus;
+  referral_source: string | null;
+}
+
+/** Lifecycle of an update record. */
+export type UpdateStatus = "draft" | "scheduled" | "sent" | "failed" | "cancelled";
+
+export interface SentUpdate {
+  id: string;
+  client_id: string;
+  subject: string;
+  body_html: string;
+  block_number: number;
+  /** Actual send time — null until the update goes out (drafts/scheduled). */
+  sent_at: string | null;
+  template_kind: string;
+  emailed: boolean;
+  status: UpdateStatus;
+  /** When a scheduled update should send — null for drafts/immediate. */
+  scheduled_for: string | null;
+  client_email: string | null;
+  /** Structured section values (keys match the template registry). */
+  sections: Record<string, string> | null;
+  send_error: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** A sent_update row joined with its client, for the global report. */
+export interface UpdateWithClient extends SentUpdate {
+  client: { name: string; client_number: number } | null;
 }
 
 export interface DBBlock {

@@ -10,15 +10,31 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ChevronLeft } from "lucide-react";
+import { IconChevronLeft } from "@/components/icons";
 import Link from "next/link";
-import type { ClientProfile } from "@/types";
+import { TagMultiSelect } from "@/components/hub/TagMultiSelect";
+import { InjuryHistoryTable } from "@/components/hub/InjuryHistoryTable";
+import type { ClientProfile, DBClientComplianceStatus, DBClientGroupType, DBClientPaceMode, Gender } from "@/types";
+
+function calculateAge(dob: string | null): number {
+  if (!dob) return 0;
+  const birth = new Date(dob);
+  if (Number.isNaN(birth.getTime())) return 0;
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+}
 
 const emptyProfile: ClientProfile = {
-  client: { id: "", name: "", age: 0, gender: "" },
+  client: { id: "", name: "", age: 0, date_of_birth: null, gender: "" },
   logistics: { training_location: "studio", sessions_per_week: 2, time_tier: "standard", package: "12-week", block_number: 1 },
   health: { gp_clearance: false, conditions: [], contraindications: [], medications_relevant: [], injury_history: [], pain_points: [] },
   physical_baseline: { fitness_level: 3, movement_quality_flags: [], strength_baseline: { lower_body: "beginner", upper_body: "beginner", core: "beginner" } },
+  programming_adaptations: [],
   goals: { primary: "general_fitness", secondary: [], milestones: [] },
   notes: { esther_observations: "", motivation_notes: "", watch_for: "" },
 };
@@ -29,7 +45,13 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [profile, setProfile] = useState<ClientProfile>(emptyProfile);
+  const [complianceStatus, setComplianceStatus] = useState<DBClientComplianceStatus>("action_needed");
+  const [outstandingActions, setOutstandingActions] = useState("");
+  const [groupType, setGroupType] = useState<DBClientGroupType>("individual_journey");
+  const [paceMode, setPaceMode] = useState<DBClientPaceMode>("medium");
 
   useEffect(() => {
     async function load() {
@@ -44,7 +66,29 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
         return;
       }
       setName(data.name);
-      setProfile(data.profile || emptyProfile);
+      setEmail(data.email ?? "");
+      setPhone(data.phone ?? "");
+      const p = data.profile || {};
+      setProfile({
+        client: { ...emptyProfile.client, ...(p.client || {}) },
+        logistics: { ...emptyProfile.logistics, ...(p.logistics || {}) },
+        health: { ...emptyProfile.health, ...(p.health || {}) },
+        physical_baseline: {
+          ...emptyProfile.physical_baseline,
+          ...(p.physical_baseline || {}),
+          strength_baseline: {
+            ...emptyProfile.physical_baseline.strength_baseline,
+            ...(p.physical_baseline?.strength_baseline || {}),
+          },
+        },
+        programming_adaptations: p.programming_adaptations || [],
+        goals: { ...emptyProfile.goals, ...(p.goals || {}) },
+        notes: { ...emptyProfile.notes, ...(p.notes || {}) },
+      });
+      setComplianceStatus(data.compliance_status ?? "action_needed");
+      setOutstandingActions((data.outstanding_actions ?? []).join("\n"));
+      setGroupType(data.group_type ?? "individual_journey");
+      setPaceMode(data.pace_mode ?? "medium");
       setLoading(false);
     }
     load();
@@ -57,9 +101,6 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
     }));
   };
 
-  const arrayToString = (items: string[]) => items.join(", ");
-  const stringToArray = (val: string) => val.split(",").map((s) => s.trim()).filter(Boolean);
-
   const handleSave = async () => {
     if (!name.trim()) {
       toast.error("Client name is required");
@@ -69,12 +110,21 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
     setSaving(true);
     const fullProfile: ClientProfile = {
       ...profile,
-      client: { ...profile.client, name: name.trim() },
+      client: { ...profile.client, name: name.trim(), age: calculateAge(profile.client.date_of_birth) || profile.client.age },
     };
 
     const { error } = await supabase
       .from("clients")
-      .update({ name: name.trim(), profile: fullProfile })
+      .update({
+        name: name.trim(),
+        email: email.trim() || null,
+        phone: phone.trim() || null,
+        profile: fullProfile,
+        compliance_status: complianceStatus,
+        outstanding_actions: outstandingActions.split("\n").map((s) => s.trim()).filter(Boolean),
+        group_type: groupType,
+        pace_mode: paceMode,
+      })
       .eq("client_number", parseInt(params.id));
 
     if (error) {
@@ -95,16 +145,16 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href={`/hub/clients/${params.id}`} className="text-muted-foreground hover:text-foreground">
-          <ChevronLeft className="h-5 w-5" />
+          <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Edit Client</h1>
+          <h1 className="text-xl font-semibold tracking-tight">Edit Client</h1>
           <p className="text-muted-foreground">{name}</p>
         </div>
       </div>
 
       <div className="space-y-6">
-        <Card>
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardHeader>
             <CardTitle>Basic Info</CardTitle>
           </CardHeader>
@@ -115,18 +165,57 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
                 <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Client name" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="age">Age</Label>
-                <Input id="age" type="number" value={profile.client.age || ""} onChange={(e) => updateProfile("client", { age: parseInt(e.target.value) || 0 })} />
+                <Label htmlFor="dob">Date of Birth</Label>
+                <Input
+                  id="dob"
+                  type="date"
+                  value={profile.client.date_of_birth ?? ""}
+                  onChange={(e) => updateProfile("client", { date_of_birth: e.target.value || null })}
+                />
+                <p className="text-xs text-muted-foreground">
+                  {profile.client.date_of_birth ? `Age: ${calculateAge(profile.client.date_of_birth)}` : "Age will be calculated from date of birth"}
+                </p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="gender">Gender</Label>
-                <Input id="gender" value={profile.client.gender} onChange={(e) => updateProfile("client", { gender: e.target.value })} />
+                <Label>Gender</Label>
+                <Select value={profile.client.gender || undefined} onValueChange={(v: Gender) => updateProfile("client", { gender: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="non_binary">Non-binary</SelectItem>
+                    <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="client@example.com"
+                />
+                <p className="text-xs text-muted-foreground">Used to send 6-week updates.</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="07…"
+                />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardHeader>
             <CardTitle>Logistics</CardTitle>
           </CardHeader>
@@ -178,7 +267,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardHeader>
             <CardTitle>Health & Clearance</CardTitle>
           </CardHeader>
@@ -193,28 +282,183 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
               />
               <Label htmlFor="gp_clearance">GP clearance obtained</Label>
             </div>
+            <div className="space-y-2">
+              <Label>Conditions</Label>
+              <TagMultiSelect
+                category="condition"
+                selected={profile.health.conditions}
+                onChange={(conditions) => updateProfile("health", { conditions })}
+                placeholder="Select known conditions or add new..."
+              />
+            </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label>Conditions (comma-separated)</Label>
-                <Input value={arrayToString(profile.health.conditions)} onChange={(e) => updateProfile("health", { conditions: stringToArray(e.target.value) })} />
-              </div>
-              <div className="space-y-2">
                 <Label>Contraindications</Label>
-                <Input value={arrayToString(profile.health.contraindications)} onChange={(e) => updateProfile("health", { contraindications: stringToArray(e.target.value) })} />
-              </div>
-              <div className="space-y-2">
-                <Label>Injury History</Label>
-                <Input value={arrayToString(profile.health.injury_history)} onChange={(e) => updateProfile("health", { injury_history: stringToArray(e.target.value) })} />
+                <TagMultiSelect
+                  category="contraindication"
+                  selected={profile.health.contraindications}
+                  onChange={(contraindications) => updateProfile("health", { contraindications })}
+                  placeholder="Select contraindications or add new..."
+                />
               </div>
               <div className="space-y-2">
                 <Label>Pain Points</Label>
-                <Input value={arrayToString(profile.health.pain_points)} onChange={(e) => updateProfile("health", { pain_points: stringToArray(e.target.value) })} />
+                <TagMultiSelect
+                  category="pain_point"
+                  selected={profile.health.pain_points}
+                  onChange={(pain_points) => updateProfile("health", { pain_points })}
+                  placeholder="Select pain points or add new..."
+                />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Injury History</Label>
+              <InjuryHistoryTable
+                value={profile.health.injury_history}
+                onChange={(injury_history) => updateProfile("health", { injury_history })}
+              />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
+          <CardHeader>
+            <CardTitle>Physical Baseline</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Fitness Level (1 = very low, 5 = high)</Label>
+              <Select
+                value={String(profile.physical_baseline.fitness_level)}
+                onValueChange={(v) => updateProfile("physical_baseline", { fitness_level: parseInt(v) as 1 | 2 | 3 | 4 | 5 })}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 — Very Low</SelectItem>
+                  <SelectItem value="2">2 — Low</SelectItem>
+                  <SelectItem value="3">3 — Moderate</SelectItem>
+                  <SelectItem value="4">4 — Good</SelectItem>
+                  <SelectItem value="5">5 — High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="space-y-2">
+                <Label>Lower Body Strength</Label>
+                <Select
+                  value={profile.physical_baseline.strength_baseline.lower_body}
+                  onValueChange={(v: "beginner" | "intermediate" | "advanced") =>
+                    setProfile((prev) => ({ ...prev, physical_baseline: { ...prev.physical_baseline, strength_baseline: { ...prev.physical_baseline.strength_baseline, lower_body: v } } }))
+                  }
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="beginner">Beginner</SelectItem>
+                    <SelectItem value="intermediate">Intermediate</SelectItem>
+                    <SelectItem value="advanced">Advanced</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Upper Body Strength</Label>
+                <Select
+                  value={profile.physical_baseline.strength_baseline.upper_body}
+                  onValueChange={(v: "beginner" | "intermediate" | "advanced") =>
+                    setProfile((prev) => ({ ...prev, physical_baseline: { ...prev.physical_baseline, strength_baseline: { ...prev.physical_baseline.strength_baseline, upper_body: v } } }))
+                  }
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="beginner">Beginner</SelectItem>
+                    <SelectItem value="intermediate">Intermediate</SelectItem>
+                    <SelectItem value="advanced">Advanced</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Core Strength</Label>
+                <Select
+                  value={profile.physical_baseline.strength_baseline.core}
+                  onValueChange={(v: "beginner" | "intermediate" | "advanced") =>
+                    setProfile((prev) => ({ ...prev, physical_baseline: { ...prev.physical_baseline, strength_baseline: { ...prev.physical_baseline.strength_baseline, core: v } } }))
+                  }
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="beginner">Beginner</SelectItem>
+                    <SelectItem value="intermediate">Intermediate</SelectItem>
+                    <SelectItem value="advanced">Advanced</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Movement Quality Flags</Label>
+              <TagMultiSelect
+                category="movement_quality_flag"
+                selected={profile.physical_baseline.movement_quality_flags}
+                onChange={(movement_quality_flags) => updateProfile("physical_baseline", { movement_quality_flags })}
+                placeholder="Select observed movement quality flags or add new..."
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
+          <CardHeader>
+            <CardTitle>Compliance &amp; Pace</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label>Compliance Override</Label>
+                <Select value={complianceStatus} onValueChange={(v: DBClientComplianceStatus) => setComplianceStatus(v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="clear">No override — status computed automatically</SelectItem>
+                    <SelectItem value="do_not_train">Do Not Train (hard stop)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Action Needed / Pending Medical are now worked out automatically from PAR-Q, agreement,
+                  and GP clearance status — see the Compliance & Documents card on the profile.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label>Pace Mode</Label>
+                <Select value={paceMode} onValueChange={(v: DBClientPaceMode) => setPaceMode(v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fast">Fast (~10 exercises/session)</SelectItem>
+                    <SelectItem value="medium">Medium (~8 exercises/session)</SelectItem>
+                    <SelectItem value="slow">Slow (~5–6 exercises/session)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Group Type</Label>
+                <Select value={groupType} onValueChange={(v: DBClientGroupType) => setGroupType(v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="individual_journey">Individual Journey</SelectItem>
+                    <SelectItem value="calendar_block">Calendar Block (shared)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Outstanding Actions (one per line)</Label>
+              <Textarea
+                value={outstandingActions}
+                onChange={(e) => setOutstandingActions(e.target.value)}
+                rows={4}
+                placeholder="e.g. No signed PAR-Q on file&#10;GP clearance letter outstanding"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardHeader>
             <CardTitle>Goals</CardTitle>
           </CardHeader>
@@ -235,12 +479,34 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
             </div>
             <div className="space-y-2">
               <Label>Milestones</Label>
-              <Input value={arrayToString(profile.goals.milestones)} onChange={(e) => updateProfile("goals", { milestones: stringToArray(e.target.value) })} placeholder="Comma-separated milestones" />
+              <TagMultiSelect
+                category="milestone"
+                selected={profile.goals.milestones}
+                onChange={(milestones) => updateProfile("goals", { milestones })}
+                placeholder="Select milestones or add new..."
+              />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
+          <CardHeader>
+            <CardTitle>Programming Adaptations</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Label>Adaptations</Label>
+              <TagMultiSelect
+                category="adaptation"
+                selected={profile.programming_adaptations}
+                onChange={(programming_adaptations) => setProfile((prev) => ({ ...prev, programming_adaptations }))}
+                placeholder="Select adaptations or add new..."
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardHeader>
             <CardTitle>Notes</CardTitle>
           </CardHeader>
@@ -264,9 +530,9 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
 
         <div className="flex justify-end gap-3">
           <Link href={`/hub/clients/${params.id}`}>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline" className="rounded-full border-border/60">Cancel</Button>
           </Link>
-          <Button onClick={handleSave} disabled={saving}>
+          <Button onClick={handleSave} disabled={saving} className="rounded-full gap-2 bg-rose hover:bg-rose/90 text-white">
             {saving ? "Saving..." : "Save Changes"}
           </Button>
         </div>

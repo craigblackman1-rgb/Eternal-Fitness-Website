@@ -1,4 +1,4 @@
-import { ArrowUpRight } from "lucide-react";
+import { IconArrowUpRight } from "@/components/icons";
 import { AnimateIn } from "@/components/AnimateIn";
 
 const reviewSchema = {
@@ -66,7 +66,7 @@ const TestimonialsSection = () => {
               href="/faqs"
               className="inline-flex items-center gap-2 border border-border text-muted-foreground px-6 py-3 rounded-full text-sm font-medium hover:bg-rose hover:text-white transition-colors w-fit"
             >
-              Read the FAQs <ArrowUpRight className="w-4 h-4" />
+              Read the FAQs <IconArrowUpRight className="w-4 h-4" />
             </a>
           </AnimateIn>
 

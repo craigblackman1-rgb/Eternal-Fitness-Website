@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { createAdminClient } from "@/lib/supabase-admin";
+import { resolveClientId } from "@/lib/resolve-client-id";
 
 export async function GET(request: Request) {
   const supabase = createClient();
@@ -31,7 +33,9 @@ export async function POST(request: Request) {
   const body = await request.json();
   const {
     id,
+    admin_save,
     client_name,
+    client_number,
     full_name,
     date_of_birth,
     address,
@@ -60,7 +64,12 @@ export async function POST(request: Request) {
     client_typed_signature,
   } = body;
 
-  const record = {
+  const clientId = id ? undefined : await resolveClientId(supabase, client_number);
+
+  // Fields Esther/the client can edit — signature + status are handled separately
+  // so an admin "save without signing" never touches the signature or marks it signed.
+  const editableFields = {
+    ...(clientId ? { client_id: clientId } : {}),
     full_name: (full_name || client_name || "").trim(),
     date_of_birth: date_of_birth || null,
     address: address || null,
@@ -87,25 +96,49 @@ export async function POST(request: Request) {
     current_exercise: current_exercise || null,
     training_goals: training_goals || null,
     client_name_print: client_name_print || null,
-    client_signature_date: client_signature_date || null,
-    client_signature_data: client_signature || null,
-    client_typed_signature: client_typed_signature || null,
-    status: "signed",
   };
+
+  // Updates target an existing PAR-Q by its unguessable id — a logged-out client
+  // (or Esther) may be saving, and RLS hides the row from anon. Writes keyed on
+  // that id go through the service-role client; a brand-new insert stays on the
+  // request client (anon insert is allowed for first submissions).
+  const writer = id ? createAdminClient() : supabase;
 
   let result;
   let error;
 
-  if (id) {
-    // Update existing record
-    const res = await supabase.from("signed_parq").update(record).eq("id", id).select().single();
+  if (admin_save) {
+    // Esther saving her edits without a signature — keep the PAR-Q awaiting the
+    // client and never overwrite the signature columns. Requires an existing record.
+    if (!id) {
+      return NextResponse.json({ error: "admin_save requires an existing PAR-Q id" }, { status: 400 });
+    }
+    const res = await writer
+      .from("signed_parq")
+      .update({ ...editableFields, status: "sent" })
+      .eq("id", id)
+      .select()
+      .single();
     result = res.data;
     error = res.error;
   } else {
-    // Create new record
-    const res = await supabase.from("signed_parq").insert(record).select().single();
-    result = res.data;
-    error = res.error;
+    // Client submitting/finishing — capture the signature and mark it signed.
+    const record = {
+      ...editableFields,
+      client_signature_date: client_signature_date || null,
+      client_signature_data: client_signature || null,
+      client_typed_signature: client_typed_signature || null,
+      status: "signed",
+    };
+    if (id) {
+      const res = await writer.from("signed_parq").update(record).eq("id", id).select().single();
+      result = res.data;
+      error = res.error;
+    } else {
+      const res = await supabase.from("signed_parq").insert(record).select().single();
+      result = res.data;
+      error = res.error;
+    }
   }
 
   if (error) {

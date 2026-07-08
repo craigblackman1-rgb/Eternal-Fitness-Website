@@ -52,12 +52,15 @@
     "input-otp": "^1.4.2",
     "lucide-react": "^0.462.0",
     "next": "^14.2.35",
+    "nodemailer": "^9.0.3",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.61.1",
+    "react-markdown": "^10.1.0",
     "react-resizable-panels": "^2.1.9",
     "recharts": "^2.15.4",
+    "remark-gfm": "^4.0.1",
     "resend": "^6.12.3",
     "sonner": "^1.7.4",
     "tailwind-merge": "^2.6.0",
@@ -67,6 +70,11 @@
     "xlsx": "^0.18.5",
     "zod": "^3.25.76"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
     "@playwright/test": "^1.57.0",
@@ -74,6 +82,7 @@
     "@testing-library/jest-dom": "^6.6.0",
     "@testing-library/react": "^16.0.0",
     "@types/node": "^22.16.5",
+    "@types/nodemailer": "^8.0.1",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@types/three": "^0.184.1",

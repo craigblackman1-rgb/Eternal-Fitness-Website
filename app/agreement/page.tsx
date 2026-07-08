@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { Suspense, useState, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { SignaturePad } from "@/components/SignaturePad";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,6 +55,16 @@ const initialFormData: FormData = {
 };
 
 export default function AgreementPage() {
+  return (
+    <Suspense fallback={null}>
+      <AgreementPageInner />
+    </Suspense>
+  );
+}
+
+function AgreementPageInner() {
+  const searchParams = useSearchParams();
+  const clientNumber = searchParams.get("client");
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -128,6 +139,7 @@ export default function AgreementPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
+          clientNumber,
           trainerNamePrint: "Esther Fair",
           trainerSignatureDate: new Date().toISOString().split("T")[0],
           trainerTypedSignature: "Esther Fair",

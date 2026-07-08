@@ -1,0 +1,31 @@
+{
+  "template_duration_minutes": 60,
+  "blocks": [
+    { "name": "Warm-up & Activation", "duration_minutes": 10, "sets": 2, "format": "flow through, no rest", "notes": "Targeted to session focus. Gets joints and CNS ready." },
+    { "name": "Hypertrophy Superset A", "duration_minutes": 15, "sets": 2, "exercises": 3, "rest_seconds": "60-75", "notes": "Push, pull and lower body covered. No equipment conflicts between exercises." },
+    { "name": "Hypertrophy Superset B", "duration_minutes": 15, "sets": 2, "exercises": 3, "rest_seconds": "60-75", "notes": "Different emphasis to Superset A. Mobility drill in rest period after each set." },
+    { "name": "Arms + Core", "duration_minutes": 12, "sets": 2, "exercises": 3, "rest_seconds": 60, "notes": "Flow through the 3 exercises, then rest. Clients expect this — keep it." },
+    { "name": "Conditioning Finisher", "duration_minutes": 5, "format": "one focused effort", "notes": "Battle rope, KB complex or loaded carry. Must differ across all 3 sessions." },
+    { "name": "Buffer", "duration_minutes": 5, "notes": "Equipment setup, transitions, coaching cues. Always account for this." }
+  ],
+  "mobility_rules": [
+    "Mobility sits inside the rest period — after completing all exercises in a superset",
+    "NOT between individual exercises within a superset",
+    "Dynamic drills only mid-session — no static holds over 15 seconds",
+    "1-2 drills per superset — relevant to the joints being loaded",
+    "Static stretching only at cool-down if time allows"
+  ],
+  "loading_principles": [
+    "8-12 reps for compound movements",
+    "10-15 reps for accessory and isolation work",
+    "2-4 second eccentric (lowering phase) — tempo does the work, not load",
+    "2 sets across all blocks",
+    "Progress load only when form is perfect across all sets",
+    "Finishers: 5 minutes maximum — one thing, full effort"
+  ],
+  "pace_modes": {
+    "fast": { "superset_a_exercises": 3, "superset_b_exercises": 3, "arms_core_exercises": 3, "finisher": true, "total_exercises": 10 },
+    "medium": { "superset_a_exercises": 3, "superset_b_exercises": 2, "arms_core_exercises": 2, "finisher": true, "total_exercises": 8 },
+    "slow": { "superset_a_exercises": 2, "superset_b_exercises": 2, "arms_core_exercises": 2, "finisher": false, "total_exercises": 6 }
+  }
+}

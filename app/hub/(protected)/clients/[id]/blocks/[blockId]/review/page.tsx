@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChevronLeft, CheckCircle, AlertTriangle, Eye } from "lucide-react";
+import { IconAlertTriangle, IconCheckCircle, IconChevronLeft, IconEye } from "@/components/icons";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { DBSession, DBBlock } from "@/types";
@@ -78,31 +78,31 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}`} className="text-muted-foreground hover:text-foreground">
-          <ChevronLeft className="h-5 w-5" />
+          <IconChevronLeft className="h-5 w-5" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold tracking-tight">Review & Approve</h1>
+          <h1 className="text-xl font-semibold tracking-tight">Review & Approve</h1>
           <p className="text-muted-foreground">Block {block.block_number} — {sessions.length} sessions</p>
         </div>
       </div>
 
       {hasMissingMods && (
         <Alert className="border-amber-200 bg-amber-50">
-          <AlertTriangle className="h-4 w-4 text-amber-600" />
+          <IconAlertTriangle className="h-4 w-4 text-amber-600" />
           <AlertDescription className="text-amber-800">
             Some exercises are missing client-specific modifications. Review each session before approving.
           </AlertDescription>
         </Alert>
       )}
 
-      <Card>
+      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
         <CardHeader>
           <CardTitle className="text-lg">Session Overview</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="border-border/60">
                 <TableHead className="w-12">#</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Week</TableHead>
@@ -123,10 +123,13 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
                   (session.data?.versions?.home?.main_block?.length || 0) +
                   (session.data?.versions?.home?.cooldown?.length || 0);
                 return (
-                  <TableRow key={session.id}>
+                  <TableRow
+                    key={session.id}
+                    className="border-border/60 odd:bg-off-white/40 hover:bg-rose/5 transition-colors"
+                  >
                     <TableCell className="font-medium">{session.session_number}</TableCell>
                     <TableCell>
-                      <Badge variant={session.archetype === "A" ? "secondary" : session.archetype === "B" ? "default" : "outline"}>
+                      <Badge variant={session.archetype === "A" ? "secondary" : session.archetype === "B" ? "default" : "outline"} className="rounded-full">
                         {session.archetype}
                       </Badge>
                     </TableCell>
@@ -136,8 +139,8 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
                     <TableCell>{homeCount} exercises</TableCell>
                     <TableCell>
                       <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}/sessions/${session.session_number}`}>
-                        <Button variant="ghost" size="icon">
-                          <Eye className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" className="rounded-full hover:bg-rose/10 hover:text-rose">
+                          <IconEye className="h-4 w-4" />
                         </Button>
                       </Link>
                     </TableCell>
@@ -151,10 +154,10 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
 
       <div className="flex justify-end gap-3">
         <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}`}>
-          <Button variant="outline">Back to Block</Button>
+          <Button variant="outline" className="rounded-full">Back to Block</Button>
         </Link>
-        <Button onClick={handleApprove} disabled={approving} className="gap-2">
-          <CheckCircle className="h-4 w-4" />
+        <Button onClick={handleApprove} disabled={approving} className="gap-2 bg-rose hover:bg-rose/90 text-white rounded-full">
+          <IconCheckCircle className="h-4 w-4" />
           {approving ? "Approving..." : "Approve Block"}
         </Button>
       </div>
