@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
+import { timingSafeEqual } from "crypto";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { dispatchUpdateEmail } from "@/lib/updates/send";
 
 export const dynamic = "force-dynamic";
+
+/** Constant-time string compare to avoid leaking the secret via timing. */
+function secretsMatch(a: string, b: string): boolean {
+  const aBuf = Buffer.from(a);
+  const bBuf = Buffer.from(b);
+  if (aBuf.length !== bBuf.length) return false;
+  return timingSafeEqual(aBuf, bBuf);
+}
 
 /**
  * Cron dispatcher for scheduled update emails.
@@ -27,7 +36,7 @@ async function handle(request: Request) {
   const auth = request.headers.get("authorization") || "";
   const url = new URL(request.url);
   const provided = auth.replace(/^Bearer\s+/i, "") || url.searchParams.get("secret") || "";
-  if (provided !== secret) {
+  if (!secretsMatch(provided, secret)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
