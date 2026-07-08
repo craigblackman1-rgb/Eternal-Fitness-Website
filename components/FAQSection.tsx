@@ -42,7 +42,7 @@ const FAQSection = () => {
           </p>
           <div className="flex flex-wrap gap-3">
             <Link href="/faqs" className="ef-btn ef-btn-dark">
-              All FAQs <ArrowUpRight className="w-4 h-4" />
+              All FAQs <IconArrowUpRight className="w-4 h-4" />
             </Link>
             <Link href="/contact" className="ef-btn ef-btn-outline">
               Ask a Question
