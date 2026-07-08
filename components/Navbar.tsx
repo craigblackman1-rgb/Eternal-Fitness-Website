@@ -115,16 +115,20 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
                     </svg>
                   </Link>
                   {/* Dropdown */}
-                  <div className="absolute left-0 top-full mt-2 w-56 bg-white border border-border-warm rounded-2xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-2">
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.label}
-                        href={child.to}
-                        className="block px-4 py-2.5 text-charcoal/70 hover:text-charcoal hover:bg-warm transition-colors text-sm"
-                      >
-                        {child.label}
-                      </Link>
-                    ))}
+                  <div
+                    className="absolute left-0 top-full pt-3 w-56 opacity-0 invisible -translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-focus-within:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 transition-all duration-200 z-50"
+                  >
+                    <div className="bg-white border border-border-warm rounded-2xl shadow-lg py-2">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.label}
+                          href={child.to}
+                          className="block px-4 py-2.5 text-charcoal/70 hover:text-charcoal hover:bg-warm transition-colors text-sm"
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 </li>
               );

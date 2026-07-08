@@ -29,7 +29,7 @@ const Footer = () => {
       <footer className="bg-dark-navy text-white">
         {/* Main grid */}
         <div className="px-6 md:px-12 py-16 md:py-20">
-          <div className="max-w-[1320px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-12 lg:gap-16">
+          <div className="max-w-[1320px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.4fr_1.3fr_1fr_0.8fr] gap-12 lg:gap-16">
             {/* Brand + Credentials */}
             <div>
               <Link href="/" aria-label="Eternal Fitness home" className={`inline-block ${focusRing}`}>
@@ -65,10 +65,10 @@ const Footer = () => {
                 <li>
                   <a
                     href="mailto:esther.fair@eternal-fitness.co.uk"
-                    className={`inline-flex items-center gap-3 text-[15px] text-white/65 hover:text-rose transition-colors break-all ${focusRing}`}
+                    className={`flex items-start gap-3 text-[15px] text-white/65 hover:text-rose transition-colors ${focusRing}`}
                   >
-                    <IconMail className="w-4 h-4 text-rose shrink-0" aria-hidden="true" />
-                    esther.fair@eternal-fitness.co.uk
+                    <IconMail className="w-4 h-4 text-rose shrink-0 mt-0.5" aria-hidden="true" />
+                    <span className="break-words">esther.fair@eternal-fitness.co.uk</span>
                   </a>
                 </li>
                 <li className="inline-flex items-center gap-3 text-[15px] text-white/45">
