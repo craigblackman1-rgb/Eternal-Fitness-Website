@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { IconChevronDown, IconChevronUp, IconDumbbell, IconPlus, IconSearch, IconVideo } from "@/components/icons";
+import { IconChevronDown, IconChevronLeft, IconChevronRight, IconChevronUp, IconDumbbell, IconPlus, IconSearch, IconVideo } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
 import type { Archetype } from "@/types";
 import type { ExerciseEntry } from "./page";
@@ -86,6 +86,8 @@ export function ExerciseBrowser({
   const [sourceFilter, setSourceFilter] = useState<ExerciseEntry["source"] | "all">("all");
   const [difficultyFilter, setDifficultyFilter] = useState<number>(0);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 60;
 
   const filtered = useMemo(() => {
     return exercises.filter((ex) => {
@@ -100,6 +102,15 @@ export function ExerciseBrowser({
     }).sort((a, b) => a.name.localeCompare(b.name));
   }, [exercises, search, archetypeFilter, movementFilter, muscleFilter, equipmentFilter, sourceFilter, difficultyFilter]);
 
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount - 1);
+  const paginated = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
+
+  const resetAndSet = <T,>(setter: (v: T) => void) => (v: T) => {
+    setter(v);
+    setPage(0);
+  };
+
   const clearFilters = () => {
     setSearch("");
     setArchetypeFilter("all");
@@ -108,6 +119,7 @@ export function ExerciseBrowser({
     setEquipmentFilter("all");
     setSourceFilter("all");
     setDifficultyFilter(0);
+    setPage(0);
   };
 
   const hasFilters = search || archetypeFilter !== "all" || movementFilter !== "all" || muscleFilter !== "all" || equipmentFilter !== "all" || sourceFilter !== "all" || difficultyFilter > 0;
@@ -117,7 +129,10 @@ export function ExerciseBrowser({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Exercise Library</h1>
-          <p className="text-muted-foreground">{exercises.length} exercises &middot; {filtered.length} shown</p>
+          <p className="text-muted-foreground">
+            {exercises.length} exercises &middot; {filtered.length} match
+            {filtered.length > 0 && ` · page ${safePage + 1} of ${pageCount}`}
+          </p>
         </div>
         <AddExerciseDialog
           trigger={
@@ -135,7 +150,7 @@ export function ExerciseBrowser({
           <Input
             placeholder="Search exercises..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setPage(0); }}
             className="pl-9"
           />
         </div>
@@ -145,7 +160,7 @@ export function ExerciseBrowser({
           {(["all", "A", "B", "C"] as const).map((a) => (
             <button
               key={a}
-              onClick={() => setArchetypeFilter(a)}
+              onClick={() => { setArchetypeFilter(a); setPage(0); }}
               className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                 archetypeFilter === a
                   ? "bg-rose text-white"
@@ -157,7 +172,7 @@ export function ExerciseBrowser({
           ))}
 
           <span className="ml-2 text-xs font-medium text-muted-foreground">Type:</span>
-          <Select value={movementFilter} onValueChange={setMovementFilter}>
+          <Select value={movementFilter} onValueChange={resetAndSet(setMovementFilter)}>
             <SelectTrigger className="h-7 w-40 text-xs">
               <SelectValue placeholder="Movement type" />
             </SelectTrigger>
@@ -171,7 +186,7 @@ export function ExerciseBrowser({
             </SelectContent>
           </Select>
 
-          <Select value={muscleFilter} onValueChange={setMuscleFilter}>
+          <Select value={muscleFilter} onValueChange={resetAndSet(setMuscleFilter)}>
             <SelectTrigger className="h-7 w-40 text-xs">
               <SelectValue placeholder="Main muscle" />
             </SelectTrigger>
@@ -185,7 +200,7 @@ export function ExerciseBrowser({
             </SelectContent>
           </Select>
 
-          <Select value={equipmentFilter} onValueChange={setEquipmentFilter}>
+          <Select value={equipmentFilter} onValueChange={resetAndSet(setEquipmentFilter)}>
             <SelectTrigger className="h-7 w-36 text-xs">
               <SelectValue placeholder="Equipment" />
             </SelectTrigger>
@@ -199,7 +214,7 @@ export function ExerciseBrowser({
             </SelectContent>
           </Select>
 
-          <Select value={sourceFilter} onValueChange={(v) => setSourceFilter(v as ExerciseEntry["source"] | "all")}>
+          <Select value={sourceFilter} onValueChange={(v) => { setSourceFilter(v as ExerciseEntry["source"] | "all"); setPage(0); }}>
             <SelectTrigger className="h-7 w-36 text-xs">
               <SelectValue placeholder="Source" />
             </SelectTrigger>
@@ -211,7 +226,7 @@ export function ExerciseBrowser({
             </SelectContent>
           </Select>
 
-          <Select value={String(difficultyFilter)} onValueChange={(v) => setDifficultyFilter(Number(v))}>
+          <Select value={String(difficultyFilter)} onValueChange={(v) => { setDifficultyFilter(Number(v)); setPage(0); }}>
             <SelectTrigger className="h-7 w-32 text-xs">
               <SelectValue placeholder="Max difficulty" />
             </SelectTrigger>
@@ -245,7 +260,7 @@ export function ExerciseBrowser({
         />
       ) : (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((ex) => (
+          {paginated.map((ex) => (
             <Card
               key={ex.id}
               className="cursor-pointer transition-colors hover:border-rose/50"
@@ -360,6 +375,34 @@ export function ExerciseBrowser({
               </CardContent>
             </Card>
           ))}
+        </div>
+      )}
+
+      {pageCount > 1 && (
+        <div className="flex items-center justify-center gap-3 pt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1 rounded-full"
+            disabled={safePage === 0}
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+          >
+            <IconChevronLeft className="h-4 w-4" />
+            Previous
+          </Button>
+          <span className="text-xs text-muted-foreground">
+            Page {safePage + 1} of {pageCount}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1 rounded-full"
+            disabled={safePage >= pageCount - 1}
+            onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+          >
+            Next
+            <IconChevronRight className="h-4 w-4" />
+          </Button>
         </div>
       )}
     </div>

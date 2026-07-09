@@ -25,13 +25,23 @@ export default async function ExercisesPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/hub/login");
 
-  const { data: exercises } = await supabase
-    .from("exercises")
-    .select("*")
-    .eq("active", true)
-    .order("name", { ascending: true });
+  // PostgREST defaults to a 1000-row cap per request — page through in batches
+  // to get the full library (2500+ rows since the Trainerize import).
+  const allExercises: ExerciseEntry[] = [];
+  const PAGE_SIZE = 1000;
+  for (let offset = 0; ; offset += PAGE_SIZE) {
+    const { data: page } = await supabase
+      .from("exercises")
+      .select("*")
+      .eq("active", true)
+      .order("name", { ascending: true })
+      .range(offset, offset + PAGE_SIZE - 1);
+    if (!page || page.length === 0) break;
+    allExercises.push(...(page as ExerciseEntry[]));
+    if (page.length < PAGE_SIZE) break;
+  }
 
-  const typedExercises = (exercises ?? []) as ExerciseEntry[];
+  const typedExercises = allExercises;
 
   const movementTypes = [...new Set(typedExercises.map((e) => e.movement_type).filter(Boolean))].sort();
   const allEquipment = [...new Set(typedExercises.flatMap((e) => e.equipment))].sort();
