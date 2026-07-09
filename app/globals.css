@@ -25,6 +25,25 @@
     --color-dark-navy: #282B38;
     --color-near-black: var(--color-charcoal);
 
+    /* RGB triplets for Tailwind opacity modifiers (e.g. bg-rose/10) — Tailwind
+       can't apply /NN alpha to a var() holding a plain hex string, so any
+       class using an opacity modifier on these colors silently compiled to
+       nothing. Keep the hex vars above for direct CSS use, use these in
+       tailwind.config.ts via rgb(var(--x-rgb) / <alpha-value>). */
+    --color-teal-rgb: 8 126 139;
+    --color-rose-rgb: 193 131 159;
+    --color-slate-rgb: 107 114 128;
+    --color-cream-rgb: 252 248 244;
+    --color-warm-rgb: 245 239 234;
+    --color-amber-rgb: 232 168 124;
+    --color-charcoal-rgb: 45 52 54;
+    --color-light-gray-rgb: 229 229 229;
+    --color-off-white-rgb: 252 248 244;
+    --color-dark-navy-rgb: 40 43 56;
+    --color-near-black-rgb: 45 52 54;
+    --color-ink-rgb: 19 19 19;
+    --color-border-warm-rgb: 228 221 215;
+
     /* ===== OPACITY UTILITY COLORS ===== */
     --color-white-5: rgba(255, 255, 255, 0.05);
     --color-white-9: rgba(255, 255, 255, 0.09);

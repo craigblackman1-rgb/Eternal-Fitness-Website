@@ -54,43 +54,43 @@ export default {
         },
         "hero-overlay": "hsl(var(--hero-overlay))",
         teal: {
-          DEFAULT: "var(--color-teal)",
+          DEFAULT: "rgb(var(--color-teal-rgb) / <alpha-value>)",
         },
         rose: {
-          DEFAULT: "var(--color-rose)",
+          DEFAULT: "rgb(var(--color-rose-rgb) / <alpha-value>)",
         },
         slate: {
-          DEFAULT: "var(--color-slate)",
+          DEFAULT: "rgb(var(--color-slate-rgb) / <alpha-value>)",
         },
         cream: {
-          DEFAULT: "var(--color-cream)",
+          DEFAULT: "rgb(var(--color-cream-rgb) / <alpha-value>)",
         },
         warm: {
-          DEFAULT: "var(--color-warm)",
+          DEFAULT: "rgb(var(--color-warm-rgb) / <alpha-value>)",
         },
         amber: {
-          DEFAULT: "var(--color-amber)",
+          DEFAULT: "rgb(var(--color-amber-rgb) / <alpha-value>)",
         },
         charcoal: {
-          DEFAULT: "var(--color-charcoal)",
+          DEFAULT: "rgb(var(--color-charcoal-rgb) / <alpha-value>)",
         },
         "light-gray": {
-          DEFAULT: "var(--color-light-gray)",
+          DEFAULT: "rgb(var(--color-light-gray-rgb) / <alpha-value>)",
         },
         "off-white": {
-          DEFAULT: "var(--color-off-white)",
+          DEFAULT: "rgb(var(--color-off-white-rgb) / <alpha-value>)",
         },
         "dark-navy": {
-          DEFAULT: "var(--color-dark-navy)",
+          DEFAULT: "rgb(var(--color-dark-navy-rgb) / <alpha-value>)",
         },
         "near-black": {
-          DEFAULT: "var(--color-near-black)",
+          DEFAULT: "rgb(var(--color-near-black-rgb) / <alpha-value>)",
         },
         ink: {
-          DEFAULT: "var(--color-ink)",
+          DEFAULT: "rgb(var(--color-ink-rgb) / <alpha-value>)",
         },
         "border-warm": {
-          DEFAULT: "var(--color-border-warm)",
+          DEFAULT: "rgb(var(--color-border-warm-rgb) / <alpha-value>)",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
