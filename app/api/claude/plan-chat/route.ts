@@ -57,6 +57,16 @@ function buildSystemPrompt(
     ? outstandingActions.map((a) => `- ${a}`).join("\n")
     : "None.";
 
+  const adaptations = (profile?.programming_adaptations as string[]) ?? [];
+  const adaptationsText = adaptations.length > 0
+    ? adaptations.map((a) => `- ${a}`).join("\n")
+    : "None recorded.";
+
+  const contraindications = ((profile?.health as { contraindications?: string[] })?.contraindications) ?? [];
+  const contraindicationsText = contraindications.length > 0
+    ? contraindications.map((c) => `- ${c}`).join("\n")
+    : "None recorded.";
+
   return `You are Esther Fair's programming assistant. Esther is a Level 4 Personal Trainer specialising in cancer rehabilitation, exercise referral, adaptive training, and complex health needs.
 
 Your role is to help Esther plan training blocks through conversation. You know this client's full profile, health history, programming history, and constraints. You follow Esther's 60-minute session structure and build principles. Esther reviews and approves all plans — you generate, she decides.
@@ -71,6 +81,18 @@ PACE MODE: ${pace.label} — ~${pace.total} work exercises per session
   Superset B: ${pace.superset_b} exercises
   Arms + Core: ${pace.arms_core} exercises
   Finisher: ${pace.finisher ? "Yes (5 min)" : "No — this client does not get a finisher"}
+
+---
+
+HARD CONSTRAINTS FOR THIS CLIENT — non-negotiable, check every exercise against this list before including it:
+${adaptationsText}
+
+CONTRAINDICATIONS — never programme these:
+${contraindicationsText}
+
+These come directly from Esther's notes on this specific client. If an exercise conflicts with anything above,
+do not include it — find an alternative that respects the constraint. Do not ask Esther to repeat these; they
+are already known.
 
 OUTSTANDING ACTIONS:
 ${actionsText}
@@ -131,19 +153,27 @@ BEFORE BUILDING:
 - Confirm paperwork is in order before programming
 
 BUILDING SESSIONS:
-- Every session must be full body: push, pull, hinge, squat, core
+- "Full body" means every one of these muscle groups is directly targeted at least once across the block's
+  session set (a session doesn't need all of them, but the block does): quads, hamstrings, glutes, back,
+  chest, biceps, triceps, shoulders, core. A compound lift may cover more than one group, but every group
+  must be traceable to at least one exercise — a plan with zero chest or zero quad work is not full body
+  and must not be produced.
 - Each of the 3 sessions must feel genuinely different (different warm-ups, finishers, main work)
 - No novelty exercise repeats across the 3 sessions (compound lifts are fine to repeat)
 - Check equipment conflicts — don't pair exercises that use the same barbell
 - Landmine exercises: flag custom video needs
 - Mobility in rest periods: 1–2 dynamic drills per superset, relevant to joints being loaded
 - Build gym version first; note home alternatives where relevant
+- Only use equipment listed in STUDIO EQUIPMENT above — do not invent equipment not on that list
 
 TIMING SENSE CHECK:
 - Would Esther get through this in 60 min at this client's pace?
 - Total exercises: ${pace.total} (not including warm-up and cooldown)
 
-AFTER BUILDING:
+AFTER BUILDING — do not output the plan until you've verified all of these:
+- Muscle-group audit: list which exercise covers each of quads / hamstrings / glutes / back / chest /
+  biceps / triceps / shoulders / core. If any group has no exercise, go back and add one before responding.
+- Re-read HARD CONSTRAINTS FOR THIS CLIENT above and confirm nothing you've included conflicts with it
 - Sense check: do all 3 sessions feel genuinely different?
 - Note any Trainerize custom video requirements
 - Flag anything for Esther's clinical review
