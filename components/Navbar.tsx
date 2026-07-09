@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import EternalFitnessLogo from "@/components/EternalFitnessLogo";
 import { IconMenu, IconX, IconArrowUpRight } from "@/components/icons";
 
-const navItems = [
+type NavChild = { label: string; to: string };
+type NavItem = { label: string; to: string; children?: NavChild[] };
+
+const navItems: NavItem[] = [
   { label: "Home", to: "/" },
   { label: "About", to: "/about" },
   {
@@ -14,6 +17,9 @@ const navItems = [
     to: "/personal-training",
     children: [
       { label: "Exercise for Health", to: "/exercise-for-health" },
+      { label: "High Blood Pressure", to: "/exercise-for-health/high-blood-pressure" },
+      { label: "Bone Health & Osteoporosis", to: "/exercise-for-health/bone-health" },
+      { label: "Visual Impairment", to: "/exercise-for-health/visual-impairment" },
       { label: "Cancer Rehabilitation", to: "/cancer-rehabilitation" },
     ],
   },
@@ -34,12 +40,162 @@ const pageTitles: Record<string, string> = {
   "/about": "About",
   "/personal-training": "Personal Training",
   "/exercise-for-health": "Exercise for Health",
+  "/exercise-for-health/high-blood-pressure": "High Blood Pressure",
+  "/exercise-for-health/bone-health": "Bone Health & Osteoporosis",
+  "/exercise-for-health/visual-impairment": "Visual Impairment",
   "/cancer-rehabilitation": "Cancer Rehabilitation",
   "/pricing": "Pricing",
   "/faqs": "FAQs",
   "/blog": "Blog",
   "/contact": "Contact",
 };
+
+function NavDropdown({
+  item,
+  isLit,
+  pathname,
+}: {
+  item: NavItem & { children: NavChild[] };
+  isLit: boolean;
+  pathname: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearCloseTimeout = () => {
+    if (closeTimeout.current) {
+      clearTimeout(closeTimeout.current);
+      closeTimeout.current = null;
+    }
+  };
+
+  const scheduleClose = () => {
+    clearCloseTimeout();
+    closeTimeout.current = setTimeout(() => setOpen(false), 150);
+  };
+
+  useEffect(() => clearCloseTimeout, []);
+
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) {
+      panel.style.opacity = open ? "1" : "0";
+      panel.style.visibility = open ? "visible" : "hidden";
+      panel.style.pointerEvents = open ? "auto" : "none";
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      const { gsap } = await import("gsap");
+      if (cancelled || !panelRef.current) return;
+
+      if (open) {
+        panel.style.visibility = "visible";
+        panel.style.pointerEvents = "auto";
+        const links = panel.querySelectorAll("a");
+        gsap.fromTo(
+          panel,
+          { opacity: 0, y: -8 },
+          { opacity: 1, y: 0, duration: 0.22, ease: "power2.out" }
+        );
+        gsap.fromTo(
+          links,
+          { opacity: 0, y: -4 },
+          { opacity: 1, y: 0, duration: 0.2, ease: "power2.out", stagger: 0.03, delay: 0.03 }
+        );
+      } else {
+        gsap.to(panel, {
+          opacity: 0,
+          y: -6,
+          duration: 0.15,
+          ease: "power2.in",
+          onComplete: () => {
+            if (panelRef.current) {
+              panelRef.current.style.visibility = "hidden";
+              panelRef.current.style.pointerEvents = "none";
+            }
+          },
+        });
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
+
+  const isActive =
+    pathname === item.to ||
+    item.children.some((c) => pathname === c.to || pathname.startsWith(c.to + "/"));
+
+  return (
+    <li
+      className="relative"
+      onMouseEnter={() => {
+        clearCloseTimeout();
+        setOpen(true);
+      }}
+      onMouseLeave={scheduleClose}
+      onFocus={() => {
+        clearCloseTimeout();
+        setOpen(true);
+      }}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          scheduleClose();
+        }
+      }}
+    >
+      <Link
+        href={item.to}
+        aria-haspopup="true"
+        aria-expanded={open}
+        className={`transition-colors ${
+          isActive
+            ? `${isLit ? "text-charcoal" : "text-white"} font-semibold`
+            : isLit
+            ? "hover:text-charcoal"
+            : "hover:text-white"
+        } flex items-center gap-1`}
+      >
+        {item.label}
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </Link>
+      <div
+        ref={panelRef}
+        className="absolute left-0 top-full pt-3 w-64 z-50"
+        style={{ opacity: 0, visibility: "hidden", pointerEvents: "none" }}
+      >
+        <div className="bg-white border border-border-warm rounded-2xl shadow-lg py-2">
+          {item.children.map((child) => (
+            <Link
+              key={child.label}
+              href={child.to}
+              className="block px-4 py-2.5 text-charcoal/70 hover:text-charcoal hover:bg-warm transition-colors text-sm"
+            >
+              {child.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </li>
+  );
+}
 
 const Navbar = ({ onBookConsultation }: NavbarProps) => {
   const [open, setOpen] = useState(false);
@@ -93,44 +249,17 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
           <EternalFitnessLogo variant={isLit ? "dark" : "light"} className="h-7 md:h-8 w-auto" />
         </Link>
 
-{/* Desktop nav */}
+        {/* Desktop nav */}
         <ul className={`hidden md:flex items-center gap-8 text-sm font-medium ${isLit ? "text-charcoal/70" : "text-white/80"}`}>
           {navItems.map((item) => {
             if (item.children) {
               return (
-                <li key={item.label} className="relative group">
-                  <Link
-                    href={item.to}
-                    className={`transition-colors ${
-                      pathname === item.to || item.children.some(c => pathname === c.to || pathname.startsWith(c.to + '/'))
-                        ? `${isLit ? "text-charcoal" : "text-white"} font-semibold`
-                        : isLit
-                        ? "hover:text-charcoal"
-                        : "hover:text-white"
-                    } flex items-center gap-1`}
-                  >
-                    {item.label}
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-transform group-hover:rotate-180">
-                      <path d="m6 9 6 6 6-6" />
-                    </svg>
-                  </Link>
-                  {/* Dropdown */}
-                  <div
-                    className="absolute left-0 top-full pt-3 w-56 opacity-0 invisible -translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-focus-within:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 transition-all duration-200 z-50"
-                  >
-                    <div className="bg-white border border-border-warm rounded-2xl shadow-lg py-2">
-                      {item.children.map((child) => (
-                        <Link
-                          key={child.label}
-                          href={child.to}
-                          className="block px-4 py-2.5 text-charcoal/70 hover:text-charcoal hover:bg-warm transition-colors text-sm"
-                        >
-                          {child.label}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </li>
+                <NavDropdown
+                  key={item.label}
+                  item={item as NavItem & { children: NavChild[] }}
+                  isLit={isLit}
+                  pathname={pathname}
+                />
               );
             }
             return (
@@ -181,9 +310,9 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
         </button>
       </nav>
 
-{/* Mobile menu */}
+      {/* Mobile menu */}
       <div
-        className={`fixed top-[72px] left-0 right-0 z-40 bg-white border-b border-border-warm p-6 md:hidden flex flex-col gap-4 shadow-lg transition-all duration-200 ${
+        className={`fixed top-[72px] left-0 right-0 z-40 bg-white border-b border-border-warm p-6 md:hidden flex flex-col gap-4 shadow-lg transition-all duration-200 max-h-[calc(100vh-72px)] overflow-y-auto ${
           open
             ? "opacity-100 translate-y-0"
             : "opacity-0 -translate-y-2 pointer-events-none"
@@ -192,17 +321,26 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
         {navItems.map((item) => (
           <div key={item.label}>
             {item.children ? (
-              <div className="space-y-2 pl-2 border-l-2 border-rose/30">
-                {item.children.map((child) => (
-                  <Link
-                    key={child.label}
-                    href={child.to}
-                    onClick={() => setOpen(false)}
-                    className="block text-charcoal/70 hover:text-charcoal text-sm font-medium py-1"
-                  >
-                    {child.label}
-                  </Link>
-                ))}
+              <div className="space-y-3">
+                <Link
+                  href={item.to}
+                  onClick={() => setOpen(false)}
+                  className="block text-charcoal/80 hover:text-charcoal text-sm font-medium"
+                >
+                  {item.label}
+                </Link>
+                <div className="space-y-2 pl-2 border-l-2 border-rose/30">
+                  {item.children.map((child) => (
+                    <Link
+                      key={child.label}
+                      href={child.to}
+                      onClick={() => setOpen(false)}
+                      className="block text-charcoal/70 hover:text-charcoal text-sm font-medium py-1"
+                    >
+                      {child.label}
+                    </Link>
+                  ))}
+                </div>
               </div>
             ) : (
               <Link
