@@ -178,8 +178,7 @@ function NavDropdown({
       </Link>
       <div
         ref={panelRef}
-        className="absolute left-0 top-full pt-3 w-64 z-50"
-        style={{ opacity: 0, visibility: "hidden", pointerEvents: "none" }}
+        className="absolute left-0 top-full pt-3 w-64 z-50 opacity-0 invisible pointer-events-none"
       >
         <div className="bg-white border border-border-warm rounded-2xl shadow-lg py-2">
           {item.children.map((child) => (

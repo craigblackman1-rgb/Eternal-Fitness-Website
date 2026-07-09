@@ -22,7 +22,7 @@
   overflow-x: hidden;
 }
 .efhome img { display: block; max-width: 100%; }
-.efhome a { text-decoration: none; color: inherit; }
+.efhome a:not(nav *) { text-decoration: none; color: inherit; }
 .efhome button { cursor: pointer; font-family: var(--f); border: none; }
 
 /* ── Hero ─────────────────────────── */
