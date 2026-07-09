@@ -24,6 +24,10 @@ function buildSystemPrompt(
   recentUpdates: SentUpdate[],
 ): string {
   const profile = client.profile as Record<string, unknown>;
+  const health = profile?.health as { parq_trainer_override?: boolean; parq_trainer_override_note?: string } | undefined;
+  const parqOverride = health?.parq_trainer_override
+    ? { confirmed: true, note: health.parq_trainer_override_note }
+    : undefined;
   const pace = PACE_MODE_DESCRIPTIONS[(client.pace_mode as string) ?? "medium"];
 
   let equipment: Record<string, unknown> = { gym: [], space_constraints: "", custom_video_needed: [] };
@@ -80,7 +84,7 @@ ${blockHistory}
 ---
 
 PAR-Q SCREENING:
-${buildParqSection(parq)}
+${buildParqSection(parq, parqOverride)}
 
 ---
 
@@ -155,7 +159,7 @@ SAFETY RULES — never violate:
 - If lymphoedema risk is present, flag any compression or sustained upper limb loading
 - If BP monitoring required, flag exercises that cause Valsalva
 - If clearance is pending, label the plan DRAFT — PENDING CLEARANCE
-- If there is no PAR-Q on file, refuse to produce a full plan — tell Esther it must be completed first
+- If there is no PAR-Q on file and no trainer override recorded above, refuse to produce a full plan — tell Esther it must be completed first
 
 FORMATTING:
 Your replies render as markdown. Structure every plan with ## session headings, and present exercises

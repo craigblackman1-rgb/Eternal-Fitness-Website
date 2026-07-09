@@ -32,7 +32,7 @@ function calculateAge(dob: string | null): number {
 const emptyProfile: ClientProfile = {
   client: { id: "", name: "", age: 0, date_of_birth: null, gender: "" },
   logistics: { training_location: "studio", sessions_per_week: 2, time_tier: "standard", package: "12-week", block_number: 1 },
-  health: { gp_clearance: false, conditions: [], contraindications: [], medications_relevant: [], injury_history: [], pain_points: [] },
+  health: { gp_clearance: false, conditions: [], contraindications: [], medications_relevant: [], injury_history: [], pain_points: [], parq_trainer_override: false, parq_trainer_override_note: "" },
   physical_baseline: { fitness_level: 3, movement_quality_flags: [], strength_baseline: { lower_body: "beginner", upper_body: "beginner", core: "beginner" } },
   programming_adaptations: [],
   goals: { primary: "general_fitness", secondary: [], milestones: [] },
@@ -227,6 +227,30 @@ export default function NewClientPage() {
                 className="h-4 w-4 rounded border-gray-300 accent-rose"
               />
               <Label htmlFor="gp_clearance">GP clearance obtained</Label>
+            </div>
+            <div className="space-y-2 rounded-xl border border-[var(--hub-border)] p-3">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="parq_trainer_override"
+                  checked={profile.health.parq_trainer_override ?? false}
+                  onChange={(e) => updateProfile("health", { parq_trainer_override: e.target.checked })}
+                  className="h-4 w-4 rounded border-gray-300 accent-rose"
+                />
+                <Label htmlFor="parq_trainer_override">PAR-Q trainer override — completed on Microsoft Forms, not yet in system</Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Only tick this once you've personally reviewed the client's submitted PAR-Q. This unblocks plan
+                generation until the record is migrated into the hub — it does not replace a signed PAR-Q on file.
+              </p>
+              {profile.health.parq_trainer_override && (
+                <Textarea
+                  placeholder="Optional note — anything flagged on the form Esther should know (e.g. risk factors, restrictions)"
+                  value={profile.health.parq_trainer_override_note ?? ""}
+                  onChange={(e) => updateProfile("health", { parq_trainer_override_note: e.target.value })}
+                  rows={2}
+                />
+              )}
             </div>
             <div className="space-y-2">
               <Label>Conditions</Label>

@@ -25,9 +25,11 @@ export function computeComplianceFlags({
 }): ComplianceFlags {
   const requiresGpClearance = !!latestParq && HIGH_RISK_PARQ_QUESTIONS.some((q) => latestParq[q] === "yes");
   const gpClearanceObtained = !!client.profile?.health?.gp_clearance;
+  const parqTrainerOverride = !!client.profile?.health?.parq_trainer_override;
 
   const autoOutstanding: string[] = [];
-  if (!latestParq) autoOutstanding.push("No PAR-Q on file");
+  if (!latestParq && !parqTrainerOverride) autoOutstanding.push("No PAR-Q on file");
+  if (!latestParq && parqTrainerOverride) autoOutstanding.push("PAR-Q trainer-overridden — pending migration from Microsoft Forms");
   if (!latestAgreement || latestAgreement.status !== "signed") autoOutstanding.push("No signed agreement on file");
   if (requiresGpClearance && !gpClearanceObtained) autoOutstanding.push("GP clearance required — not yet obtained");
   if (client.gp_letter_status === "requested") autoOutstanding.push("GP letter requested — awaiting return");

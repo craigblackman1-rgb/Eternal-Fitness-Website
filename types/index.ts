@@ -51,6 +51,11 @@ export interface ClientProfile {
     medications_relevant: string[];
     injury_history: InjuryHistoryEntry[];
     pain_points: string[];
+    /** Trainer-confirmed PAR-Q override — for clients screened via the external Microsoft Forms
+     *  PAR-Q before it's ported into this system. Esther ticks this only once she's personally
+     *  reviewed the submitted form; it stands in for `signed_parq` until the record is migrated. */
+    parq_trainer_override?: boolean;
+    parq_trainer_override_note?: string;
   };
   physical_baseline: {
     fitness_level: FitnessLevel;
