@@ -6,6 +6,8 @@ import type { ClientProfile, Session, Archetype, Phase, Exercise, SessionVersion
 
 type RuleTypesById = Record<string, Pick<TrainingRuleType, "label" | "bucket">>;
 
+type EquipmentRow = { name: string; detail: string | null; home_equivalent: string | null };
+
 const weekPhases: { week: number; phase: Phase }[] = [
   { week: 1, phase: "foundation" },
   { week: 2, phase: "foundation" },
@@ -51,12 +53,18 @@ export async function POST(request: Request) {
   const { data: ruleTypes } = await supabase.from("training_rule_types").select("id, label, bucket");
   const ruleTypesById: RuleTypesById = Object.fromEntries((ruleTypes ?? []).map((rt) => [rt.id, { label: rt.label, bucket: rt.bucket }]));
 
+  const { data: equipmentRows } = await supabase
+    .from("studio_equipment")
+    .select("name, detail, home_equivalent")
+    .eq("active", true)
+    .order("sort_order", { ascending: true });
+
   const aiConfig = getAiConfig();
   let sessions: Session[];
 
   if (aiConfig.provider) {
     try {
-      sessions = await generateViaAi(profile, ruleTypesById, blockNote, previousSummary, blockNumber);
+      sessions = await generateViaAi(profile, ruleTypesById, equipmentRows ?? [], blockNote, previousSummary, blockNumber);
     } catch (err) {
       const detail = err instanceof Error ? err.message.slice(0, 300) : "unknown error";
       console.error(`[generate-block] AI generation failed via ${aiConfig.provider} (${aiConfig.model}): ${detail}`);
@@ -162,6 +170,7 @@ function buildSessionSlots(profile: ClientProfile): SessionSlot[] {
 async function generateViaAi(
   profile: ClientProfile,
   ruleTypesById: RuleTypesById,
+  equipmentRows: EquipmentRow[],
   blockNote?: string,
   previousSummary?: string,
   _blockNumber?: number
@@ -171,7 +180,7 @@ async function generateViaAi(
   // Generate sessions concurrently — one call each — so the route completes
   // well within serverless limits even for a full 3x/week block (18 calls).
   const settled = await Promise.allSettled(
-    slots.map((slot) => generateOneSession(profile, slot, ruleTypesById, blockNote, previousSummary)),
+    slots.map((slot) => generateOneSession(profile, slot, ruleTypesById, equipmentRows, blockNote, previousSummary)),
   );
 
   const sessions: Session[] = [];
@@ -210,6 +219,7 @@ function sessionPrompt(
   profile: ClientProfile,
   slot: SessionSlot,
   ruleTypesById: RuleTypesById,
+  equipmentRows: EquipmentRow[],
   blockNote?: string,
   previousSummary?: string,
 ): string {
@@ -244,7 +254,8 @@ THIS SESSION:
 - archetype: ${slot.archetype} (${archetypeFocusLabels[slot.archetype]})
 - time_tier: ${profile.logistics.time_tier}
 
-Equipment available: dumbbells, resistance bands, kettlebells, barbell+plates, TRX, stationary bike, treadmill, rowing machine, step/box, mats, foam roller, stability ball
+Equipment available:
+${equipmentRows.map((e) => `- ${e.name}${e.detail ? ` (${e.detail})` : ""}`).join("\n")}
 
 Return a single JSON object with this exact shape:
 {
@@ -270,10 +281,11 @@ async function generateOneSession(
   profile: ClientProfile,
   slot: SessionSlot,
   ruleTypesById: RuleTypesById,
+  equipmentRows: EquipmentRow[],
   blockNote?: string,
   previousSummary?: string,
 ): Promise<Session> {
-  const user = sessionPrompt(profile, slot, ruleTypesById, blockNote, previousSummary);
+  const user = sessionPrompt(profile, slot, ruleTypesById, equipmentRows, blockNote, previousSummary);
 
   const text = await aiChat({ system: planSystem, user, model: PLAN_MODEL, maxTokens: 6000 });
   if (!text) throw new Error("AI returned no response");

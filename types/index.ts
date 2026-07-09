@@ -40,6 +40,17 @@ export interface TrainingRuleType {
   created_at: string;
 }
 
+/** Governance catalog row — see studio_equipment table / /hub/settings/studio-equipment. */
+export interface StudioEquipment {
+  id: string;
+  name: string;
+  detail: string | null;
+  home_equivalent: string | null;
+  active: boolean;
+  sort_order: number;
+  created_at: string;
+}
+
 /** A structured, per-client instance of a TrainingRuleType — replaces bare-string
  *  programming_adaptations so the Plan Agent applies it systematically rather than
  *  parsing prose. Stored inline in ClientProfile, not a separate table. */

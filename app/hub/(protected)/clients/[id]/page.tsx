@@ -263,7 +263,8 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       <ClientDetailTabs>
         <TabsList className="w-full justify-start gap-1 rounded-none border-b border-[var(--hub-border)] bg-transparent p-0 h-auto">
           <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Overview</TabsTrigger>
-          <TabsTrigger value="profile-compliance" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Profile & Compliance</TabsTrigger>
+          <TabsTrigger value="profile" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Profile</TabsTrigger>
+          <TabsTrigger value="compliance" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Compliance</TabsTrigger>
           <TabsTrigger value="training" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Training</TabsTrigger>
           <TabsTrigger value="plan-agent" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Plan Agent</TabsTrigger>
           <TabsTrigger value="updates" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Updates</TabsTrigger>
@@ -297,8 +298,8 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           </div>
         </TabsContent>
 
-        {/* Tab 2: Profile & Compliance */}
-        <TabsContent value="profile-compliance" className="mt-4">
+        {/* Tab 2: Profile */}
+        <TabsContent value="profile" className="mt-4">
           <div className="grid gap-5 lg:grid-cols-12">
             <div className="lg:col-span-8 space-y-5">
               {p?.logistics && (
@@ -349,25 +350,25 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                       {p.health.conditions?.length > 0 && (
                         <div>
                           <span className="text-xs text-muted-foreground block mb-0.5">Conditions</span>
-                          <span className="font-medium text-foreground">{p.health.conditions.join(", ")}</span>
+                          <div className="flex flex-wrap gap-1.5">{p.health.conditions.map((item, i) => <Badge key={i} variant="secondary" className="rounded-full font-normal">{item}</Badge>)}</div>
                         </div>
                       )}
                       {p.health.contraindications?.length > 0 && (
                         <div>
                           <span className="text-xs text-muted-foreground block mb-0.5">Contraindications</span>
-                          <span className="font-medium text-foreground">{p.health.contraindications.join(", ")}</span>
+                          <div className="flex flex-wrap gap-1.5">{p.health.contraindications.map((item, i) => <Badge key={i} variant="secondary" className="rounded-full font-normal">{item}</Badge>)}</div>
                         </div>
                       )}
                       {p.health.medications_relevant?.length > 0 && (
                         <div>
                           <span className="text-xs text-muted-foreground block mb-0.5">Relevant Medications</span>
-                          <span className="font-medium text-foreground">{p.health.medications_relevant.join(", ")}</span>
+                          <div className="flex flex-wrap gap-1.5">{p.health.medications_relevant.map((item, i) => <Badge key={i} variant="secondary" className="rounded-full font-normal">{item}</Badge>)}</div>
                         </div>
                       )}
                       {p.health.pain_points?.length > 0 && (
                         <div>
                           <span className="text-xs text-muted-foreground block mb-0.5">Pain Points</span>
-                          <span className="font-medium text-foreground">{p.health.pain_points.join(", ")}</span>
+                          <div className="flex flex-wrap gap-1.5">{p.health.pain_points.map((item, i) => <Badge key={i} variant="secondary" className="rounded-full font-normal">{item}</Badge>)}</div>
                         </div>
                       )}
                     </div>
@@ -475,7 +476,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                       {p.goals.secondary?.length > 0 && (
                         <div>
                           <span className="text-xs text-muted-foreground block mb-0.5">Secondary</span>
-                          <span className="font-medium text-foreground">{p.goals.secondary.join(", ")}</span>
+                          <div className="flex flex-wrap gap-1.5">{p.goals.secondary.map((item, i) => <Badge key={i} variant="secondary" className="rounded-full font-normal">{item}</Badge>)}</div>
                         </div>
                       )}
                     </div>
@@ -546,7 +547,15 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                   </CardContent>
                 </Card>
               )}
+            </div>
+            {rightRail}
+          </div>
+        </TabsContent>
 
+        {/* Tab 3: Compliance */}
+        <TabsContent value="compliance" className="mt-4">
+          <div className="grid gap-5 lg:grid-cols-12">
+            <div className="lg:col-span-8 space-y-5">
               <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
                 <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Compliance & Documents" color="teal" />
                 <CardContent className="space-y-4 pt-0">
@@ -631,7 +640,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           </div>
         </TabsContent>
 
-        {/* Tab 3: Training (Blocks + Sessions) */}
+        {/* Tab 4: Training (Blocks + Sessions) */}
         <TabsContent value="training" className="space-y-4 mt-4">
           <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
             <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Training Blocks" />

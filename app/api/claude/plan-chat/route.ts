@@ -24,6 +24,7 @@ function buildSystemPrompt(
   parq: SignedPARQ | null,
   recentUpdates: SentUpdate[],
   ruleTypesById: Record<string, Pick<TrainingRuleType, "label" | "bucket">>,
+  equipmentRows: Array<{ name: string; detail: string | null; home_equivalent: string | null }>,
 ): string {
   const profile = client.profile as Record<string, unknown>;
   const health = profile?.health as { parq_trainer_override?: boolean; parq_trainer_override_note?: string } | undefined;
@@ -32,21 +33,21 @@ function buildSystemPrompt(
     : undefined;
   const pace = PACE_MODE_DESCRIPTIONS[(client.pace_mode as string) ?? "medium"];
 
-  let equipment: Record<string, unknown> = { gym: [], space_constraints: "", custom_video_needed: [] };
+  let equipmentFile: Record<string, unknown> = { space_constraints: "", custom_video_needed: [] };
   let sessionStructure: Record<string, unknown> = {};
   try {
     const dataDir = join(process.cwd(), "data");
-    equipment = JSON.parse(readFileSync(join(dataDir, "equipment.json"), "utf-8"));
+    equipmentFile = JSON.parse(readFileSync(join(dataDir, "equipment.json"), "utf-8"));
     sessionStructure = JSON.parse(readFileSync(join(dataDir, "session-structure.json"), "utf-8"));
   } catch {
     // data files missing — continue with empty context
   }
 
-  const equipmentList = (equipment.gym as Array<{ name: string; detail?: string }>)
-    ?.map((e) => `- ${e.name}${e.detail ? ` (${e.detail})` : ""}`)
-    .join("\n") ?? "";
+  const equipmentList = equipmentRows
+    .map((e) => `- ${e.name}${e.detail ? ` (${e.detail})` : ""}`)
+    .join("\n");
 
-  const customVideoList = (equipment.custom_video_needed as string[])
+  const customVideoList = (equipmentFile.custom_video_needed as string[])
     ?.map((v) => `- ${v}`)
     .join("\n") ?? "";
 
@@ -118,7 +119,7 @@ ${buildRecentUpdatesSection(recentUpdates)}
 STUDIO EQUIPMENT:
 ${equipmentList}
 
-Space: ${equipment.space_constraints ?? ""}
+Space: ${equipmentFile.space_constraints ?? ""}
 
 CUSTOM VIDEOS NEEDED IN TRAINERIZE (flag if using any of these):
 ${customVideoList}
@@ -251,7 +252,13 @@ export async function POST(request: Request) {
   const { data: ruleTypes } = await supabase.from("training_rule_types").select("id, label, bucket");
   const ruleTypesById = Object.fromEntries((ruleTypes ?? []).map((rt) => [rt.id, { label: rt.label, bucket: rt.bucket }]));
 
-  const systemPrompt = buildSystemPrompt(client, blocks ?? [], parq, recentUpdates ?? [], ruleTypesById);
+  const { data: equipmentRows } = await supabase
+    .from("studio_equipment")
+    .select("name, detail, home_equivalent")
+    .eq("active", true)
+    .order("sort_order", { ascending: true });
+
+  const systemPrompt = buildSystemPrompt(client, blocks ?? [], parq, recentUpdates ?? [], ruleTypesById, equipmentRows ?? []);
 
   let readable: ReadableStream<Uint8Array> | null;
   try {

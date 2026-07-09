@@ -10,6 +10,7 @@ import {
   IconCheckSquare,
   IconClipboardCheck,
   IconClipboardList,
+  IconDumbbell,
   IconEdit3,
   IconFileSignature,
   IconFileText,
@@ -57,6 +58,7 @@ const navGroups: { label: string; items: { href: string; label: string; icon: Re
     label: "Settings",
     items: [
       { href: "/hub/settings/training-rules", label: "Training Rules", icon: IconClipboardCheck },
+      { href: "/hub/settings/studio-equipment", label: "Studio Equipment", icon: IconDumbbell },
     ],
   },
 ];
