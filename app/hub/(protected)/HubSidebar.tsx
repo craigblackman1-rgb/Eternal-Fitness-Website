@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import {
   IconBookText,
   IconCheckSquare,
+  IconClipboardCheck,
   IconClipboardList,
   IconEdit3,
   IconFileSignature,
@@ -50,6 +51,12 @@ const navGroups: { label: string; items: { href: string; label: string; icon: Re
       { href: "/hub/exercises", label: "Exercise Library", icon: IconBookText },
       { href: "/hub/site-review", label: "Site Review", icon: IconCheckSquare },
       { href: "/hub/site-content", label: "Site Content", icon: IconEdit3 },
+    ],
+  },
+  {
+    label: "Settings",
+    items: [
+      { href: "/hub/settings/training-rules", label: "Training Rules", icon: IconClipboardCheck },
     ],
   },
 ];

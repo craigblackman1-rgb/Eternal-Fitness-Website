@@ -4,7 +4,8 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { buildParqSection } from "@/lib/parq-summary";
 import { buildRecentUpdatesSection } from "@/lib/recent-updates-summary";
-import type { SentUpdate, SignedPARQ } from "@/types";
+import { buildTrainingRulesSection } from "@/lib/trainingRules";
+import type { SentUpdate, SignedPARQ, TrainingRule, TrainingRuleType } from "@/types";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -22,6 +23,7 @@ function buildSystemPrompt(
   blocks: Record<string, unknown>[],
   parq: SignedPARQ | null,
   recentUpdates: SentUpdate[],
+  ruleTypesById: Record<string, Pick<TrainingRuleType, "label" | "bucket">>,
 ): string {
   const profile = client.profile as Record<string, unknown>;
   const health = profile?.health as { parq_trainer_override?: boolean; parq_trainer_override_note?: string } | undefined;
@@ -57,10 +59,8 @@ function buildSystemPrompt(
     ? outstandingActions.map((a) => `- ${a}`).join("\n")
     : "None.";
 
-  const adaptations = (profile?.programming_adaptations as string[]) ?? [];
-  const adaptationsText = adaptations.length > 0
-    ? adaptations.map((a) => `- ${a}`).join("\n")
-    : "None recorded.";
+  const adaptations = (profile?.programming_adaptations as TrainingRule[]) ?? [];
+  const adaptationsText = buildTrainingRulesSection(adaptations, ruleTypesById);
 
   const contraindications = ((profile?.health as { contraindications?: string[] })?.contraindications) ?? [];
   const contraindicationsText = contraindications.length > 0
@@ -248,7 +248,10 @@ export async function POST(request: Request) {
     .order("sent_at", { ascending: false })
     .limit(2);
 
-  const systemPrompt = buildSystemPrompt(client, blocks ?? [], parq, recentUpdates ?? []);
+  const { data: ruleTypes } = await supabase.from("training_rule_types").select("id, label, bucket");
+  const ruleTypesById = Object.fromEntries((ruleTypes ?? []).map((rt) => [rt.id, { label: rt.label, bucket: rt.bucket }]));
+
+  const systemPrompt = buildSystemPrompt(client, blocks ?? [], parq, recentUpdates ?? [], ruleTypesById);
 
   let readable: ReadableStream<Uint8Array> | null;
   try {

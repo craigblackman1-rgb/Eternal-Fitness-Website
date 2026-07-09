@@ -28,6 +28,28 @@ export interface InjuryHistoryEntry {
   status: "active" | "monitoring" | "resolved";
 }
 
+/** Governance catalog row — see training_rule_types table / /hub/settings/training-rules. */
+export type TrainingRuleBucket = "exclusion" | "restriction" | "emphasis" | "structural" | "coaching_style" | "general";
+
+export interface TrainingRuleType {
+  id: string;
+  label: string;
+  bucket: TrainingRuleBucket;
+  description: string | null;
+  active: boolean;
+  created_at: string;
+}
+
+/** A structured, per-client instance of a TrainingRuleType — replaces bare-string
+ *  programming_adaptations so the Plan Agent applies it systematically rather than
+ *  parsing prose. Stored inline in ClientProfile, not a separate table. */
+export interface TrainingRule {
+  id: string;
+  rule_type_id: string;
+  detail: string;
+  severity: "hard" | "soft";
+}
+
 export interface ClientProfile {
   client: {
     id: string;
@@ -66,7 +88,7 @@ export interface ClientProfile {
       core: StrengthLevel;
     };
   };
-  programming_adaptations: string[];
+  programming_adaptations: TrainingRule[];
   goals: {
     primary: PrimaryGoal;
     secondary: string[];

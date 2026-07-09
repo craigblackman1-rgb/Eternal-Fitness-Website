@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { getAiConfig, aiChat } from "@/lib/ai-client";
-import type { ClientProfile, Session, Archetype, Phase, Exercise, SessionVersion } from "@/types";
+import { buildTrainingRulesSection } from "@/lib/trainingRules";
+import type { ClientProfile, Session, Archetype, Phase, Exercise, SessionVersion, TrainingRuleType } from "@/types";
+
+type RuleTypesById = Record<string, Pick<TrainingRuleType, "label" | "bucket">>;
 
 const weekPhases: { week: number; phase: Phase }[] = [
   { week: 1, phase: "foundation" },
@@ -45,12 +48,15 @@ export async function POST(request: Request) {
 
   const blockNumber = (existingBlocks?.[0]?.block_number ?? 0) + 1;
 
+  const { data: ruleTypes } = await supabase.from("training_rule_types").select("id, label, bucket");
+  const ruleTypesById: RuleTypesById = Object.fromEntries((ruleTypes ?? []).map((rt) => [rt.id, { label: rt.label, bucket: rt.bucket }]));
+
   const aiConfig = getAiConfig();
   let sessions: Session[];
 
   if (aiConfig.provider) {
     try {
-      sessions = await generateViaAi(profile, blockNote, previousSummary, blockNumber);
+      sessions = await generateViaAi(profile, ruleTypesById, blockNote, previousSummary, blockNumber);
     } catch (err) {
       const detail = err instanceof Error ? err.message.slice(0, 300) : "unknown error";
       console.error(`[generate-block] AI generation failed via ${aiConfig.provider} (${aiConfig.model}): ${detail}`);
@@ -155,6 +161,7 @@ function buildSessionSlots(profile: ClientProfile): SessionSlot[] {
 
 async function generateViaAi(
   profile: ClientProfile,
+  ruleTypesById: RuleTypesById,
   blockNote?: string,
   previousSummary?: string,
   _blockNumber?: number
@@ -164,7 +171,7 @@ async function generateViaAi(
   // Generate sessions concurrently — one call each — so the route completes
   // well within serverless limits even for a full 3x/week block (18 calls).
   const settled = await Promise.allSettled(
-    slots.map((slot) => generateOneSession(profile, slot, blockNote, previousSummary)),
+    slots.map((slot) => generateOneSession(profile, slot, ruleTypesById, blockNote, previousSummary)),
   );
 
   const sessions: Session[] = [];
@@ -193,11 +200,16 @@ Your output will be reviewed by Esther before any client sees it. Generate safe,
 sessions. Every exercise must include a modification specific to this client's contraindications.
 Never exceed the client's implied intensity ceiling based on their conditions and fitness level.
 
+The user prompt includes a HARD CONSTRAINTS section for this specific client — these are non-negotiable.
+If an exercise conflicts with anything marked [HARD], do not include it; find an alternative that
+respects the constraint instead. Do not ask Esther to repeat these — they are already known.
+
 Return one valid JSON object matching the Session schema. No markdown, no preamble, no explanation.`;
 
 function sessionPrompt(
   profile: ClientProfile,
   slot: SessionSlot,
+  ruleTypesById: RuleTypesById,
   blockNote?: string,
   previousSummary?: string,
 ): string {
@@ -209,7 +221,15 @@ function sessionPrompt(
     deload: "drop volume, submax loads, active recovery focus, easier exercises",
   };
 
+  const rulesSection = buildTrainingRulesSection(profile.programming_adaptations ?? [], ruleTypesById);
+
   return `Generate ONE training session (number ${slot.session_number} of a 6-week block) for this client:
+
+HARD CONSTRAINTS FOR THIS CLIENT — non-negotiable, check every exercise against this list before including it:
+${rulesSection}
+
+CONTRAINDICATIONS — never programme these:
+${(profile.health.contraindications ?? []).map((c) => `- ${c}`).join("\n") || "None recorded."}
 
 Client Profile:
 ${JSON.stringify(profile, null, 2)}
@@ -249,10 +269,11 @@ Return ONLY the JSON object — no markdown fences, no commentary.`;
 async function generateOneSession(
   profile: ClientProfile,
   slot: SessionSlot,
+  ruleTypesById: RuleTypesById,
   blockNote?: string,
   previousSummary?: string,
 ): Promise<Session> {
-  const user = sessionPrompt(profile, slot, blockNote, previousSummary);
+  const user = sessionPrompt(profile, slot, ruleTypesById, blockNote, previousSummary);
 
   const text = await aiChat({ system: planSystem, user, model: PLAN_MODEL, maxTokens: 6000 });
   if (!text) throw new Error("AI returned no response");

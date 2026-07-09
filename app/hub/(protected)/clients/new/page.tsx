@@ -14,6 +14,7 @@ import { IconChevronLeft } from "@/components/icons";
 import Link from "next/link";
 import { TagMultiSelect } from "@/components/hub/TagMultiSelect";
 import { InjuryHistoryTable } from "@/components/hub/InjuryHistoryTable";
+import { TrainingRulesEditor } from "@/components/hub/TrainingRulesEditor";
 import type { ClientProfile, Gender } from "@/types";
 
 function calculateAge(dob: string | null): number {
@@ -314,18 +315,13 @@ export default function NewClientPage() {
 
         <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardHeader>
-            <CardTitle>Programming Adaptations</CardTitle>
+            <CardTitle>Training Rules</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              <Label>Adaptations</Label>
-              <TagMultiSelect
-                category="adaptation"
-                selected={profile.programming_adaptations}
-                onChange={(programming_adaptations) => setProfile((prev) => ({ ...prev, programming_adaptations }))}
-                placeholder="Select adaptations or add new..."
-              />
-            </div>
+            <TrainingRulesEditor
+              value={profile.programming_adaptations}
+              onChange={(programming_adaptations) => setProfile((prev) => ({ ...prev, programming_adaptations }))}
+            />
           </CardContent>
         </Card>
 

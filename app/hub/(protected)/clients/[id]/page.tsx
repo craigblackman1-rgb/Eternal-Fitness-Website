@@ -100,6 +100,9 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
     .eq("client_id", client.id)
     .order("created_at", { ascending: false });
 
+  const { data: ruleTypes } = await supabase.from("training_rule_types").select("id, label, bucket");
+  const ruleTypesById = new Map((ruleTypes ?? []).map((rt) => [rt.id, rt]));
+
   if (!client) notFound();
 
   const p = client.profile;
@@ -495,15 +498,24 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
               {p?.programming_adaptations && p.programming_adaptations.length > 0 && (
                 <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
-                  <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Programming Adaptations" color="amber" />
+                  <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Training Rules" color="amber" />
                   <CardContent className="pt-0">
                     <ul className="list-none space-y-2">
-                      {p.programming_adaptations.map((ad, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber mt-2 shrink-0" />
-                          <span className="text-foreground">{ad}</span>
-                        </li>
-                      ))}
+                      {p.programming_adaptations.map((rule) => {
+                        const ruleType = ruleTypesById.get(rule.rule_type_id);
+                        return (
+                          <li key={rule.id} className="flex items-start gap-2 text-sm">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber mt-2 shrink-0" />
+                            <span className="text-foreground">
+                              <span className={rule.severity === "hard" ? "font-semibold" : "text-muted-foreground"}>
+                                {rule.severity === "hard" ? "[HARD]" : "[soft]"}
+                              </span>{" "}
+                              {rule.detail}
+                              {ruleType && <span className="text-muted-foreground"> — {ruleType.label}</span>}
+                            </span>
+                          </li>
+                        );
+                      })}
                     </ul>
                   </CardContent>
                 </Card>
