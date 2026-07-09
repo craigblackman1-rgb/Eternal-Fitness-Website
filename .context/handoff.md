@@ -1,6 +1,26 @@
 # Handoff
 
-## Session
+## Session (2026-07-09)
+- Finished yesterday's (07-08) header/nav work that got cut off mid-session before verification.
+- **Found & fixed a real bug**: the "Personal Training" dropdown submenu (Exercise for Health /
+  Cancer Rehabilitation) was rendering white-text-on-white — completely invisible. Root cause:
+  brand colors (charcoal, rose, cream, warm, amber, slate, etc.) were CSS vars holding plain hex
+  strings, so Tailwind opacity modifiers (`text-charcoal/70`) silently compiled to nothing and the
+  dropdown links fell back to the parent nav's inherited `text-white/80`.
+- Same root cause affected every opacity-modified custom-color class site-wide — `bg-rose/10`,
+  `ring-rose/30`, `bg-rose/90`, etc., 100+ call sites — all quiet no-ops (tints/overlays not
+  actually applying, though not usually visible enough to notice unlike the dropdown).
+- **Fix**: added RGB-triplet CSS vars (`--color-x-rgb`) alongside the existing hex ones in
+  `app/globals.css`, repointed every custom color's Tailwind `DEFAULT` to
+  `rgb(var(--color-x-rgb) / <alpha-value>)` in `tailwind.config.ts` — the standard pattern
+  Tailwind needs to generate opacity variants. Verified via computed styles + Playwright
+  screenshots (dropdown, homepage nav scroll states, pricing, FAQs, mobile menu) and a clean
+  production build. Committed (1afa291) and pushed to main — auto-deploys.
+- Confirmed the two July 8 nav commits (178a54e hover-flicker/footer, 36eb892 FAQ icon build fix)
+  were otherwise complete and working correctly — only the dropdown text-color regression had
+  slipped through unverified.
+
+## Previous session
 - Icon replacement: replaced all lucide-react icons with custom SVG icons across the site ✅
 - Completed icon set: 36+ icons matching Eternal Fitness brand ✅
 
