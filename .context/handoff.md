@@ -19,6 +19,42 @@
 - Confirmed the two July 8 nav commits (178a54e hover-flicker/footer, 36eb892 FAQ icon build fix)
   were otherwise complete and working correctly — only the dropdown text-color regression had
   slipped through unverified.
+- **Craig reported it still broken on the homepage specifically** (screenshot showed the same
+  blank white dropdown) plus flagged the dropdown was missing services and the logo needed
+  redesign work. Investigated further and found two more compounding bugs, both reproducible only
+  on `/`:
+  1. `HomePageClient.tsx` renders `<Navbar>` inside its own `.efhome` wrapper (no other page does
+     this). `home.css` had `.efhome a { color: inherit }` at specificity (0,1,1) — higher than the
+     dropdown link's own `text-charcoal/70` utility (0,1,0) — so only on the homepage the inherited
+     white nav color won. Fixed by scoping the rule to `.efhome a:not(nav *)`.
+  2. The dropdown panel had a static React `style={{opacity:0,...}}` prop sitting alongside GSAP
+     animating the same properties imperatively. Any re-render of the dropdown (isLit changing on
+     scroll) reapplied that static object and stomped GSAP's current state — so scrolling while the
+     dropdown was open on the homepage would reset it back to invisible mid-hover. Replaced the
+     inline style with default Tailwind classes so nothing in JSX conflicts with GSAP's DOM writes.
+  Verified with a scroll-stress test (open dropdown, scroll repeatedly, re-check computed color)
+  specifically on `/`, not just `/about`. Committed 7a07cf8.
+- **Also expanded the dropdown to all 5 live service pages** (was only listing 2 of the existing
+  Exercise for Health / Cancer Rehabilitation pages, missing High Blood Pressure, Bone Health &
+  Osteoporosis, Visual Impairment — pages that already existed and were live but never wired into
+  the nav) and added a GSAP-driven open/close (fade + rise, staggered per link, power2 easing),
+  matching the site's existing `components/ds/Reveal.tsx` conventions, replacing the plain CSS
+  `:hover` dropdown. Falls back to an instant toggle under `prefers-reduced-motion`. Committed
+  f0bc846.
+- **Redesigned the logo** (`components/EternalFitnessLogo.tsx`) per Craig's "needs a lot of design
+  work to make it credible" — dropped the old interlocking-circles + gradient-fill icon (read as a
+  generic abstract wellness/SaaS mark, gradients on flat text are a template tell) for a
+  typographic wordmark: "Eternal" in italic DM Serif Display (the same serif already used for
+  emphasis words in the hero/headings) + the site's own eyebrow-dash device (— WORTHING, WEST
+  SUSSEX etc.) + tracked "FITNESS" label, flat colors only. Committed 3072ac3.
+- One Coolify deploy failed mid-session on an unrelated build-container hiccup (reproduced the
+  exact `pnpm run build` locally, succeeded clean) — redeployed and it went healthy.
+- All four commits (1afa291, f0bc846, 7a07cf8, 3072ac3) verified live on
+  staging.eternal-fitness.co.uk before closing — dropdown shows all 5 services with dark text on
+  the homepage specifically, new wordmark logo confirmed served (no `roseGradient` in HTML).
+- **Not yet done**: no design sign-off from Craig/Esther on the new logo treatment — flagged as
+  worth a quick visual check next session in case of iteration requests. Favicon (public/favicon.ico)
+  still uses the old mark — untouched, out of scope this session.
 
 ## Previous session
 - Icon replacement: replaced all lucide-react icons with custom SVG icons across the site ✅
