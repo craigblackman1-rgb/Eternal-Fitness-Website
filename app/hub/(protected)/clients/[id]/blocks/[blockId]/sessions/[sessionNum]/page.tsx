@@ -374,8 +374,12 @@ function SessionSection({
     exercise.coaching_cue = selected.coaching_cue;
     exercise.modification = selected.default_mod;
     exercise.equipment = selected.equipment;
-    if (selected.media) {
-      exercise.media = { ...exercise.media, ...selected.media };
+    if (selected.image_url || selected.video_url) {
+      exercise.media = {
+        ...exercise.media,
+        ...(selected.image_url ? { image_url: selected.image_url } : {}),
+        ...(selected.video_url ? { video_url: selected.video_url } : {}),
+      };
     }
     (updatedData.versions as any)[versionKey][sectionKey][idx] = exercise;
 

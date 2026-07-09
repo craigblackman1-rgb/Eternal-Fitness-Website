@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { IconSearch } from "@/components/icons";
 import type { ExerciseEntry } from "@/app/hub/(protected)/exercises/page";
-import exerciseDb from "@/lib/exercise-db.json";
 
 const movementTypeLabels: Record<string, string> = {
   spinal_mobility: "Spinal Mobility",
@@ -39,8 +38,6 @@ const movementTypeLabels: Record<string, string> = {
   mobility_dynamic: "Dynamic Mobility",
 };
 
-const allExercises = (exerciseDb as { exercises: ExerciseEntry[] }).exercises;
-
 export function SwapExerciseDialog({
   open,
   onOpenChange,
@@ -51,15 +48,41 @@ export function SwapExerciseDialog({
   onSelect: (exercise: ExerciseEntry) => void;
 }) {
   const [search, setSearch] = useState("");
+  const [exercises, setExercises] = useState<ExerciseEntry[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    if (exercises.length > 0) return;
+
+    let cancelled = false;
+    setLoading(true);
+    fetch("/api/exercises")
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to load exercises");
+        const data = await res.json() as ExerciseEntry[];
+        if (!cancelled) setExercises(data);
+      })
+      .catch(() => {
+        if (!cancelled) setExercises([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open, exercises.length]);
 
   const filtered = useMemo(() => {
     if (!search) return [];
-    return allExercises
+    return exercises
       .filter((ex) =>
         ex.name.toLowerCase().includes(search.toLowerCase())
       )
       .slice(0, 24);
-  }, [search]);
+  }, [search, exercises]);
 
   const handleSelect = (ex: ExerciseEntry) => {
     onSelect(ex);
@@ -89,7 +112,12 @@ export function SwapExerciseDialog({
         </div>
 
         <div className="space-y-1">
-          {filtered.length === 0 && search && (
+          {loading && (
+            <p className="py-4 text-center text-sm text-muted-foreground">
+              Loading exercises...
+            </p>
+          )}
+          {!loading && filtered.length === 0 && search && (
             <p className="py-4 text-center text-sm text-muted-foreground">
               No exercises match &ldquo;{search}&rdquo;
             </p>
@@ -115,12 +143,12 @@ export function SwapExerciseDialog({
                 </div>
               </div>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                {movementTypeLabels[ex.movement_type] || ex.movement_type}
+                {ex.movement_type ? movementTypeLabels[ex.movement_type] || ex.movement_type : "Untagged"}
                 {ex.equipment.length > 0 &&
                   ` · ${ex.equipment.join(", ")}`}
               </p>
               <p className="mt-1 text-xs italic line-clamp-1">
-                {ex.coaching_cue}
+                {ex.coaching_cue ?? "—"}
               </p>
             </button>
           ))}

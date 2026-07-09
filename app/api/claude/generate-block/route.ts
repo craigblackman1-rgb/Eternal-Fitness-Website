@@ -74,7 +74,11 @@ export async function POST(request: Request) {
       );
     }
   } else {
-    sessions = generateFallback(profile, blockNumber);
+    const { data: exercisePool } = await supabase
+      .from("exercises")
+      .select("id, name, archetypes, movement_type, equipment, coaching_cue, default_mod")
+      .eq("active", true);
+    sessions = generateFallback(profile, blockNumber, (exercisePool ?? []) as ExerciseDbEntry[]);
   }
 
   const invalid =
@@ -356,20 +360,17 @@ function parseSessionObject(text: string): Partial<Session> {
   return obj;
 }
 
-/* ─── Fallback generator powered by exercise-db.json ─── */
-
-import exerciseDb from "@/lib/exercise-db.json";
+/* ─── Fallback generator — pulls from the `exercises` table (source-agnostic:
+ *     original + any tagged custom/trainerize rows), not the retired exercise-db.json ─── */
 
 interface ExerciseDbEntry {
   id: string;
   name: string;
   archetypes: Archetype[];
-  movement_type: string;
+  movement_type: string | null;
   equipment: string[];
-  difficulty: number;
-  intensity_tiers: string[];
-  coaching_cue: string;
-  default_mod: string;
+  coaching_cue: string | null;
+  default_mod: string | null;
 }
 
 const archetypeSectionTypes: Record<Archetype, { warm_up: string[]; main_block: string[]; cooldown: string[] }> = {
@@ -433,8 +434,8 @@ function makeExercise(
     reps,
     tempo,
     rest,
-    coaching_cue: entry.coaching_cue,
-    modification: entry.default_mod,
+    coaching_cue: entry.coaching_cue ?? "",
+    modification: entry.default_mod ?? "Modify as needed for this client's contraindications.",
     equipment: entry.equipment,
   };
 }
@@ -443,9 +444,9 @@ function composeSessionVersion(
   archetype: Archetype,
   phase: Phase,
   usedIds: Set<string>,
-  isHome: boolean
+  isHome: boolean,
+  db: ExerciseDbEntry[],
 ): SessionVersion {
-  const db = (exerciseDb as { exercises: ExerciseDbEntry[] }).exercises;
   const archetypePool = db.filter((e) => e.archetypes.includes(archetype));
 
   const sectionTypes = archetypeSectionTypes[archetype];
@@ -539,7 +540,7 @@ function getWeeklyArchetypes(spw: number, weekIndex: number, primaryGoal: string
   return [bias[weekIndex % 3]];
 }
 
-function generateFallback(profile: ClientProfile, blockNumber: number): Session[] {
+function generateFallback(profile: ClientProfile, blockNumber: number, exercisePool: ExerciseDbEntry[]): Session[] {
   const sessions: Session[] = [];
   const usedIds = new Set<string>();
   const spw = profile.logistics.sessions_per_week;
@@ -578,8 +579,8 @@ function generateFallback(profile: ClientProfile, blockNumber: number): Session[
         focus_label: `${archetypeFocus[archetype]} — ${phaseLabel} (Week ${wp.week})`,
         time_tier: profile.logistics.time_tier,
         versions: {
-          studio: composeSessionVersion(archetype, wp.phase, usedIds, false),
-          home: composeSessionVersion(archetype, wp.phase, usedIds, true),
+          studio: composeSessionVersion(archetype, wp.phase, usedIds, false, exercisePool),
+          home: composeSessionVersion(archetype, wp.phase, usedIds, true, exercisePool),
         },
         coaching_notes: `Client-specific: ${profile.health.contraindications?.join(", ") || "none noted"}. ${profile.notes.watch_for || ""}. Home version substitutes bodyweight for equipment.`,
         client_intro: archetypeFocus[archetype],

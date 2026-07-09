@@ -3,13 +3,15 @@
 import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { IconChevronDown, IconChevronUp, IconDumbbell, IconSearch, IconVideo } from "@/components/icons";
+import { IconChevronDown, IconChevronUp, IconDumbbell, IconPlus, IconSearch, IconVideo } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
 import type { Archetype } from "@/types";
 import type { ExerciseEntry } from "./page";
 import { ExerciseMediaPlaceholder } from "@/components/exercise-media";
+import { AddExerciseDialog } from "./AddExerciseDialog";
 
 const movementTypeLabels: Record<string, string> = {
   spinal_mobility: "Spinal Mobility",
@@ -59,19 +61,29 @@ function difficultyLabel(d: number): string {
   return "Expert";
 }
 
+function sourceLabel(source: ExerciseEntry["source"]): string {
+  if (source === "original") return "Original";
+  if (source === "trainerize") return "Trainerize";
+  return "Custom";
+}
+
 export function ExerciseBrowser({
   exercises,
   movementTypes,
   allEquipment,
+  allMuscleGroups,
 }: {
   exercises: ExerciseEntry[];
   movementTypes: string[];
   allEquipment: string[];
+  allMuscleGroups: string[];
 }) {
   const [search, setSearch] = useState("");
   const [archetypeFilter, setArchetypeFilter] = useState<Archetype | "all">("all");
   const [movementFilter, setMovementFilter] = useState("all");
+  const [muscleFilter, setMuscleFilter] = useState("all");
   const [equipmentFilter, setEquipmentFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState<ExerciseEntry["source"] | "all">("all");
   const [difficultyFilter, setDifficultyFilter] = useState<number>(0);
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -80,21 +92,25 @@ export function ExerciseBrowser({
       if (search && !ex.name.toLowerCase().includes(search.toLowerCase())) return false;
       if (archetypeFilter !== "all" && !ex.archetypes.includes(archetypeFilter)) return false;
       if (movementFilter !== "all" && ex.movement_type !== movementFilter) return false;
+      if (muscleFilter !== "all" && !ex.muscle_groups.includes(muscleFilter)) return false;
       if (equipmentFilter !== "all" && !ex.equipment.includes(equipmentFilter)) return false;
-      if (difficultyFilter > 0 && ex.difficulty > difficultyFilter) return false;
+      if (sourceFilter !== "all" && ex.source !== sourceFilter) return false;
+      if (difficultyFilter > 0 && (ex.difficulty == null || ex.difficulty > difficultyFilter)) return false;
       return true;
     }).sort((a, b) => a.name.localeCompare(b.name));
-  }, [exercises, search, archetypeFilter, movementFilter, equipmentFilter, difficultyFilter]);
+  }, [exercises, search, archetypeFilter, movementFilter, muscleFilter, equipmentFilter, sourceFilter, difficultyFilter]);
 
   const clearFilters = () => {
     setSearch("");
     setArchetypeFilter("all");
     setMovementFilter("all");
+    setMuscleFilter("all");
     setEquipmentFilter("all");
+    setSourceFilter("all");
     setDifficultyFilter(0);
   };
 
-  const hasFilters = search || archetypeFilter !== "all" || movementFilter !== "all" || equipmentFilter !== "all" || difficultyFilter > 0;
+  const hasFilters = search || archetypeFilter !== "all" || movementFilter !== "all" || muscleFilter !== "all" || equipmentFilter !== "all" || sourceFilter !== "all" || difficultyFilter > 0;
 
   return (
     <div className="space-y-6">
@@ -103,6 +119,14 @@ export function ExerciseBrowser({
           <h1 className="text-xl font-semibold tracking-tight">Exercise Library</h1>
           <p className="text-muted-foreground">{exercises.length} exercises &middot; {filtered.length} shown</p>
         </div>
+        <AddExerciseDialog
+          trigger={
+            <Button size="sm" variant="outline" className="gap-1.5 rounded-full">
+              <IconPlus className="h-4 w-4" />
+              Add Exercise
+            </Button>
+          }
+        />
       </div>
 
       <div className="space-y-4">
@@ -147,6 +171,20 @@ export function ExerciseBrowser({
             </SelectContent>
           </Select>
 
+          <Select value={muscleFilter} onValueChange={setMuscleFilter}>
+            <SelectTrigger className="h-7 w-40 text-xs">
+              <SelectValue placeholder="Main muscle" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All muscles</SelectItem>
+              {allMuscleGroups.map((mg) => (
+                <SelectItem key={mg} value={mg}>
+                  {mg}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           <Select value={equipmentFilter} onValueChange={setEquipmentFilter}>
             <SelectTrigger className="h-7 w-36 text-xs">
               <SelectValue placeholder="Equipment" />
@@ -158,6 +196,18 @@ export function ExerciseBrowser({
                   {equipmentLabels[eq] || eq}
                 </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={sourceFilter} onValueChange={(v) => setSourceFilter(v as ExerciseEntry["source"] | "all")}>
+            <SelectTrigger className="h-7 w-36 text-xs">
+              <SelectValue placeholder="Source" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All sources</SelectItem>
+              <SelectItem value="original">Original</SelectItem>
+              <SelectItem value="trainerize">Trainerize</SelectItem>
+              <SelectItem value="custom">Custom</SelectItem>
             </SelectContent>
           </Select>
 
@@ -204,7 +254,15 @@ export function ExerciseBrowser({
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
                   <CardTitle className="text-sm font-semibold">{ex.name}</CardTitle>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 flex-wrap justify-end">
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                      {sourceLabel(ex.source)}
+                    </Badge>
+                    {ex.source === "trainerize" && ex.trainerize_custom === true && (
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                        Esther&apos;s Custom
+                      </Badge>
+                    )}
                     {ex.archetypes.map((a) => (
                       <Badge key={a} variant="outline" className="text-[10px] px-1.5 py-0">
                         {a}
@@ -213,12 +271,25 @@ export function ExerciseBrowser({
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span>{movementTypeLabels[ex.movement_type] || ex.movement_type}</span>
+                  <span>{ex.movement_type ? movementTypeLabels[ex.movement_type] || ex.movement_type : "Untagged"}</span>
                   <span>&middot;</span>
-                  <span>{difficultyLabel(ex.difficulty)}</span>
+                  <span>{ex.difficulty != null ? difficultyLabel(ex.difficulty) : "Untagged"}</span>
                 </div>
               </CardHeader>
               <CardContent className="pb-3">
+                {ex.muscle_groups.length > 0 && (
+                  <div className="mb-2 flex flex-wrap gap-1">
+                    {ex.muscle_groups.map((mg) => (
+                      <span
+                        key={mg}
+                        className="inline-flex rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground"
+                      >
+                        {mg}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
                 {ex.equipment.length > 0 && (
                   <div className="mb-2 flex flex-wrap gap-1">
                     {ex.equipment.map((eq) => (
@@ -259,9 +330,9 @@ export function ExerciseBrowser({
 
                 {expanded === ex.id && (
                   <div className="space-y-3 text-xs">
-                    {ex.media?.video_url ? (
+                    {ex.video_url ? (
                       <a
-                        href={ex.media.video_url}
+                        href={ex.video_url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 text-rose hover:underline"
@@ -274,11 +345,11 @@ export function ExerciseBrowser({
                     )}
                     <div>
                       <span className="font-medium text-muted-foreground">Coaching: </span>
-                      <p className="mt-0.5">{ex.coaching_cue}</p>
+                      <p className="mt-0.5">{ex.coaching_cue ?? "—"}</p>
                     </div>
                     <div>
                       <span className="font-medium text-muted-foreground">Modification: </span>
-                      <p className="mt-0.5 text-amber-700">{ex.default_mod}</p>
+                      <p className="mt-0.5 text-amber-700">{ex.default_mod ?? "—"}</p>
                     </div>
                     <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
                       <span>Collapse</span>
