@@ -77,7 +77,10 @@ export async function POST(request: Request, { params }: { params: { id: string 
       .insert({ ...base, status: "draft", emailed: false })
       .select("id")
       .single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) {
+      console.error("[updates:send]", { clientId: client.id, action: "draft", error: error.message });
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
     return NextResponse.json({ success: true, id: data.id, status: "draft" });
   }
 
@@ -95,7 +98,10 @@ export async function POST(request: Request, { params }: { params: { id: string 
       .insert({ ...base, status: "scheduled", scheduled_for: when.toISOString(), emailed: false })
       .select("id")
       .single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) {
+      console.error("[updates:send]", { clientId: client.id, action: "schedule", error: error.message });
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
     return NextResponse.json({ success: true, id: data.id, status: "scheduled", scheduledFor: when.toISOString() });
   }
 
@@ -104,23 +110,60 @@ export async function POST(request: Request, { params }: { params: { id: string 
     const { error } = await supabase
       .from("sent_updates")
       .insert({ ...base, status: "sent", emailed: false, sent_at: new Date().toISOString() });
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) {
+      console.error("[updates:send]", { clientId: client.id, action: "log", error: error.message });
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
     return NextResponse.json({ success: true, emailed: false });
   }
 
-  // 5. Send now.
+  // 5. Send now — insert-first pattern for reliability.
   if (action === "send") {
     if (!clientEmail) return NextResponse.json({ error: "Client email address is required" }, { status: 400 });
-    const result = await dispatchUpdateEmail({ to: clientEmail, subject, html });
-    if (result.error) return NextResponse.json({ error: result.error }, { status: 500 });
 
-    const { error } = await supabase.from("sent_updates").insert({
-      ...base,
-      status: "sent",
+    // Pre-insert a row with status "sending" so a record exists even if the
+    // process crashes between email dispatch and the final status update.
+    const { data: pendingRow, error: insertErr } = await supabase
+      .from("sent_updates")
+      .insert({ ...base, status: "sending", emailed: false })
+      .select("id")
+      .single();
+
+    if (insertErr) {
+      console.error("[updates:send]", { clientId: client.id, action: "send", error: insertErr.message });
+      return NextResponse.json({ error: insertErr.message }, { status: 500 });
+    }
+
+    const result = await dispatchUpdateEmail({ to: clientEmail, subject, html });
+
+    // Update the pre-inserted row with the send outcome.
+    const patch: Record<string, unknown> = {
+      status: result.error ? "failed" : "sent",
       emailed: result.emailed,
-      sent_at: new Date().toISOString(),
-    });
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      sg_message_id: result.messageId || null,
+      send_error: result.error || (result.dryRun ? "Email sending isn't configured — logged, not emailed" : null),
+      updated_at: new Date().toISOString(),
+    };
+    if (!result.error) patch.sent_at = new Date().toISOString();
+
+    const { error: updateErr } = await supabase
+      .from("sent_updates")
+      .update(patch)
+      .eq("id", pendingRow.id);
+
+    if (updateErr) {
+      // The email may have gone out — log the DB error but still report success
+      // if the email was dispatched (the row exists with status "sending").
+      console.error("[updates:send]", {
+        clientId: client.id,
+        action: "send",
+        note: "email may have been dispatched but DB update failed",
+        error: updateErr.message,
+      });
+      if (result.error) {
+        return NextResponse.json({ error: result.error }, { status: 500 });
+      }
+    }
 
     if (result.dryRun) {
       return NextResponse.json({
@@ -129,6 +172,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
         emailed: false,
         error: "Email sending isn't configured — the email was NOT sent, but the update was logged. Set SENDGRID_API_KEY (or SMTP_*) to actually send.",
       });
+    }
+    if (result.error) {
+      return NextResponse.json({ error: result.error }, { status: 500 });
     }
     return NextResponse.json({ success: true, emailed: true, messageId: result.messageId });
   }

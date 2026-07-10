@@ -144,7 +144,10 @@ export default async function ParqHistoryPage({ params }: { params: { id: string
     .order("created_at", { ascending: false });
 
   const rows = (submissions ?? []) as SignedPARQ[];
-  const [latest, ...earlier] = rows;
+  // Current = most recent non-superseded; superseded rows are older versions.
+  const active = rows.filter((r) => r.status !== "superseded");
+  const latest = active[0] ?? rows[0] ?? null;
+  const earlier = rows.filter((r) => r.id !== latest?.id);
   const parqLink = latest ? mintParqLinkParams(latest.id) : null;
 
   return (
@@ -178,7 +181,11 @@ export default async function ParqHistoryPage({ params }: { params: { id: string
       ) : (
         <>
           <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
-            <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title={`Submitted ${formatDate(latest.created_at)}`} color="teal" />
+            <HubCardHeader
+              icon={<IconFileText className="w-4 h-4" />}
+              title={`Submitted ${formatDate(latest.created_at)}${latest.version > 1 ? ` (v${latest.version})` : ""}`}
+              color="teal"
+            />
             <CardContent className="pt-0">
               <ParqDocument parq={latest} />
             </CardContent>
@@ -193,7 +200,12 @@ export default async function ParqHistoryPage({ params }: { params: { id: string
                   return (
                     <details key={older.id} className="rounded-lg border border-[var(--hub-border)] px-4 py-2.5 group">
                       <summary className="cursor-pointer text-sm font-medium text-foreground flex items-center justify-between">
-                        <span>{formatDate(older.created_at)} → {formatDate(newer.created_at)}</span>
+                        <span>
+                          {formatDate(older.created_at)}{older.version ? ` (v${older.version})` : ""} → {formatDate(newer.created_at)}{newer.version ? ` (v${newer.version})` : ""}
+                          {older.status === "superseded" && (
+                            <Badge variant="secondary" className="ml-2 rounded-full text-xs">superseded</Badge>
+                          )}
+                        </span>
                         <span className="text-xs text-muted-foreground group-open:hidden">Show changes</span>
                       </summary>
                       <div className="mt-3 pt-3 border-t border-[var(--hub-border)]">

@@ -139,6 +139,13 @@ export function UpdatesReport({ updates }: { updates: UpdateWithClient[] }) {
                         {u.status === "sent" && !u.emailed && (
                           <Badge variant="secondary" className="rounded-full text-xs">Logged only</Badge>
                         )}
+                        {u.status === "sent" && u.opened_at && (
+                          <span className="flex items-center gap-1 text-teal" title={`Opened ${formatUpdateTime(u.opened_at)}`}>
+                            <IconEye className="h-3 w-3" />
+                            Opened
+                            {u.open_count > 1 && <span className="text-muted-foreground">({u.open_count})</span>}
+                          </span>
+                        )}
                         {u.status === "failed" && u.send_error && (
                           <span className="text-destructive truncate max-w-[200px]" title={u.send_error}>{u.send_error}</span>
                         )}

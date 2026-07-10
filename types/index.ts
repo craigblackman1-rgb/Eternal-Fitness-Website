@@ -230,8 +230,8 @@ export interface DBClient {
   referral_source: string | null;
 }
 
-/** Lifecycle of an update record. */
-export type UpdateStatus = "draft" | "scheduled" | "sent" | "failed" | "cancelled";
+/** Lifecycle of an update record. 'sending' is transient — set just before dispatch, resolved to sent/failed immediately after. */
+export type UpdateStatus = "draft" | "scheduled" | "sending" | "sent" | "failed" | "cancelled";
 
 export interface SentUpdate {
   id: string;
@@ -250,6 +250,12 @@ export interface SentUpdate {
   /** Structured section values (keys match the template registry). */
   sections: Record<string, string> | null;
   send_error: string | null;
+  /** SendGrid message ID for webhook engagement matching. */
+  sg_message_id: string | null;
+  opened_at: string | null;
+  open_count: number;
+  clicked_at: string | null;
+  click_count: number;
   created_at: string;
   updated_at: string;
 }
@@ -280,7 +286,7 @@ export interface DBSession {
   data: Session;
 }
 
-export type DocumentStatus = "draft" | "sent" | "received" | "signed" | "expired" | "needs_update";
+export type DocumentStatus = "draft" | "sent" | "received" | "signed" | "expired" | "needs_update" | "superseded";
 export type ClearanceStatus = "CLEARED" | "PENDING" | "NOT YET REQUESTED" | "NOT REQUIRED";
 export type ClearanceRequired = "Y" | "N" | "NA";
 
@@ -324,6 +330,10 @@ export interface SignedAgreement extends ClientDocument {
 }
 
 export interface SignedPARQ extends ClientDocument {
+  version: number;
+  supersedes_id: string | null;
+  signed_by_ip: string | null;
+  signed_by_user_agent: string | null;
   full_name: string;
   date_of_birth: string | null;
   address: string | null;

@@ -1,5 +1,32 @@
 # Handoff
 
+## Session (2026-07-10) — Sarah Tyler PAR-Q port + reusable import routine
+- Ported Sarah Tyler's signed PAR-Q (MS Forms PDF export, signed 29/05/2026, all 29 questions
+  answered No — clean form) into the hub.
+- **First attempt failed silently**: wrote it via supabase-js into the old Supabase Cloud project
+  (`zkyvglflwqcxkckzopdq`) — invisible in the hub because EF had been cut over to the new
+  consolidated Postgres (`10.10.10.2/eternal_fitness`, via `lib/pg-client.ts`) *earlier the same day*
+  (see [[project-db-consolidation]]). Lesson: always confirm which DB the live app actually reads
+  from post-cutover before trusting a write — env vars/project refs can look right locally while the
+  deployed app has moved on.
+- Fixed by writing directly to production Postgres via the Coolify SSH tunnel (`10.10.10.2:5432`,
+  role `ef_app`, tunnelled through `54.36.162.132`) — Craig confirmed this explicitly (prod-DB writes
+  need an explicit named go-ahead, not just task continuation, per automode classifier rules).
+  Verified live: `signed_parq` row + `clients.medical_clearance_status = not_required` +
+  `client_tracker` + `annual_review_due_date` all correct on production, confirmed via direct query
+  and the app's actual query paths (`/hub/documents`, client profile, `/hub/clients/[id]/parq`).
+- **Built `scripts/import-parq.mjs`** — reusable routine for Craig's remaining MS Forms PAR-Q ports.
+  Takes a JSON file (client name + all PAR-Q answers/fields), looks up the client, inserts
+  `signed_parq`, auto-sets clearance status (`not_required` if clean, `pending` + flags which
+  questions were Yes if not) and `annual_review_due_date`. Run against prod via the SSH tunnel with
+  `DATABASE_URL` sourced inline (not written to disk — credential-handling is tightly gated in the
+  sandbox, needs Craig's explicit per-session go-ahead to touch prod).
+- Committed `d7550db` (script + the original, now-superseded migration file kept for record — it
+  targets the pre-cutover Supabase schema, not what's actually live).
+- **Not done**: the rest of Craig's PAR-Q batch — he said to close this off for another day. Next
+  session: same routine — extract PDF answers into JSON matching `scripts/import-parq.mjs`'s shape,
+  open the SSH tunnel (Craig confirms each time), run the script per client.
+
 ## Session (2026-07-09)
 - Finished yesterday's (07-08) header/nav work that got cut off mid-session before verification.
 - **Found & fixed a real bug**: the "Personal Training" dropdown submenu (Exercise for Health /

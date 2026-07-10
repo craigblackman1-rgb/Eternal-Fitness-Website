@@ -48,11 +48,25 @@ async function handle(request: Request) {
 
   for (const update of due ?? []) {
     if (!update.client_email) {
-      await supabase
+      const { error: failErr } = await supabase
         .from("sent_updates")
-        .update({ status: "failed", send_error: "No recipient email", updated_at: new Date().toISOString() })
+        .update({ status: "failed", send_error: "No recipient email", updated_at: nowIso })
         .eq("id", update.id);
+      if (failErr) {
+        console.error("[updates:cron]", { updateId: update.id, action: "fail-no-email", error: failErr.message });
+      }
       results.push({ id: update.id, outcome: "failed:no-email" });
+      continue;
+    }
+
+    // Pre-transition to "sending" so a record exists if the process crashes.
+    const { error: sendingErr } = await supabase
+      .from("sent_updates")
+      .update({ status: "sending", updated_at: nowIso })
+      .eq("id", update.id);
+    if (sendingErr) {
+      console.error("[updates:cron]", { updateId: update.id, action: "sending-transition", error: sendingErr.message });
+      results.push({ id: update.id, outcome: "failed:send-transition" });
       continue;
     }
 
@@ -62,26 +76,30 @@ async function handle(request: Request) {
       html: update.body_html,
     });
 
-    if (res.error) {
-      await supabase
-        .from("sent_updates")
-        .update({ status: "failed", send_error: res.error, updated_at: new Date().toISOString() })
-        .eq("id", update.id);
-      results.push({ id: update.id, outcome: "failed" });
-      continue;
+    const patch: Record<string, unknown> = {
+      status: res.error ? "failed" : "sent",
+      emailed: res.emailed,
+      sg_message_id: res.messageId || null,
+      send_error: res.error || (res.dryRun ? "Email sending isn't configured — logged, not emailed" : null),
+      updated_at: new Date().toISOString(),
+    };
+    if (!res.error) patch.sent_at = new Date().toISOString();
+
+    const { error: updateErr } = await supabase
+      .from("sent_updates")
+      .update(patch)
+      .eq("id", update.id);
+
+    if (updateErr) {
+      console.error("[updates:cron]", {
+        updateId: update.id,
+        action: "final-update",
+        note: "email may have been dispatched but DB update failed",
+        error: updateErr.message,
+      });
     }
 
-    await supabase
-      .from("sent_updates")
-      .update({
-        status: "sent",
-        emailed: res.emailed,
-        sent_at: new Date().toISOString(),
-        send_error: res.dryRun ? "Email sending isn't configured — logged, not emailed" : null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", update.id);
-    results.push({ id: update.id, outcome: res.emailed ? "sent" : "logged-dry-run" });
+    results.push({ id: update.id, outcome: res.error ? "failed" : res.emailed ? "sent" : "logged-dry-run" });
   }
 
   return NextResponse.json({ success: true, processed: results.length, results });

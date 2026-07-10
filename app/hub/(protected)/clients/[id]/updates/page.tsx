@@ -4,14 +4,14 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { IconChevronLeft, IconMail, IconPlus, IconCalendar, IconClock } from "@/components/icons";
+import { IconChevronLeft, IconMail, IconPlus, IconCalendar, IconClock, IconEye } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
 import { UpdateRowActions } from "@/components/hub/UpdateRowActions";
 import { getTemplateKind } from "@/lib/email-templates/registry";
 import { updateStatusMeta, formatUpdateTime } from "@/lib/updates/status";
 import type { SentUpdate } from "@/types";
 
-const STATUS_ORDER: Record<string, number> = { scheduled: 0, draft: 1, failed: 2, sent: 3, cancelled: 4 };
+const STATUS_ORDER: Record<string, number> = { scheduled: 0, sending: 1, draft: 2, failed: 3, sent: 4, cancelled: 5 };
 
 export default async function UpdatesHistoryPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -104,6 +104,13 @@ export default async function UpdatesHistoryPage({ params }: { params: { id: str
                         {update.status === "failed" && update.send_error && (
                           <span className="text-destructive truncate max-w-[220px]" title={update.send_error}>
                             {update.send_error}
+                          </span>
+                        )}
+                        {update.status === "sent" && update.opened_at && (
+                          <span className="flex items-center gap-1 text-teal" title={`Opened ${formatUpdateTime(update.opened_at)}`}>
+                            <IconEye className="h-3 w-3" />
+                            Opened
+                            {update.open_count > 1 && <span className="text-muted-foreground">({update.open_count})</span>}
                           </span>
                         )}
                       </div>

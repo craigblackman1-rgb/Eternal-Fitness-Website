@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase-server";
 /** Draft/scheduled/failed updates can be edited or deleted — sent ones are history. */
 const EDITABLE = ["draft", "scheduled", "failed"];
 /** Statuses a caller is allowed to move an editable record into. */
-const SETTABLE = ["draft", "scheduled"];
+const SETTABLE = ["draft", "scheduled", "sending"];
 
 export async function PATCH(request: Request, { params }: { params: { updateId: string } }) {
   const supabase = createClient();

@@ -62,6 +62,7 @@ const documentStatusMap: Record<DocumentStatus, StatusLookup> = {
   signed:       { token: "success", label: "Signed" },
   expired:      { token: "danger",  label: "Expired" },
   needs_update: { token: "warning", label: "Needs Update" },
+  superseded:   { token: "neutral", label: "Superseded" },
 };
 
 const keywordStatusMap: Record<string, StatusLookup> = {

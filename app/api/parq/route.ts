@@ -2,6 +2,20 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { resolveClientId } from "@/lib/resolve-client-id";
+import { getEmailSender } from "@/lib/email";
+import { diffParq } from "@/lib/parq-diff";
+import type { SignedPARQ } from "@/types";
+
+const COACH_EMAIL = "esther.fair@eternal-fitness.co.uk";
+
+function escapeHtml(value: unknown): string {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 export async function GET(request: Request) {
   const supabase = createClient();
@@ -106,6 +120,7 @@ export async function POST(request: Request) {
 
   let result;
   let error;
+  let resubmission = false;
 
   if (admin_save) {
     // Esther saving her edits without a signature — keep the PAR-Q awaiting the
@@ -123,18 +138,65 @@ export async function POST(request: Request) {
     error = res.error;
   } else {
     // Client submitting/finishing — capture the signature and mark it signed.
-    const record = {
-      ...editableFields,
-      client_signature_date: client_signature_date || null,
-      client_signature_data: client_signature || null,
-      client_typed_signature: client_typed_signature || null,
-      status: "signed",
-    };
+    const hasSignature = !!(client_signature || client_typed_signature);
+    const ip = request.headers.get("x-forwarded-for") || null;
+    const userAgent = request.headers.get("user-agent") || null;
+
     if (id) {
-      const res = await writer.from("signed_parq").update(record).eq("id", id).select().single();
+      // Resubmission: fetch existing, supersede it, insert a new versioned row.
+      const { data: oldRow, error: fetchErr } = await writer
+        .from("signed_parq")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (fetchErr || !oldRow) {
+        return NextResponse.json({ error: fetchErr?.message || "PAR-Q not found" }, { status: 500 });
+      }
+
+      // Mark the existing row as superseded (only if it's currently active).
+      if (oldRow.status !== "superseded") {
+        await writer
+          .from("signed_parq")
+          .update({ status: "superseded", updated_at: new Date().toISOString() })
+          .eq("id", id);
+      }
+
+      // Insert new versioned row with supersedes_id pointing to the old row.
+      const record: Record<string, unknown> = {
+        client_id: oldRow.client_id,
+        ...editableFields,
+        client_signature_date: client_signature_date || null,
+        client_signature_data: client_signature || null,
+        client_typed_signature: client_typed_signature || null,
+        status: "signed",
+        version: (oldRow.version ?? 1) + 1,
+        supersedes_id: oldRow.id,
+      };
+      if (hasSignature) {
+        record.signed_by_ip = ip;
+        record.signed_by_user_agent = userAgent;
+      }
+
+      const res = await writer.from("signed_parq").insert(record).select().single();
       result = res.data;
       error = res.error;
+      resubmission = !error && !!hasSignature;
     } else {
+      // First submission — plain insert.
+      const record: Record<string, unknown> = {
+        ...(clientId ? { client_id: clientId } : {}),
+        ...editableFields,
+        client_signature_date: client_signature_date || null,
+        client_signature_data: client_signature || null,
+        client_typed_signature: client_typed_signature || null,
+        status: "signed",
+      };
+      if (hasSignature) {
+        record.signed_by_ip = ip;
+        record.signed_by_user_agent = userAgent;
+      }
+
       const res = await supabase.from("signed_parq").insert(record).select().single();
       result = res.data;
       error = res.error;
@@ -143,6 +205,52 @@ export async function POST(request: Request) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // After a successful resubmission, notify the coach with a field-level diff.
+  if (resubmission && result) {
+    try {
+      const { data: oldRow } = await writer
+        .from("signed_parq")
+        .select("*")
+        .eq("id", result.supersedes_id)
+        .single();
+
+      if (oldRow) {
+        const diffs = diffParq(oldRow as SignedPARQ, result as SignedPARQ);
+        const clientDisplayName = result.full_name || client_name || "Unknown";
+
+        const diffHtml = diffs.length === 0
+          ? "<p>No field changes detected.</p>"
+          : `<table style="border-collapse:collapse;width:100%;font-size:13px;">
+              <tr style="text-align:left;border-bottom:1px solid #ddd;">
+                <th style="padding:6px 8px;">Field</th>
+                <th style="padding:6px 8px;">Old</th>
+                <th style="padding:6px 8px;">New</th>
+              </tr>
+              ${diffs.map((d) => `
+                <tr style="border-bottom:1px solid #eee;">
+                  <td style="padding:6px 8px;font-weight:500;">${escapeHtml(d.label)}</td>
+                  <td style="padding:6px 8px;color:#888;text-decoration:line-through;">${escapeHtml(d.from)}</td>
+                  <td style="padding:6px 8px;">${escapeHtml(d.to)}</td>
+                </tr>
+              `).join("")}
+            </table>`;
+
+        const sender = getEmailSender();
+        await sender.send({
+          to: COACH_EMAIL,
+          subject: `PAR-Q updated: ${clientDisplayName}`,
+          html: `<div style="font-family:sans-serif;font-size:14px;">
+            <p><strong>${escapeHtml(clientDisplayName)}</strong> submitted an updated PAR-Q (version ${result.version}).</p>
+            ${diffs.length > 0 ? `<p>${diffs.length} field${diffs.length === 1 ? "" : "s"} changed:</p>` : ""}
+            ${diffHtml}
+          </div>`,
+        });
+      }
+    } catch (notifyErr) {
+      console.error("[parq:resubmit-notify]", notifyErr);
+    }
   }
 
   return NextResponse.json(result, { status: id ? 200 : 201 });

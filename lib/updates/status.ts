@@ -12,6 +12,7 @@ interface StatusMeta {
 const META: Record<UpdateStatus, StatusMeta> = {
   draft: { label: "Draft", variant: "secondary", dot: "bg-muted-foreground" },
   scheduled: { label: "Scheduled", variant: "outline", dot: "bg-teal" },
+  sending: { label: "Sending…", variant: "outline", dot: "bg-amber" },
   sent: { label: "Sent", variant: "default", dot: "bg-rose" },
   failed: { label: "Failed", variant: "destructive", dot: "bg-destructive" },
   cancelled: { label: "Cancelled", variant: "secondary", dot: "bg-muted-foreground" },

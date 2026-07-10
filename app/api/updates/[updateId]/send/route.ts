@@ -5,6 +5,9 @@ import { dispatchUpdateEmail } from "@/lib/updates/send";
 /**
  * Send a saved draft/scheduled update right now (the "send it now instead of
  * waiting" button). Marks the record sent/failed just like the cron dispatcher.
+ *
+ * Uses insert-first reliability: transitions the row to "sending" before
+ * dispatch, then resolves to "sent" or "failed" afterward.
  */
 export async function POST(request: Request, { params }: { params: { updateId: string } }) {
   const supabase = createClient();
@@ -27,28 +30,49 @@ export async function POST(request: Request, { params }: { params: { updateId: s
   const to = (body.clientEmail as string) || update.client_email;
   if (!to) return NextResponse.json({ error: "No recipient email on this update" }, { status: 400 });
 
-  const result = await dispatchUpdateEmail({ to, subject: update.subject, html: update.body_html });
-
-  if (result.error) {
-    await supabase
-      .from("sent_updates")
-      .update({ status: "failed", send_error: result.error, updated_at: new Date().toISOString() })
-      .eq("id", update.id);
-    return NextResponse.json({ error: result.error }, { status: 500 });
+  // Transition to "sending" before dispatch.
+  const { error: sendingErr } = await supabase
+    .from("sent_updates")
+    .update({ status: "sending", updated_at: new Date().toISOString() })
+    .eq("id", update.id);
+  if (sendingErr) {
+    console.error("[updates:send]", { updateId: update.id, action: "sending-transition", error: sendingErr.message });
+    return NextResponse.json({ error: sendingErr.message }, { status: 500 });
   }
 
-  const { error } = await supabase
+  const result = await dispatchUpdateEmail({ to, subject: update.subject, html: update.body_html });
+
+  // Resolve to final status.
+  const patch: Record<string, unknown> = {
+    status: result.error ? "failed" : "sent",
+    emailed: result.emailed,
+    client_email: to,
+    sg_message_id: result.messageId || null,
+    send_error: result.error || null,
+    updated_at: new Date().toISOString(),
+  };
+  if (!result.error) patch.sent_at = new Date().toISOString();
+
+  const { error: updateErr } = await supabase
     .from("sent_updates")
-    .update({
-      status: "sent",
-      emailed: result.emailed,
-      client_email: to,
-      sent_at: new Date().toISOString(),
-      send_error: null,
-      updated_at: new Date().toISOString(),
-    })
+    .update(patch)
     .eq("id", update.id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  if (updateErr) {
+    console.error("[updates:send]", {
+      updateId: update.id,
+      action: "final-update",
+      note: "email may have been dispatched but DB update failed",
+      error: updateErr.message,
+    });
+    if (result.error) {
+      return NextResponse.json({ error: result.error }, { status: 500 });
+    }
+  }
+
+  if (result.error) {
+    return NextResponse.json({ error: result.error }, { status: 500 });
+  }
 
   return NextResponse.json({ success: true, emailed: result.emailed, dryRun: result.dryRun });
 }
