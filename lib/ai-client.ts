@@ -26,6 +26,16 @@ export function getAiConfig(): AiConfig {
   return { provider: null, model: "" };
 }
 
+/**
+ * Quality-critical routes (e.g. Plan Agent) should never silently fall back to a
+ * cheaper/lesser model — a bad plan costs Esther more time to fix than a slower,
+ * costlier good one. Use this to override the configured model for those routes.
+ */
+export const QUALITY_MODEL = {
+  claude: "claude-opus-4-8",
+  openrouter: "anthropic/claude-opus-4-8",
+} as const;
+
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
@@ -62,11 +72,13 @@ export async function aiChatStream(req: ChatRequest): Promise<ReadableStream<Uin
   const config = getAiConfig();
   if (!config.provider) return null;
 
+  const model = req.model ?? config.model;
+
   if (config.provider === "openrouter") {
-    return openRouterChatStream(config.model, req);
+    return openRouterChatStream(model, req);
   }
 
-  return claudeChatStream(config.model, req);
+  return claudeChatStream(model, req);
 }
 
 async function openRouterChat(
@@ -91,6 +103,8 @@ async function openRouterChat(
       ],
       max_tokens: req.maxTokens ?? 4000,
       temperature: req.temperature ?? 0.5,
+      // See openRouterChatStream — avoid Bedrock's silent content-filter drops.
+      provider: { order: ["Anthropic"], allow_fallbacks: true },
     }),
   });
 
@@ -110,6 +124,7 @@ async function openRouterChatStream(
   req: ChatRequest,
 ): Promise<ReadableStream<Uint8Array>> {
   const apiKey = process.env.OPENROUTER_API_KEY!;
+  const logTag = `[ai-client openrouter:${model}]`;
 
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
@@ -128,11 +143,17 @@ async function openRouterChatStream(
       max_tokens: req.maxTokens ?? 4000,
       temperature: req.temperature ?? 0.5,
       stream: true,
+      // Prefer routing straight to Anthropic rather than a downstream provider
+      // (e.g. Amazon Bedrock) — Bedrock runs its own content moderation layer
+      // that can silently drop the whole response (empty content, no error) on
+      // clinical/health-heavy prompts, which is exactly what this app sends.
+      provider: { order: ["Anthropic"], allow_fallbacks: true },
     }),
   });
 
   if (!res.ok || !res.body) {
     const text = await res.text().catch(() => "");
+    console.error(`${logTag} request failed (${res.status}): ${text.slice(0, 300)}`);
     throw new Error(`OpenRouter error (${res.status}): ${text.slice(0, 300)}`);
   }
 
@@ -143,6 +164,8 @@ async function openRouterChatStream(
   return new ReadableStream({
     async start(controller) {
       let buffer = "";
+      let contentLength = 0;
+      let finishReason: string | null = null;
       try {
         while (true) {
           const { done, value } = await reader.read();
@@ -157,14 +180,30 @@ async function openRouterChatStream(
             if (data === "[DONE]") continue;
             try {
               const parsed = JSON.parse(data);
-              const delta = parsed.choices?.[0]?.delta?.content;
-              if (delta) controller.enqueue(encoder.encode(delta));
+              const choice = parsed.choices?.[0];
+              const delta = choice?.delta?.content;
+              if (delta) {
+                contentLength += delta.length;
+                controller.enqueue(encoder.encode(delta));
+              }
+              if (choice?.finish_reason) finishReason = choice.finish_reason;
             } catch {
               // skip malformed SSE chunk
             }
           }
         }
+        console.log(`${logTag} finished: contentLength=${contentLength} finishReason=${finishReason}`);
+        if (contentLength === 0) {
+          const reasonText = finishReason ? ` (finish_reason: ${finishReason})` : "";
+          controller.enqueue(
+            encoder.encode(
+              `\n\n**[Plan Agent returned no content${reasonText}. This can happen when the provider's ` +
+                `content filter silently blocks a response — try rephrasing, or ask Craig to check the server logs.]**`,
+            ),
+          );
+        }
       } catch (err) {
+        console.error(`${logTag} stream error: ${err instanceof Error ? err.message : err}`);
         controller.enqueue(encoder.encode(`\n\n[Error: ${err instanceof Error ? err.message : "stream failed"}]`));
       } finally {
         controller.close();
@@ -198,6 +237,7 @@ async function claudeChatStream(
 ): Promise<ReadableStream<Uint8Array>> {
   const { default: Anthropic } = await import("@anthropic-ai/sdk");
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+  const logTag = `[ai-client claude:${model}]`;
 
   const stream = client.messages.stream({
     model,
@@ -210,16 +250,32 @@ async function claudeChatStream(
 
   return new ReadableStream({
     async start(controller) {
+      let contentLength = 0;
+      let stopReason: string | null = null;
       try {
         for await (const chunk of stream) {
           if (
             chunk.type === "content_block_delta" &&
             chunk.delta.type === "text_delta"
           ) {
+            contentLength += chunk.delta.text.length;
             controller.enqueue(encoder.encode(chunk.delta.text));
           }
+          if (chunk.type === "message_delta" && chunk.delta.stop_reason) {
+            stopReason = chunk.delta.stop_reason;
+          }
+        }
+        console.log(`${logTag} finished: contentLength=${contentLength} stopReason=${stopReason}`);
+        if (contentLength === 0) {
+          const reasonText = stopReason ? ` (stop_reason: ${stopReason})` : "";
+          controller.enqueue(
+            encoder.encode(
+              `\n\n**[Plan Agent returned no content${reasonText}. Try rephrasing, or ask Craig to check the server logs.]**`,
+            ),
+          );
         }
       } catch (err) {
+        console.error(`${logTag} stream error: ${err instanceof Error ? err.message : err}`);
         controller.enqueue(encoder.encode(`\n\n[Error: ${err instanceof Error ? err.message : "stream failed"}]`));
       } finally {
         controller.close();

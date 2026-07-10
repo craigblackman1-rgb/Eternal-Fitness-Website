@@ -137,9 +137,13 @@ export async function POST(request: Request) {
 /** Model for plan generation. A full 6-week block is far too large to return in
  *  one response (~5k output tokens *per session*), so we generate one session
  *  per call and assemble. That keeps each response small enough to parse
- *  reliably and lets us retry individual sessions. Overridable via PLAN_MODEL;
- *  Haiku is capable enough for structured session JSON and ~10x cheaper. */
-const PLAN_MODEL = process.env.PLAN_MODEL || "anthropic/claude-haiku-4.5";
+ *  reliably and lets us retry individual sessions. Overridable via PLAN_MODEL.
+ *  This is the step that writes the actual exercises Esther sees — quality
+ *  matters more than cost here (2026-07-10: was defaulting to Haiku for
+ *  speed/cost, but plan quality suffered — Esther's own hand-built plans were
+ *  noticeably richer). Default to the best available model; drop to Sonnet or
+ *  Haiku via env var if cost/latency becomes a real problem. */
+const PLAN_MODEL = process.env.PLAN_MODEL || "anthropic/claude-opus-4-8";
 
 const archetypeFocusLabels: Record<Archetype, string> = {
   A: "Mobility & Movement Quality",

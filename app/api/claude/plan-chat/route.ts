@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase-server";
-import { getAiConfig, aiChatStream } from "@/lib/ai-client";
+import { getAiConfig, aiChatStream, QUALITY_MODEL } from "@/lib/ai-client";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { buildParqSection } from "@/lib/parq-summary";
@@ -260,12 +260,18 @@ export async function POST(request: Request) {
 
   const systemPrompt = buildSystemPrompt(client, blocks ?? [], parq, recentUpdates ?? [], ruleTypesById, equipmentRows ?? []);
 
+  // Plan Agent is quality-critical (it's meant to save Esther time) — always request
+  // the best available model rather than whatever cheaper default is configured
+  // elsewhere in the app.
+  const planModel = aiConfig.provider === "openrouter" ? QUALITY_MODEL.openrouter : QUALITY_MODEL.claude;
+
   let readable: ReadableStream<Uint8Array> | null;
   try {
     readable = await aiChatStream({
       system: systemPrompt,
       messages: messages.map((m) => ({ role: m.role, content: m.content })),
       maxTokens: 8000,
+      model: planModel,
     });
   } catch (err) {
     const detail = err instanceof Error ? err.message.slice(0, 300) : "unknown error";
