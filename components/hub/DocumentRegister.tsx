@@ -13,6 +13,9 @@ interface RegisterDocument {
   status: string;
   version: number;
   created_at: string;
+  updated_at?: string | null;
+  client_name?: string | null;
+  trainer_name?: string | null;
 }
 
 interface DocumentRegisterProps {
@@ -40,6 +43,9 @@ type Row = {
   label: string;
   status: string;
   date: string;
+  version: number;
+  updatedAt: string;
+  updatedBy: string;
   href: string;
   editHref?: string;
   icon: React.ReactNode;
@@ -56,6 +62,9 @@ export function DocumentRegister({ clientNumber, parqs, agreements, documents = 
       label: "PAR-Q",
       status: p.status,
       date: docDate(p.status, p.sent_date, p.received_date, p.signed_at, p.created_at),
+      version: p.version ?? 1,
+      updatedAt: p.updated_at || p.created_at,
+      updatedBy: p.client_name_print || p.client_typed_signature || p.full_name || "—",
       href: `/hub/clients/${clientNumber}/parq`,
       editHref: `/hub/clients/${clientNumber}/parq/${p.id}/edit`,
       icon: <IconFileText className="h-4 w-4 text-muted-foreground" />,
@@ -65,6 +74,9 @@ export function DocumentRegister({ clientNumber, parqs, agreements, documents = 
       label: "Agreement (legacy)",
       status: a.status,
       date: docDate(a.status, a.sent_date, a.received_date, a.signed_at, a.created_at),
+      version: 1,
+      updatedAt: a.updated_at || a.created_at,
+      updatedBy: a.client_name_print || a.client_typed_signature || a.client_name || "—",
       href: `/hub/agreements/${a.id}`,
       icon: <IconFileSignature className="h-4 w-4 text-muted-foreground" />,
     })),
@@ -73,6 +85,9 @@ export function DocumentRegister({ clientNumber, parqs, agreements, documents = 
       label: `${DOCUMENT_KIND_LABEL[d.kind as DocumentKind] ?? d.title}${d.version > 1 ? ` (v${d.version})` : ""}`,
       status: d.status,
       date: d.created_at,
+      version: d.version ?? 1,
+      updatedAt: d.updated_at || d.created_at,
+      updatedBy: d.client_name || d.trainer_name || "—",
       href: `/hub/clients/${clientNumber}/documents/${d.id}`,
       editHref: `/hub/clients/${clientNumber}/documents/${d.id}`,
       icon: <IconFileSignature className="h-4 w-4 text-muted-foreground" />,
@@ -112,6 +127,9 @@ export function DocumentRegister({ clientNumber, parqs, agreements, documents = 
                 <th className="px-3 py-1.5 text-left font-medium">Document</th>
                 <th className="px-3 py-1.5 text-left font-medium">Status</th>
                 <th className="px-3 py-1.5 text-left font-medium">Date</th>
+                <th className="px-3 py-1.5 text-left font-medium">Version</th>
+                <th className="px-3 py-1.5 text-left font-medium">Last updated</th>
+                <th className="px-3 py-1.5 text-left font-medium">Last updated by</th>
                 <th className="px-3 py-1.5 text-right font-medium">&nbsp;</th>
               </tr>
             </thead>
@@ -123,6 +141,9 @@ export function DocumentRegister({ clientNumber, parqs, agreements, documents = 
                   </td>
                   <td className="px-3 py-2"><StatusBadge status={r.status} /></td>
                   <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">{formatDate(r.date)}</td>
+                  <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">v{r.version}</td>
+                  <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">{formatDate(r.updatedAt)}</td>
+                  <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">{r.updatedBy}</td>
                   <td className="px-3 py-2 text-right whitespace-nowrap">
                     {r.editHref && (
                       <Link href={r.editHref} className="text-teal font-medium hover:underline mr-3">Open</Link>
