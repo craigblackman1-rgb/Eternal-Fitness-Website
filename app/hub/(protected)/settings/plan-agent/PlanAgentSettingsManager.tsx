@@ -111,6 +111,9 @@ function SettingEditor({
   if (setting.value_type === "list") {
     return <ListEditor setting={setting} onUpdate={onUpdate} onSave={onSave} />;
   }
+  if (setting.value_type === "phase_guidance" || setting.value_type === "archetype_labels") {
+    return <KeyedTextEditor setting={setting} onUpdate={onUpdate} onSave={onSave} />;
+  }
   return null;
 }
 
@@ -293,6 +296,55 @@ function ListEditor({
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
         />
+        <div className="flex justify-end">
+          <Button size="sm" onClick={handleSave} disabled={saving}>
+            Save
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+/** Editor for a flat Record<string,string> — one labelled row per key, shared Save.
+ *  Used for phase_guidance (foundation/build/develop/peak/deload) and
+ *  archetype_labels (A/B/C). */
+function KeyedTextEditor({
+  setting,
+  onUpdate,
+  onSave,
+}: {
+  setting: PlanAgentSetting;
+  onUpdate: (value: unknown) => void;
+  onSave: (value: unknown) => void;
+}) {
+  const initial = (setting.value && typeof setting.value === "object" ? setting.value : {}) as Record<string, string>;
+  const [draft, setDraft] = useState(initial);
+  const [saving, setSaving] = useState(false);
+
+  function updateField(k: string, v: string) {
+    setDraft((prev) => ({ ...prev, [k]: v }));
+  }
+
+  async function handleSave() {
+    setSaving(true);
+    onUpdate(draft);
+    await onSave(draft);
+    setSaving(false);
+  }
+
+  return (
+    <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
+      <CardHeader>
+        <CardTitle className="text-base">{setting.label}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {Object.keys(draft).map((k) => (
+          <div key={k} className="space-y-1">
+            <Label className="text-xs text-muted-foreground capitalize">{k}</Label>
+            <Input value={draft[k]} onChange={(e) => updateField(k, e.target.value)} />
+          </div>
+        ))}
         <div className="flex justify-end">
           <Button size="sm" onClick={handleSave} disabled={saving}>
             Save

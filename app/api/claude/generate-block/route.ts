@@ -59,12 +59,19 @@ export async function POST(request: Request) {
     .eq("active", true)
     .order("sort_order", { ascending: true });
 
+  const { data: settingsRows } = await supabase
+    .from("plan_agent_settings")
+    .select("key, value_type, value");
+  const planAgentSettings: PlanAgentSettingsMap = Object.fromEntries(
+    (settingsRows ?? []).map((row) => [row.key, { value_type: row.value_type, value: row.value }]),
+  );
+
   const aiConfig = getAiConfig();
   let sessions: Session[];
 
   if (aiConfig.provider) {
     try {
-      sessions = await generateViaAi(profile, ruleTypesById, equipmentRows ?? [], blockNote, previousSummary, blockNumber);
+      sessions = await generateViaAi(profile, ruleTypesById, equipmentRows ?? [], planAgentSettings, blockNote, previousSummary, blockNumber);
     } catch (err) {
       const detail = err instanceof Error ? err.message.slice(0, 300) : "unknown error";
       console.error(`[generate-block] AI generation failed via ${aiConfig.provider} (${aiConfig.model}): ${detail}`);
@@ -145,11 +152,34 @@ export async function POST(request: Request) {
  *  Haiku via env var if cost/latency becomes a real problem. */
 const PLAN_MODEL = process.env.PLAN_MODEL || "anthropic/claude-opus-4-8";
 
-const archetypeFocusLabels: Record<Archetype, string> = {
+type PlanAgentSettingsMap = Record<string, { value_type: string; value: unknown }>;
+
+const DEFAULT_ARCHETYPE_FOCUS_LABELS: Record<Archetype, string> = {
   A: "Mobility & Movement Quality",
   B: "Strength & Stability",
   C: "Power & Conditioning",
 };
+
+const DEFAULT_PHASE_GUIDANCE: Record<Phase, string> = {
+  foundation: "basic regressions, learn patterns, low load, lower ROM",
+  build: "increase load, add complexity to established patterns",
+  develop: "compound movements, greater ROM, higher challenge",
+  peak: "highest intensity/volume of the block",
+  deload: "drop volume, submax loads, active recovery focus, easier exercises",
+};
+
+const DEFAULT_CLINICAL_SYSTEM_PROMPT = `You are an expert exercise physiologist supporting Esther Fair, a Level 4 Personal Trainer
+specialising in cancer rehabilitation, exercise referral, adaptive training, and complex health needs.
+
+Your output will be reviewed by Esther before any client sees it. Generate safe, clinically-aware
+sessions. Every exercise must include a modification specific to this client's contraindications.
+Never exceed the client's implied intensity ceiling based on their conditions and fitness level.
+
+The user prompt includes a HARD CONSTRAINTS section for this specific client — these are non-negotiable.
+If an exercise conflicts with anything marked [HARD], do not include it; find an alternative that
+respects the constraint instead. Do not ask Esther to repeat these — they are already known.
+
+Return one valid JSON object matching the Session schema. No markdown, no preamble, no explanation.`;
 
 interface SessionSlot {
   session_number: number;
@@ -179,6 +209,7 @@ async function generateViaAi(
   profile: ClientProfile,
   ruleTypesById: RuleTypesById,
   equipmentRows: EquipmentRow[],
+  planAgentSettings: PlanAgentSettingsMap,
   blockNote?: string,
   previousSummary?: string,
   _blockNumber?: number
@@ -188,7 +219,7 @@ async function generateViaAi(
   // Generate sessions concurrently — one call each — so the route completes
   // well within serverless limits even for a full 3x/week block (18 calls).
   const settled = await Promise.allSettled(
-    slots.map((slot) => generateOneSession(profile, slot, ruleTypesById, equipmentRows, blockNote, previousSummary)),
+    slots.map((slot) => generateOneSession(profile, slot, ruleTypesById, equipmentRows, planAgentSettings, blockNote, previousSummary)),
   );
 
   const sessions: Session[] = [];
@@ -210,34 +241,32 @@ async function generateViaAi(
   return sessions;
 }
 
-const planSystem = `You are an expert exercise physiologist supporting Esther Fair, a Level 4 Personal Trainer
-specialising in cancer rehabilitation, exercise referral, adaptive training, and complex health needs.
+function resolveClinicalSystemPrompt(planAgentSettings: PlanAgentSettingsMap): string {
+  const raw = planAgentSettings.clinical_system_prompt?.value;
+  return typeof raw === "string" ? raw : DEFAULT_CLINICAL_SYSTEM_PROMPT;
+}
 
-Your output will be reviewed by Esther before any client sees it. Generate safe, clinically-aware
-sessions. Every exercise must include a modification specific to this client's contraindications.
-Never exceed the client's implied intensity ceiling based on their conditions and fitness level.
+function resolvePhaseGuidance(planAgentSettings: PlanAgentSettingsMap): Record<Phase, string> {
+  const raw = planAgentSettings.phase_guidance?.value;
+  return raw && typeof raw === "object" ? { ...DEFAULT_PHASE_GUIDANCE, ...(raw as Record<Phase, string>) } : DEFAULT_PHASE_GUIDANCE;
+}
 
-The user prompt includes a HARD CONSTRAINTS section for this specific client — these are non-negotiable.
-If an exercise conflicts with anything marked [HARD], do not include it; find an alternative that
-respects the constraint instead. Do not ask Esther to repeat these — they are already known.
-
-Return one valid JSON object matching the Session schema. No markdown, no preamble, no explanation.`;
+function resolveArchetypeFocusLabels(planAgentSettings: PlanAgentSettingsMap): Record<Archetype, string> {
+  const raw = planAgentSettings.archetype_focus_labels?.value;
+  return raw && typeof raw === "object" ? { ...DEFAULT_ARCHETYPE_FOCUS_LABELS, ...(raw as Record<Archetype, string>) } : DEFAULT_ARCHETYPE_FOCUS_LABELS;
+}
 
 function sessionPrompt(
   profile: ClientProfile,
   slot: SessionSlot,
   ruleTypesById: RuleTypesById,
   equipmentRows: EquipmentRow[],
+  planAgentSettings: PlanAgentSettingsMap,
   blockNote?: string,
   previousSummary?: string,
 ): string {
-  const phaseGuidance: Record<Phase, string> = {
-    foundation: "basic regressions, learn patterns, low load, lower ROM",
-    build: "increase load, add complexity to established patterns",
-    develop: "compound movements, greater ROM, higher challenge",
-    peak: "highest intensity/volume of the block",
-    deload: "drop volume, submax loads, active recovery focus, easier exercises",
-  };
+  const phaseGuidance = resolvePhaseGuidance(planAgentSettings);
+  const archetypeFocusLabels = resolveArchetypeFocusLabels(planAgentSettings);
 
   const rulesSection = buildTrainingRulesSection(profile.programming_adaptations ?? [], ruleTypesById);
 
@@ -290,10 +319,13 @@ async function generateOneSession(
   slot: SessionSlot,
   ruleTypesById: RuleTypesById,
   equipmentRows: EquipmentRow[],
+  planAgentSettings: PlanAgentSettingsMap,
   blockNote?: string,
   previousSummary?: string,
 ): Promise<Session> {
-  const user = sessionPrompt(profile, slot, ruleTypesById, equipmentRows, blockNote, previousSummary);
+  const planSystem = resolveClinicalSystemPrompt(planAgentSettings);
+  const archetypeFocusLabels = resolveArchetypeFocusLabels(planAgentSettings);
+  const user = sessionPrompt(profile, slot, ruleTypesById, equipmentRows, planAgentSettings, blockNote, previousSummary);
 
   const text = await aiChat({ system: planSystem, user, model: PLAN_MODEL, maxTokens: 6000 });
   if (!text) throw new Error("AI returned no response");
