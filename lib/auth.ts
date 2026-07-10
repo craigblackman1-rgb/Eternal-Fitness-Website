@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { Pool } from "pg";
+import { getEmailSender } from "@/lib/email";
 
 const _cs = process.env.DATABASE_URL;
 const pool = new Pool({
@@ -14,6 +15,18 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
+    sendResetPassword: async ({ user, url }) => {
+      await getEmailSender().send({
+        to: user.email,
+        subject: "Reset your Eternal Fitness hub password",
+        html: `
+          <p>Hi ${user.name || ""},</p>
+          <p>Someone requested a password reset for the Eternal Fitness hub. Click below to set a new password — this link expires in 1 hour.</p>
+          <p><a href="${url}">Reset your password</a></p>
+          <p>If you didn't request this, you can ignore this email.</p>
+        `,
+      });
+    },
   },
 });
 
