@@ -12,11 +12,71 @@ interface ChatMessage {
   content: string;
 }
 
-const PACE_MODE_DESCRIPTIONS: Record<string, { label: string; superset_a: number; superset_b: number; arms_core: number; finisher: boolean; total: number }> = {
+type PaceModeEntry = { label: string; superset_a: number; superset_b: number; arms_core: number; finisher: boolean; total: number };
+
+const DEFAULT_PACE_MODES: Record<string, PaceModeEntry> = {
   fast:   { label: "Fast",   superset_a: 3, superset_b: 3, arms_core: 3, finisher: true,  total: 10 },
   medium: { label: "Medium", superset_a: 3, superset_b: 2, arms_core: 2, finisher: true,  total: 8  },
   slow:   { label: "Slow",   superset_a: 2, superset_b: 2, arms_core: 2, finisher: false, total: 6  },
 };
+
+const DEFAULT_SESSION_STRUCTURE_TEMPLATE =
+  "Warm-up & Activation — 10 min, 2 sets, flow through, no rest\n" +
+  "Hypertrophy Superset A — 15 min, {{superset_a}} exercises, 2 sets, 60–75s rest. Mobility drill in rest period.\n" +
+  "Hypertrophy Superset B — 15 min, {{superset_b}} exercises, 2 sets, 60–75s rest. Mobility drill in rest period.\n" +
+  "Arms + Core — 12 min, {{arms_core}} exercises, 2 sets, 60s rest between sets, flow through exercises.\n" +
+  "{{finisher_line}}\n" +
+  "Buffer — 5 min for setup, transitions, coaching cues. Always account for this.";
+
+const DEFAULT_LOADING_PRINCIPLES = [
+  "8–12 reps for compound movements",
+  "10–15 reps for accessory and isolation",
+  "2–4 second eccentric (lowering phase)",
+  "2 sets across all blocks",
+  "Progress load only when form is perfect",
+  "Mobility sits inside the rest period, not between exercises within a superset",
+  "Dynamic drills only mid-session — no static holds over 15 seconds",
+];
+
+const DEFAULT_CHECKLIST_BEFORE_BUILDING = [
+  "Review block history — what was the last focus? What comes next logically?",
+  "Has anything changed in this client's health or circumstances?",
+  "Check outstanding actions — do any affect programming?",
+  "Confirm paperwork is in order before programming",
+];
+
+const DEFAULT_CHECKLIST_BUILDING_SESSIONS = [
+  "\"Full body\" means every one of these muscle groups is directly targeted at least once across the block's session set (a session doesn't need all of them, but the block does): quads, hamstrings, glutes, back, chest, biceps, triceps, shoulders, core. A compound lift may cover more than one group, but every group must be traceable to at least one exercise — a plan with zero chest or zero quad work is not full body and must not be produced.",
+  "Each of the 3 sessions must feel genuinely different (different warm-ups, finishers, main work)",
+  "No novelty exercise repeats across the 3 sessions (compound lifts are fine to repeat)",
+  "Check equipment conflicts — don't pair exercises that use the same barbell",
+  "Landmine exercises: flag custom video needs",
+  "Mobility in rest periods: 1–2 dynamic drills per superset, relevant to joints being loaded",
+  "Build gym version first; note home alternatives where relevant",
+  "Only use equipment listed in STUDIO EQUIPMENT above — do not invent equipment not on that list",
+];
+
+const DEFAULT_CHECKLIST_AFTER_BUILDING = [
+  "Muscle-group audit: list which exercise covers each of quads / hamstrings / glutes / back / chest / biceps / triceps / shoulders / core. If any group has no exercise, go back and add one before responding.",
+  "Re-read HARD CONSTRAINTS FOR THIS CLIENT above and confirm nothing you've included conflicts with it",
+  "Sense check: do all 3 sessions feel genuinely different?",
+  "Note any Trainerize custom video requirements",
+  "Flag anything for Esther's clinical review",
+];
+
+const DEFAULT_SAFETY_RULES = [
+  "Never programme exercises requiring equipment not confirmed in the studio",
+  "Never exceed the client's intensity ceiling",
+  "Every exercise must have a documented modification",
+  "Never mark a plan as approved — that is Esther's action only",
+  "Cancer-related fatigue is not training fatigue — default to lower volume",
+  "If lymphoedema risk is present, flag any compression or sustained upper limb loading",
+  "If BP monitoring required, flag exercises that cause Valsalva",
+  "If clearance is pending, label the plan DRAFT — PENDING CLEARANCE",
+  "If there is no PAR-Q on file and no trainer override recorded above, refuse to produce a full plan — tell Esther it must be completed first",
+];
+
+type PlanAgentSettingsMap = Record<string, { value_type: string; value: unknown }>;
 
 function buildSystemPrompt(
   client: Record<string, unknown>,
@@ -25,13 +85,57 @@ function buildSystemPrompt(
   recentUpdates: SentUpdate[],
   ruleTypesById: Record<string, Pick<TrainingRuleType, "label" | "bucket">>,
   equipmentRows: Array<{ name: string; detail: string | null; home_equivalent: string | null }>,
+  planAgentSettings: PlanAgentSettingsMap,
 ): string {
   const profile = client.profile as Record<string, unknown>;
   const health = profile?.health as { parq_trainer_override?: boolean; parq_trainer_override_note?: string } | undefined;
   const parqOverride = health?.parq_trainer_override
     ? { confirmed: true, note: health.parq_trainer_override_note }
     : undefined;
-  const pace = PACE_MODE_DESCRIPTIONS[(client.pace_mode as string) ?? "medium"];
+  const paceModes = (planAgentSettings.pace_modes?.value as Record<string, PaceModeEntry> | undefined) ?? DEFAULT_PACE_MODES;
+  const pace = paceModes[(client.pace_mode as string) ?? "medium"];
+
+  const finisherLine = pace.finisher
+    ? "Conditioning Finisher — 5 min, one focused effort. Battle rope / KB complex / loaded carry. Must differ across all 3 sessions."
+    : "No finisher for this client — pace mode is Slow.";
+
+  const sessionTemplate = (typeof planAgentSettings.session_structure_template?.value === "string"
+    ? planAgentSettings.session_structure_template.value
+    : DEFAULT_SESSION_STRUCTURE_TEMPLATE)
+    .replace(/\{\{superset_a\}\}/g, String(pace.superset_a))
+    .replace(/\{\{superset_b\}\}/g, String(pace.superset_b))
+    .replace(/\{\{arms_core\}\}/g, String(pace.arms_core))
+    .replace(/\{\{finisher_line\}\}/g, finisherLine);
+
+  const loadingPrinciples = (Array.isArray(planAgentSettings.loading_principles?.value)
+    ? (planAgentSettings.loading_principles.value as string[])
+    : DEFAULT_LOADING_PRINCIPLES)
+    .map((item) => `- ${item}`)
+    .join("\n");
+
+  const checklistBefore = (Array.isArray(planAgentSettings.checklist_before_building?.value)
+    ? (planAgentSettings.checklist_before_building.value as string[])
+    : DEFAULT_CHECKLIST_BEFORE_BUILDING)
+    .map((item) => `- ${item}`)
+    .join("\n");
+
+  const checklistBuilding = (Array.isArray(planAgentSettings.checklist_building_sessions?.value)
+    ? (planAgentSettings.checklist_building_sessions.value as string[])
+    : DEFAULT_CHECKLIST_BUILDING_SESSIONS)
+    .map((item) => `- ${item}`)
+    .join("\n");
+
+  const checklistAfter = (Array.isArray(planAgentSettings.checklist_after_building?.value)
+    ? (planAgentSettings.checklist_after_building.value as string[])
+    : DEFAULT_CHECKLIST_AFTER_BUILDING)
+    .map((item) => `- ${item}`)
+    .join("\n");
+
+  const safetyRules = (Array.isArray(planAgentSettings.safety_rules?.value)
+    ? (planAgentSettings.safety_rules.value as string[])
+    : DEFAULT_SAFETY_RULES)
+    .map((item) => `- ${item}`)
+    .join("\n");
 
   let equipmentFile: Record<string, unknown> = { space_constraints: "", custom_video_needed: [] };
   let sessionStructure: Record<string, unknown> = {};
@@ -127,70 +231,32 @@ ${customVideoList}
 ---
 
 60-MINUTE SESSION STRUCTURE:
-Warm-up & Activation — 10 min, 2 sets, flow through, no rest
-Hypertrophy Superset A — 15 min, ${pace.superset_a} exercises, 2 sets, 60–75s rest. Mobility drill in rest period.
-Hypertrophy Superset B — 15 min, ${pace.superset_b} exercises, 2 sets, 60–75s rest. Mobility drill in rest period.
-Arms + Core — 12 min, ${pace.arms_core} exercises, 2 sets, 60s rest between sets, flow through exercises.
-${pace.finisher ? "Conditioning Finisher — 5 min, one focused effort. Battle rope / KB complex / loaded carry. Must differ across all 3 sessions." : "No finisher for this client — pace mode is Slow."}
-Buffer — 5 min for setup, transitions, coaching cues. Always account for this.
+${sessionTemplate}
 
 LOADING PRINCIPLES:
-- 8–12 reps for compound movements
-- 10–15 reps for accessory and isolation
-- 2–4 second eccentric (lowering phase)
-- 2 sets across all blocks
-- Progress load only when form is perfect
-- Mobility sits inside the rest period, not between exercises within a superset
-- Dynamic drills only mid-session — no static holds over 15 seconds
+${loadingPrinciples}
 
 ---
 
 BUILD CHECKLIST — work through this before producing a plan:
 
 BEFORE BUILDING:
-- Review block history — what was the last focus? What comes next logically?
-- Has anything changed in this client's health or circumstances?
-- Check outstanding actions — do any affect programming?
-- Confirm paperwork is in order before programming
+${checklistBefore}
 
 BUILDING SESSIONS:
-- "Full body" means every one of these muscle groups is directly targeted at least once across the block's
-  session set (a session doesn't need all of them, but the block does): quads, hamstrings, glutes, back,
-  chest, biceps, triceps, shoulders, core. A compound lift may cover more than one group, but every group
-  must be traceable to at least one exercise — a plan with zero chest or zero quad work is not full body
-  and must not be produced.
-- Each of the 3 sessions must feel genuinely different (different warm-ups, finishers, main work)
-- No novelty exercise repeats across the 3 sessions (compound lifts are fine to repeat)
-- Check equipment conflicts — don't pair exercises that use the same barbell
-- Landmine exercises: flag custom video needs
-- Mobility in rest periods: 1–2 dynamic drills per superset, relevant to joints being loaded
-- Build gym version first; note home alternatives where relevant
-- Only use equipment listed in STUDIO EQUIPMENT above — do not invent equipment not on that list
+${checklistBuilding}
 
 TIMING SENSE CHECK:
 - Would Esther get through this in 60 min at this client's pace?
 - Total exercises: ${pace.total} (not including warm-up and cooldown)
 
 AFTER BUILDING — do not output the plan until you've verified all of these:
-- Muscle-group audit: list which exercise covers each of quads / hamstrings / glutes / back / chest /
-  biceps / triceps / shoulders / core. If any group has no exercise, go back and add one before responding.
-- Re-read HARD CONSTRAINTS FOR THIS CLIENT above and confirm nothing you've included conflicts with it
-- Sense check: do all 3 sessions feel genuinely different?
-- Note any Trainerize custom video requirements
-- Flag anything for Esther's clinical review
+${checklistAfter}
 
 ---
 
 SAFETY RULES — never violate:
-- Never programme exercises requiring equipment not confirmed in the studio
-- Never exceed the client's intensity ceiling
-- Every exercise must have a documented modification
-- Never mark a plan as approved — that is Esther's action only
-- Cancer-related fatigue is not training fatigue — default to lower volume
-- If lymphoedema risk is present, flag any compression or sustained upper limb loading
-- If BP monitoring required, flag exercises that cause Valsalva
-- If clearance is pending, label the plan DRAFT — PENDING CLEARANCE
-- If there is no PAR-Q on file and no trainer override recorded above, refuse to produce a full plan — tell Esther it must be completed first
+${safetyRules}
 
 FORMATTING:
 Your replies render as markdown. Structure every plan with ## session headings, and present exercises
@@ -258,7 +324,15 @@ export async function POST(request: Request) {
     .eq("active", true)
     .order("sort_order", { ascending: true });
 
-  const systemPrompt = buildSystemPrompt(client, blocks ?? [], parq, recentUpdates ?? [], ruleTypesById, equipmentRows ?? []);
+  const { data: settingsRows } = await supabase
+    .from("plan_agent_settings")
+    .select("key, value_type, value");
+
+  const planAgentSettings: PlanAgentSettingsMap = Object.fromEntries(
+    (settingsRows ?? []).map((row) => [row.key, { value_type: row.value_type, value: row.value }]),
+  );
+
+  const systemPrompt = buildSystemPrompt(client, blocks ?? [], parq, recentUpdates ?? [], ruleTypesById, equipmentRows ?? [], planAgentSettings);
 
   // Plan Agent is quality-critical (it's meant to save Esther time) — always request
   // the best available model rather than whatever cheaper default is configured
