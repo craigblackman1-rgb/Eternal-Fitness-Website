@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ interface PlanAgentSetting {
   value_type: string;
   value: unknown;
   sort_order: number;
+  description: string | null;
 }
 
 interface PlanAgentSettingsManagerProps {
@@ -150,6 +151,9 @@ function PaceModesEditor({
     <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
       <CardHeader>
         <CardTitle className="text-base">{setting.label}</CardTitle>
+        {setting.description && (
+          <CardDescription className="text-xs leading-relaxed">{setting.description}</CardDescription>
+        )}
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="overflow-x-auto">
@@ -244,6 +248,9 @@ function TextEditor({
     <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
       <CardHeader>
         <CardTitle className="text-base">{setting.label}</CardTitle>
+        {setting.description && (
+          <CardDescription className="text-xs leading-relaxed">{setting.description}</CardDescription>
+        )}
       </CardHeader>
       <CardContent className="space-y-3">
         <Textarea
@@ -287,6 +294,9 @@ function ListEditor({
     <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
       <CardHeader>
         <CardTitle className="text-base">{setting.label}</CardTitle>
+        {setting.description && (
+          <CardDescription className="text-xs leading-relaxed">{setting.description}</CardDescription>
+        )}
       </CardHeader>
       <CardContent className="space-y-3">
         <Label className="text-xs text-muted-foreground">One item per line</Label>
@@ -337,6 +347,9 @@ function KeyedTextEditor({
     <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
       <CardHeader>
         <CardTitle className="text-base">{setting.label}</CardTitle>
+        {setting.description && (
+          <CardDescription className="text-xs leading-relaxed">{setting.description}</CardDescription>
+        )}
       </CardHeader>
       <CardContent className="space-y-3">
         {Object.keys(draft).map((k) => (

@@ -28,6 +28,7 @@ export default async function PlanAgentSettingsPage() {
         value_type: string;
         value: unknown;
         sort_order: number;
+        description: string | null;
       }>} />
     </div>
   );
