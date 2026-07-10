@@ -16,41 +16,61 @@ import { createAdminClient } from "@/lib/supabase-admin";
  *   Settings → Event Webhook → Events to track: Delivered, Opened, Clicked, Bounced, Dropped
  *
  * Security: if SENDGRID_WEBHOOK_PUBLIC_KEY is set, requests are verified via
- * Ed25519 signature (X-Twilio-Email-Event-Webhook-Signature /
- * X-Twilio-Email-Event-Webhook-Timestamp). If the key is not set, requests
- * are accepted but a warning is logged (local dev convenience).
+ * ECDSA P-256 signature (X-Twilio-Email-Event-Webhook-Signature /
+ * X-Twilio-Email-Event-Webhook-Timestamp) — SendGrid's Signed Event Webhook
+ * uses ECDSA on the P-256 curve, NOT Ed25519, despite the header names.
+ * If the key is not set, requests are accepted but a warning is logged
+ * (local dev convenience). If the key IS set, a verification failure of any
+ * kind rejects the request — fail closed once we're supposed to be checking.
  */
 
 const WEBHOOK_KEY = process.env.SENDGRID_WEBHOOK_PUBLIC_KEY || "";
 
-// --- Ed25519 verification via Web Crypto API (Node 16+ / modern runtimes) -----
+// --- ECDSA P-256 verification via Web Crypto API -------------------------
 
-async function verifyEd25519(
+/** SendGrid signatures are DER-encoded; Web Crypto's ECDSA verify wants raw r||s (32 bytes each for P-256). */
+function derToRawEcdsaSignature(der: Buffer): Buffer {
+  if (der[0] !== 0x30) throw new Error("Not a DER SEQUENCE");
+  let offset = 2;
+  if (der[1] & 0x80) offset += der[1] & 0x7f; // long-form length, skip extra length bytes
+
+  function readInt(buf: Buffer, at: number): { value: Buffer; next: number } {
+    if (buf[at] !== 0x02) throw new Error("Expected DER INTEGER");
+    const len = buf[at + 1];
+    let start = at + 2;
+    let bytes = buf.subarray(start, start + len);
+    // Strip a leading 0x00 sign-padding byte, then left-pad to 32 bytes.
+    if (bytes.length > 32 && bytes[0] === 0x00) bytes = bytes.subarray(1);
+    const padded = Buffer.alloc(32);
+    bytes.copy(padded, 32 - bytes.length);
+    return { value: padded, next: start + len };
+  }
+
+  const r = readInt(der, offset);
+  const s = readInt(der, r.next);
+  return Buffer.concat([r.value, s.value]);
+}
+
+async function verifySendGridSignature(
   publicKeyBase64: string,
   signatureBase64: string,
   timestamp: string,
   payload: string,
 ): Promise<boolean> {
-  try {
-    const keyBytes = Buffer.from(publicKeyBase64, "base64");
-    const sigBytes = Buffer.from(signatureBase64, "base64");
+  const keyBytes = Buffer.from(publicKeyBase64, "base64");
+  const derSig = Buffer.from(signatureBase64, "base64");
+  const rawSig = derToRawEcdsaSignature(derSig);
 
-    const key = await crypto.subtle.importKey(
-      "raw",
-      keyBytes,
-      { name: "Ed25519" } as any,
-      false,
-      ["verify"],
-    );
+  const key = await crypto.subtle.importKey(
+    "spki",
+    keyBytes,
+    { name: "ECDSA", namedCurve: "P-256" },
+    false,
+    ["verify"],
+  );
 
-    const data = new TextEncoder().encode(`${timestamp}${payload}`);
-    return await crypto.subtle.verify({ name: "Ed25519" } as any, key, sigBytes, data);
-  } catch {
-    // Web Crypto Ed25519 may not be available in all environments.
-    // Fall back to accepting the request (signature check disabled).
-    console.warn("[sendgrid-webhook] Ed25519 verification unavailable — accepting request without verification");
-    return true;
-  }
+  const data = new TextEncoder().encode(`${timestamp}${payload}`);
+  return await crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, key, new Uint8Array(rawSig), data);
 }
 
 interface SendGridEvent {
@@ -71,7 +91,13 @@ export async function POST(request: Request) {
       console.warn("[sendgrid-webhook] Missing signature headers — rejecting request");
       return NextResponse.json({ error: "Missing signature" }, { status: 401 });
     }
-    const valid = await verifyEd25519(WEBHOOK_KEY, sig, ts, body);
+    let valid = false;
+    try {
+      valid = await verifySendGridSignature(WEBHOOK_KEY, sig, ts, body);
+    } catch (err) {
+      console.error("[sendgrid-webhook] Signature verification error — rejecting request", err);
+      return NextResponse.json({ error: "Signature verification failed" }, { status: 401 });
+    }
     if (!valid) {
       console.warn("[sendgrid-webhook] Invalid signature — rejecting request");
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
