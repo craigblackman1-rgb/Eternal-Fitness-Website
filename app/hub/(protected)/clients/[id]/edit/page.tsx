@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,7 +41,6 @@ const emptyProfile: ClientProfile = {
 
 export default function EditClientPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const supabase = createClient();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState("");
@@ -56,16 +54,13 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     async function load() {
-      const { data, error } = await supabase
-        .from("clients")
-        .select("*")
-        .eq("client_number", parseInt(params.id))
-        .single();
-      if (error || !data) {
+      const res = await fetch(`/api/clients/${params.id}`);
+      if (!res.ok) {
         toast.error("Failed to load client");
         router.push("/hub/clients");
         return;
       }
+      const data = await res.json();
       setName(data.name);
       setEmail(data.email ?? "");
       setPhone(data.phone ?? "");
@@ -93,7 +88,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
       setLoading(false);
     }
     load();
-  }, [params.id, supabase, router]);
+  }, [params.id, router]);
 
   const updateProfile = <K extends keyof ClientProfile>(section: K, updates: Partial<ClientProfile[K]>) => {
     setProfile((prev) => ({
@@ -114,9 +109,10 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
       client: { ...profile.client, name: name.trim(), age: calculateAge(profile.client.date_of_birth) || profile.client.age },
     };
 
-    const { error } = await supabase
-      .from("clients")
-      .update({
+    const res = await fetch(`/api/clients/${params.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         name: name.trim(),
         email: email.trim() || null,
         phone: phone.trim() || null,
@@ -125,11 +121,12 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
         outstanding_actions: outstandingActions.split("\n").map((s) => s.trim()).filter(Boolean),
         group_type: groupType,
         pace_mode: paceMode,
-      })
-      .eq("client_number", parseInt(params.id));
+      }),
+    });
 
-    if (error) {
-      toast.error(`Failed to save: ${error.message}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "Failed to save" }));
+      toast.error(`Failed to save: ${err.error}`);
       setSaving(false);
       return;
     }

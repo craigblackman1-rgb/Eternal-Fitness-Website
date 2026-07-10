@@ -17,7 +17,10 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json();
-  const { data, error } = await supabase.from("clients").update(body).eq("client_number", parseInt(params.id)).select().single();
+  const numericId = parseInt(params.id);
+  const col = Number.isFinite(numericId) && numericId > 0 ? "client_number" : "id";
+  const val = Number.isFinite(numericId) && numericId > 0 ? numericId : params.id;
+  const { data, error } = await supabase.from("clients").update(body).eq(col, val).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
 }

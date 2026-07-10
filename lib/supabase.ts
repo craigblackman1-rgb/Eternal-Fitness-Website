@@ -1,23 +1,16 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createPgClient } from "@/lib/pg-client";
 
-let client: SupabaseClient | null = null;
+let client: ReturnType<typeof createPgClient> | null = null;
 
-function getClient(): SupabaseClient {
+function getClient() {
   if (!client) {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!supabaseUrl || !supabaseAnonKey) {
-      throw new Error("Supabase env vars not configured");
-    }
-    client = createClient(supabaseUrl, supabaseAnonKey);
+    client = createPgClient();
   }
   return client;
 }
 
-// Lazily initialized so importing this module never throws at build time
-// (NEXT_PUBLIC_SUPABASE_* vars aren't available during static generation unless
-// baked in as Docker build-args — see Coolify build-time env config).
-export const supabase = new Proxy({} as SupabaseClient, {
+// Lazily initialized so importing this module never throws at build time.
+export const supabase = new Proxy({} as ReturnType<typeof createPgClient>, {
   get(_target, prop, receiver) {
     return Reflect.get(getClient(), prop, receiver);
   },

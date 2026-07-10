@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { IconDownload } from "@/components/icons";
 import { toast } from "sonner";
-import { createClient } from "@/lib/supabase-client";
 import * as XLSX from "xlsx";
 import type { DBSession } from "@/types";
 
@@ -18,18 +17,13 @@ export function ExportSpreadsheetButton({
   clientName: string;
 }) {
   const [exporting, setExporting] = useState(false);
-  const supabase = createClient();
 
   const handleExport = async () => {
     setExporting(true);
     try {
-      const { data: sessions, error } = await supabase
-        .from("sessions")
-        .select("*")
-        .eq("block_id", blockId)
-        .order("session_number", { ascending: true });
-
-      if (error) throw error;
+      const res = await fetch(`/api/blocks/${blockId}/sessions`);
+      if (!res.ok) throw new Error("Failed to fetch sessions");
+      const sessions = await res.json();
       if (!sessions || sessions.length === 0) {
         toast.error("No sessions found");
         setExporting(false);

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase-client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +17,6 @@ interface GpLetterCardProps {
 
 export function GpLetterCard({ clientId, gpLetterStatus, requestedDate, receivedDate }: GpLetterCardProps) {
   const router = useRouter();
-  const supabase = createClient();
   const [status, setStatus] = useState<GpLetterStatus>(gpLetterStatus);
   const [requested, setRequested] = useState(requestedDate ?? "");
   const [received, setReceived] = useState(receivedDate ?? "");
@@ -26,10 +24,15 @@ export function GpLetterCard({ clientId, gpLetterStatus, requestedDate, received
 
   const save = async (updates: Partial<{ gp_letter_status: GpLetterStatus; gp_letter_requested_date: string | null; gp_letter_received_date: string | null }>) => {
     setSaving(true);
-    const { error } = await supabase.from("clients").update(updates).eq("id", clientId);
+    const res = await fetch(`/api/clients/${encodeURIComponent(clientId)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updates),
+    });
     setSaving(false);
-    if (error) {
-      toast.error(`Failed to save: ${error.message}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "Failed to save" }));
+      toast.error(`Failed to save: ${err.error}`);
       return;
     }
     router.refresh();

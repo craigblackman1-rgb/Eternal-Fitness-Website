@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase-client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -52,7 +51,6 @@ function titleCase(value: string | null) {
 
 export function PackagePaymentsCard({ clientId, initial }: PackagePaymentsCardProps) {
   const router = useRouter();
-  const supabase = createClient();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<Fields>(initial);
@@ -68,10 +66,15 @@ export function PackagePaymentsCard({ clientId, initial }: PackagePaymentsCardPr
   const save = async () => {
     setSaving(true);
     const payload: Fields = { ...form, sessions_remaining: derivedRemaining ?? null };
-    const { error } = await supabase.from("clients").update(payload).eq("id", clientId);
+    const res = await fetch(`/api/clients/${encodeURIComponent(clientId)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
     setSaving(false);
-    if (error) {
-      toast.error(`Failed to save: ${error.message}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "Failed to save" }));
+      toast.error(`Failed to save: ${err.error}`);
       return;
     }
     toast.success("Package & payments updated");

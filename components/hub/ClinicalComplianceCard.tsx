@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase-client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -45,17 +44,21 @@ const riskTone: Record<RiskLevel, string> = {
 
 export function ClinicalComplianceCard({ clientId, initial }: ClinicalComplianceCardProps) {
   const router = useRouter();
-  const supabase = createClient();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<Fields>(initial);
 
   const save = async () => {
     setSaving(true);
-    const { error } = await supabase.from("clients").update(form).eq("id", clientId);
+    const res = await fetch(`/api/clients/${encodeURIComponent(clientId)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
     setSaving(false);
-    if (error) {
-      toast.error(`Failed to save: ${error.message}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "Failed to save" }));
+      toast.error(`Failed to save: ${err.error}`);
       return;
     }
     toast.success("Clinical status updated");

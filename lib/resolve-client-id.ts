@@ -1,9 +1,9 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { PgClient } from "@/lib/pg-client";
 
 /** Resolves a ?client=<client_number> query value to the clients.id UUID, used to
  * attach public-form submissions (PAR-Q, agreement) to the right client record. */
 export async function resolveClientId(
-  supabase: SupabaseClient,
+  supabase: PgClient,
   clientNumber: unknown,
 ): Promise<string | null> {
   const num = Number(clientNumber);

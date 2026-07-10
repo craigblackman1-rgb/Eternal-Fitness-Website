@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase-client";
 import { HubBreadcrumb } from "./HubBreadcrumb";
 import { IconSearch, IconUserPlus } from "@/components/icons";
 
@@ -13,7 +12,6 @@ interface ClientSearchResult {
 }
 
 function ClientSearch() {
-  const supabase = createClient();
   const router = useRouter();
   const [term, setTerm] = useState("");
   const [results, setResults] = useState<ClientSearchResult[]>([]);
@@ -27,13 +25,15 @@ function ClientSearch() {
     }
     let cancelled = false;
     const timeout = setTimeout(async () => {
-      const { data } = await supabase
-        .from("clients")
-        .select("client_number, name")
-        .ilike("name", `%${term.trim()}%`)
-        .order("name", { ascending: true })
-        .limit(6);
-      if (!cancelled) setResults(data ?? []);
+      const res = await fetch(`/api/clients?search=${encodeURIComponent(term.trim())}`);
+      if (!cancelled) {
+        if (res.ok) {
+          const data = await res.json();
+          setResults(data ?? []);
+        } else {
+          setResults([]);
+        }
+      }
     }, 200);
     return () => {
       cancelled = true;

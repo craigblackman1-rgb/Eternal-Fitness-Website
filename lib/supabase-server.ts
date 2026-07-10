@@ -1,23 +1,21 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createPgClient } from "@/lib/pg-client";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export function createClient() {
-  const cookieStore = cookies();
-
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
-        },
+  const pgClient = createPgClient();
+  return {
+    ...pgClient,
+    auth: {
+      getUser: async () => {
+        try {
+          const hdrs = await headers();
+          const session = await auth.api.getSession({ headers: hdrs });
+          return { data: { user: session?.user ?? null }, error: session ? null : new Error("No session") };
+        } catch (error) {
+          return { data: { user: null }, error };
+        }
       },
-    }
-  );
+    },
+  };
 }

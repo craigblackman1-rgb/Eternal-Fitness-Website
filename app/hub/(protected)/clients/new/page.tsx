@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,7 +41,6 @@ const emptyProfile: ClientProfile = {
 
 export default function NewClientPage() {
   const router = useRouter();
-  const supabase = createClient();
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -71,19 +69,25 @@ export default function NewClientPage() {
       client: { ...profile.client, name: name.trim(), age: calculateAge(profile.client.date_of_birth) },
     };
 
-    const { data, error } = await supabase.from("clients").insert({
-      name: name.trim(),
-      email: email.trim() || null,
-      phone: phone.trim() || null,
-      profile: fullProfile,
-    }).select("client_number").single();
+    const res = await fetch("/api/clients", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: name.trim(),
+        email: email.trim() || null,
+        phone: phone.trim() || null,
+        profile: fullProfile,
+      }),
+    });
 
-    if (error) {
-      toast.error(`Failed to save client: ${error.message}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "Failed to save client" }));
+      toast.error(`Failed to save client: ${err.error}`);
       setSaving(false);
       return;
     }
 
+    const data = await res.json();
     toast.success("Client created");
     router.push(`/hub/clients/${data.client_number}`);
   };

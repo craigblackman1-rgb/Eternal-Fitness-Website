@@ -1,7 +1,6 @@
 "use client";
 
 import { Fragment, useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +19,6 @@ export default function SessionViewPage({
 }: {
   params: { id: string; blockId: string; sessionNum: string };
 }) {
-  const supabase = createClient();
   const [session, setSession] = useState<DBSession | null>(null);
   const [loading, setLoading] = useState(true);
   const [editingNotes, setEditingNotes] = useState(false);
@@ -36,25 +34,23 @@ export default function SessionViewPage({
 
   useEffect(() => {
     async function load() {
-      const { data } = await supabase
-        .from("sessions")
-        .select("*")
-        .eq("block_id", params.blockId)
-        .eq("session_number", sessionNum)
-        .single();
-      setSession(data);
-      setCoachingNotes(data?.data?.coaching_notes || "");
-      const log: SessionLog | undefined = data?.data?.session_log;
-      setRpe(log?.rpe != null ? String(log.rpe) : "");
-      setFatigue(log?.fatigue ?? null);
-      setLogNotes(log?.notes || "");
-
-      const { count } = await supabase
-        .from("sessions")
-        .select("*", { count: "exact", head: true })
-        .eq("block_id", params.blockId);
-      setTotalSessions(count || 0);
-
+      const [sessionRes, countRes] = await Promise.all([
+        fetch(`/api/blocks/${params.blockId}/sessions?session_number=${sessionNum}`),
+        fetch(`/api/blocks/${params.blockId}/sessions?count=true`),
+      ]);
+      if (sessionRes.ok) {
+        const data = await sessionRes.json();
+        setSession(data);
+        setCoachingNotes(data?.data?.coaching_notes || "");
+        const log: SessionLog | undefined = data?.data?.session_log;
+        setRpe(log?.rpe != null ? String(log.rpe) : "");
+        setFatigue(log?.fatigue ?? null);
+        setLogNotes(log?.notes || "");
+      }
+      if (countRes.ok) {
+        const { count } = await countRes.json();
+        setTotalSessions(count || 0);
+      }
       setLoading(false);
     }
     load();
@@ -63,11 +59,12 @@ export default function SessionViewPage({
   const saveNotes = async () => {
     if (!session) return;
     const updatedData = { ...session.data, coaching_notes: coachingNotes };
-    const { error } = await supabase
-      .from("sessions")
-      .update({ data: updatedData })
-      .eq("id", session.id);
-    if (error) {
+    const res = await fetch(`/api/sessions/${session.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data: updatedData }),
+    });
+    if (!res.ok) {
       toast.error("Failed to save");
       return;
     }
@@ -87,12 +84,13 @@ export default function SessionViewPage({
       notes: logNotes,
     };
     const updatedData = { ...session.data, session_log: updatedLog };
-    const { error } = await supabase
-      .from("sessions")
-      .update({ data: updatedData })
-      .eq("id", session.id);
+    const res = await fetch(`/api/sessions/${session.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data: updatedData }),
+    });
     setSavingLog(false);
-    if (error) {
+    if (!res.ok) {
       toast.error("Failed to save session log");
       return;
     }
@@ -324,7 +322,6 @@ function SessionSection({
   session: DBSession;
   onUpdateSession: (s: DBSession) => void;
 }) {
-  const supabase = createClient();
   const [editingUrl, setEditingUrl] = useState<number | null>(null);
   const [urlInput, setUrlInput] = useState("");
   const [swapping, setSwapping] = useState<number | null>(null);
@@ -346,12 +343,13 @@ function SessionSection({
     exercise.media = { ...exercise.media, video_url: videoUrl };
     (updatedData.versions as any)[versionKey][sectionKey][idx] = exercise;
 
-    const { error } = await supabase
-      .from("sessions")
-      .update({ data: updatedData })
-      .eq("id", session.id);
+    const res = await fetch(`/api/sessions/${session.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data: updatedData }),
+    });
 
-    if (error) {
+    if (!res.ok) {
       toast.error("Failed to save");
       return;
     }
@@ -383,12 +381,13 @@ function SessionSection({
     }
     (updatedData.versions as any)[versionKey][sectionKey][idx] = exercise;
 
-    const { error } = await supabase
-      .from("sessions")
-      .update({ data: updatedData })
-      .eq("id", session.id);
+    const res = await fetch(`/api/sessions/${session.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data: updatedData }),
+    });
 
-    if (error) {
+    if (!res.ok) {
       toast.error("Failed to swap exercise");
       return;
     }

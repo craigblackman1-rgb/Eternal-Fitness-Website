@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +14,6 @@ import type { DBSession, DBBlock } from "@/types";
 
 export default function ReviewPage({ params }: { params: { id: string; blockId: string } }) {
   const router = useRouter();
-  const supabase = createClient();
   const [block, setBlock] = useState<DBBlock | null>(null);
   const [sessions, setSessions] = useState<DBSession[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,14 +21,12 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
 
   useEffect(() => {
     async function load() {
-      const { data: b } = await supabase.from("blocks").select("*").eq("id", params.blockId).single();
-      const { data: s } = await supabase
-        .from("sessions")
-        .select("*")
-        .eq("block_id", params.blockId)
-        .order("session_number", { ascending: true });
-      setBlock(b);
-      setSessions(s || []);
+      const [blockRes, sessionsRes] = await Promise.all([
+        fetch(`/api/blocks/${params.blockId}`),
+        fetch(`/api/blocks/${params.blockId}/sessions`),
+      ]);
+      if (blockRes.ok) setBlock(await blockRes.json());
+      if (sessionsRes.ok) setSessions(await sessionsRes.json());
       setLoading(false);
     }
     load();

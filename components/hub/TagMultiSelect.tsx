@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase-client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +24,6 @@ interface TagMultiSelectProps {
 }
 
 export function TagMultiSelect({ category, selected, onChange, placeholder }: TagMultiSelectProps) {
-  const supabase = createClient();
   const [options, setOptions] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -34,13 +32,11 @@ export function TagMultiSelect({ category, selected, onChange, placeholder }: Ta
   useEffect(() => {
     let cancelled = false;
     async function load() {
-      const { data } = await supabase
-        .from("profile_option_lists")
-        .select("value")
-        .eq("category", category)
-        .order("value", { ascending: true });
+      const res = await fetch(`/api/profile-options?category=${encodeURIComponent(category)}`);
+      if (!res.ok) return;
+      const data = await res.json();
       if (!cancelled) {
-        setOptions((data ?? []).map((row) => row.value));
+        setOptions((data ?? []).map((row: { value: string }) => row.value));
         setLoading(false);
       }
     }
@@ -48,7 +44,7 @@ export function TagMultiSelect({ category, selected, onChange, placeholder }: Ta
     return () => {
       cancelled = true;
     };
-  }, [category, supabase]);
+  }, [category]);
 
   const toggle = (value: string) => {
     if (selected.includes(value)) {
@@ -66,14 +62,16 @@ export function TagMultiSelect({ category, selected, onChange, placeholder }: Ta
     setOptions((prev) => (prev.includes(value) ? prev : [...prev, value].sort()));
     onChange(selected.includes(value) ? selected : [...selected, value]);
     setSearch("");
-    const { error } = await supabase
-      .from("profile_option_lists")
-      .insert({ category, value })
-      .select()
-      .single();
-    if (error && error.code !== "23505") {
+    const res = await fetch("/api/profile-options", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ category, value }),
+    });
+    if (res.ok) return;
+    const err = await res.json().catch(() => ({ code: "" }));
+    if (err.code !== "23505") {
       // 23505 = unique_violation (already exists) — safe to ignore
-      console.error("Failed to save new option", error);
+      console.error("Failed to save new option", err);
     }
   };
 
