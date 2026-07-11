@@ -15,6 +15,7 @@ import { TagMultiSelect } from "@/components/hub/TagMultiSelect";
 import { InjuryHistoryTable } from "@/components/hub/InjuryHistoryTable";
 import { TrainingRulesEditor } from "@/components/hub/TrainingRulesEditor";
 import type { ClientProfile, DBClientComplianceStatus, DBClientGroupType, DBClientPaceMode, Gender } from "@/types";
+import { DEFAULT_SPLITS, parseSplits } from "@/lib/planAgentPrompt";
 
 function calculateAge(dob: string | null): number {
   if (!dob) return 0;
@@ -51,6 +52,21 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
   const [outstandingActions, setOutstandingActions] = useState("");
   const [groupType, setGroupType] = useState<DBClientGroupType>("individual_journey");
   const [paceMode, setPaceMode] = useState<DBClientPaceMode>("medium");
+  const [splitOptions, setSplitOptions] = useState<string[]>(parseSplits(DEFAULT_SPLITS).map((s) => s.label));
+
+  useEffect(() => {
+    // Split options come from the Plan Agent "splits" setting so Esther can add
+    // one at Settings → Plan Agent Rules without a deploy; defaults if the fetch fails.
+    fetch("/api/plan-agent-settings")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((rows: { key: string; value: unknown }[] | null) => {
+        const raw = rows?.find((r) => r.key === "splits")?.value;
+        if (Array.isArray(raw) && raw.length > 0) {
+          setSplitOptions(parseSplits(raw as string[]).map((s) => s.label));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -237,6 +253,20 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
                   <SelectItem value="1">1x</SelectItem>
                   <SelectItem value="2">2x</SelectItem>
                   <SelectItem value="3">3x</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Training Split</Label>
+              <Select
+                value={profile.logistics.split ?? splitOptions[0] ?? "Full body"}
+                onValueChange={(v) => updateProfile("logistics", { split: v })}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {splitOptions.map((label) => (
+                    <SelectItem key={label} value={label}>{label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

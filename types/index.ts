@@ -76,6 +76,10 @@ export interface ClientProfile {
     time_tier: TimeTier;
     package: Package;
     block_number: number;
+    /** Label of a split defined in the Plan Agent "splits" setting (e.g. "Full body",
+     *  "Upper body"). Absent → Full body. Defines the muscle-group coverage contract
+     *  each generated session is validated against. */
+    split?: string;
   };
   health: {
     gp_clearance: boolean;
@@ -127,7 +131,10 @@ export interface Exercise {
   modification: string;
   equipment: string[];
   media?: ExerciseMedia;
-  /** Section within the main block, e.g. "Superset A", "Superset B", "Arms + Core", "Finisher". Absent on legacy data. */
+  /** Format group within the main block — free-form, named after the session format it
+   *  belongs to (e.g. "Superset A", "Tri-Set", "Straight Sets", "Metabolic Block",
+   *  "Skill Block"). Consecutive exercises sharing a label perform together as that
+   *  format. Absent on legacy data. */
   group_label?: string;
 }
 

@@ -1,21 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
-import { getAiConfig, aiChat } from "@/lib/ai-client";
-import { buildTrainingRulesSection } from "@/lib/trainingRules";
-import type { ClientProfile, Session, Archetype, Phase, Exercise, SessionVersion, TrainingRuleType } from "@/types";
-
-type RuleTypesById = Record<string, Pick<TrainingRuleType, "label" | "bucket">>;
-
-type EquipmentRow = { name: string; detail: string | null; home_equivalent: string | null };
-
-const weekPhases: { week: number; phase: Phase }[] = [
-  { week: 1, phase: "foundation" },
-  { week: 2, phase: "foundation" },
-  { week: 3, phase: "build" },
-  { week: 4, phase: "develop" },
-  { week: 5, phase: "peak" },
-  { week: 6, phase: "deload" },
-];
+import { getAiConfig } from "@/lib/ai-client";
+import { loadPlanAgentBundle } from "@/lib/planAgentData";
+import { generateViaAi, weekPhases, getWeeklyArchetypes } from "@/lib/planGeneration";
+import type { ClientProfile, Session, Archetype, Phase, Exercise, SessionVersion } from "@/types";
 
 export async function POST(request: Request) {
   const supabase = createClient();
@@ -50,30 +38,16 @@ export async function POST(request: Request) {
 
   const blockNumber = (existingBlocks?.[0]?.block_number ?? 0) + 1;
 
-  const { data: ruleTypes } = await supabase.from("training_rule_types").select("id, label, bucket");
-  const ruleTypesById: RuleTypesById = Object.fromEntries((ruleTypes ?? []).map((rt) => [rt.id, { label: rt.label, bucket: rt.bucket }]));
-
-  const { data: equipmentRows } = await supabase
-    .from("studio_equipment")
-    .select("name, detail, home_equivalent")
-    .eq("active", true)
-    .order("sort_order", { ascending: true });
-
-  const { data: settingsRows } = await supabase
-    .from("plan_agent_settings")
-    .select("key, value_type, value");
-  const planAgentSettings: PlanAgentSettingsMap = Object.fromEntries(
-    (settingsRows ?? []).map((row) => [row.key, { value_type: row.value_type, value: row.value }]),
-  );
+  const bundle = await loadPlanAgentBundle(supabase, client.id);
 
   const aiConfig = getAiConfig();
   let sessions: Session[];
 
   if (aiConfig.provider) {
     try {
-      sessions = await generateViaAi(profile, ruleTypesById, equipmentRows ?? [], planAgentSettings, blockNote, previousSummary, blockNumber);
+      sessions = await generateViaAi(profile, client.pace_mode as string | null, bundle, blockNote, previousSummary);
     } catch (err) {
-      const detail = err instanceof Error ? err.message.slice(0, 300) : "unknown error";
+      const detail = err instanceof Error ? err.message.slice(0, 500) : "unknown error";
       console.error(`[generate-block] AI generation failed via ${aiConfig.provider} (${aiConfig.model}): ${detail}`);
       return NextResponse.json(
         { error: `AI generation failed via ${aiConfig.provider} (${aiConfig.model}): ${detail}` },
@@ -139,261 +113,6 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ blockId: block.id }, { status: 201 });
-}
-
-/** Model for plan generation. A full 6-week block is far too large to return in
- *  one response (~5k output tokens *per session*), so we generate one session
- *  per call and assemble. That keeps each response small enough to parse
- *  reliably and lets us retry individual sessions. Overridable via PLAN_MODEL.
- *  This is the step that writes the actual exercises Esther sees — quality
- *  matters more than cost here (2026-07-10: was defaulting to Haiku for
- *  speed/cost, but plan quality suffered — Esther's own hand-built plans were
- *  noticeably richer). Default to the best available model; drop to Sonnet or
- *  Haiku via env var if cost/latency becomes a real problem. */
-const PLAN_MODEL = process.env.PLAN_MODEL || "anthropic/claude-opus-4-8";
-
-type PlanAgentSettingsMap = Record<string, { value_type: string; value: unknown }>;
-
-const DEFAULT_ARCHETYPE_FOCUS_LABELS: Record<Archetype, string> = {
-  A: "Mobility & Movement Quality",
-  B: "Strength & Stability",
-  C: "Power & Conditioning",
-};
-
-const DEFAULT_PHASE_GUIDANCE: Record<Phase, string> = {
-  foundation: "basic regressions, learn patterns, low load, lower ROM",
-  build: "increase load, add complexity to established patterns",
-  develop: "compound movements, greater ROM, higher challenge",
-  peak: "highest intensity/volume of the block",
-  deload: "drop volume, submax loads, active recovery focus, easier exercises",
-};
-
-const DEFAULT_CLINICAL_SYSTEM_PROMPT = `You are an expert exercise physiologist supporting Esther Fair, a Level 4 Personal Trainer
-specialising in cancer rehabilitation, exercise referral, adaptive training, and complex health needs.
-
-Your output will be reviewed by Esther before any client sees it. Generate safe, clinically-aware
-sessions. Every exercise must include a modification specific to this client's contraindications.
-Never exceed the client's implied intensity ceiling based on their conditions and fitness level.
-
-The user prompt includes a HARD CONSTRAINTS section for this specific client — these are non-negotiable.
-If an exercise conflicts with anything marked [HARD], do not include it; find an alternative that
-respects the constraint instead. Do not ask Esther to repeat these — they are already known.
-
-Return one valid JSON object matching the Session schema. No markdown, no preamble, no explanation.`;
-
-interface SessionSlot {
-  session_number: number;
-  week: number;
-  phase: Phase;
-  archetype: Archetype;
-}
-
-/** Build the ordered list of sessions with a pre-assigned, evenly-distributed
- *  archetype per slot (reusing the goal-biased rotation the fallback uses). */
-function buildSessionSlots(profile: ClientProfile): SessionSlot[] {
-  const spw = profile.logistics.sessions_per_week;
-  const slots: SessionSlot[] = [];
-  let n = 0;
-  for (let weekIndex = 0; weekIndex < 6; weekIndex++) {
-    const wp = weekPhases[weekIndex];
-    const archetypes = getWeeklyArchetypes(spw, weekIndex, profile.goals.primary);
-    for (const archetype of archetypes) {
-      n++;
-      slots.push({ session_number: n, week: wp.week, phase: wp.phase, archetype });
-    }
-  }
-  return slots;
-}
-
-async function generateViaAi(
-  profile: ClientProfile,
-  ruleTypesById: RuleTypesById,
-  equipmentRows: EquipmentRow[],
-  planAgentSettings: PlanAgentSettingsMap,
-  blockNote?: string,
-  previousSummary?: string,
-  _blockNumber?: number
-): Promise<Session[]> {
-  const slots = buildSessionSlots(profile);
-
-  // Generate sessions concurrently — one call each — so the route completes
-  // well within serverless limits even for a full 3x/week block (18 calls).
-  const settled = await Promise.allSettled(
-    slots.map((slot) => generateOneSession(profile, slot, ruleTypesById, equipmentRows, planAgentSettings, blockNote, previousSummary)),
-  );
-
-  const sessions: Session[] = [];
-  const failures: string[] = [];
-  settled.forEach((result, i) => {
-    if (result.status === "fulfilled") {
-      sessions.push(result.value);
-    } else {
-      const reason = result.reason instanceof Error ? result.reason.message : "unknown";
-      failures.push(`session ${slots[i].session_number}: ${reason}`);
-    }
-  });
-
-  if (failures.length > 0) {
-    throw new Error(`${failures.length}/${slots.length} sessions failed — ${failures.slice(0, 3).join("; ")}`);
-  }
-
-  sessions.sort((a, b) => a.session_number - b.session_number);
-  return sessions;
-}
-
-function resolveClinicalSystemPrompt(planAgentSettings: PlanAgentSettingsMap): string {
-  const raw = planAgentSettings.clinical_system_prompt?.value;
-  return typeof raw === "string" ? raw : DEFAULT_CLINICAL_SYSTEM_PROMPT;
-}
-
-function resolvePhaseGuidance(planAgentSettings: PlanAgentSettingsMap): Record<Phase, string> {
-  const raw = planAgentSettings.phase_guidance?.value;
-  return raw && typeof raw === "object" ? { ...DEFAULT_PHASE_GUIDANCE, ...(raw as Record<Phase, string>) } : DEFAULT_PHASE_GUIDANCE;
-}
-
-function resolveArchetypeFocusLabels(planAgentSettings: PlanAgentSettingsMap): Record<Archetype, string> {
-  const raw = planAgentSettings.archetype_focus_labels?.value;
-  return raw && typeof raw === "object" ? { ...DEFAULT_ARCHETYPE_FOCUS_LABELS, ...(raw as Record<Archetype, string>) } : DEFAULT_ARCHETYPE_FOCUS_LABELS;
-}
-
-function sessionPrompt(
-  profile: ClientProfile,
-  slot: SessionSlot,
-  ruleTypesById: RuleTypesById,
-  equipmentRows: EquipmentRow[],
-  planAgentSettings: PlanAgentSettingsMap,
-  blockNote?: string,
-  previousSummary?: string,
-): string {
-  const phaseGuidance = resolvePhaseGuidance(planAgentSettings);
-  const archetypeFocusLabels = resolveArchetypeFocusLabels(planAgentSettings);
-
-  const rulesSection = buildTrainingRulesSection(profile.programming_adaptations ?? [], ruleTypesById);
-
-  return `Generate ONE training session (number ${slot.session_number} of a 6-week block) for this client:
-
-HARD CONSTRAINTS FOR THIS CLIENT — non-negotiable, check every exercise against this list before including it:
-${rulesSection}
-
-CONTRAINDICATIONS — never programme these:
-${(profile.health.contraindications ?? []).map((c) => `- ${c}`).join("\n") || "None recorded."}
-
-Client Profile:
-${JSON.stringify(profile, null, 2)}
-
-${blockNote ? `Esther's note: ${blockNote}` : ""}
-${previousSummary ? `Previous block summary: ${previousSummary}` : ""}
-
-THIS SESSION:
-- session_number: ${slot.session_number}
-- week: ${slot.week}
-- phase: ${slot.phase} (${phaseGuidance[slot.phase]})
-- archetype: ${slot.archetype} (${archetypeFocusLabels[slot.archetype]})
-- time_tier: ${profile.logistics.time_tier}
-
-Equipment available:
-${equipmentRows.map((e) => `- ${e.name}${e.detail ? ` (${e.detail})` : ""}`).join("\n")}
-
-Return a single JSON object with this exact shape:
-{
-  "session_number": ${slot.session_number},
-  "archetype": "${slot.archetype}",
-  "week": ${slot.week},
-  "phase": "${slot.phase}",
-  "focus_label": "<short focus label>",
-  "versions": {
-    "studio": { "warm_up": [Exercise], "main_block": [Exercise], "cooldown": [Exercise] },
-    "home":   { "warm_up": [Exercise], "main_block": [Exercise], "cooldown": [Exercise] }
-  }
-}
-
-Each Exercise is: { "exercise_name", "sets" (number), "reps", "tempo", "rest", "coaching_cue", "modification", "equipment" (string array) }.
-Every main_block exercise MUST also carry a "group_label" of exactly one of: "Superset A", "Superset B", "Arms + Core", "Finisher" (warm_up and cooldown do not need group_label). Do not invent other group_label values.
-The "home" version must substitute bodyweight/band alternatives where studio equipment is unavailable, keeping every exercise's clinical modification.
-
-Return ONLY the JSON object — no markdown fences, no commentary.`;
-}
-
-async function generateOneSession(
-  profile: ClientProfile,
-  slot: SessionSlot,
-  ruleTypesById: RuleTypesById,
-  equipmentRows: EquipmentRow[],
-  planAgentSettings: PlanAgentSettingsMap,
-  blockNote?: string,
-  previousSummary?: string,
-): Promise<Session> {
-  const planSystem = resolveClinicalSystemPrompt(planAgentSettings);
-  const archetypeFocusLabels = resolveArchetypeFocusLabels(planAgentSettings);
-  const user = sessionPrompt(profile, slot, ruleTypesById, equipmentRows, planAgentSettings, blockNote, previousSummary);
-
-  const text = await aiChat({ system: planSystem, user, model: PLAN_MODEL, maxTokens: 6000 });
-  if (!text) throw new Error("AI returned no response");
-
-  let parsed: Partial<Session>;
-  try {
-    parsed = parseSessionObject(text);
-  } catch (firstErr) {
-    const detail = firstErr instanceof Error ? firstErr.message : "invalid JSON";
-    const repaired = await aiChat({
-      system: planSystem,
-      messages: [
-        { role: "user", content: user },
-        { role: "assistant", content: text },
-        {
-          role: "user",
-          content: `That response failed JSON parsing (${detail}). Return the same session as a single valid JSON object. Output ONLY the JSON object — no markdown fences, no commentary, no trailing commas.`,
-        },
-      ],
-      model: PLAN_MODEL,
-      maxTokens: 6000,
-    });
-    if (!repaired) throw firstErr;
-    parsed = parseSessionObject(repaired);
-  }
-
-  // Stamp the slot metadata authoritatively so numbering/phase never drift.
-  return {
-    session_id: "",
-    block_id: "",
-    client_id: profile.client.id,
-    session_number: slot.session_number,
-    archetype: slot.archetype,
-    week: slot.week,
-    phase: slot.phase,
-    focus_label:
-      parsed.focus_label ||
-      `${archetypeFocusLabels[slot.archetype]} (Week ${slot.week})`,
-    time_tier: profile.logistics.time_tier,
-    versions: parsed.versions as Session["versions"],
-    coaching_notes: parsed.coaching_notes,
-    client_intro: parsed.client_intro ?? archetypeFocusLabels[slot.archetype],
-  } as Session;
-}
-
-/** Parse a single session object, tolerating markdown fences, surrounding prose,
- *  and trailing commas that otherwise break JSON.parse. */
-function parseSessionObject(text: string): Partial<Session> {
-  let cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-
-  // Slice to the outermost JSON object so leading/trailing prose is ignored.
-  const start = cleaned.indexOf("{");
-  const end = cleaned.lastIndexOf("}");
-  if (start !== -1 && end > start) {
-    cleaned = cleaned.slice(start, end + 1);
-  }
-
-  let obj: Partial<Session>;
-  try {
-    obj = JSON.parse(cleaned) as Partial<Session>;
-  } catch {
-    obj = JSON.parse(cleaned.replace(/,(\s*[}\]])/g, "$1")) as Partial<Session>;
-  }
-
-  if (!obj?.versions?.studio?.main_block?.length || !obj?.versions?.home?.main_block?.length) {
-    throw new Error("session object missing studio/home main_block");
-  }
-  return obj;
 }
 
 /* ─── Fallback generator — pulls from the `exercises` table (source-agnostic:
@@ -553,29 +272,6 @@ function composeSessionVersion(
   return { warm_up, main_block, cooldown };
 }
 
-function getWeeklyArchetypes(spw: number, weekIndex: number, primaryGoal: string): Archetype[] {
-  const goalBias: Record<string, Archetype[]> = {
-    strength: ["B", "A", "C"],
-    mobility: ["A", "B", "C"],
-    weight_loss: ["C", "B", "A"],
-    rehabilitation: ["A", "C", "B"],
-    confidence: ["A", "B", "C"],
-    general_fitness: ["A", "B", "C"],
-  };
-
-  const bias = goalBias[primaryGoal] || ["A", "B", "C"];
-
-  if (spw === 3) return [bias[0], bias[1], bias[2]];
-
-  if (spw === 2) {
-    const a = bias[weekIndex % 3];
-    const b = bias[(weekIndex + 1) % 3];
-    return [a, b];
-  }
-
-  return [bias[weekIndex % 3]];
-}
-
 function generateFallback(profile: ClientProfile, blockNumber: number, exercisePool: ExerciseDbEntry[]): Session[] {
   const sessions: Session[] = [];
   const usedIds = new Set<string>();
@@ -626,5 +322,3 @@ function generateFallback(profile: ClientProfile, blockNumber: number, exerciseP
 
   return sessions;
 }
-
-
