@@ -4,7 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { IconEdit3, IconTrash2, IconSend } from "@/components/icons";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { IconEdit3, IconTrash2, IconSend, IconEye } from "@/components/icons";
+import { StatusBadge } from "@/components/hub/StatusBadge";
 import { toast } from "sonner";
 
 interface UpdateRowActionsProps {
@@ -12,13 +19,17 @@ interface UpdateRowActionsProps {
   updateId: string;
   status: string;
   hasEmail: boolean;
+  subject: string;
+  body_html: string;
 }
 
-/** Edit / Send-now / Delete controls for an update row. Edit + Send-now show only
- *  for draft/scheduled/failed; Delete is available on any update (incl. sent). */
-export function UpdateRowActions({ clientNumber, updateId, status, hasEmail }: UpdateRowActionsProps) {
+/** Edit / Send-now / Delete controls for an update row, plus a read-only Preview dialog.
+ *  Edit + Send-now show only for draft/scheduled/failed; Delete is available on any update;
+ *  Preview is available on every update regardless of status. */
+export function UpdateRowActions({ clientNumber, updateId, status, hasEmail, subject, body_html }: UpdateRowActionsProps) {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const editable = status === "draft" || status === "scheduled" || status === "failed";
 
@@ -56,31 +67,62 @@ export function UpdateRowActions({ clientNumber, updateId, status, hasEmail }: U
   };
 
   return (
-    <div className="flex items-center gap-1.5 shrink-0">
-      {editable && (
-        <>
-          <Link href={`/hub/clients/${clientNumber}/updates/${updateId}/edit`}>
-            <Button variant="outline" size="sm" className="rounded-full gap-1.5 h-8" disabled={busy !== null}>
-              <IconEdit3 className="h-3.5 w-3.5" />
-              Edit
+    <>
+      <div className="flex items-center gap-1.5 shrink-0">
+        <Button
+          variant="outline"
+          size="sm"
+          className="rounded-full gap-1.5 h-8"
+          onClick={() => setPreviewOpen(true)}
+          disabled={busy !== null}
+        >
+          <IconEye className="h-3.5 w-3.5" />
+          Preview
+        </Button>
+        {editable && (
+          <>
+            <Link href={`/hub/clients/${clientNumber}/updates/${updateId}/edit`}>
+              <Button variant="outline" size="sm" className="rounded-full gap-1.5 h-8" disabled={busy !== null}>
+                <IconEdit3 className="h-3.5 w-3.5" />
+                Edit
+              </Button>
+            </Link>
+            <Button variant="outline" size="sm" className="rounded-full gap-1.5 h-8" onClick={handleSendNow} disabled={busy !== null}>
+              <IconSend className="h-3.5 w-3.5" />
+              {busy === "send" ? "Sending…" : "Send now"}
             </Button>
-          </Link>
-          <Button variant="outline" size="sm" className="rounded-full gap-1.5 h-8" onClick={handleSendNow} disabled={busy !== null}>
-            <IconSend className="h-3.5 w-3.5" />
-            {busy === "send" ? "Sending…" : "Send now"}
-          </Button>
-        </>
-      )}
-      <Button
-        variant="ghost"
-        size="sm"
-        className="rounded-full h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
-        onClick={handleDelete}
-        disabled={busy !== null}
-        title="Delete"
-      >
-        <IconTrash2 className="h-3.5 w-3.5" />
-      </Button>
-    </div>
+          </>
+        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="rounded-full h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+          onClick={handleDelete}
+          disabled={busy !== null}
+          title="Delete"
+        >
+          <IconTrash2 className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-2xl md:max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <DialogTitle className="truncate">{subject}</DialogTitle>
+              <StatusBadge status={status} />
+            </div>
+          </DialogHeader>
+          <div className="border border-border/60 rounded-xl overflow-hidden bg-[#F5F5F5]">
+            <iframe
+              srcDoc={body_html || "<p>No content</p>"}
+              title="Update preview"
+              className="w-full"
+              style={{ height: "75vh", border: "none" }}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

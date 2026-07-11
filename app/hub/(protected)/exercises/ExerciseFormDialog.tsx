@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -19,8 +19,31 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import type { Archetype } from "@/types";
 
-interface AddExerciseDialogProps {
-  trigger: React.ReactNode;
+interface ExerciseEntry {
+  id: string;
+  name: string;
+  source: "original" | "trainerize" | "custom";
+  trainerize_custom: boolean | null;
+  archetypes: string[];
+  movement_type: string | null;
+  muscle_groups: string[];
+  equipment: string[];
+  tags: string[];
+  difficulty: number | null;
+  intensity_tiers: string[];
+  coaching_cue: string | null;
+  default_mod: string | null;
+  image_url: string | null;
+  video_url: string | null;
+}
+
+interface ExerciseFormDialogProps {
+  /** Omit (or pass null) when the dialog is fully controlled via `open`/`onOpenChange` — e.g. the edit flow, which has no visible trigger element of its own. */
+  trigger?: React.ReactNode;
+  exercise?: ExerciseEntry | null;
+  /** Controlled-open support, for the edit flow where a pencil icon elsewhere sets `exercise` and must also open this dialog. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 function splitCommaField(value: string): string[] {
@@ -30,9 +53,19 @@ function splitCommaField(value: string): string[] {
     .filter(Boolean);
 }
 
-export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
+function joinArrayField(arr: string[] | null | undefined): string {
+  return (arr ?? []).join(", ");
+}
+
+export function ExerciseFormDialog({ trigger, exercise, open: controlledOpen, onOpenChange }: ExerciseFormDialogProps) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = (val: boolean) => {
+    if (isControlled) onOpenChange?.(val);
+    else setInternalOpen(val);
+  };
   const [saving, setSaving] = useState(false);
 
   const [name, setName] = useState("");
@@ -46,6 +79,24 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
   const [defaultMod, setDefaultMod] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
+
+  const isEdit = !!exercise;
+
+  useEffect(() => {
+    if (open && exercise) {
+      setName(exercise.name);
+      setMovementType(exercise.movement_type ?? "");
+      setArchetypes((exercise.archetypes ?? []) as Archetype[]);
+      setMuscleGroups(joinArrayField(exercise.muscle_groups));
+      setEquipment(joinArrayField(exercise.equipment));
+      setTags(joinArrayField(exercise.tags));
+      setDifficulty(exercise.difficulty != null ? String(exercise.difficulty) : "");
+      setCoachingCue(exercise.coaching_cue ?? "");
+      setDefaultMod(exercise.default_mod ?? "");
+      setImageUrl(exercise.image_url ?? "");
+      setVideoUrl(exercise.video_url ?? "");
+    }
+  }, [open, exercise]);
 
   function toggleArchetype(a: Archetype) {
     setArchetypes((prev) =>
@@ -73,45 +124,58 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
 
     setSaving(true);
     try {
-      const res = await fetch("/api/exercises", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name.trim(),
-          movement_type: movementType.trim() || null,
-          archetypes,
-          muscle_groups: splitCommaField(muscleGroups),
-          equipment: splitCommaField(equipment),
-          tags: splitCommaField(tags),
-          difficulty: difficulty ? Number(difficulty) : null,
-          coaching_cue: coachingCue.trim() || null,
-          default_mod: defaultMod.trim() || null,
-          image_url: imageUrl.trim() || null,
-          video_url: videoUrl.trim() || null,
-        }),
-      });
+      const payload = {
+        name: name.trim(),
+        movement_type: movementType.trim() || null,
+        archetypes,
+        muscle_groups: splitCommaField(muscleGroups),
+        equipment: splitCommaField(equipment),
+        tags: splitCommaField(tags),
+        difficulty: difficulty ? Number(difficulty) : null,
+        coaching_cue: coachingCue.trim() || null,
+        default_mod: defaultMod.trim() || null,
+        image_url: imageUrl.trim() || null,
+        video_url: videoUrl.trim() || null,
+      };
 
-      if (!res.ok) throw new Error((await res.json()).error ?? "Failed to add exercise");
+      let res: Response;
+      if (isEdit && exercise) {
+        res = await fetch(`/api/exercises/${exercise.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        res = await fetch("/api/exercises", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
 
-      toast.success("Exercise added");
+      if (!res.ok) throw new Error((await res.json()).error ?? "Failed to save exercise");
+
+      toast.success(isEdit ? "Exercise updated" : "Exercise added");
       resetForm();
       setOpen(false);
       router.refresh();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to add exercise");
+      toast.error(err instanceof Error ? err.message : "Failed to save exercise");
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+    <Dialog open={open} onOpenChange={(val) => { setOpen(val); if (!val) resetForm(); }}>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add Exercise</DialogTitle>
+          <DialogTitle>{isEdit ? "Edit Exercise" : "Add Exercise"}</DialogTitle>
           <DialogDescription>
-            Add a new exercise to the library. It will be tagged as Custom.
+            {isEdit
+              ? "Update the exercise details below."
+              : "Add a new exercise to the library. It will be tagged as Custom."}
           </DialogDescription>
         </DialogHeader>
 
@@ -251,7 +315,7 @@ export function AddExerciseDialog({ trigger }: AddExerciseDialogProps) {
               Cancel
             </Button>
             <Button type="submit" disabled={saving || !name.trim()}>
-              Save Exercise
+              {saving ? "Saving..." : isEdit ? "Save Changes" : "Save Exercise"}
             </Button>
           </div>
         </form>

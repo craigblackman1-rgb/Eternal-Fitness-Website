@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { HubCard, HubCardHeader } from "@/components/hub";
 import { Badge } from "@/components/ui/badge";
 import { IconChevronLeft, IconMail, IconPlus, IconCalendar, IconClock, IconEye } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
@@ -32,7 +32,6 @@ export default async function UpdatesHistoryPage({ params }: { params: { id: str
     .order("created_at", { ascending: false });
 
   const all = (updates || []) as SentUpdate[];
-  // Pending (scheduled/draft/failed) at the top, then sent history.
   const sorted = [...all].sort((a, b) => {
     const s = (STATUS_ORDER[a.status] ?? 9) - (STATUS_ORDER[b.status] ?? 9);
     if (s !== 0) return s;
@@ -78,52 +77,45 @@ export default async function UpdatesHistoryPage({ params }: { params: { id: str
                 : formatUpdateTime(update.sent_at || update.created_at);
 
             return (
-              <Card key={update.id} className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-                <CardContent className="flex items-center justify-between gap-4 p-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-teal/10 flex items-center justify-center shrink-0">
-                      {isScheduled ? <IconClock className="h-5 w-5 text-teal" /> : <IconMail className="h-5 w-5 text-teal" />}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-medium text-foreground truncate">{update.subject}</p>
-                      <div className="flex flex-wrap items-center gap-2.5 text-xs text-muted-foreground mt-0.5">
-                        <span className="flex items-center gap-1">
-                          <IconCalendar className="h-3 w-3" />
-                          {timeLabel}
-                        </span>
-                        <Badge variant={meta.variant} className="rounded-full text-xs">{meta.label}</Badge>
-                        {update.block_number > 0 && (
-                          <Badge variant="outline" className="rounded-full text-xs">Block {update.block_number}</Badge>
-                        )}
-                        <Badge variant="outline" className="rounded-full text-xs">{getTemplateKind(update.template_kind).label}</Badge>
-                        {update.status === "sent" && (
-                          <Badge variant={update.emailed ? "default" : "secondary"} className="rounded-full text-xs">
-                            {update.emailed ? "Emailed" : "Logged"}
-                          </Badge>
-                        )}
-                        {update.status === "failed" && update.send_error && (
-                          <span className="text-destructive truncate max-w-[220px]" title={update.send_error}>
-                            {update.send_error}
-                          </span>
-                        )}
-                        {update.status === "sent" && update.opened_at && (
-                          <span className="flex items-center gap-1 text-teal" title={`Opened ${formatUpdateTime(update.opened_at)}`}>
-                            <IconEye className="h-3 w-3" />
-                            Opened
-                            {update.open_count > 1 && <span className="text-muted-foreground">({update.open_count})</span>}
-                          </span>
-                        )}
-                      </div>
-                    </div>
+              <HubCard key={update.id}>
+                <HubCardHeader
+                  icon={isScheduled ? <IconClock className="w-4 h-4" /> : <IconMail className="w-4 h-4" />}
+                  title={update.subject}
+                  color="teal"
+                  action={<UpdateRowActions clientNumber={clientNumber} updateId={update.id} status={update.status} hasEmail={!!update.client_email} subject={update.subject} body_html={update.body_html} />}
+                  noBottomPadding
+                />
+                <div className="px-5 pb-5">
+                  <div className="flex flex-wrap items-center gap-2.5 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <IconCalendar className="h-3 w-3" />
+                      {timeLabel}
+                    </span>
+                    <Badge variant={meta.variant} className="rounded-full text-xs">{meta.label}</Badge>
+                    {update.block_number > 0 && (
+                      <Badge variant="outline" className="rounded-full text-xs">Block {update.block_number}</Badge>
+                    )}
+                    <Badge variant="outline" className="rounded-full text-xs">{getTemplateKind(update.template_kind).label}</Badge>
+                    {update.status === "sent" && (
+                      <Badge variant={update.emailed ? "default" : "secondary"} className="rounded-full text-xs">
+                        {update.emailed ? "Emailed" : "Logged"}
+                      </Badge>
+                    )}
+                    {update.status === "failed" && update.send_error && (
+                      <span className="text-destructive truncate max-w-[220px]" title={update.send_error}>
+                        {update.send_error}
+                      </span>
+                    )}
+                    {update.status === "sent" && update.opened_at && (
+                      <span className="flex items-center gap-1 text-teal" title={`Opened ${formatUpdateTime(update.opened_at)}`}>
+                        <IconEye className="h-3 w-3" />
+                        Opened
+                        {update.open_count > 1 && <span className="text-muted-foreground">({update.open_count})</span>}
+                      </span>
+                    )}
                   </div>
-                  <UpdateRowActions
-                    clientNumber={clientNumber}
-                    updateId={update.id}
-                    status={update.status}
-                    hasEmail={!!update.client_email}
-                  />
-                </CardContent>
-              </Card>
+                </div>
+              </HubCard>
             );
           })}
         </div>

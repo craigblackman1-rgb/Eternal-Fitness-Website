@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { HubCard, HubCardHeader } from "@/components/hub";
 import { IconMail, IconClock, IconCalendar, IconPlus } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
 import { UpdateRowActions } from "@/components/hub/UpdateRowActions";
@@ -52,16 +53,11 @@ export function ClientUpdatesPanel({ clientNumber, updates }: { clientNumber: nu
             : formatUpdateTime(u.sent_at || u.created_at);
 
         return (
-          <div
-            key={u.id}
-            className="flex items-center justify-between gap-3 rounded-xl border border-[var(--hub-border)] bg-background p-3.5"
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-full bg-teal/10 flex items-center justify-center shrink-0">
-                {isScheduled ? <IconClock className="h-4 w-4 text-teal" /> : <IconMail className="h-4 w-4 text-teal" />}
-              </div>
-              <div className="min-w-0">
-                <p className="font-medium text-foreground truncate text-sm">{u.subject}</p>
+          <HubCard key={u.id}>
+            <HubCardHeader
+              icon={isScheduled ? <IconClock className="w-4 h-4" /> : <IconMail className="w-4 h-4" />}
+              title={u.subject}
+              subtitle={
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mt-0.5">
                   <span className="flex items-center gap-1">
                     <IconCalendar className="h-3 w-3" />
@@ -77,10 +73,12 @@ export function ClientUpdatesPanel({ clientNumber, updates }: { clientNumber: nu
                     </Badge>
                   )}
                 </div>
-              </div>
-            </div>
-            <UpdateRowActions clientNumber={clientNumber} updateId={u.id} status={u.status} hasEmail={!!u.client_email} />
-          </div>
+              }
+              color="teal"
+              action={<UpdateRowActions clientNumber={clientNumber} updateId={u.id} status={u.status} hasEmail={!!u.client_email} subject={u.subject} body_html={u.body_html} />}
+              noBottomPadding
+            />
+          </HubCard>
         );
       })}
     </div>

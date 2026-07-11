@@ -77,6 +77,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   const latestBlock = blocks && blocks.length > 0
     ? blocks.find((b) => b.status === "active") ?? blocks.find((b) => b.status === "approved") ?? blocks[0]
     : null;
+  const latestSessionLog = sessions?.[0] ? ((sessions[0] as any).data?.session_log ?? null) : null;
 
   const metaParts: string[] = [];
   metaParts.push(`Client #${client.client_number}`);
@@ -230,7 +231,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         {/* ── Tab: Overview ── */}
         <TabsContent value="overview" className="mt-6">
           <div className="grid gap-6 lg:grid-cols-12">
-            <div className="lg:col-span-8">
+            <div className="lg:col-span-8 space-y-6">
               <HubCard>
                 <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Snapshot" color="navy" noBottomPadding />
                 <div className="px-5 pb-5">
@@ -241,6 +242,62 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                   </HubDataGrid>
                 </div>
               </HubCard>
+
+              <HubCard>
+                <HubCardHeader icon={<IconDumbbell className="w-4 h-4" />} title="Training Snapshot" color="teal" noBottomPadding />
+                <div className="px-5 pb-5">
+                  {latestSessionLog ? (
+                    <HubDataGrid cols={3}>
+                      <HubDataField label="Last Session">
+                        {new Date(latestSessionLog.completed_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                      </HubDataField>
+                      <HubDataField label="RPE">{latestSessionLog.rpe ?? "—"}</HubDataField>
+                      <HubDataField label="Fatigue"><span className="capitalize">{latestSessionLog.fatigue ?? "—"}</span></HubDataField>
+                    </HubDataGrid>
+                  ) : (
+                    <div className="flex items-center justify-between rounded-lg py-2 px-1 text-sm">
+                      <span className="text-muted-foreground">No sessions logged yet</span>
+                      <Link href={`/hub/clients/${client.client_number}?tab=training`} className="text-rose font-medium hover:underline">View Training</Link>
+                    </div>
+                  )}
+                  {latestBlock && (
+                    <div className="mt-3 pt-3 border-t border-[var(--hub-border)]">
+                      <HubDataGrid cols={2}>
+                        <HubDataField label="Active Block">
+                          <Link href={`/hub/clients/${client.client_number}/blocks/${latestBlock.id}`} className="font-semibold text-foreground hover:text-rose transition-colors">
+                            Block {latestBlock.block_number}
+                          </Link>
+                        </HubDataField>
+                        <HubDataField label="Status"><StatusBadge status={latestBlock.status} /></HubDataField>
+                      </HubDataGrid>
+                    </div>
+                  )}
+                </div>
+              </HubCard>
+
+              {p?.programming_adaptations?.some((rule: { severity: string }) => rule.severity === "hard") && (
+                <HubCard>
+                  <HubCardHeader icon={<IconAlertCircle className="w-4 h-4" />} title="Active Training Rules" color="amber" noBottomPadding />
+                  <div className="px-5 pb-5">
+                    <ul className="list-none space-y-2">
+                      {p!.programming_adaptations
+                        .filter((rule: { severity: string }) => rule.severity === "hard")
+                        .map((rule: { id: string; rule_type_id: string; detail: string }) => {
+                          const ruleType = ruleTypesById.get(rule.rule_type_id);
+                          return (
+                            <li key={rule.id} className="flex items-start gap-2 text-sm">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber mt-2 shrink-0" />
+                              <span className="text-foreground">
+                                {rule.detail}
+                                {ruleType && <span className="text-muted-foreground"> — {ruleType.label}</span>}
+                              </span>
+                            </li>
+                          );
+                        })}
+                    </ul>
+                  </div>
+                </HubCard>
+              )}
             </div>
             <div className="lg:col-span-4">{rightRail}</div>
           </div>

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { HubCard, HubCardHeader } from "@/components/hub";
 import { Badge } from "@/components/ui/badge";
 import { IconBot, IconLoader2, IconPlus, IconSend } from "@/components/icons";
 import { useRouter } from "next/navigation";
@@ -51,7 +51,6 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
     setError(null);
     setStreaming(true);
 
-    // Add empty assistant message for streaming into
     setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
     try {
@@ -139,7 +138,6 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
 
   return (
     <div className="space-y-4 mt-4">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-dark-navy/10 flex items-center justify-center">
@@ -168,7 +166,6 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
         )}
       </div>
 
-      {/* Starter prompts — shown before any conversation */}
       {!hasConversation && (
         <div className="grid grid-cols-2 gap-2">
           {STARTER_PROMPTS.map((prompt) => (
@@ -183,10 +180,10 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
         </div>
       )}
 
-      {/* Message thread */}
       {hasConversation && (
-        <Card className="shadow-sm border-border/60 rounded-2xl">
-          <CardContent className="p-4 space-y-4 max-h-[520px] overflow-y-auto">
+        <HubCard>
+          <HubCardHeader icon={<IconBot className="w-4 h-4" />} title="Conversation" color="navy" noBottomPadding />
+          <div className="px-5 pb-5 space-y-4 max-h-[520px] overflow-y-auto">
             {messages.map((message, i) => (
               <div
                 key={i}
@@ -225,18 +222,16 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
               </div>
             ))}
             <div ref={bottomRef} />
-          </CardContent>
-        </Card>
+          </div>
+        </HubCard>
       )}
 
-      {/* Error */}
       {error && (
         <div className="p-3 rounded-lg bg-rose/8 border border-rose/20 text-sm text-rose">
           {error}
         </div>
       )}
 
-      {/* Generate block info — shown after conversation */}
       {hasConversation && lastMessageIsAssistant && !streaming && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground px-1">
           <Badge variant="outline" className="rounded-full text-xs">
@@ -246,7 +241,6 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
         </div>
       )}
 
-      {/* Input */}
       <div className="flex gap-2 items-end">
         <textarea
           ref={textareaRef}

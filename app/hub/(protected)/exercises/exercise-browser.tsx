@@ -1,17 +1,21 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { HubCard, HubCardHeader } from "@/components/hub";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { IconChevronDown, IconChevronLeft, IconChevronRight, IconChevronUp, IconDumbbell, IconPlus, IconSearch, IconVideo } from "@/components/icons";
+import { IconChevronDown, IconChevronLeft, IconChevronRight, IconChevronUp, IconDumbbell, IconPlus, IconSearch, IconVideo, IconEdit3 } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
 import type { Archetype } from "@/types";
 import type { ExerciseEntry } from "./page";
 import { ExerciseMediaPlaceholder } from "@/components/exercise-media";
-import { AddExerciseDialog } from "./AddExerciseDialog";
+import { ExerciseFormDialog } from "./ExerciseFormDialog";
+import { toast } from "sonner";
 
 const movementTypeLabels: Record<string, string> = {
   spinal_mobility: "Spinal Mobility",
@@ -78,6 +82,7 @@ export function ExerciseBrowser({
   allEquipment: string[];
   allMuscleGroups: string[];
 }) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [archetypeFilter, setArchetypeFilter] = useState<Archetype | "all">("all");
   const [movementFilter, setMovementFilter] = useState("all");
@@ -87,6 +92,14 @@ export function ExerciseBrowser({
   const [difficultyFilter, setDifficultyFilter] = useState<number>(0);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [page, setPage] = useState(0);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [editingExercise, setEditingExercise] = useState<ExerciseEntry | null>(null);
+  const [bulkSaving, setBulkSaving] = useState(false);
+  const [bulkArchetypes, setBulkArchetypes] = useState<Archetype[]>([]);
+  const [bulkEquipment, setBulkEquipment] = useState("");
+  const [bulkMuscleGroups, setBulkMuscleGroups] = useState("");
+  const [bulkTags, setBulkTags] = useState("");
+  const [bulkActive, setBulkActive] = useState<boolean | null>(null);
   const PAGE_SIZE = 60;
 
   const filtered = useMemo(() => {
@@ -101,6 +114,8 @@ export function ExerciseBrowser({
       return true;
     }).sort((a, b) => a.name.localeCompare(b.name));
   }, [exercises, search, archetypeFilter, movementFilter, muscleFilter, equipmentFilter, sourceFilter, difficultyFilter]);
+
+  const filteredIds = useMemo(() => new Set(filtered.map((e) => e.id)), [filtered]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount - 1);
@@ -124,6 +139,57 @@ export function ExerciseBrowser({
 
   const hasFilters = search || archetypeFilter !== "all" || movementFilter !== "all" || muscleFilter !== "all" || equipmentFilter !== "all" || sourceFilter !== "all" || difficultyFilter > 0;
 
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const splitCommaField = (value: string): string[] =>
+    value.split(",").map((v) => v.trim()).filter(Boolean);
+
+  async function handleBulkApply() {
+    if (selectedIds.size === 0) return;
+    setBulkSaving(true);
+    try {
+      const payload: Record<string, unknown> = { ids: [...selectedIds] };
+      if (bulkArchetypes.length > 0) payload.addArchetypes = bulkArchetypes;
+      if (bulkEquipment.trim()) payload.addEquipment = splitCommaField(bulkEquipment);
+      if (bulkMuscleGroups.trim()) payload.addMuscleGroups = splitCommaField(bulkMuscleGroups);
+      if (bulkTags.trim()) payload.addTags = splitCommaField(bulkTags);
+      if (bulkActive !== null) payload.active = bulkActive;
+
+      const res = await fetch("/api/exercises/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Bulk update failed");
+      }
+
+      toast.success(`${selectedIds.size} exercise${selectedIds.size > 1 ? "s" : ""} updated`);
+      clearSelection();
+      setBulkArchetypes([]);
+      setBulkEquipment("");
+      setBulkMuscleGroups("");
+      setBulkTags("");
+      setBulkActive(null);
+      router.refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Bulk update failed");
+    } finally {
+      setBulkSaving(false);
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -134,7 +200,7 @@ export function ExerciseBrowser({
             {filtered.length > 0 && ` · page ${safePage + 1} of ${pageCount}`}
           </p>
         </div>
-        <AddExerciseDialog
+        <ExerciseFormDialog
           trigger={
             <Button size="sm" variant="outline" className="gap-1.5 rounded-full">
               <IconPlus className="h-4 w-4" />
@@ -143,6 +209,95 @@ export function ExerciseBrowser({
           }
         />
       </div>
+
+      {selectedIds.size > 0 && (
+        <HubCard padded={false}>
+          <div className="p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-semibold">{selectedIds.size} selected</span>
+                <button
+                  onClick={clearSelection}
+                  className="text-xs text-muted-foreground underline hover:text-foreground"
+                >
+                  Clear selection
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  onClick={handleBulkApply}
+                  disabled={bulkSaving}
+                  className="rounded-full"
+                >
+                  {bulkSaving ? "Applying..." : "Apply Changes"}
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-xs font-medium text-muted-foreground">Add archetypes:</span>
+              {(["A", "B", "C"] as Archetype[]).map((a) => (
+                <label key={a} className="flex items-center gap-1.5 text-xs">
+                  <Checkbox
+                    checked={bulkArchetypes.includes(a)}
+                    onCheckedChange={() =>
+                      setBulkArchetypes((prev) =>
+                        prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]
+                      )
+                    }
+                  />
+                  Type {a}
+                </label>
+              ))}
+
+              <span className="text-xs font-medium text-muted-foreground">Add equipment:</span>
+              <Input
+                className="h-7 w-40 text-xs"
+                value={bulkEquipment}
+                onChange={(e) => setBulkEquipment(e.target.value)}
+                placeholder="e.g. dumbbell, mat"
+              />
+
+              <span className="text-xs font-medium text-muted-foreground">Add muscles:</span>
+              <Input
+                className="h-7 w-40 text-xs"
+                value={bulkMuscleGroups}
+                onChange={(e) => setBulkMuscleGroups(e.target.value)}
+                placeholder="e.g. quads, glutes"
+              />
+
+              <span className="text-xs font-medium text-muted-foreground">Add tags:</span>
+              <Input
+                className="h-7 w-36 text-xs"
+                value={bulkTags}
+                onChange={(e) => setBulkTags(e.target.value)}
+                placeholder="e.g. bilateral"
+              />
+
+              <span className="text-xs font-medium text-muted-foreground">Active:</span>
+              <div className="flex gap-1">
+                <Button
+                  size="sm"
+                  variant={bulkActive === true ? "default" : "outline"}
+                  className="h-7 text-xs rounded-full"
+                  onClick={() => setBulkActive(bulkActive === true ? null : true)}
+                >
+                  Active
+                </Button>
+                <Button
+                  size="sm"
+                  variant={bulkActive === false ? "default" : "outline"}
+                  className="h-7 text-xs rounded-full"
+                  onClick={() => setBulkActive(bulkActive === false ? null : false)}
+                >
+                  Inactive
+                </Button>
+              </div>
+            </div>
+          </div>
+        </HubCard>
+      )}
 
       <div className="space-y-4">
         <div className="relative">
@@ -261,37 +416,58 @@ export function ExerciseBrowser({
       ) : (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {paginated.map((ex) => (
-            <Card
+            <HubCard
               key={ex.id}
               className="cursor-pointer transition-colors hover:border-rose/50"
               onClick={() => setExpanded(expanded === ex.id ? null : ex.id)}
             >
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-sm font-semibold">{ex.name}</CardTitle>
-                  <div className="flex gap-1 flex-wrap justify-end">
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                      {sourceLabel(ex.source)}
-                    </Badge>
-                    {ex.source === "trainerize" && ex.trainerize_custom === true && (
+              <HubCardHeader
+                icon={
+                  ex.image_url ? (
+                    <img
+                      src={ex.image_url}
+                      alt={ex.name}
+                      className="w-9 h-9 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <IconDumbbell className="w-4 h-4" />
+                  )
+                }
+                title={ex.name}
+                subtitle={`${ex.movement_type ? movementTypeLabels[ex.movement_type] || ex.movement_type : "Untagged"} · ${ex.difficulty != null ? difficultyLabel(ex.difficulty) : "Untagged"}`}
+                color="teal"
+                action={
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingExercise(ex);
+                      }}
+                      className="p-1 rounded-md hover:bg-muted/60 transition-colors"
+                      title="Edit exercise"
+                    >
+                      <IconEdit3 className="h-3.5 w-3.5 text-muted-foreground" />
+                    </button>
+                    <div className="flex gap-1 flex-wrap justify-end">
                       <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                        Esther&apos;s Custom
+                        {sourceLabel(ex.source)}
                       </Badge>
-                    )}
-                    {ex.archetypes.map((a) => (
-                      <Badge key={a} variant="outline" className="text-[10px] px-1.5 py-0">
-                        {a}
-                      </Badge>
-                    ))}
+                      {ex.source === "trainerize" && ex.trainerize_custom === true && (
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                          Esther&apos;s Custom
+                        </Badge>
+                      )}
+                      {ex.archetypes.map((a) => (
+                        <Badge key={a} variant="outline" className="text-[10px] px-1.5 py-0">
+                          {a}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span>{ex.movement_type ? movementTypeLabels[ex.movement_type] || ex.movement_type : "Untagged"}</span>
-                  <span>&middot;</span>
-                  <span>{ex.difficulty != null ? difficultyLabel(ex.difficulty) : "Untagged"}</span>
-                </div>
-              </CardHeader>
-              <CardContent className="pb-3">
+                }
+                noBottomPadding
+              />
+              <div className="px-5 pb-5">
                 {ex.muscle_groups.length > 0 && (
                   <div className="mb-2 flex flex-wrap gap-1">
                     {ex.muscle_groups.map((mg) => (
@@ -338,6 +514,12 @@ export function ExerciseBrowser({
 
                 {!expanded || expanded !== ex.id ? (
                   <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <Checkbox
+                      checked={selectedIds.has(ex.id)}
+                      onCheckedChange={() => toggleSelect(ex.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="mr-1"
+                    />
                     <span>Click for details</span>
                     <IconChevronDown className="h-3 w-3" />
                   </div>
@@ -345,7 +527,13 @@ export function ExerciseBrowser({
 
                 {expanded === ex.id && (
                   <div className="space-y-3 text-xs">
-                    {ex.video_url ? (
+                    {ex.image_url ? (
+                      <img
+                        src={ex.image_url}
+                        alt={ex.name}
+                        className="w-full rounded-lg object-cover max-h-48"
+                      />
+                    ) : ex.video_url ? (
                       <a
                         href={ex.video_url}
                         target="_blank"
@@ -357,6 +545,17 @@ export function ExerciseBrowser({
                       </a>
                     ) : (
                       <ExerciseMediaPlaceholder exerciseName={ex.name} />
+                    )}
+                    {ex.video_url && (
+                      <a
+                        href={ex.video_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-rose hover:underline"
+                      >
+                        <IconVideo className="h-3 w-3" />
+                        Watch demo video
+                      </a>
                     )}
                     <div>
                       <span className="font-medium text-muted-foreground">Coaching: </span>
@@ -372,8 +571,8 @@ export function ExerciseBrowser({
                     </div>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </HubCard>
           ))}
         </div>
       )}
@@ -405,6 +604,12 @@ export function ExerciseBrowser({
           </Button>
         </div>
       )}
+
+      <ExerciseFormDialog
+        exercise={editingExercise}
+        open={editingExercise !== null}
+        onOpenChange={(val) => { if (!val) setEditingExercise(null); }}
+      />
     </div>
   );
 }
