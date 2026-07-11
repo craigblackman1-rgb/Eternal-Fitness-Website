@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     siteName: "Eternal Fitness",
     locale: "en_GB",
     type: "website",
-    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "Eternal Fitness — Level 4 Personal Trainer in Worthing" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Eternal Fitness — Level 4 Personal Trainer in Worthing" }],
   },
   twitter: {
     card: "summary_large_image",
