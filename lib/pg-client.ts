@@ -134,15 +134,16 @@ class QueryBuilder implements PromiseLike<ListRes> {
     const innerConds: string[] = [];
     for (const raw of parts) {
       const p = raw.trim();
-      const m = p.match(/^([a-zA-Z_]\w*)(!inner|!left)?\s*\((.*)\)$/);
+      const m = p.match(/^(?:([a-zA-Z_]\w*):)?([a-zA-Z_]\w*)(!inner|!left)?\s*\((.*)\)$/);
       if (m) {
-        const rel = m[1];
-        const inner = m[2] === "!inner";
-        const embCols = m[3].trim();
+        const rel = m[2];
+        const alias = m[1] || rel;
+        const inner = m[3] === "!inner";
+        const embCols = m[4].trim();
         const fk = rel.replace(/s$/, "") + "_id";
         const innerSel = embCols === "*" ? `${q(rel)}.*` : embCols.split(",").map((c) => q(c.trim())).join(", ");
         embeds.push(
-          `(SELECT row_to_json(_e) FROM (SELECT ${innerSel} FROM ${q(rel)} WHERE ${q(rel)}.${q("id")} = ${q(this.table)}.${q(fk)}) _e) AS ${q(rel)}`,
+          `(SELECT row_to_json(_e) FROM (SELECT ${innerSel} FROM ${q(rel)} WHERE ${q(rel)}.${q("id")} = ${q(this.table)}.${q(fk)}) _e) AS ${q(alias)}`,
         );
         if (inner) innerConds.push(`${q(this.table)}.${q(fk)} IS NOT NULL`);
       } else if (p === "*") {

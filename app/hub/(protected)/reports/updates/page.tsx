@@ -9,11 +9,13 @@ export const dynamic = "force-dynamic";
 export default async function UpdatesReportPage() {
   const supabase = createClient();
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("sent_updates")
     .select("*, client:clients(name, client_number)")
     .order("created_at", { ascending: false })
     .limit(500);
+
+  if (error) console.error("[reports/updates]", error.message);
 
   const updates = (data || []) as UpdateWithClient[];
 
