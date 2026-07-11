@@ -82,7 +82,7 @@ export default async function UpdatesHistoryPage({ params }: { params: { id: str
                   icon={isScheduled ? <IconClock className="w-4 h-4" /> : <IconMail className="w-4 h-4" />}
                   title={update.subject}
                   color="teal"
-                  action={<UpdateRowActions clientNumber={clientNumber} updateId={update.id} status={update.status} hasEmail={!!update.client_email} />}
+                  action={<UpdateRowActions clientNumber={clientNumber} updateId={update.id} status={update.status} hasEmail={!!update.client_email} subject={update.subject} body_html={update.body_html} />}
                   noBottomPadding
                 />
                 <div className="px-5 pb-5">

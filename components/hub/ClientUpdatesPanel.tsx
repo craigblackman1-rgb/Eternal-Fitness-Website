@@ -75,7 +75,7 @@ export function ClientUpdatesPanel({ clientNumber, updates }: { clientNumber: nu
                 </div>
               }
               color="teal"
-              action={<UpdateRowActions clientNumber={clientNumber} updateId={u.id} status={u.status} hasEmail={!!u.client_email} />}
+              action={<UpdateRowActions clientNumber={clientNumber} updateId={u.id} status={u.status} hasEmail={!!u.client_email} subject={u.subject} body_html={u.body_html} />}
               noBottomPadding
             />
           </HubCard>
