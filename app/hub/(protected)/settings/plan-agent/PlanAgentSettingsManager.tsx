@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { HubCard, HubCardHeader } from "@/components/hub";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { IconBot, IconFileText, IconClipboardCheck, IconClipboardList } from "@/components/icons";
 import { toast } from "sonner";
 
 interface PlanAgentSetting {
@@ -37,6 +38,20 @@ interface PaceModesValue {
   medium: PaceMode;
   slow: PaceMode;
 }
+
+const SECTION_COLORS: Record<string, "rose" | "teal" | "navy" | "slate" | "amber"> = {
+  "Pace Modes": "teal",
+  "Block Planning": "navy",
+  "Archetypes": "amber",
+  "General": "slate",
+};
+
+const SECTION_ICONS: Record<string, React.ReactNode> = {
+  "Pace Modes": <IconClipboardList className="w-4 h-4" />,
+  "Block Planning": <IconFileText className="w-4 h-4" />,
+  "Archetypes": <IconClipboardCheck className="w-4 h-4" />,
+  "General": <IconBot className="w-4 h-4" />,
+};
 
 export function PlanAgentSettingsManager({ initialSettings }: PlanAgentSettingsManagerProps) {
   const [settings, setSettings] = useState(initialSettings);
@@ -148,14 +163,9 @@ function PaceModesEditor({
   const modeKeys = ["fast", "medium", "slow"] as const;
 
   return (
-    <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-      <CardHeader>
-        <CardTitle className="text-base">{setting.label}</CardTitle>
-        {setting.description && (
-          <CardDescription className="text-xs leading-relaxed">{setting.description}</CardDescription>
-        )}
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <HubCard>
+      <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title={setting.label} subtitle={setting.description ?? undefined} color="teal" noBottomPadding />
+      <div className="px-5 pb-5 space-y-4">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -220,8 +230,8 @@ function PaceModesEditor({
             Save
           </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </HubCard>
   );
 }
 
@@ -245,14 +255,9 @@ function TextEditor({
   }
 
   return (
-    <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-      <CardHeader>
-        <CardTitle className="text-base">{setting.label}</CardTitle>
-        {setting.description && (
-          <CardDescription className="text-xs leading-relaxed">{setting.description}</CardDescription>
-        )}
-      </CardHeader>
-      <CardContent className="space-y-3">
+    <HubCard>
+      <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title={setting.label} subtitle={setting.description ?? undefined} color="navy" noBottomPadding />
+      <div className="px-5 pb-5 space-y-3">
         <Textarea
           rows={10}
           className="font-mono text-sm"
@@ -264,8 +269,8 @@ function TextEditor({
             Save
           </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </HubCard>
   );
 }
 
@@ -291,14 +296,9 @@ function ListEditor({
   }
 
   return (
-    <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-      <CardHeader>
-        <CardTitle className="text-base">{setting.label}</CardTitle>
-        {setting.description && (
-          <CardDescription className="text-xs leading-relaxed">{setting.description}</CardDescription>
-        )}
-      </CardHeader>
-      <CardContent className="space-y-3">
+    <HubCard>
+      <HubCardHeader icon={<IconClipboardCheck className="w-4 h-4" />} title={setting.label} subtitle={setting.description ?? undefined} color="amber" noBottomPadding />
+      <div className="px-5 pb-5 space-y-3">
         <Label className="text-xs text-muted-foreground">One item per line</Label>
         <Textarea
           rows={10}
@@ -311,8 +311,8 @@ function ListEditor({
             Save
           </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </HubCard>
   );
 }
 
@@ -344,14 +344,9 @@ function KeyedTextEditor({
   }
 
   return (
-    <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-      <CardHeader>
-        <CardTitle className="text-base">{setting.label}</CardTitle>
-        {setting.description && (
-          <CardDescription className="text-xs leading-relaxed">{setting.description}</CardDescription>
-        )}
-      </CardHeader>
-      <CardContent className="space-y-3">
+    <HubCard>
+      <HubCardHeader icon={<IconBot className="w-4 h-4" />} title={setting.label} subtitle={setting.description ?? undefined} color="slate" noBottomPadding />
+      <div className="px-5 pb-5 space-y-3">
         {Object.keys(draft).map((k) => (
           <div key={k} className="space-y-1">
             <Label className="text-xs text-muted-foreground capitalize">{k}</Label>
@@ -363,7 +358,7 @@ function KeyedTextEditor({
             Save
           </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </HubCard>
   );
 }

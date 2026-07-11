@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { HubCard, HubCardHeader } from "@/components/hub";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
-import { IconPlus } from "@/components/icons";
+import { IconPlus, IconDumbbell } from "@/components/icons";
 import { toast } from "sonner";
 import type { StudioEquipment } from "@/types";
 
@@ -66,15 +66,20 @@ export function EquipmentManager({ initialEquipment }: EquipmentManagerProps) {
   }
 
   return (
-    <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Equipment</CardTitle>
-        <Button size="sm" variant="outline" className="gap-1.5 rounded-full" onClick={() => setAdding((v) => !v)}>
-          <IconPlus className="h-4 w-4" />
-          Add equipment
-        </Button>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <HubCard padded={false}>
+      <HubCardHeader
+        icon={<IconDumbbell className="w-4 h-4" />}
+        title="Equipment"
+        color="teal"
+        action={
+          <Button size="sm" variant="outline" className="gap-1.5 rounded-full" onClick={() => setAdding((v) => !v)}>
+            <IconPlus className="h-4 w-4" />
+            Add equipment
+          </Button>
+        }
+        noBottomPadding
+      />
+      <div className="px-5 pb-5 space-y-4">
         {adding && (
           <div className="space-y-3 rounded-xl border border-[var(--hub-border)] p-4">
             <div className="space-y-2">
@@ -120,7 +125,7 @@ export function EquipmentManager({ initialEquipment }: EquipmentManagerProps) {
             ))}
           </TableBody>
         </Table>
-      </CardContent>
-    </Card>
+      </div>
+    </HubCard>
   );
 }

@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { HubCard, HubCardHeader } from "@/components/hub";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { IconChevronDown, IconChevronLeft, IconChevronRight, IconChevronUp, IconDumbbell, IconPlus, IconSearch, IconVideo } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
@@ -261,14 +261,17 @@ export function ExerciseBrowser({
       ) : (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {paginated.map((ex) => (
-            <Card
+            <HubCard
               key={ex.id}
               className="cursor-pointer transition-colors hover:border-rose/50"
               onClick={() => setExpanded(expanded === ex.id ? null : ex.id)}
             >
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-sm font-semibold">{ex.name}</CardTitle>
+              <HubCardHeader
+                icon={<IconDumbbell className="w-4 h-4" />}
+                title={ex.name}
+                subtitle={`${ex.movement_type ? movementTypeLabels[ex.movement_type] || ex.movement_type : "Untagged"} · ${ex.difficulty != null ? difficultyLabel(ex.difficulty) : "Untagged"}`}
+                color="teal"
+                action={
                   <div className="flex gap-1 flex-wrap justify-end">
                     <Badge variant="outline" className="text-[10px] px-1.5 py-0">
                       {sourceLabel(ex.source)}
@@ -284,14 +287,10 @@ export function ExerciseBrowser({
                       </Badge>
                     ))}
                   </div>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span>{ex.movement_type ? movementTypeLabels[ex.movement_type] || ex.movement_type : "Untagged"}</span>
-                  <span>&middot;</span>
-                  <span>{ex.difficulty != null ? difficultyLabel(ex.difficulty) : "Untagged"}</span>
-                </div>
-              </CardHeader>
-              <CardContent className="pb-3">
+                }
+                noBottomPadding
+              />
+              <div className="px-5 pb-5">
                 {ex.muscle_groups.length > 0 && (
                   <div className="mb-2 flex flex-wrap gap-1">
                     {ex.muscle_groups.map((mg) => (
@@ -372,8 +371,8 @@ export function ExerciseBrowser({
                     </div>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </HubCard>
           ))}
         </div>
       )}
