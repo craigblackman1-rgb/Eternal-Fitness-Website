@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase-server";
 import { computeComplianceFlags } from "@/lib/compliance";
-import { StatusBadge } from "@/components/hub/StatusBadge";
-import { KpiTile } from "@/components/hub/KpiTile";
-import { EmptyState } from "@/components/hub/EmptyState";
+import { HubCard, HubPageHeader, StatusBadge, KpiTile, EmptyState } from "@/components/hub";
 import {
   Table,
   TableBody,
@@ -54,12 +52,10 @@ export default async function TrackerPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">Compliance Tracker</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          Read-only, at-a-glance view across every client. All editing happens on each client's profile.
-        </p>
-      </div>
+      <HubPageHeader
+        title="Compliance Tracker"
+        subtitle="Read-only, at-a-glance view across every client. All editing happens on each client's profile."
+      />
 
       <div className="grid gap-4 sm:grid-cols-3">
         <KpiTile icon={<IconCheckCircle className="w-5 h-5" />} label="Clear" value={clear} statusToken="success" />
@@ -68,56 +64,58 @@ export default async function TrackerPage() {
       </div>
 
       {rows.length === 0 ? (
-        <div className="rounded-2xl border border-[var(--hub-border)] shadow-sm bg-[var(--hub-card)]">
+        <HubCard>
           <EmptyState icon={<IconUsers className="w-9 h-9" />} title="No clients yet" description="Add a client to see their compliance status here" />
-        </div>
+        </HubCard>
       ) : (
-        <div className="rounded-2xl border border-[var(--hub-border)] shadow-sm bg-[var(--hub-card)] overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Client</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>PAR-Q</TableHead>
-                <TableHead>Agreement</TableHead>
-                <TableHead>GP Letter</TableHead>
-                <TableHead>Outstanding</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map(({ client, latestParq, latestAgreement, flags }) => (
-                <TableRow key={client.id}>
-                  <TableCell>
-                    <Link href={`/hub/clients/${client.client_number}`} className="font-medium text-foreground hover:text-rose hover:underline">
-                      {client.name}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge status={flags.effectiveStatus} />
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {latestParq ? formatDate(latestParq.created_at) : "Not on file"}
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {latestAgreement && latestAgreement.status === "signed" ? formatDate(latestAgreement.signed_at) : "Not signed"}
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground capitalize">
-                    {client.gp_letter_status.replace("_", " ")}
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {flags.autoOutstanding.length + (client.outstanding_actions?.length ?? 0) > 0 ? (
-                      <span className="text-amber-600 font-medium">
-                        {flags.autoOutstanding.length + (client.outstanding_actions?.length ?? 0)}
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
+        <HubCard padded={false}>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-[var(--hub-border)] hover:bg-transparent">
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] h-10">Client</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] h-10">Status</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] h-10">PAR-Q</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] h-10">Agreement</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] h-10">GP Letter</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] h-10">Outstanding</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {rows.map(({ client, latestParq, latestAgreement, flags }) => (
+                  <TableRow key={client.id} className="border-[var(--hub-border)] hover:bg-[var(--hub-hover)] transition-colors">
+                    <TableCell>
+                      <Link href={`/hub/clients/${client.client_number}`} className="font-medium text-foreground hover:text-rose hover:underline">
+                        {client.name}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={flags.effectiveStatus} />
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {latestParq ? formatDate(latestParq.created_at) : "Not on file"}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {latestAgreement && latestAgreement.status === "signed" ? formatDate(latestAgreement.signed_at) : "Not signed"}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground capitalize">
+                      {client.gp_letter_status.replace("_", " ")}
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {flags.autoOutstanding.length + (client.outstanding_actions?.length ?? 0) > 0 ? (
+                        <span className="text-amber-600 font-medium">
+                          {flags.autoOutstanding.length + (client.outstanding_actions?.length ?? 0)}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </HubCard>
       )}
     </div>
   );

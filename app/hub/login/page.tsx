@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { HubCard, HubCardHeader } from "@/components/hub";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function LoginPage() {
@@ -35,24 +36,27 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="hub-shell flex min-h-screen items-center justify-center bg-off-white">
-      <Card className="w-full max-w-md shadow-sm border-border/60 rounded-2xl">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-rose flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M16 26c-5.5 0-10-4.5-10-10S10.5 6 16 6s10 4.5 10 10-4.5 10-10 10z" fill="white" opacity="0.3" />
-                <path d="M16 24c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" fill="white" opacity="0.5" />
-                <path d="M16 22c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z" fill="white" />
-                <path d="M19 10l-3 10-3-4-4 3" stroke="hsl(318, 86%, 63%)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-              </svg>
+    <div className="hub-shell relative flex min-h-screen items-center justify-center bg-[var(--hub-canvas)] overflow-hidden">
+      {/* Subtle background accent */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-rose/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-teal/5 rounded-full blur-3xl" />
+      </div>
+
+      <HubCard className="relative w-full max-w-md shadow-md border-border/60">
+        <div className="px-6 pt-8 pb-6 text-center">
+          {/* Logo */}
+          <div className="mx-auto mb-5 flex items-center justify-center gap-3">
+            <div className="w-11 h-11 relative shrink-0">
+              <Image src="/images/ef-heart-logo.svg" alt="Eternal Fitness" width={44} height={44} />
             </div>
             <span className="text-xl font-bold text-rose">Eternal Fitness</span>
           </div>
-          <CardTitle>Hub Login</CardTitle>
-          <CardDescription>Sign in to manage clients and training blocks</CardDescription>
-        </CardHeader>
-        <CardContent>
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground">Trainer Hub</h2>
+          <p className="text-sm text-muted-foreground mt-1">Sign in to manage clients and training blocks</p>
+        </div>
+
+        <div className="px-6 pb-8">
           <form onSubmit={handleLogin} className="space-y-4">
             {error && (
               <Alert variant="destructive">
@@ -73,7 +77,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link href="/hub/forgot-password" className="text-xs text-rose underline">
+                <Link href="/hub/forgot-password" className="text-xs text-rose hover:underline">
                   Forgot password?
                 </Link>
               </div>
@@ -85,12 +89,12 @@ export default function LoginPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full rounded-full bg-rose hover:bg-rose/90 text-white" disabled={loading}>
+            <Button type="submit" className="w-full rounded-full bg-rose hover:bg-rose/90 text-white h-11 text-base font-semibold" disabled={loading}>
               {loading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </HubCard>
     </div>
   );
 }

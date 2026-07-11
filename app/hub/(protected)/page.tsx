@@ -1,10 +1,9 @@
 import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
-import { IconActivity, IconArrowUpRight, IconCalendar, IconCheckCircle, IconFileText, IconTriangleAlert, IconUserPlus, IconUsers } from "@/components/icons";
+import { HubCard, HubCardHeader, HubPageHeader, HubQuickActions } from "@/components/hub";
 import { StatusBadge } from "@/components/hub/StatusBadge";
 import { KpiTile } from "@/components/hub/KpiTile";
-import { HubCardHeader } from "@/components/hub/HubCardHeader";
+import { IconActivity, IconArrowUpRight, IconCalendar, IconCheckCircle, IconFileText, IconTriangleAlert, IconUserPlus, IconUsers, IconPencil, IconPlus, IconMail } from "@/components/icons";
 import type { DBClientComplianceStatus } from "@/types";
 
 export default async function DashboardPage() {
@@ -40,18 +39,12 @@ export default async function DashboardPage() {
     const blockSessions = (activeSessions ?? []).filter((s) => s.block_id === block.id);
     const nextSession = blockSessions.find((s) => !s.data?.session_log?.completed_at);
     const completedCount = blockSessions.filter((s) => s.data?.session_log?.completed_at).length;
-    return {
-      block,
-      nextSession,
-      completedCount,
-      totalCount: blockSessions.length,
-    };
+    return { block, nextSession, completedCount, totalCount: blockSessions.length };
   });
 
   const totalClients = clients?.length ?? 0;
   const draftBlocks = blocks?.filter((b) => b.status === "draft").length ?? 0;
   const approvedBlocks = blocks?.filter((b) => b.status === "approved" || b.status === "active").length ?? 0;
-  const totalBlocks = blocks?.length ?? 0;
 
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -62,12 +55,12 @@ export default async function DashboardPage() {
   );
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">Dashboard</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Welcome back, Esther — here's what's happening today.</p>
-      </div>
+    <div className="space-y-6">
+      {/* Page header */}
+      <HubPageHeader
+        title="Dashboard"
+        subtitle="Welcome back, Esther — here's what's happening today."
+      />
 
       {/* KPI band */}
       <div className="grid gap-4 grid-cols-2 xl:grid-cols-4">
@@ -81,15 +74,15 @@ export default async function DashboardPage() {
         />
         <KpiTile icon={<IconFileText className="w-5 h-5" />} label="Draft Blocks" value={draftBlocks} statusToken="neutral" />
         <KpiTile icon={<IconCheckCircle className="w-5 h-5" />} label="Active / Approved" value={approvedBlocks} statusToken="success" />
-        <KpiTile icon={<IconActivity className="w-5 h-5" />} label="Total Blocks" value={totalBlocks} statusToken="primary" />
+        <KpiTile icon={<IconActivity className="w-5 h-5" />} label="Total Blocks" value={blocks?.length ?? 0} statusToken="primary" />
       </div>
 
       {/* Main grid */}
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
         {/* Left column */}
-        <div className="lg:col-span-2 space-y-5">
+        <div className="lg:col-span-2 space-y-6">
           {/* Needs Attention */}
-          <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
+          <HubCard>
             <HubCardHeader
               icon={<IconTriangleAlert className="w-4 h-4" />}
               title="Needs Attention"
@@ -101,8 +94,9 @@ export default async function DashboardPage() {
                   </Link>
                 ) : undefined
               }
+              noBottomPadding
             />
-            <CardContent>
+            <div className="px-5 pb-5">
               {needsAttention.length > 0 ? (
                 <div className="space-y-1">
                   {needsAttention.slice(0, 8).map((client) => {
@@ -125,13 +119,13 @@ export default async function DashboardPage() {
               ) : (
                 <p className="text-sm text-muted-foreground py-2">All clients clear — nothing needs attention.</p>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </HubCard>
 
           {/* Active Blocks — next session widget */}
-          <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
-            <HubCardHeader icon={<IconCalendar className="w-4 h-4" />} title="Active Blocks — Next Session" />
-            <CardContent>
+          <HubCard>
+            <HubCardHeader icon={<IconCalendar className="w-4 h-4" />} title="Active Blocks — Next Session" noBottomPadding />
+            <div className="px-5 pb-5">
               {nextUpByBlock.length > 0 ? (
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {nextUpByBlock.map(({ block, nextSession, completedCount, totalCount }) => {
@@ -170,17 +164,18 @@ export default async function DashboardPage() {
                   <Link href="/hub/clients" className="text-rose hover:underline shrink-0 ml-auto">View clients</Link>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </HubCard>
 
           {/* Recent Clients */}
-          <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
+          <HubCard>
             <HubCardHeader
               icon={<IconUsers className="w-4 h-4" />}
               title="Recent Clients"
               action={<Link href="/hub/clients" className="text-sm text-rose hover:underline inline-flex items-center gap-1">View all <IconArrowUpRight className="w-3 h-3" /></Link>}
+              noBottomPadding
             />
-            <CardContent>
+            <div className="px-5 pb-5">
               {clients && clients.length > 0 ? (
                 <div className="space-y-1">
                   {clients.slice(0, 5).map((client) => {
@@ -213,16 +208,16 @@ export default async function DashboardPage() {
               ) : (
                 <p className="text-sm text-muted-foreground py-2">No clients yet.</p>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </HubCard>
         </div>
 
         {/* Right column */}
-        <div className="space-y-5">
+        <div className="space-y-6">
           {/* Recent Blocks */}
-          <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
-            <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Recent Blocks" />
-            <CardContent>
+          <HubCard>
+            <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Recent Blocks" noBottomPadding />
+            <div className="px-5 pb-5">
               {blocks && blocks.length > 0 ? (
                 <div className="space-y-2">
                   {blocks.slice(0, 5).map((block) => (
@@ -240,36 +235,20 @@ export default async function DashboardPage() {
               ) : (
                 <p className="text-sm text-muted-foreground py-2">No blocks generated yet.</p>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </HubCard>
 
           {/* Quick Actions */}
-          <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
-            <HubCardHeader icon={<IconActivity className="w-4 h-4" />} title="Quick Actions" color="navy" />
-            <CardContent className="space-y-1">
-              <Link
-                href="/hub/clients/new"
-                className="rounded-lg px-2.5 py-2 hover:bg-[var(--hub-hover)] text-sm font-medium flex items-center gap-2.5"
-              >
-                <IconUserPlus className="w-4 h-4 text-rose" />
-                Add a new client
-              </Link>
-              <Link
-                href="/hub/exercises"
-                className="rounded-lg px-2.5 py-2 hover:bg-[var(--hub-hover)] text-sm font-medium flex items-center gap-2.5"
-              >
-                <IconFileText className="w-4 h-4 text-teal" />
-                Browse exercise library
-              </Link>
-              <Link
-                href="/hub/clients"
-                className="rounded-lg px-2.5 py-2 hover:bg-[var(--hub-hover)] text-sm font-medium flex items-center gap-2.5"
-              >
-                <IconUsers className="w-4 h-4 text-slate" />
-                View all clients
-              </Link>
-            </CardContent>
-          </Card>
+          <HubCard>
+            <HubCardHeader icon={<IconActivity className="w-4 h-4" />} title="Quick Actions" color="navy" noBottomPadding />
+            <div className="px-5 pb-5">
+              <HubQuickActions actions={[
+                { href: "/hub/clients/new", label: "Add a new client", icon: <IconUserPlus className="w-4 h-4" /> },
+                { href: "/hub/exercises", label: "Browse exercise library", icon: <IconFileText className="w-4 h-4" /> },
+                { href: "/hub/clients", label: "View all clients", icon: <IconUsers className="w-4 h-4" /> },
+              ]} />
+            </div>
+          </HubCard>
         </div>
       </div>
     </div>

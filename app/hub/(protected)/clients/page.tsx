@@ -1,7 +1,9 @@
 import { createClient } from "@/lib/supabase-server";
-import { IconUsers } from "@/components/icons";
-import { EmptyState } from "@/components/hub/EmptyState";
+import { IconUsers, IconUserPlus } from "@/components/icons";
+import { HubCard, HubPageHeader, EmptyState } from "@/components/hub";
+import { Button } from "@/components/ui/button";
 import { ClientsTable } from "./clients-table";
+import Link from "next/link";
 
 export default async function ClientsPage() {
   const supabase = createClient();
@@ -12,22 +14,29 @@ export default async function ClientsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">Clients</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Manage client profiles and training blocks</p>
-      </div>
+      <HubPageHeader
+        title="Clients"
+        subtitle="Manage client profiles and training blocks"
+        actions={
+          <Link href="/hub/clients/new">
+            <Button className="bg-rose hover:bg-rose/90 text-white rounded-lg px-3.5 py-1.5 h-auto text-sm font-semibold gap-1.5">
+              <IconUserPlus className="w-4 h-4" /> New Client
+            </Button>
+          </Link>
+        }
+      />
 
       {clients && clients.length > 0 ? (
         <ClientsTable clients={clients} />
       ) : (
-        <div className="rounded-2xl border border-[var(--hub-border)] shadow-sm bg-[var(--hub-card)]">
+        <HubCard>
           <EmptyState
             icon={<IconUsers className="w-9 h-9" />}
             title="No clients yet"
             description="Add your first client to start building training blocks"
             cta={{ label: "Add Your First Client", href: "/hub/clients/new" }}
           />
-        </div>
+        </HubCard>
       )}
     </div>
   );

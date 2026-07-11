@@ -1,12 +1,15 @@
-import { CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface HubCardHeaderProps {
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   title: string;
+  subtitle?: string;
   action?: React.ReactNode;
+  /** Semantic color for the icon badge. Defaults to "rose". */
   color?: "rose" | "teal" | "navy" | "slate" | "amber";
   className?: string;
+  /** Remove bottom padding when card content is immediately adjacent. */
+  noBottomPadding?: boolean;
 }
 
 const badgeColors: Record<string, { bg: string; text: string }> = {
@@ -17,17 +20,26 @@ const badgeColors: Record<string, { bg: string; text: string }> = {
   amber: { bg: "bg-amber/10", text: "text-amber" },
 };
 
-export function HubCardHeader({ icon, title, action, color = "rose", className }: HubCardHeaderProps) {
+/**
+ * Card header with optional icon badge, title, subtitle, and action.
+ * Use inside <HubCard> — not inside shadcn <Card>.
+ */
+export function HubCardHeader({ icon, title, subtitle, action, color = "rose", className, noBottomPadding }: HubCardHeaderProps) {
   const c = badgeColors[color];
   return (
-    <CardHeader className={cn("flex flex-row items-center justify-between pb-3", className)}>
-      <CardTitle className="text-base font-semibold flex items-center gap-2">
-        <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center shrink-0", c.bg, c.text)}>
-          {icon}
+    <div className={cn("flex flex-row items-start justify-between gap-3 pb-4", noBottomPadding ? "pb-0" : "", className)}>
+      <div className="flex items-center gap-3 min-w-0">
+        {icon && (
+          <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center shrink-0", c.bg, c.text)}>
+            {icon}
+          </div>
+        )}
+        <div className="min-w-0">
+          <h3 className="text-base font-semibold text-foreground leading-tight">{title}</h3>
+          {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
         </div>
-        {title}
-      </CardTitle>
+      </div>
       {action && <div className="shrink-0">{action}</div>}
-    </CardHeader>
+    </div>
   );
 }

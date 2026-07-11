@@ -37,7 +37,6 @@ const navGroups: { label: string; items: { href: string; label: string; icon: Re
     items: [
       { href: "/hub/documents", label: "All Documents", icon: IconFileText },
       { href: "/hub/templates", label: "Templates", icon: IconFileSignature },
-      { href: "/hub/agreements", label: "Agreements (legacy)", icon: IconFileSignature },
     ],
   },
   {
@@ -112,7 +111,7 @@ export function HubSidebar() {
                     )}
                   >
                     {isActive && (
-                      <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-full bg-rose" />
+                      <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-full bg-rose" />
                     )}
                     <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-rose" : "text-white/45")} />
                     {item.label}
