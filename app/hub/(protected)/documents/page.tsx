@@ -58,7 +58,7 @@ export default async function AllDocumentsPage() {
       key: `agreement-${a.id}`,
       clientName: a.clients?.name ?? a.client_name ?? "—",
       clientNumber: a.clients?.client_number ?? null,
-      label: "Personal Training Agreement (legacy)",
+      label: "Personal Training Agreement",
       source: "Agreement" as const,
       status: a.status || "signed",
       date: a.signed_at ?? a.sent_date ?? a.created_at,

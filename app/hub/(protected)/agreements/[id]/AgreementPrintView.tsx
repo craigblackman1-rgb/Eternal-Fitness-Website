@@ -221,10 +221,10 @@ export default function AgreementPrintView({ agreement, onClose }: { agreement: 
                   <div><p className="text-xs text-[#525A61] uppercase">Date</p><p>{formatDate(agreement.client_signature_date)}</p></div>
                   <div>
                     <p className="text-xs text-[#525A61] uppercase mb-1">Signature</p>
-                    {agreement.client_typed_signature ? (
-                      <p className="italic font-serif text-lg">{agreement.client_typed_signature}</p>
-                    ) : agreement.client_signature_data ? (
+                    {agreement.client_signature_data ? (
                       <img src={agreement.client_signature_data} alt="Client signature" className="h-12 border-b" />
+                    ) : agreement.client_typed_signature ? (
+                      <p className="italic font-serif text-lg">{agreement.client_typed_signature}</p>
                     ) : (
                       <p className="italic text-[#525A61]">Signed</p>
                     )}
@@ -240,7 +240,11 @@ export default function AgreementPrintView({ agreement, onClose }: { agreement: 
                   <div><p className="text-xs text-[#525A61] uppercase">Date</p><p>{formatDate(agreement.trainer_signature_date)}</p></div>
                   <div>
                     <p className="text-xs text-[#525A61] uppercase mb-1">Signature</p>
-                    <p className="italic font-serif text-lg">{agreement.trainer_typed_signature}</p>
+                    {agreement.trainer_signature_data ? (
+                      <img src={agreement.trainer_signature_data} alt="Trainer signature" className="h-12 border-b" />
+                    ) : (
+                      <p className="italic font-serif text-lg">{agreement.trainer_typed_signature}</p>
+                    )}
                   </div>
                 </div>
               </div>

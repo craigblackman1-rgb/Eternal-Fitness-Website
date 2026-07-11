@@ -71,7 +71,7 @@ export function DocumentRegister({ clientNumber, parqs, agreements, documents = 
     })),
     ...agreements.map((a) => ({
       key: `agreement-${a.id}`,
-      label: "Agreement (legacy)",
+      label: "Personal Training Agreement",
       status: a.status,
       date: docDate(a.status, a.sent_date, a.received_date, a.signed_at, a.created_at),
       version: 1,

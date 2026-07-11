@@ -488,6 +488,14 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
                   <p className="text-sm font-serif italic text-lg text-foreground mt-0.5">{data.trainer_typed_signature}</p>
                 </div>
               )}
+              {data.trainer_signature_data && (
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Drawn signature</p>
+                  <div className="border border-border/60 rounded bg-white p-2 inline-block">
+                    <img src={data.trainer_signature_data} alt="Trainer signature" className="h-12 w-auto" />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </CardContent>
