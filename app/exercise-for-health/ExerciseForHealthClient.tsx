@@ -147,7 +147,7 @@ export default function ExerciseForHealthClient({ content = {} }: { content?: Re
         <div className="ds-split">
           <Reveal y={40} className="ds-split-img">
             <Image
-              src="/images/esther-training.jpg"
+              src="/images/studio-kneel-stretch.jpg"
               alt="Esther Fair — Exercise for health conditions specialist in Worthing"
               fill
               sizes="(max-width: 1000px) 100vw, 50vw"

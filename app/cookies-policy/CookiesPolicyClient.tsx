@@ -42,7 +42,7 @@ export default function CookiesPolicyClient() {
 
       {/* Hero */}
       <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
-        <img src="/images/hero-gym.jpg" alt="Cookies Policy — Eternal Fitness Worthing" className="absolute inset-0 w-full h-full object-cover" />
+        <img src="/images/coaching-bicep-client.jpg" alt="Cookies Policy — Eternal Fitness Worthing" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-hero-overlay/70" />
         <div className="relative z-10 text-center max-w-2xl px-6">
           <h1 className="text-4xl md:text-5xl text-white leading-tight mb-4">Cookie Policy</h1>

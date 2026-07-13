@@ -81,7 +81,7 @@ export default function HighBloodPressureClient() {
       <Navbar onBookConsultation={openDialog} />
 
       <PageHero
-        image="/images/who-mobility.jpg"
+        image="/images/studio-kettlebell-rack.jpg"
         imageAlt="Exercise for high blood pressure in Worthing"
         eyebrow="High Blood Pressure"
         heading={<>Exercise for High Blood<br />Pressure in Worthing</>}
@@ -119,7 +119,7 @@ export default function HighBloodPressureClient() {
             </Reveal>
           </div>
           <Reveal y={40} className="ds-split-img">
-            <img src="/images/esther-training.jpg" alt="Blood pressure monitoring during training in Worthing" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <img src="/images/studio-crouch-stretch.jpg" alt="Blood pressure monitoring during training in Worthing" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             <div className="ds-art-chip">
               <MotionArcs accent="teal" />
             </div>
@@ -165,7 +165,7 @@ export default function HighBloodPressureClient() {
       </Section>
 
       <CTABand
-        image="/images/studio-1.jpg"
+        image="/images/approach-flexible.jpg"
         heading="Ready to find out if this is right for you?"
         body="The first conversation is free, with no commitment. I work with a small number of clients at a time — so every person gets my full attention."
         primaryCta={{ label: "Book a Free Consultation", onClick: openDialog }}

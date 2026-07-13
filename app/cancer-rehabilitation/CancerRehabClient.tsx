@@ -58,7 +58,7 @@ export default function CancerRehabClient({ content = {} }: { content?: Record<s
       <Navbar onBookConsultation={openDialog} />
 
       <PageHero
-        image="/images/esther-training.jpg"
+        image="/images/studio-lunge-pair.jpg"
         imageAlt="Esther Fair — Cancer Rehabilitation Specialist in Worthing"
         eyebrow={content.hero_eyebrow ?? "Cancer Rehabilitation"}
         heading={<>Personal Training for<br />Cancer Rehabilitation</>}
@@ -140,7 +140,7 @@ export default function CancerRehabClient({ content = {} }: { content?: Record<s
             </div>
           </div>
           <Reveal y={40} className="ds-split-img">
-            <Image src="/images/who-health.jpg" alt="Esther Fair — cancer rehabilitation specialist" fill sizes="(max-width: 1000px) 100vw, 50vw" style={{ objectFit: "cover" }} />
+            <Image src="/images/testimonials-bg.jpg" alt="Esther Fair — cancer rehabilitation specialist" fill sizes="(max-width: 1000px) 100vw, 50vw" style={{ objectFit: "cover" }} />
             <div className="ds-art-chip" style={{ width: 210, padding: "16px 14px" }}>
               <PulseLine accent="teal" />
             </div>
@@ -174,7 +174,7 @@ export default function CancerRehabClient({ content = {} }: { content?: Record<s
       </Section>
 
       <CTABand
-        image="/images/studio-1.jpg"
+        image="/images/studio-kettlebell-playful.jpg"
         heading={content.cta_heading ?? "Ready to find out if this is right for you?"}
         body={content.cta_body ?? "The first conversation is free, with no commitment. I work with a small number of clients at a time — so every person gets my full attention."}
         primaryCta={{ label: content.cta_btn_primary ?? "Book a Free Consultation", onClick: openDialog }}

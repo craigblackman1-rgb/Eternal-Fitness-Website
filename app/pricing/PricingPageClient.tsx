@@ -187,7 +187,7 @@ export default function PricingPageClient({ content = {} }: { content?: Record<s
       <FAQSection />
 
       <CTABand
-        image="/images/studio-1.jpg"
+        image="/images/pricing-studio.jpg"
         heading={content.cta_heading ?? "Ready to find out if this is right for you?"}
         body={content.cta_body ?? "The first conversation is free, with no commitment. I work with a small number of clients at a time — so every person gets my full attention."}
         primaryCta={{ label: content.cta_btn_primary ?? "Book a Free Consultation", onClick: openDialog }}
