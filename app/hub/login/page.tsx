@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { createClient } from "@/lib/supabase-client";
+import EternalFitnessLogo from "@/components/EternalFitnessLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,11 +46,8 @@ export default function LoginPage() {
       <HubCard className="relative w-full max-w-md shadow-md border-border/60">
         <div className="px-6 pt-8 pb-6 text-center">
           {/* Logo */}
-          <div className="mx-auto mb-5 flex items-center justify-center gap-3">
-            <div className="w-11 h-11 relative shrink-0">
-              <Image src="/images/ef-heart-logo.svg" alt="Eternal Fitness" width={44} height={44} />
-            </div>
-            <span className="text-xl font-bold text-rose">Eternal Fitness</span>
+          <div className="mx-auto mb-5 flex items-center justify-center">
+            <EternalFitnessLogo variant="dark" size="lg" />
           </div>
           <h2 className="text-2xl font-semibold tracking-tight text-foreground">Trainer Hub</h2>
           <p className="text-sm text-muted-foreground mt-1">Sign in to manage clients and training blocks</p>
