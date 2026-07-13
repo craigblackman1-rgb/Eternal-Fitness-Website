@@ -81,7 +81,7 @@ export default function BoneHealthClient() {
       <Navbar onBookConsultation={openDialog} />
 
       <PageHero
-        image="/images/studio-2.jpg"
+        image="/images/studio/studio-rack.jpg"
         imageAlt="Exercise for osteoporosis and bone health in Worthing"
         eyebrow="Bone Health"
         heading={<>Exercise for Osteoporosis and<br />Bone Health in Worthing</>}
@@ -121,7 +121,7 @@ export default function BoneHealthClient() {
             </Reveal>
           </div>
           <Reveal y={40} className="ds-split-img">
-            <img src="/images/studio-1.jpg" alt="Private training studio in Worthing for bone health" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <img src="/images/bone-health-split.jpg" alt="Weight-bearing strength training in Worthing for bone health" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             <div className="ds-art-chip">
               <MotionArcs accent="teal" />
             </div>

@@ -144,7 +144,7 @@ export default function HomePageClient({ content = {} }: { content?: Record<stri
             <div className="step">
               <div className="sn">01</div>
               <div className="sc"><h3>{content.approach_step_1_title ?? "Every session adapts to how you feel that day"}</h3><p>{content.approach_step_1_desc ?? "Fatigue, flares, bad nights, medication changes — I notice and adjust without drawing attention to it. You always leave feeling you've done something worthwhile."}</p></div>
-              <div className="si"><Image src="/images/esther-training.jpg" alt="Esther Fair adapting a training session in Worthing" fill sizes="(max-width: 1000px) 100vw, 360px" style={{ objectFit: "cover" }} /></div>
+              <div className="si"><Image src="/images/approach-step1.jpg" alt="Esther Fair adapting a training session in Worthing" fill sizes="(max-width: 1000px) 100vw, 360px" style={{ objectFit: "cover" }} /></div>
             </div>
             <div className="step">
               <div className="sn">02</div>
@@ -154,7 +154,7 @@ export default function HomePageClient({ content = {} }: { content?: Record<stri
             <div className="step">
               <div className="sn">03</div>
               <div className="sc"><h3>{content.approach_step_3_title ?? "Functional progress — not transformation"}</h3><p>{content.approach_step_3_desc ?? "Climbing stairs with less pain. Better sleep. More energy. Walking further. These are the outcomes that matter to the people I work with — and they're the ones I build towards."}</p></div>
-              <div className="si"><Image src="/images/studio-1.jpg" alt="Long-term sustainable training in Worthing" fill sizes="(max-width: 1000px) 100vw, 360px" style={{ objectFit: "cover" }} /></div>
+              <div className="si"><Image src="/images/approach-step3.jpg" alt="Long-term sustainable training in Worthing" fill sizes="(max-width: 1000px) 100vw, 360px" style={{ objectFit: "cover" }} /></div>
             </div>
           </div>
           <div className="aq-g">
@@ -174,9 +174,9 @@ export default function HomePageClient({ content = {} }: { content?: Record<stri
             </p>
           </div>
           <div className="spec-g">
-            <Link href="/cancer-rehabilitation" className="spc"><div className="spc-img"><Image src="/images/esther-training.jpg" alt="Cancer rehabilitation training in Worthing" fill sizes="(max-width: 1000px) 100vw, 33vw" style={{ objectFit: "cover" }} /></div><div className="spc-n">01</div><div className="spc-t">{content.spec_card_1_title ?? "Cancer Rehabilitation"}</div><div className="spc-d">{content.spec_card_1_desc ?? "Specialist support during treatment, in remission, and post-surgery."}</div></Link>
-            <Link href="/exercise-for-health" className="spc"><div className="spc-img"><Image src="/images/studio-2.jpg" alt="Exercise for health conditions in Worthing" fill sizes="(max-width: 1000px) 100vw, 33vw" style={{ objectFit: "cover" }} /></div><div className="spc-n">02</div><div className="spc-t">{content.spec_card_2_title ?? "Exercise for Health"}</div><div className="spc-d">{content.spec_card_2_desc ?? "Blood pressure, diabetes, bone strength, mobility and more — exercise referral specialists."}</div></Link>
-            <Link href="/exercise-for-health/visual-impairment" className="spc"><div className="spc-img"><Image src="/images/studio-1.jpg" alt="Personal training for visually impaired clients in Worthing" fill sizes="(max-width: 1000px) 100vw, 33vw" style={{ objectFit: "cover" }} /></div><div className="spc-n">03</div><div className="spc-t">{content.spec_card_3_title ?? "Visual Impairment"}</div><div className="spc-d">{content.spec_card_3_desc ?? "Adapted training for people who are blind or partially sighted."}</div></Link>
+            <Link href="/cancer-rehabilitation" className="spc"><div className="spc-img"><Image src="/images/spec-card-cancer.jpg" alt="Cancer rehabilitation training in Worthing" fill sizes="(max-width: 1000px) 100vw, 33vw" style={{ objectFit: "cover" }} /></div><div className="spc-n">01</div><div className="spc-t">{content.spec_card_1_title ?? "Cancer Rehabilitation"}</div><div className="spc-d">{content.spec_card_1_desc ?? "Specialist support during treatment, in remission, and post-surgery."}</div></Link>
+            <Link href="/exercise-for-health" className="spc"><div className="spc-img"><Image src="/images/spec-card-health.jpg" alt="Exercise for health conditions in Worthing" fill sizes="(max-width: 1000px) 100vw, 33vw" style={{ objectFit: "cover" }} /></div><div className="spc-n">02</div><div className="spc-t">{content.spec_card_2_title ?? "Exercise for Health"}</div><div className="spc-d">{content.spec_card_2_desc ?? "Blood pressure, diabetes, bone strength, mobility and more — exercise referral specialists."}</div></Link>
+            <Link href="/exercise-for-health/visual-impairment" className="spc"><div className="spc-img"><Image src="/images/who-blind-sport.jpg" alt="Personal training for visually impaired clients in Worthing" fill sizes="(max-width: 1000px) 100vw, 33vw" style={{ objectFit: "cover" }} /></div><div className="spc-n">03</div><div className="spc-t">{content.spec_card_3_title ?? "Visual Impairment"}</div><div className="spc-d">{content.spec_card_3_desc ?? "Adapted training for people who are blind or partially sighted."}</div></Link>
           </div>
         </div>
       </section>

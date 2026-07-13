@@ -106,9 +106,9 @@ const steps = [
 ];
 
 const specialistPages = [
-  { href: "/exercise-for-health", title: "Exercise for Health", desc: "Training for high blood pressure, type 2 diabetes, osteoporosis, COPD, heart conditions, chronic pain and more.", image: "/images/services-training.jpg", imageAlt: "Exercise for Health" },
-  { href: "/cancer-rehabilitation", title: "Cancer Rehabilitation", desc: "Training during active treatment, in remission, or post-surgery. Qualified and experienced in cancer rehabilitation.", image: "/images/specialise-1.jpg", imageAlt: "Cancer Rehabilitation" },
-  { href: "/exercise-for-health/visual-impairment", title: "Visual Impairment", desc: "Adapted training for people who are blind or partially sighted. Verbal instruction, consistent environment, tactile guidance.", image: "/images/specialise-3.jpg", imageAlt: "Visual Impairment" },
+  { href: "/exercise-for-health", title: "Exercise for Health", desc: "Training for high blood pressure, type 2 diabetes, osteoporosis, COPD, heart conditions, chronic pain and more.", image: "/images/who-health.jpg", imageAlt: "Exercise for Health" },
+  { href: "/cancer-rehabilitation", title: "Cancer Rehabilitation", desc: "Training during active treatment, in remission, or post-surgery. Qualified and experienced in cancer rehabilitation.", image: "/images/spec-card-cancer.jpg", imageAlt: "Cancer Rehabilitation" },
+  { href: "/exercise-for-health/visual-impairment", title: "Visual Impairment", desc: "Adapted training for people who are blind or partially sighted. Verbal instruction, consistent environment, tactile guidance.", image: "/images/who-blind-sport.jpg", imageAlt: "Visual Impairment" },
 ];
 
 const relatedArticles = [

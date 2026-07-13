@@ -143,8 +143,8 @@ export default function VisualImpairmentClient() {
           </div>
           <Reveal y={40} className="ds-split-img">
             <Image
-              src="/images/studio-2.jpg"
-              alt="Private training studio — calm, consistent environment for visually impaired clients"
+              src="/images/who-blind-sport.jpg"
+              alt="Esther with a British Blind Sport contact — active involvement in the VIP sport community"
               fill
               sizes="(max-width: 1000px) 100vw, 50vw"
               style={{ objectFit: "cover" }}
