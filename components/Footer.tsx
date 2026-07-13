@@ -33,7 +33,7 @@ const Footer = () => {
             {/* Brand + Credentials */}
             <div>
               <Link href="/" aria-label="Eternal Fitness home" className={`inline-block ${focusRing}`}>
-                <EternalFitnessLogo variant="light" className="h-10 w-auto" />
+                <EternalFitnessLogo variant="light" className="h-16 w-auto" />
               </Link>
               <p className="text-[15px] text-white/60 leading-relaxed mt-5 max-w-xs">
                 Private one-to-one training in Worthing for people with complex health needs.

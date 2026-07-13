@@ -77,8 +77,8 @@ export function HubSidebar() {
   return (
     <aside className="flex w-60 flex-col bg-[var(--hub-sidebar)] text-white shrink-0">
       {/* Brand */}
-      <div className="flex flex-col justify-center gap-0.5 px-5 h-16 border-b border-white/[0.07]">
-        <EternalFitnessLogo variant="light" size="sm" />
+      <div className="flex flex-col items-start justify-center gap-1 px-5 py-3 border-b border-white/[0.07]">
+        <EternalFitnessLogo variant="light" className="h-9 w-auto" />
         <span className="text-[11px] text-white/40 tracking-wide uppercase">Trainer Hub</span>
       </div>
 

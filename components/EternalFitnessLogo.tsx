@@ -10,64 +10,52 @@ const EternalFitnessLogo = ({
   size = "md",
 }: EternalFitnessLogoProps) => {
   const isLight = variant === "light";
-  const wordmarkColor = isLight ? "#FFFFFF" : "#2D3436";
-  const labelColor = isLight ? "rgba(255,255,255,0.72)" : "rgba(45,52,54,0.62)";
+  const eternalColor = isLight ? "#FFFFFF" : "#2D3436";
   const roseColor = "#C1839F";
 
   const sizeClasses = {
-    sm: "h-6 w-auto",
-    md: "h-8 w-auto",
-    lg: "h-12 w-auto",
+    sm: "h-9 w-auto",
+    md: "h-12 w-auto",
+    lg: "h-16 w-auto",
   };
 
   return (
     <svg
-      viewBox="0 0 190 48"
+      viewBox="0 0 200 124"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={`${className} ${sizeClasses[size]}`}
       aria-label="Eternal Fitness"
       role="img"
     >
-      {/* Wordmark — set in the same serif used for emphasis words across the
-          site (hero "for Health", section headings), so the logo reads as
-          the same voice as the rest of the brand rather than a separate
-          system. */}
-      <text
-        x="0"
-        y="32"
-        fontFamily="var(--font-dm-serif-display), Georgia, 'Times New Roman', serif"
-        fontStyle="italic"
-        fontWeight="400"
-        fontSize="27"
-        letterSpacing="0.2"
-        fill={wordmarkColor}
-      >
-        Eternal
-      </text>
-
-      {/* Signature device: the short rose dash that precedes every eyebrow
-          label sitewide (— WORTHING, WEST SUSSEX / — ABOUT ESTHER), reused
-          here so the logo shares its one recurring mark with the rest of
-          the brand instead of inventing a new symbol. */}
-      <line
-        x1="104"
-        y1="24"
-        x2="120"
-        y2="24"
-        stroke={roseColor}
-        strokeWidth="1.5"
-        strokeLinecap="round"
+      {/* The Emblem — chosen mark from Assets/logo-options-jul2026/ef-logo-d-emblem.svg:
+          a single rose petal above a stacked, wide-tracked wordmark. */}
+      <path
+        d="M18 29.5 C10.5 23.8 4.5 18.5 4.5 12.8 C4.5 8.3 7.9 5.3 11.8 5.3 C14.4 5.3 16.8 6.8 18 9.2 C19.2 6.8 21.6 5.3 24.2 5.3 C28.1 5.3 31.5 8.3 31.5 12.8 C31.5 18.5 25.5 23.8 18 29.5 Z"
+        fill={roseColor}
+        transform="translate(82,4)"
       />
-
       <text
-        x="128"
-        y="29"
+        x="103"
+        y="78"
+        textAnchor="middle"
         fontFamily="var(--font-dm-sans), 'Helvetica Neue', Helvetica, Arial, sans-serif"
-        fontWeight="700"
-        fontSize="11"
-        letterSpacing="2.2"
-        fill={labelColor}
+        fontWeight="800"
+        fontSize="21"
+        letterSpacing="7"
+        fill={eternalColor}
+      >
+        ETERNAL
+      </text>
+      <text
+        x="103"
+        y="102"
+        textAnchor="middle"
+        fontFamily="var(--font-dm-sans), 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        fontWeight="500"
+        fontSize="12"
+        letterSpacing="7.5"
+        fill={roseColor}
       >
         FITNESS
       </text>

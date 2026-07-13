@@ -245,7 +245,7 @@ const Navbar = ({ onBookConsultation }: NavbarProps) => {
         }`}
       >
         <Link href="/" className="flex items-center" aria-label="Eternal Fitness home">
-          <EternalFitnessLogo variant={isLit ? "dark" : "light"} className="h-7 md:h-8 w-auto" />
+          <EternalFitnessLogo variant={isLit ? "dark" : "light"} className="h-12 md:h-14 w-auto" />
         </Link>
 
         {/* Desktop nav */}
