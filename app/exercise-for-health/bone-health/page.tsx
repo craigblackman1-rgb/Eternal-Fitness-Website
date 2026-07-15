@@ -4,14 +4,14 @@ import BoneHealthClient from "./BoneHealthClient";
 const schema = {
   "@context": "https://schema.org",
   "@type": "Service",
-  "@id": "https://eternalfitness.co.uk/exercise-for-health/bone-health/#service",
+  "@id": "https://eternal-fitness.co.uk/exercise-for-health/bone-health/#service",
   "name": "Exercise for Osteoporosis and Bone Health Worthing",
   "description": "Personal training for osteoporosis and bone health in Worthing. Safe, progressive weight-bearing and resistance exercise to maintain bone density and reduce fracture risk.",
-  "url": "https://eternalfitness.co.uk/exercise-for-health/bone-health",
+  "url": "https://eternal-fitness.co.uk/exercise-for-health/bone-health",
   "provider": {
     "@type": "LocalBusiness",
     "name": "Eternal Fitness",
-    "@id": "https://eternalfitness.co.uk/#business"
+    "@id": "https://eternal-fitness.co.uk/#business"
   },
   "areaServed": { "@type": "City", "name": "Worthing" },
   "serviceType": "Exercise for Bone Health",
@@ -63,7 +63,7 @@ const faqSchema = {
 export const metadata: Metadata = {
   title: "Exercise for Osteoporosis and Bone Health Worthing | Eternal Fitness",
   description: "Specialist personal training for osteoporosis and bone health in Worthing. Safe weight-bearing and resistance exercise to maintain bone density. Level 4 qualified.",
-  alternates: { canonical: "https://eternalfitness.co.uk/exercise-for-health/bone-health" },
+  alternates: { canonical: "https://eternal-fitness.co.uk/exercise-for-health/bone-health" },
 };
 
 export default function BoneHealthPage() {

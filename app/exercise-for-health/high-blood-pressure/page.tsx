@@ -4,14 +4,14 @@ import HighBloodPressureClient from "./HighBloodPressureClient";
 const schema = {
   "@context": "https://schema.org",
   "@type": "Service",
-  "@id": "https://eternalfitness.co.uk/exercise-for-health/high-blood-pressure/#service",
+  "@id": "https://eternal-fitness.co.uk/exercise-for-health/high-blood-pressure/#service",
   "name": "Exercise for High Blood Pressure Worthing",
   "description": "Personal training for high blood pressure in Worthing with a Level 4 Exercise Referral Specialist. Safe, monitored exercise for hypertension management.",
-  "url": "https://eternalfitness.co.uk/exercise-for-health/high-blood-pressure",
+  "url": "https://eternal-fitness.co.uk/exercise-for-health/high-blood-pressure",
   "provider": {
     "@type": "LocalBusiness",
     "name": "Eternal Fitness",
-    "@id": "https://eternalfitness.co.uk/#business"
+    "@id": "https://eternal-fitness.co.uk/#business"
   },
   "areaServed": { "@type": "City", "name": "Worthing" },
   "serviceType": "Exercise for High Blood Pressure",
@@ -63,7 +63,7 @@ const faqSchema = {
 export const metadata: Metadata = {
   title: "Exercise for High Blood Pressure Worthing | Eternal Fitness",
   description: "Safe, specialist personal training for high blood pressure in Worthing with a Level 4 Exercise Referral Specialist. Monitored sessions tailored to your condition.",
-  alternates: { canonical: "https://eternalfitness.co.uk/exercise-for-health/high-blood-pressure" },
+  alternates: { canonical: "https://eternal-fitness.co.uk/exercise-for-health/high-blood-pressure" },
 };
 
 export default function HighBloodPressurePage() {

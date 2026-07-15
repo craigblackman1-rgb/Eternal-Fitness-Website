@@ -4,16 +4,18 @@ import { supabase } from "@/lib/supabase";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
-    : process.env.NEXT_PUBLIC_SITE_URL || "https://eternalfitness.co.uk";
+    : process.env.NEXT_PUBLIC_SITE_URL || "https://eternal-fitness.co.uk";
 
   let posts: { slug: string; published_at: string }[] | null = null;
   try {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("blog_posts")
-      .select("slug, published_at")
+      .select("*")
       .order("published_at", { ascending: false });
+    if (error) throw error;
     posts = data;
-  } catch {
+  } catch (err) {
+    console.error("sitemap: failed to load blog_posts", err);
     posts = [];
   }
 
@@ -40,8 +42,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/privacy-policy`, priority: 0.5, changeFrequency: "yearly" as const },
     { url: `${baseUrl}/terms`, priority: 0.5, changeFrequency: "yearly" as const },
     { url: `${baseUrl}/cookies-policy`, priority: 0.5, changeFrequency: "yearly" as const },
-    { url: `${baseUrl}/parq`, priority: 0.6, changeFrequency: "monthly" as const },
-    { url: `${baseUrl}/agreement`, priority: 0.6, changeFrequency: "monthly" as const },
   ];
 
   return [

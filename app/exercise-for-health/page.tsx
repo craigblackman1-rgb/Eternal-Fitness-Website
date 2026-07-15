@@ -5,14 +5,14 @@ import ExerciseForHealthClient from "./ExerciseForHealthClient";
 const schema = {
   "@context": "https://schema.org",
   "@type": "Service",
-  "@id": "https://eternalfitness.co.uk/exercise-for-health/#service",
+  "@id": "https://eternal-fitness.co.uk/exercise-for-health/#service",
   "name": "Exercise for Health Conditions — Personal Training Worthing",
   "description": "Specialist personal training in Worthing for people with health conditions including high blood pressure, type 2 diabetes, osteoporosis, COPD, and chronic illness. Level 4 qualified, exercise referral specialist.",
-  "url": "https://eternalfitness.co.uk/exercise-for-health",
+  "url": "https://eternal-fitness.co.uk/exercise-for-health",
   "provider": {
     "@type": "LocalBusiness",
     "name": "Eternal Fitness",
-    "@id": "https://eternalfitness.co.uk/#business"
+    "@id": "https://eternal-fitness.co.uk/#business"
   },
   "areaServed": { "@type": "City", "name": "Worthing" },
   "serviceType": "Exercise for Health Conditions",
@@ -64,7 +64,7 @@ const faqSchema = {
 export const metadata: Metadata = {
   title: "Exercise for Health Conditions — Personal Training Worthing | Eternal Fitness",
   description: "Specialist personal training in Worthing for health conditions. Level 4 qualified exercise referral specialist. High blood pressure, diabetes, bone health and more.",
-  alternates: { canonical: "https://eternalfitness.co.uk/exercise-for-health" },
+  alternates: { canonical: "https://eternal-fitness.co.uk/exercise-for-health" },
 };
 
 export default async function ExerciseForHealthPage() {

@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Privacy Policy — Eternal Fitness",
   description: "Privacy policy for Eternal Fitness, personal training in Worthing. How we collect, use and protect your personal data.",
   robots: { index: false, follow: false },
-  alternates: { canonical: "https://eternalfitness.co.uk/privacy-policy" },
+  alternates: { canonical: "https://eternal-fitness.co.uk/privacy-policy" },
 };
 
 export default function PrivacyPolicyPage() {

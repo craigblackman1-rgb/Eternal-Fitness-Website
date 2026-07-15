@@ -94,14 +94,14 @@ const faqSchema = {
   "author": {
     "@type": "Person",
     "name": "Esther Fair",
-    "url": "https://eternalfitness.co.uk/about"
+    "url": "https://eternal-fitness.co.uk/about"
   }
 };
 
 export const metadata: Metadata = {
   title: "FAQs: Cancer Rehab, Disability, Health Conditions Training",
   description: "Common questions about personal training at Eternal Fitness in Worthing. Health conditions, cancer rehab, disability, pricing and what to expect.",
-  alternates: { canonical: "https://eternalfitness.co.uk/faqs" },
+  alternates: { canonical: "https://eternal-fitness.co.uk/faqs" },
 };
 
 export default async function FAQsPage() {

@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   return {
     title: post.title,
     description,
-    alternates: { canonical: `https://eternalfitness.co.uk/blog/${post.slug}` },
+    alternates: { canonical: `https://eternal-fitness.co.uk/blog/${post.slug}` },
     openGraph: {
       title: post.title,
       description,
@@ -78,13 +78,13 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     "@type": "Article",
     headline: post.title,
     description: post.excerpt || "",
-    image: post.image_url || "https://eternalfitness.co.uk/og-image.jpg",
+    image: post.image_url || "https://eternal-fitness.co.uk/og-image.jpg",
     datePublished: post.published_at,
     dateModified: post.updated_at || post.published_at,
     author: {
       "@type": "Person",
       name: post.author_name === "Esther Fair" || post.author_name?.includes("Esther") ? "Esther Fair" : post.author_name,
-      url: "https://eternalfitness.co.uk/about",
+      url: "https://eternal-fitness.co.uk/about",
       organization: {
         "@type": "Organization",
         name: "Eternal Fitness"
@@ -93,10 +93,10 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     publisher: {
       "@type": "Organization",
       name: "Eternal Fitness",
-      url: "https://eternalfitness.co.uk",
-      logo: { "@type": "ImageObject", url: "https://eternalfitness.co.uk/og-image.jpg" },
+      url: "https://eternal-fitness.co.uk",
+      logo: { "@type": "ImageObject", url: "https://eternal-fitness.co.uk/og-image.jpg" },
     },
-    mainEntityOfPage: { "@type": "WebPage", "@id": `https://eternalfitness.co.uk/blog/${post.slug}` },
+    mainEntityOfPage: { "@type": "WebPage", "@id": `https://eternal-fitness.co.uk/blog/${post.slug}` },
     articleSection: post.category,
     keywords: `${post.category}, personal training Worthing, fitness, health`,
   };

@@ -6,7 +6,7 @@ const pricingSchema = {
   "@context": "https://schema.org",
   "@type": "ItemList",
   "name": "Personal Training Pricing — Eternal Fitness Worthing",
-  "url": "https://eternalfitness.co.uk/pricing",
+  "url": "https://eternal-fitness.co.uk/pricing",
   "itemListElement": [
     {
       "@type": "ListItem",
@@ -65,7 +65,7 @@ const pricingSchema = {
 export const metadata: Metadata = {
   title: "Cancer Rehabilitation Training Pricing in Worthing from £45",
   description: "Specialist personal training pricing in Worthing. Sessions from £45. No contracts, no surprises. Free consultation with all packages.",
-  alternates: { canonical: "https://eternalfitness.co.uk/pricing" },
+  alternates: { canonical: "https://eternal-fitness.co.uk/pricing" },
 };
 
 export default async function PricingPage() {

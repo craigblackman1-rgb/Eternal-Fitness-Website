@@ -80,7 +80,7 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts }: Prop
     return `${mins} min read`;
   };
 
-  const shareUrl = typeof window !== "undefined" ? window.location.href : `https://eternalfitness.co.uk/blog/${post.slug}`;
+  const shareUrl = typeof window !== "undefined" ? window.location.href : `https://eternal-fitness.co.uk/blog/${post.slug}`;
 
   return (
     <div className="min-h-screen bg-background">

@@ -4,14 +4,14 @@ import VisualImpairmentClient from "./VisualImpairmentClient";
 const schema = {
   "@context": "https://schema.org",
   "@type": "Service",
-  "@id": "https://eternalfitness.co.uk/exercise-for-health/visual-impairment/#service",
+  "@id": "https://eternal-fitness.co.uk/exercise-for-health/visual-impairment/#service",
   "name": "Personal Training for Visually Impaired People Worthing",
   "description": "Adapted personal training for people who are blind or partially sighted in Worthing. Specialist one-to-one sessions in a private studio. Sessions tailored for visually impaired clients.",
-  "url": "https://eternalfitness.co.uk/exercise-for-health/visual-impairment",
+  "url": "https://eternal-fitness.co.uk/exercise-for-health/visual-impairment",
   "provider": {
     "@type": "LocalBusiness",
     "name": "Eternal Fitness",
-    "@id": "https://eternalfitness.co.uk/#business"
+    "@id": "https://eternal-fitness.co.uk/#business"
   },
   "areaServed": { "@type": "City", "name": "Worthing" },
   "serviceType": "Adapted Personal Training for Visual Impairment",
@@ -55,7 +55,7 @@ const faqSchema = {
 export const metadata: Metadata = {
   title: "Personal Training for Visually Impaired People Worthing | Eternal Fitness",
   description: "Adapted personal training for blind and partially sighted people in Worthing. Private one-to-one sessions tailored for VIP clients. Book a free consultation.",
-  alternates: { canonical: "https://eternalfitness.co.uk/exercise-for-health/visual-impairment" },
+  alternates: { canonical: "https://eternal-fitness.co.uk/exercise-for-health/visual-impairment" },
 };
 
 export default function VisualImpairmentPage() {

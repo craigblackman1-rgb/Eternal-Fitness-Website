@@ -5,14 +5,14 @@ import CancerRehabClient from "./CancerRehabClient";
 const schema = {
   "@context": "https://schema.org",
   "@type": "Service",
-  "@id": "https://eternalfitness.co.uk/cancer-rehabilitation/#service",
+  "@id": "https://eternal-fitness.co.uk/cancer-rehabilitation/#service",
   "name": "Cancer Rehabilitation Personal Training Worthing",
   "description": "Specialist personal training for cancer rehabilitation in Worthing. Support during active treatment, in remission, and post-surgery. Level 4 qualified Cancer Rehabilitation Specialist.",
-  "url": "https://eternalfitness.co.uk/cancer-rehabilitation",
+  "url": "https://eternal-fitness.co.uk/cancer-rehabilitation",
   "provider": {
     "@type": "LocalBusiness",
     "name": "Eternal Fitness",
-    "@id": "https://eternalfitness.co.uk/#business"
+    "@id": "https://eternal-fitness.co.uk/#business"
   },
   "areaServed": { "@type": "City", "name": "Worthing" },
   "serviceType": "Cancer Rehabilitation Personal Training",
@@ -64,7 +64,7 @@ const faqSchema = {
 export const metadata: Metadata = {
   title: "Cancer Rehabilitation Personal Training Worthing | Eternal Fitness",
   description: "Specialist cancer rehabilitation personal training in Worthing. Support during treatment, in remission, and post-surgery. Level 4 Cancer Rehabilitation Specialist.",
-  alternates: { canonical: "https://eternalfitness.co.uk/cancer-rehabilitation" },
+  alternates: { canonical: "https://eternal-fitness.co.uk/cancer-rehabilitation" },
 };
 
 export default async function CancerRehabPage() {

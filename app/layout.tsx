@@ -17,7 +17,11 @@ const dmSerifDisplay = DM_Serif_Display({
   variable: "--font-dm-serif-display",
 });
 
-const SITE_URL = "https://eternalfitness.co.uk";
+const SITE_URL = "https://eternal-fitness.co.uk";
+// Only the production domain should be indexed — staging/preview deploys default to noindex
+// so Google never sees duplicate content ahead of launch. Coolify's production env sets
+// NEXT_PUBLIC_ALLOW_INDEXING=true; every other environment (staging, local) is unset.
+const ALLOW_INDEXING = process.env.NEXT_PUBLIC_ALLOW_INDEXING === "true";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -42,8 +46,8 @@ export const metadata: Metadata = {
   },
   manifest: "/site.webmanifest",
   robots: {
-    index: false,
-    follow: false,
+    index: ALLOW_INDEXING,
+    follow: ALLOW_INDEXING,
   },
   other: {
     "geo.region": "GB-WSX",
