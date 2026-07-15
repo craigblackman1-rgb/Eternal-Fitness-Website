@@ -4,7 +4,7 @@ import { AnimateIn } from "@/components/AnimateIn";
 const reviewSchema = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
-  "@id": "https://eternalfitness.co.uk/#business",
+  "@id": "https://eternal-fitness.co.uk/#business",
   "name": "Eternal Fitness",
   "review": [
     {

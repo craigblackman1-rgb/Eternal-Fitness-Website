@@ -69,7 +69,7 @@ const faqGroups = [
       {
         question: "My GP has referred me for exercise. Can you help?",
         answer:
-          "Yes. I am qualified in exercise referral and experienced in working alongside medical guidance. If you have been referred through a GP exercise scheme or have a recommendation from your doctor, I can work directly with that guidance and liaise with your healthcare team where useful.",
+          "Yes — I hold the Exercise Referral qualification and I'm experienced working within GP and medical guidance. I don't currently take referrals directly through an NHS scheme, so if your GP or doctor has recommended exercise, message me and we'll work out together how to build your training around that guidance.",
       },
       {
         question: "I have an injury. Is it safe to exercise?",

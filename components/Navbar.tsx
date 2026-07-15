@@ -33,7 +33,7 @@ interface NavbarProps {
   onBookConsultation?: () => void;
 }
 
-const SITE_URL = "https://eternalfitness.co.uk";
+const SITE_URL = "https://eternal-fitness.co.uk";
 
 const pageTitles: Record<string, string> = {
   "/": "Home",

@@ -21,7 +21,7 @@ const pricingSchema = {
           "price": "45",
           "priceCurrency": "GBP",
           "availability": "https://schema.org/InStock",
-          "seller": { "@type": "LocalBusiness", "name": "Eternal Fitness" }
+          "seller": { "@type": "LocalBusiness", "name": "Eternal Fitness", "@id": "https://eternal-fitness.co.uk/#business" }
         }
       }
     },
@@ -38,7 +38,7 @@ const pricingSchema = {
           "price": "480",
           "priceCurrency": "GBP",
           "availability": "https://schema.org/InStock",
-          "seller": { "@type": "LocalBusiness", "name": "Eternal Fitness" }
+          "seller": { "@type": "LocalBusiness", "name": "Eternal Fitness", "@id": "https://eternal-fitness.co.uk/#business" }
         }
       }
     },
@@ -55,7 +55,7 @@ const pricingSchema = {
           "price": "840",
           "priceCurrency": "GBP",
           "availability": "https://schema.org/InStock",
-          "seller": { "@type": "LocalBusiness", "name": "Eternal Fitness" }
+          "seller": { "@type": "LocalBusiness", "name": "Eternal Fitness", "@id": "https://eternal-fitness.co.uk/#business" }
         }
       }
     }
@@ -63,7 +63,7 @@ const pricingSchema = {
 };
 
 export const metadata: Metadata = {
-  title: "Cancer Rehabilitation Training Pricing in Worthing from £45",
+  title: "Personal Training Prices in Worthing",
   description: "Specialist personal training pricing in Worthing. Sessions from £45. No contracts, no surprises. Free consultation with all packages.",
   alternates: { canonical: "https://eternal-fitness.co.uk/pricing" },
 };

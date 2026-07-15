@@ -26,8 +26,8 @@ const localBusinessSchema = {
     { "@type": "AdministrativeArea", "name": "West Sussex" }
   ],
   "priceRange": "££",
-  "image": "https://eternal-fitness.co.uk/og-image.svg",
-  "sameAs": ["https://www.facebook.com/EternalFitnessPersonalTraining/"],
+  "image": "https://eternal-fitness.co.uk/og-image.png",
+  "sameAs": ["https://www.facebook.com/EternalFitnessPersonalTraining/", "https://instagram.com/eternalfitness/", "https://linkedin.com/in/esther-fair/", "https://youtube.com/eternalfitness/"],
   "founder": { "@type": "Person", "name": "Esther Fair", "jobTitle": "Level 4 Personal Trainer" },
   "hasOfferCatalog": {
     "@type": "OfferCatalog",
@@ -56,7 +56,7 @@ const personSchema = {
     { "@type": "EducationalOccupationalCredential", "name": "Exercise Referral Specialist" },
     { "@type": "EducationalOccupationalCredential", "name": "Cancer Rehabilitation Specialist" }
   ],
-  "sameAs": ["https://www.facebook.com/EternalFitnessPersonalTraining/"]
+  "sameAs": ["https://www.facebook.com/EternalFitnessPersonalTraining/", "https://instagram.com/eternalfitness/", "https://linkedin.com/in/esther-fair/", "https://youtube.com/eternalfitness/"]
 };
 
 export const metadata: Metadata = {

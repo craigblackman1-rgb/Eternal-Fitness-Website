@@ -11,8 +11,23 @@ export default function robots(): MetadataRoute.Robots {
     return { rules: { userAgent: "*", disallow: "/" } };
   }
 
+  const disallow = ["/api/", "/hub/", "/parq", "/agreement", "/documents/"];
+
   return {
-    rules: { userAgent: "*", allow: "/", disallow: ["/api/", "/hub/", "/parq", "/agreement", "/documents/"] },
+    rules: [
+      // Citation/answer-engine bots — allow, this business wants to be cited
+      // by ChatGPT/Perplexity/Google AI Overviews/Claude, not just crawled.
+      { userAgent: "GPTBot", allow: "/", disallow },
+      { userAgent: "ChatGPT-User", allow: "/", disallow },
+      { userAgent: "ClaudeBot", allow: "/", disallow },
+      { userAgent: "anthropic-ai", allow: "/", disallow },
+      { userAgent: "PerplexityBot", allow: "/", disallow },
+      { userAgent: "Google-Extended", allow: "/", disallow },
+      // Training-only scrapers with no citation upside — block.
+      { userAgent: "CCBot", disallow: "/" },
+      { userAgent: "Bytespider", disallow: "/" },
+      { userAgent: "*", allow: "/", disallow },
+    ],
     sitemap: `${baseUrl}/sitemap.xml`,
   };
 }

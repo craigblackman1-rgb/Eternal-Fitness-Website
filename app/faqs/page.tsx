@@ -5,9 +5,7 @@ import FAQsPageClient from "./FAQsPageClient";
 const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  "mainEntity": {
-    "@type": "ItemList",
-    "itemListElement": [
+  "mainEntity": [
       {
         "@type": "Question",
         "position": 1,
@@ -68,7 +66,7 @@ const faqSchema = {
         "name": "My GP has referred me for exercise. Can you help?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes. Esther is qualified in exercise referral and experienced in working alongside medical guidance. If you have been referred through a GP exercise scheme or have a recommendation from your doctor, she can work directly with that guidance."
+          "text": "Yes — Esther holds the Exercise Referral qualification and is experienced working within GP and medical guidance. She doesn't currently take referrals directly through an NHS scheme, so if your GP or doctor has recommended exercise, message her and you'll work out together how to build your training around that guidance."
         }
       },
       {
@@ -89,8 +87,7 @@ const faqSchema = {
           "text": "This is something Esther is specifically trained to manage. If your health changes, whether that is a new diagnosis, a flare-up, a change in medication, or simply a difficult period, your programme changes with it. You do not lose sessions and you do not fall behind."
         }
       }
-    ]
-  },
+  ],
   "author": {
     "@type": "Person",
     "name": "Esther Fair",

@@ -1,6 +1,12 @@
 import type { MetadataRoute } from "next";
 import { supabase } from "@/lib/supabase";
 
+// Without this, Next prerenders sitemap.xml at build time (before the DB is
+// reachable from the build container) and it silently ships without any
+// blog posts — same reason app/blog/page.tsx forces dynamic rendering.
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`

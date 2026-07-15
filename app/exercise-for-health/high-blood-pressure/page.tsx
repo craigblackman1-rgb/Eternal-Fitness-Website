@@ -61,7 +61,7 @@ const faqSchema = {
 };
 
 export const metadata: Metadata = {
-  title: "Exercise for High Blood Pressure Worthing | Eternal Fitness",
+  title: "Exercise for High Blood Pressure, Worthing",
   description: "Safe, specialist personal training for high blood pressure in Worthing with a Level 4 Exercise Referral Specialist. Monitored sessions tailored to your condition.",
   alternates: { canonical: "https://eternal-fitness.co.uk/exercise-for-health/high-blood-pressure" },
 };

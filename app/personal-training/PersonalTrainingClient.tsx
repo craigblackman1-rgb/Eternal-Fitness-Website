@@ -119,9 +119,9 @@ const relatedArticles = [
     icon: IconActivity,
   },
   {
-    href: "/blog/menopause-and-exercise",
-    title: "Menopause & Exercise",
-    desc: "How to train effectively through hormonal changes and manage strength, mobility, and energy during midlife transitions.",
+    href: "/blog/why-bmi-doesnt-matter-with-health-conditions",
+    title: "Why BMI Doesn't Matter With Health Conditions",
+    desc: "Why a single number on a chart misses the point for anyone training with a chronic condition, and what to focus on instead.",
     icon: IconHeart,
   },
   {

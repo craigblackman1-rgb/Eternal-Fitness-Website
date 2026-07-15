@@ -62,7 +62,7 @@ const faqSchema = {
 };
 
 export const metadata: Metadata = {
-  title: "Cancer Rehabilitation Personal Training Worthing | Eternal Fitness",
+  title: "Cancer Rehabilitation Training in Worthing",
   description: "Specialist cancer rehabilitation personal training in Worthing. Support during treatment, in remission, and post-surgery. Level 4 Cancer Rehabilitation Specialist.",
   alternates: { canonical: "https://eternal-fitness.co.uk/cancer-rehabilitation" },
 };

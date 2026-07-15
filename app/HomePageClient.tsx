@@ -27,11 +27,11 @@ export default function HomePageClient({ content = {} }: { content?: Record<stri
       <section id="hero">
         <div className="hlp">
           <div className="h-tag" id="htag">{content.hero_tag ?? "Worthing, West Sussex"}</div>
-          <div style={{ marginBottom: 24 }}>
+          <h1 style={{ marginBottom: 24 }}>
             <div className="hw"><span className="hl hl-t" id="hl1">{content.hero_line_1 ?? "Exercise"}</span></div>
             <div className="hw"><span className="hl hl-b" id="hl2">{content.hero_line_2 ?? "for Health"}</span></div>
             <div className="hw"><span className="hl hl-t" id="hl3">{content.hero_line_3 ?? "Conditions"}</span></div>
-          </div>
+          </h1>
           <p className="h-loc" id="hloc">{content.hero_loc ?? "Private one-to-one personal training in Worthing"}</p>
           <p className="h-sub" id="hsub">
             {content.hero_subheading ?? "Specialist training for people with health conditions, complex needs, and anyone the mainstream fitness industry has overlooked. Every session adapts to how you feel that day — because the same plan can be right one week and wrong the next. GP-referred clients welcome."}

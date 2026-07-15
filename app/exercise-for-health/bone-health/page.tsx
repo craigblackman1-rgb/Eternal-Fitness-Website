@@ -61,7 +61,7 @@ const faqSchema = {
 };
 
 export const metadata: Metadata = {
-  title: "Exercise for Osteoporosis and Bone Health Worthing | Eternal Fitness",
+  title: "Exercise for Osteoporosis & Bone Health",
   description: "Specialist personal training for osteoporosis and bone health in Worthing. Safe weight-bearing and resistance exercise to maintain bone density. Level 4 qualified.",
   alternates: { canonical: "https://eternal-fitness.co.uk/exercise-for-health/bone-health" },
 };

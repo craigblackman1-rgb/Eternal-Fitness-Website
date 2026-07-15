@@ -53,7 +53,7 @@ const faqSchema = {
 };
 
 export const metadata: Metadata = {
-  title: "Personal Training for Visually Impaired People Worthing | Eternal Fitness",
+  title: "Personal Training for Visual Impairment",
   description: "Adapted personal training for blind and partially sighted people in Worthing. Private one-to-one sessions tailored for VIP clients. Book a free consultation.",
   alternates: { canonical: "https://eternal-fitness.co.uk/exercise-for-health/visual-impairment" },
 };

@@ -78,23 +78,24 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     "@type": "Article",
     headline: post.title,
     description: post.excerpt || "",
-    image: post.image_url || "https://eternal-fitness.co.uk/og-image.jpg",
+    image: post.image_url || "https://eternal-fitness.co.uk/og-image.png",
     datePublished: post.published_at,
     dateModified: post.updated_at || post.published_at,
     author: {
       "@type": "Person",
       name: post.author_name === "Esther Fair" || post.author_name?.includes("Esther") ? "Esther Fair" : post.author_name,
       url: "https://eternal-fitness.co.uk/about",
-      organization: {
-        "@type": "Organization",
-        name: "Eternal Fitness"
+      worksFor: {
+        "@type": "LocalBusiness",
+        name: "Eternal Fitness",
+        "@id": "https://eternal-fitness.co.uk/#business"
       }
     },
     publisher: {
       "@type": "Organization",
       name: "Eternal Fitness",
       url: "https://eternal-fitness.co.uk",
-      logo: { "@type": "ImageObject", url: "https://eternal-fitness.co.uk/og-image.jpg" },
+      logo: { "@type": "ImageObject", url: "https://eternal-fitness.co.uk/og-image.png" },
     },
     mainEntityOfPage: { "@type": "WebPage", "@id": `https://eternal-fitness.co.uk/blog/${post.slug}` },
     articleSection: post.category,

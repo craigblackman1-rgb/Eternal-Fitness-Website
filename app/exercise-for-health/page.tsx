@@ -62,7 +62,7 @@ const faqSchema = {
 };
 
 export const metadata: Metadata = {
-  title: "Exercise for Health Conditions — Personal Training Worthing | Eternal Fitness",
+  title: "Exercise for Health Conditions in Worthing",
   description: "Specialist personal training in Worthing for health conditions. Level 4 qualified exercise referral specialist. High blood pressure, diabetes, bone health and more.",
   alternates: { canonical: "https://eternal-fitness.co.uk/exercise-for-health" },
 };
