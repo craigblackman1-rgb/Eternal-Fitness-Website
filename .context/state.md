@@ -1,13 +1,13 @@
 # Eternal Fitness Website — State
 
 ## Current
-- Next.js 14 / Tailwind / shadcn-ui / Supabase
+- Next.js 14 / Tailwind / shadcn-ui / self-hosted Postgres on Coolify (migrated off Supabase — see decisions.log 2026-07-xx)
 - Hub with client management, training blocks, agreements, PAR-Q
 - **Custom icon system**: 36+ SVG icons replacing lucide-react ✅
 - 6-week client update email feature: **BUILT** (all phases complete, build+tsc clean)
 
 ## Built
-- Supabase schema: clients, blocks, sessions, signed_agreements, signed_parq, medical_clearance_tracker, client_tracker
+- DB schema (now on plain Postgres, originally built on Supabase): clients, blocks, sessions, signed_agreements, signed_parq, medical_clearance_tracker, client_tracker
 - **6-week update emails**: block_summaries JSONB + sent_updates table (migration)
 - **Reusable SMTP send layer**: lib/email.ts — nodemailer, dry-runs gracefully when unconfigured
 - **Branded email template**: inline-CSS, 6 sections, Rose/Teal brand colours
@@ -24,7 +24,6 @@
 - No SMTP credentials configured yet
 
 ## Required Actions
-- Apply migration to Supabase
 - Set SMTP env vars
 - Set ANTHROPIC_API_KEY
 - Verify SPF/DKIM
