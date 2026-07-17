@@ -9,6 +9,10 @@
 ## Built
 - DB schema (now on plain Postgres, originally built on Supabase): clients, blocks, sessions, signed_agreements, signed_parq, medical_clearance_tracker, client_tracker
 - **6-week update emails**: block_summaries JSONB + sent_updates table (migration)
+- **4-week update template**: `four_week_update` kind (lib/email-templates/four-week-update.ts) —
+  7 sections incl. "What Every Session Is Actually Doing" / "A Couple of Things to Keep an Eye On",
+  for injury/recovery-block reviews. No auto-generate-from-data path yet (six-week only); drafts
+  authored via scripts/create-update-draft.mjs or hand-edited in the hub. See handoff.md 2026-07-17.
 - **Reusable SMTP send layer**: lib/email.ts — nodemailer, dry-runs gracefully when unconfigured
 - **Branded email template**: inline-CSS, 6 sections, Rose/Teal brand colours
 - **Generation API**: pulls profile + blocks + summaries → Claude or template-based fallback

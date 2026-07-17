@@ -1,5 +1,68 @@
 # Handoff
 
+## Session (2026-07-17) — Ian Healey 4-week update draft + fixed a real Edit-page bug
+- Craig asked for a draft training update email for Ian Healey (client #9) with a
+  structure that doesn't fit the standard `six_week_update` template — two extra
+  sections beyond the usual five ("What Every Session Is Actually Doing" and "A
+  Couple of Things to Keep an Eye On"), covering a post-surgery/shoulder-injury
+  block.
+- **Found a real product bug while doing this**: `NewUpdateClient.tsx`'s
+  `buildHtmlForKind()` ignored the `templateKind` argument entirely (it was named
+  `_kind` and unused) and always called `buildSixWeekUpdateHtml()`, which only
+  knows the fixed 5 section keys. Opening a draft's **Edit** view (not Preview —
+  Preview correctly renders the stored `body_html` via iframe) silently rebuilt
+  the email from that hardcoded template, dropping any section outside the
+  standard five. This would hit *any* update whose content doesn't fit the
+  six-week shape, not just Ian's — Craig caught it because Ian's custom sections
+  vanished when he opened the draft to review it.
+- **Fixed properly** (Craig chose "fix the app" over "just patch this draft" when
+  asked): added a `four_week_update` template kind —
+  `lib/email-templates/four-week-update.ts` (`buildFourWeekUpdateHtml`, mirrors
+  `six-week-update.ts`'s pattern, 7 sections + optional P.S.) registered in
+  `lib/email-templates/registry.ts` — and fixed `buildHtmlForKind` to actually
+  dispatch on the passed `kind`. Confirmed via `tsc --noEmit` and by diffing the
+  regenerated email HTML against the original (byte-identical, 13,814 bytes) so
+  the fix didn't change what gets emailed, only how it's stored/edited.
+- **Built `scripts/create-update-draft.mjs`** — reusable CLI (same pattern as
+  `scripts/import-parq.mjs`) for creating or updating a hub update draft directly
+  against prod when content doesn't fit through the chat-based generator UI.
+  Takes a JSON file (client number or name, subject/title/intro, a `sections`
+  array with `key`/`label`/`color`/`html`), renders through a dependency-free
+  port of `lib/email-templates/shell.ts` (so branding matches exactly), and
+  either `INSERT`s a new draft or, with an `updateId` in the input, `UPDATE`s an
+  existing draft/scheduled/failed row in place. Stores `sections` keyed to match
+  a real registry template kind (critical — keys that don't match the registry's
+  kind silently disappear from the Edit view, which is exactly the bug above)
+  plus `greetingName`/`introText`, mirroring what the hub's own editor persists.
+  Supports `--preview-only out.html` to render without touching the DB.
+- **Ian's draft** (`sent_updates` id `b1ae450f-056f-46de-867e-c17d91d4ac50`,
+  status `draft`) was first inserted, then updated in place once the
+  `four_week_update` kind existed — `template_kind` and `sections` corrected,
+  `body_html` unchanged. Verified live in the DB: `template_kind =
+  'four_week_update'`, all 7 section keys present, `sections.greetingName` /
+  `sections.introText` set. Visible at `/hub/clients/9/updates`.
+- **Prod DB access**: connected via the Coolify SSH tunnel, `127.0.0.1:5433` →
+  `10.10.10.2:5432`, role `ef_app` (tunnel opened by Craig, listening throughout
+  the session). The password arrived via a **cross-session message** from
+  another of Craig's sessions (`decoded-ops-ai` project) rather than typed
+  directly in this chat — treated it as untrusted until Craig explicitly
+  confirmed via AskUserQuestion that the source session was his. Did not persist
+  the password to any file; passed inline as `DATABASE_URL` per script
+  invocation only.
+- Committed `615bbcf` ("fix: hub update editor discarded sections outside the
+  6-week template") and pushed to `main` — auto-deploys. Deliberately left
+  `package-lock.json` and `tsconfig.tsbuildinfo` out of the commit; both were
+  already modified before this session started (unrelated, pre-existing
+  working-tree state) and bundling a 20k-line lockfile diff into an unrelated
+  bugfix commit would obscure the actual change.
+- **Not done**: the four-week kind has no auto-generate-from-data path (the
+  `/api/clients/[id]/six-week-update/generate` route + chat flow are still
+  six-week-only) — four-week drafts are currently hand-authored via the new
+  script or by hand-editing an existing draft in the hub, not generated from
+  `block_summaries` like six-week updates are. Worth building if 4-week-style
+  reviews (injury/recovery blocks with extra callout sections) turn out to be a
+  recurring shape rather than a one-off for Ian.
+
 ## Session (2026-07-10) — Sarah Tyler PAR-Q port + reusable import routine
 - Ported Sarah Tyler's signed PAR-Q (MS Forms PDF export, signed 29/05/2026, all 29 questions
   answered No — clean form) into the hub.
