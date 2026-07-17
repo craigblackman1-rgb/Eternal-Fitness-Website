@@ -17,6 +17,8 @@ import { RichTextEditor } from "@/components/hub/RichTextEditor";
 import { UPDATE_TEMPLATE_KINDS, getTemplateKind } from "@/lib/email-templates/registry";
 import { buildSixWeekUpdateHtml, DEFAULT_INTRO } from "@/lib/email-templates/six-week-update";
 import type { SixWeekUpdateData } from "@/lib/email-templates/six-week-update";
+import { buildFourWeekUpdateHtml } from "@/lib/email-templates/four-week-update";
+import type { FourWeekUpdateData } from "@/lib/email-templates/four-week-update";
 
 const TEST_RECIPIENTS = [
   { label: "Craig (Decoded Ops)", email: "craig@decodedops.co.uk" },
@@ -49,12 +51,15 @@ interface NewUpdateClientProps {
 /** Rebuild the branded email HTML from the edited section values, per kind.
  *  greetingName/introText win over anything carried in `sections`. */
 function buildHtmlForKind(
-  _kind: string,
+  kind: string,
   clientName: string,
   greetingName: string,
   introText: string,
   sections: SectionValues,
 ): string {
+  if (kind === "four_week_update") {
+    return buildFourWeekUpdateHtml({ clientName, ...sections, greetingName, introText } as unknown as FourWeekUpdateData);
+  }
   return buildSixWeekUpdateHtml({ clientName, ...sections, greetingName, introText } as unknown as SixWeekUpdateData);
 }
 

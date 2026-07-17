@@ -37,6 +37,29 @@ export const UPDATE_TEMPLATE_KINDS: UpdateTemplateKind[] = [
       "What's the focus for the next block?",
     ],
   },
+  {
+    id: "four_week_update",
+    label: "4-Week Update",
+    defaultSubject: "Your last 4 weeks with me 🏋️",
+    sections: [
+      { key: "attendanceSection", label: "Attendance & Consistency" },
+      { key: "bigWinSection", label: "The Big Win This Block" },
+      { key: "highlightsSection", label: "Strength & Fitness Highlights" },
+      { key: "whatEverySessionSection", label: "What Every Session Is Actually Doing" },
+      { key: "keepAnEyeOnSection", label: "A Couple of Things to Keep an Eye On" },
+      { key: "whatsNextSection", label: "What's Next for You" },
+      { key: "worthSayingSection", label: "Worth Saying" },
+      { key: "psSection", label: "P.S. — note after sign-off (optional)" },
+    ],
+    starterPrompts: [
+      "How has attendance and consistency been this block?",
+      "What's the single biggest win this block?",
+      "What strength/fitness wins should we highlight?",
+      "What should the client know about lighter/quieter sessions?",
+      "Anything to flag for them to keep an eye on?",
+      "What's the focus for the next block?",
+    ],
+  },
 ];
 
 export function getTemplateKind(id: string): UpdateTemplateKind {
