@@ -254,15 +254,26 @@ async function main() {
   const client = clientRows[0];
   const clientEmail = input.clientEmail ?? client.email ?? null;
 
-  // Mirror what the hub's own editor persists (NewUpdateClient.tsx sectionsForSave):
-  // per-section-key HTML plus greetingName/introText, so the Edit page's "existing"
-  // load round-trips correctly and rebuilds identical output via buildHtmlForKind().
+  // Mirror what the hub's own editor persists (NewUpdateClient.tsx sectionsForSave),
+  // so the Edit page's "existing" load round-trips correctly and rebuilds identical
+  // output via buildHtmlForKind(). The flexible_update kind stores an ordered
+  // { heading, html } array under `flexSections`; fixed-shape kinds store
+  // per-section-key HTML flatly, keyed to match their registry entry.
+  const isFlexible = (input.templateKind ?? "four_week_update") === "flexible_update";
   const sectionsJson = input.sections
-    ? JSON.stringify({
-        ...Object.fromEntries(input.sections.map((s, i) => [s.key ?? `section${i + 1}`, s.html])),
-        greetingName: input.greetingName ?? client.name,
-        introText: input.introText ?? "",
-      })
+    ? JSON.stringify(
+        isFlexible
+          ? {
+              flexSections: input.sections.map((s) => ({ heading: s.label ?? "", html: s.html ?? "" })),
+              greetingName: input.greetingName ?? client.name,
+              introText: input.introText ?? "",
+            }
+          : {
+              ...Object.fromEntries(input.sections.map((s, i) => [s.key ?? `section${i + 1}`, s.html])),
+              greetingName: input.greetingName ?? client.name,
+              introText: input.introText ?? "",
+            },
+      )
     : null;
 
   if (input.updateId) {

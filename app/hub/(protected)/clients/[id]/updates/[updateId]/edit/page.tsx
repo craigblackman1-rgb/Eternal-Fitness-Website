@@ -35,7 +35,7 @@ export default async function EditUpdatePage({ params }: { params: { id: string;
     id: update.id,
     status: editStatus,
     subject: update.subject,
-    sections: update.sections ?? {},
+    sections: (update.sections ?? {}) as EditableUpdate["sections"],
     templateKind: update.template_kind,
     blockNumber: update.block_number,
     clientEmail: update.client_email,

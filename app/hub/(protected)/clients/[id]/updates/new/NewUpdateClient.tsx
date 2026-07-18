@@ -19,6 +19,8 @@ import { buildSixWeekUpdateHtml, DEFAULT_INTRO } from "@/lib/email-templates/six
 import type { SixWeekUpdateData } from "@/lib/email-templates/six-week-update";
 import { buildFourWeekUpdateHtml } from "@/lib/email-templates/four-week-update";
 import type { FourWeekUpdateData } from "@/lib/email-templates/four-week-update";
+import { buildFlexibleUpdateHtml } from "@/lib/email-templates/flexible-update";
+import type { FlexibleSection } from "@/lib/email-templates/flexible-update";
 
 const TEST_RECIPIENTS = [
   { label: "Craig (Decoded Ops)", email: "craig@decodedops.co.uk" },
@@ -27,12 +29,17 @@ const TEST_RECIPIENTS = [
 
 type SectionValues = Record<string, string>;
 
+/** Existing draft/scheduled record being edited (null = compose new). Loosely typed
+ *  because the flexible template stores a nested `flexSections` array alongside
+ *  the flat greetingName/introText strings every kind carries. */
+type SavedSections = Record<string, string | FlexibleSection[] | undefined>;
+
 /** Existing draft/scheduled record being edited (null = compose new). */
 export interface EditableUpdate {
   id: string;
   status: "draft" | "scheduled";
   subject: string;
-  sections: SectionValues;
+  sections: SavedSections;
   templateKind: string;
   blockNumber: number;
   clientEmail: string | null;
@@ -56,12 +63,19 @@ function buildHtmlForKind(
   greetingName: string,
   introText: string,
   sections: SectionValues,
+  flexSections: FlexibleSection[],
 ): string {
+  if (kind === "flexible_update") {
+    return buildFlexibleUpdateHtml({ clientName, greetingName, introText, sections: flexSections });
+  }
   if (kind === "four_week_update") {
     return buildFourWeekUpdateHtml({ clientName, ...sections, greetingName, introText } as unknown as FourWeekUpdateData);
   }
   return buildSixWeekUpdateHtml({ clientName, ...sections, greetingName, introText } as unknown as SixWeekUpdateData);
 }
+
+/** An empty trailing row, so the editor always offers one more slot to fill in. */
+const EMPTY_FLEX_SECTION: FlexibleSection = { heading: "", html: "" };
 
 /** First word of a name, for the default "Hi …," greeting. */
 function firstName(name: string): string {
@@ -88,9 +102,16 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
   const [error, setError] = useState<string | null>(null);
   const [hasDraft, setHasDraft] = useState(isEdit);
   const [subject, setSubject] = useState(existing?.subject ?? "");
-  const [greetingName, setGreetingName] = useState(existing?.sections?.greetingName || firstName(clientName));
-  const [introText, setIntroText] = useState(existing?.sections?.introText || DEFAULT_INTRO);
-  const [sections, setSections] = useState<SectionValues>(existing?.sections ?? {});
+  const [greetingName, setGreetingName] = useState((existing?.sections?.greetingName as string) || firstName(clientName));
+  const [introText, setIntroText] = useState((existing?.sections?.introText as string) || DEFAULT_INTRO);
+  const [sections, setSections] = useState<SectionValues>(
+    Object.fromEntries(
+      Object.entries(existing?.sections ?? {}).filter((e): e is [string, string] => typeof e[1] === "string"),
+    ),
+  );
+  const [flexSections, setFlexSections] = useState<FlexibleSection[]>(
+    (existing?.sections?.flexSections as FlexibleSection[] | undefined) ?? [{ ...EMPTY_FLEX_SECTION }],
+  );
   const [blockNumber, setBlockNumber] = useState(existing?.blockNumber ?? 0);
   const [clientEmail, setClientEmail] = useState(existing?.clientEmail ?? defaultEmail);
   const [scheduledFor, setScheduledFor] = useState(toLocalInput(existing?.scheduledFor ?? null));
@@ -100,11 +121,12 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
 
   const html = useMemo(() => {
     if (!hasDraft) return "";
-    return buildHtmlForKind(templateKind, clientName, greetingName, introText, sections);
-  }, [hasDraft, templateKind, clientName, greetingName, introText, sections]);
+    return buildHtmlForKind(templateKind, clientName, greetingName, introText, sections, flexSections);
+  }, [hasDraft, templateKind, clientName, greetingName, introText, sections, flexSections]);
 
   /** Section values plus the greeting/intro, for persisting to the DB. */
-  const sectionsForSave = () => ({ ...sections, greetingName, introText });
+  const sectionsForSave = (): SavedSections =>
+    kind.flexible ? { greetingName, introText, flexSections } : { ...sections, greetingName, introText };
 
   const handleCreateDraft = async (conversationSummary: string) => {
     setGenerating(true);
@@ -302,7 +324,7 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
           )}
 
           <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-            <CardContent className="pt-6">
+            <CardContent className="pt-6 space-y-4">
               <UpdateChatPanel
                 clientNumber={clientNumber}
                 clientName={clientName}
@@ -311,6 +333,23 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
                 generating={generating}
                 onCreateDraft={handleCreateDraft}
               />
+              {kind.flexible && (
+                <div className="flex items-center justify-between rounded-xl border border-dashed border-[var(--hub-border)] p-4">
+                  <p className="text-sm text-muted-foreground">
+                    Or skip the chat and build the sections yourself below.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSubject(kind.defaultSubject);
+                      setHasDraft(true);
+                    }}
+                  >
+                    Start a blank draft
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </>
@@ -355,16 +394,59 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
                 </div>
               </div>
 
-              {kind.sections.map((s) => (
-                <div key={s.key} className="space-y-2">
-                  <Label>{s.label}</Label>
-                  <RichTextEditor
-                    value={sections[s.key] ?? ""}
-                    onChange={(v) => setSections((prev) => ({ ...prev, [s.key]: v }))}
-                    placeholder={`Write the ${s.label.toLowerCase()} section…`}
-                  />
-                </div>
-              ))}
+              {kind.flexible
+                ? flexSections.map((s, i) => (
+                    <div key={i} className="space-y-2 rounded-xl border border-[var(--hub-border)] p-4">
+                      <div className="flex items-end gap-3">
+                        <div className="flex-1 space-y-2">
+                          <Label htmlFor={`flex-heading-${i}`}>Section heading</Label>
+                          <Input
+                            id={`flex-heading-${i}`}
+                            value={s.heading}
+                            onChange={(e) =>
+                              setFlexSections((prev) => prev.map((row, j) => (j === i ? { ...row, heading: e.target.value } : row)))
+                            }
+                            placeholder="e.g. Attendance & Consistency"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setFlexSections((prev) => prev.filter((_, j) => j !== i))}
+                          disabled={flexSections.length <= 1}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                      <RichTextEditor
+                        value={s.html}
+                        onChange={(v) => setFlexSections((prev) => prev.map((row, j) => (j === i ? { ...row, html: v } : row)))}
+                        placeholder="Write this section — leave both fields blank to skip it"
+                      />
+                    </div>
+                  ))
+                : kind.sections.map((s) => (
+                    <div key={s.key} className="space-y-2">
+                      <Label>{s.label}</Label>
+                      <RichTextEditor
+                        value={sections[s.key] ?? ""}
+                        onChange={(v) => setSections((prev) => ({ ...prev, [s.key]: v }))}
+                        placeholder={`Write the ${s.label.toLowerCase()} section…`}
+                      />
+                    </div>
+                  ))}
+
+              {kind.flexible && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setFlexSections((prev) => [...prev, { ...EMPTY_FLEX_SECTION }])}
+                >
+                  Add another section
+                </Button>
+              )}
             </CardContent>
           </Card>
 

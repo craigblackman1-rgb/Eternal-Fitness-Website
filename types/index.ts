@@ -254,8 +254,9 @@ export interface SentUpdate {
   /** When a scheduled update should send — null for drafts/immediate. */
   scheduled_for: string | null;
   client_email: string | null;
-  /** Structured section values (keys match the template registry). */
-  sections: Record<string, string> | null;
+  /** Structured section values. Keys match the template registry for fixed-shape
+   *  kinds; the flexible kind instead carries a `flexSections` array here. */
+  sections: Record<string, unknown> | null;
   send_error: string | null;
   /** SendGrid message ID for webhook engagement matching. */
   sg_message_id: string | null;

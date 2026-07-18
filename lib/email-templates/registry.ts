@@ -9,6 +9,9 @@ export interface UpdateTemplateKind {
   defaultSubject: string;
   sections: UpdateTemplateSection[];
   starterPrompts: string[];
+  /** True for the generic template, whose section headings/content are freeform
+   *  and edited as a dynamic list rather than a fixed set of registry keys. */
+  flexible?: boolean;
 }
 
 /**
@@ -58,6 +61,16 @@ export const UPDATE_TEMPLATE_KINDS: UpdateTemplateKind[] = [
       "What should the client know about lighter/quieter sessions?",
       "Anything to flag for them to keep an eye on?",
       "What's the focus for the next block?",
+    ],
+  },
+  {
+    id: "flexible_update",
+    label: "Flexible Update (custom sections)",
+    defaultSubject: "A training update from Esther 🏋️",
+    sections: [],
+    flexible: true,
+    starterPrompts: [
+      "What's this update about, and how many sections does it need?",
     ],
   },
 ];
