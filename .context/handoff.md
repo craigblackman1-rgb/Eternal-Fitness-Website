@@ -468,3 +468,45 @@ fallback. Three behaviours per Craig's request:
   `exercise-browser.tsx` and `ClientUpdatesPanel.tsx` remain, untouched.)
 - **No real email was sent during the build.** The live `send_email` action was NOT invoked against
   any real document; verification was type-check only.
+
+## Session close — 2026-07-20
+
+Full-day session on the Work Order above (`workorder-eternal-fitness-hub-consolidation-2026-07-20.md`).
+Summary for whoever picks this up next — the entries above have the full detail per unit.
+
+**Shipped and live on staging:**
+- Lane B: Process & Quality System module + migration (tables live, empty — no content yet).
+- Lane D: magic-link auth + read-only portal view — code built, **not deployed as a live auth
+  surface**, no real account exists.
+- Lane E (added mid-session, Craig-directed, not in original scope): full brand design-system port
+  into the document engine (all 4 document kinds), new `consent` document type with real interactive
+  checkbox capture, hub client detail/edit pages aligned to the reference mockups, a focus-ring fix,
+  and document email-sending (primary = email, fallback = copy link, resend once sent).
+- Two prod DB writes made with Craig's explicit per-session go-ahead, both additive-only, verified
+  live: Lane B's three tables, and the `consent` template + `client_documents.consent_choices` column.
+
+**Not started / still open:**
+- Lane A: no client data has actually been consolidated into the hub yet (method decided — manual
+  entry — but no records typed in).
+- Lane B: Process Register entries + the 3 required SOPs — needs real input from Craig/Esther, not
+  something to write blind.
+- Lane C: PAR-Q migration script exists but has not been run against prod, and its 1:1 parity has not
+  been spot-checked against real client records (needs a DB tunnel session).
+- Lane D: independent WCAG walkthrough (the existing doc was a self-check during the build), then two
+  `[GATE]`s — deploy the auth surface live, invite a first real client.
+- Broader hub design sweep beyond client list/detail/edit — explicitly deferred when scoped down.
+
+**Two real bugs caught and fixed before shipping** (worth knowing about even though they're already
+fixed): a shared-component default change would have silently altered 18+ untouched hub pages
+(`HubCardHeader` divider — flipped to opt-in); the new consent-document email built a `signUrl`
+variable but never put it in the HTML, so the button the email text promised didn't exist.
+
+**Process lesson**: parallel OpenCode instances writing to the same shared file
+(`.context/handoff.md`) caused a lost-update race earlier in the session — recovered from each unit's
+commit diff, then avoided by not letting concurrent units free-append to a shared file. OpenCode's own
+"done" self-report was not fully reliable — real verification (git history, `tsc`, and for
+design/UX asks, the live site via browser automation) caught issues the self-report missed every time
+it was actually checked.
+
+**Registry**: `infrastructure/.context/active-workorders.md` reflects current status. Work Order
+itself has an updated DONE checklist and a new Lane E documenting today's Craig-directed work.
