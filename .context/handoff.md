@@ -184,3 +184,51 @@ from disk (though preserved in each unit's own commit diff, which is how this fi
 reconstructed). Fixed by merging all sections back in chronological order. **Going forward:
 handoff.md appends from parallel lane units should be serialized (one writer at a time, or Claude
 merges after the fact) rather than left to concurrent agents.**
+
+## Work Order — Lane D, unit 2 (2026-07-20)
+
+Built the client portal magic-link auth surface and the read-only portal view, per the approved
+design in `.context/lane-d1-client-auth-design.md` (magic-link, separate better-auth instance,
+bound 1:1 to `clients.id`, server-filtered to the client's own data, staff auth untouched).
+
+### What was built
+- **Migration (NOT run):** `supabase/migrations/20260720_portal_auth.sql` — new isolated tables
+  `portal_accounts`, `portal_sessions`, `portal_magic_links` (own `portal_` prefix, own cookie,
+  `client_id` 1:1 FK, `disabled_at` for staff revoke, hashed single-use tokens). NO RLS policies
+  for client roles — all reads are service-role, filtered by authenticated `client_id`.
+- **Separate auth module:** `lib/portal-auth.ts` — self-contained magic-link request/verify/
+  session/destroy over the `portal_*` tables. Distinct cookie `better_auth_portal_session`.
+  `requestPortalMagicLink` emails only when a SendGrid/SMTP backend is configured; otherwise
+  returns a `devLink` for review and sends nothing (Work Order rule: no auto-emit to clients).
+- **API routes:** `app/api/portal/auth/request-link/route.ts` (POST, anti-enumeration — always
+  `{requested:true}`), `app/api/portal/auth/verify/route.ts` (GET verify + set cookie + redirect;
+  POST logout).
+- **Session helper:** `lib/portal-session.ts` — reads the isolated portal cookie only.
+- **Middleware:** extended `middleware.ts` matcher to `/portal/:path*` (ADDITIVE — staff `/hub`
+  guard rules unchanged; separate portal cookie check; redirects to `/portal/login`).
+- **Login UI:** `app/portal/login/page.tsx` — magic-link request, WCAG 2.2 AA (skip link, focus
+  ring, `type=email`+`autocomplete`, text+icon status, 44px targets, no CAPTCHA/puzzle 2FA).
+- **Read-only portal:** `app/portal/layout.tsx` (slim client shell + sign-out) and
+  `app/portal/page.tsx` — three sections reusing hub components (`HubCard`, `HubCardHeader`,
+  `StatusBadge`, `EmptyState`): signed documents, outstanding/unsigned documents, update-email
+  history. Data via `lib/portal-data.ts`, which filters **every** query by `client_id`.
+- **WCAG doc:** `.context/lane-d2-wcag-check.md` — pass/fail per screen (all 3 screens PASS the
+  baseline on build-time review; 8 ⚠ items are token-dependent confirm-in-browser checks).
+
+### What's verified
+- `npx tsc --noEmit` — **no type errors in any new/changed file** (pre-existing unrelated errors
+  in the repo, not introduced by this unit).
+- Reused existing hub data/token patterns; no new colour or contrast choices introduced.
+
+### GATEs NOT crossed by this unit (explicitly out of scope)
+- **No migration run**, no database connected to, no `pnpm/npm install`, no `git push`.
+- **No real email sent / no real client account created** — magic-link emails only fire when an
+  email backend is configured; otherwise the link is returned for staff review only.
+- **Going live as a production auth surface** (Lane D `[GATE]`) — NOT done.
+- **Inviting any real client** (Lane D `[GATE]`) — NOT done.
+- Before either gate: run `20260720_portal_auth.sql` on prod (Craig's per-session go-ahead), then
+  a browser/SR pass to clear the 8 ⚠ WCAG confirmations, then a two-account isolation test.
+
+### Constraints honoured
+No DB access, no installs, no push, no migration/script executed, no real email/account. Local
+commit only.
