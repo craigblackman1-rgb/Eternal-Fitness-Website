@@ -6,7 +6,7 @@ import { isFullySigned } from "@/lib/documents/types";
 // this uses the service-role client. role = 'client' | 'trainer'.
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   const admin = createAdminClient();
-  const { role, name, signature, date } = await request.json();
+  const { role, name, signature, date, consent_choices } = await request.json();
 
   if (role !== "client" && role !== "trainer") {
     return NextResponse.json({ error: "role must be 'client' or 'trainer'" }, { status: 400 });
@@ -27,6 +27,10 @@ export async function POST(request: Request, { params }: { params: { id: string 
     role === "client"
       ? { client_name: name.trim(), client_signature: signature.trim(), client_signed_date: signedDate }
       : { trainer_name: name.trim(), trainer_signature: signature.trim(), trainer_signed_date: signedDate };
+
+  if (role === "client" && consent_choices && typeof consent_choices === "object") {
+    update.consent_choices = consent_choices;
+  }
 
   const next = { ...doc, ...update };
   if (isFullySigned(next)) {

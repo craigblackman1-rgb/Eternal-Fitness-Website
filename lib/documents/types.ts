@@ -1,4 +1,4 @@
-export type DocumentKind = "terms" | "risk_assessment" | "annual_review";
+export type DocumentKind = "terms" | "risk_assessment" | "annual_review" | "consent";
 
 export type DocumentStatus = "draft" | "sent" | "signed" | "superseded";
 
@@ -8,9 +8,16 @@ export interface DocumentSection {
   html: string;
 }
 
+export interface ConsentGroup {
+  id: string;
+  legend: string;
+  options: { key: string; label: string }[];
+}
+
 export interface DocumentBody {
   intro?: string;
   sections: DocumentSection[];
+  consentGroups?: ConsentGroup[];
 }
 
 export interface DocumentTemplate {
@@ -47,6 +54,7 @@ export interface ClientDocument {
   trainer_signed_date: string | null;
   sent_at: string | null;
   signed_at: string | null;
+  consent_choices?: Record<string, boolean> | null;
   created_at: string;
   updated_at: string;
 }
@@ -55,6 +63,7 @@ export const DOCUMENT_KIND_LABEL: Record<DocumentKind, string> = {
   terms: "Terms & Conditions",
   risk_assessment: "Risk Assessment",
   annual_review: "Annual Review",
+  consent: "Consent",
 };
 
 /** Whether every required signature is present — used to decide "signed" status. */

@@ -1,11 +1,22 @@
-import type { DocumentBody } from "./types";
+import type { DocumentBody, ConsentGroup } from "./types";
 
 /**
  * Renders a document body (intro + sections) as branded, read-only HTML.
  * Section HTML is authored by Esther in the template editor, so it is rendered
  * with dangerouslySetInnerHTML — same trust model as the PAR-Q/agreement copy.
+ *
+ * If `consentGroups` are present and `onConsentChange` is supplied, the groups
+ * render as REAL interactive checkboxes (React state) rather than static HTML.
  */
-export function DocumentBodyView({ body }: { body: DocumentBody }) {
+export function DocumentBodyView({
+  body,
+  consentChoices,
+  onConsentChange,
+}: {
+  body: DocumentBody;
+  consentChoices?: Record<string, boolean>;
+  onConsentChange?: (key: string, value: boolean) => void;
+}) {
   return (
     <div className="space-y-6">
       {body.intro && (
@@ -24,6 +35,43 @@ export function DocumentBodyView({ body }: { body: DocumentBody }) {
             dangerouslySetInnerHTML={{ __html: s.html }}
           />
         </section>
+      ))}
+
+      {body.consentGroups && onConsentChange && (
+        <ConsentGroupsView groups={body.consentGroups} choices={consentChoices ?? {}} onChange={onConsentChange} />
+      )}
+    </div>
+  );
+}
+
+function ConsentGroupsView({
+  groups,
+  choices,
+  onChange,
+}: {
+  groups: ConsentGroup[];
+  choices: Record<string, boolean>;
+  onChange: (key: string, value: boolean) => void;
+}) {
+  return (
+    <div className="space-y-6">
+      {groups.map((group) => (
+        <fieldset key={group.id} className="border-0 p-0 m-0">
+          <legend className="text-sm font-semibold text-charcoal mb-3">{group.legend}</legend>
+          <div className="space-y-2">
+            {group.options.map((opt) => (
+              <label key={opt.key} className="flex items-start gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={!!choices[opt.key]}
+                  onChange={(e) => onChange(opt.key, e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded accent-rose"
+                />
+                <span className="text-sm text-[#525A61]">{opt.label}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
       ))}
     </div>
   );

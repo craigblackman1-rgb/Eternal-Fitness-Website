@@ -1,5 +1,66 @@
 # Handoff
 
+## Consent document type + document-engine token cleanup (2026-07-20)
+
+### What was built
+A brand-new `consent` document type for the document engine, matching the accessible
+client-consent reader in `D:/apps/design-systems/brand-staging-2662e9/documents/client-consent.html`
+(the `document-system.css` variant — **not** the `client-consent-alt.html` card-style variant; the
+alt is flagged here as an alternative Craig could request instead).
+
+### Files changed / added
+- **`lib/documents/types.ts`** — added `'consent'` to `DocumentKind`; added `consent: "Consent"`
+  to `DOCUMENT_KIND_LABEL`; added `consentGroups?: { id; legend; options: {key; label}[] }[]` to
+  `DocumentBody`; added `consent_choices?: Record<string, boolean> | null` to `ClientDocument`.
+- **`lib/documents/render.tsx`** — `DocumentBodyView` now accepts optional `consentChoices` /
+  `onConsentChange` props and renders `body.consentGroups` as **real interactive React checkboxes**
+  (not `dangerouslySetInnerHTML`) when both are supplied.
+- **`app/documents/[id]/sign/DocumentSignClient.tsx`** — renders the consent groups (via
+  `DocumentBodyView`), holds their state in `consentChoices`, and includes `consent_choices` in the
+  POST body when the document has `consentGroups`. Also did the SCOPED token cleanup (see below).
+- **`app/api/documents/[id]/sign/route.ts`** — accepts an optional `consent_choices` field from the
+  request body and persists it on the `client_documents` row when present (client role only).
+- **`supabase/migrations/20260720_consent_choices_column.sql`** (NEW, **NOT run**) — purely
+  additive `ALTER TABLE client_documents ADD COLUMN IF NOT EXISTS consent_choices jsonb;`
+- **`supabase/migrations/20260720_consent_template.sql`** (NEW, **NOT run**) — seeds a
+  `document_templates` row for `kind='consent'`, `requires_client_signature=true`,
+  `requires_trainer_signature=false` (consent is client-only), `body.intro` + a single
+  `What you need to know` section (verbatim note--plain wording) + the three `consentGroups`
+  (content use / platforms / identification) with option wording copied exactly from the reference.
+  Guarded with `WHERE NOT EXISTS` so it is re-runnable.
+
+### SCOPED design-token cleanup (document engine only)
+Replaced hardcoded hex / JS consts in `DocumentSignClient.tsx` and `render.tsx` with the app's OWN
+existing Tailwind brand tokens — this surface now pulls from the same tokens as the rest of the app,
+front-end left untouched:
+- Removed `NAVY`/`ROSE`/`TEAL` JS consts. Header now `bg-charcoal` (was `NAVY #282B38`),
+  `bg-rose` logo tile (was `ROSE #C1839F`), `text-rose` fitness mark.
+- `text-rose` → `accent-rose` checkbox accent; `bg-teal`/`text-white` submit button (was `TEAL`).
+- Page + done backgrounds `bg-warm` (was `#F5F5F5`); signed-banner `bg-warm`; dividers
+  `border-border-warm` (was `#E5E5E5`). Done heading `text-charcoal`.
+- `rose #C1839F`, `teal #087E8B`, `warm #F5EFEA`, `border-warm #E4DDD7` already exactly match the
+  new design system's rose / teal / warm / warm-border. **No new token introduced.**
+- `render.tsx` still hardcodes grey text hexes (`#525A61`, `#1E1E1E`, `#E5E5E5`, `#F5F5F5`) for the
+  read-only HTML sections — left as-is; they are pre-existing and outside this unit's cleanup scope.
+  Flagged for a later pass if Craig wants full token alignment there too.
+
+### ⚠ Token discrepancy for Craig to decide (out of scope — NOT resolved here)
+The new design system's `DESIGN.md` specifies `ink: #131313`, which is **darker** than this app's
+existing `charcoal: #2D3436` (rgb 45 52 54). This unit deliberately used the existing `charcoal`
+token (per instruction: do NOT introduce a new `ink` token, do NOT resolve the discrepancy). The
+numeric difference is real: `#131313` (19 19 19) vs `#2D3436` (45 52 54). Craig should decide
+separately whether the app's `charcoal` should move to the design system's `ink #131313` — that is a
+sitewide token decision, not a document-engine one.
+
+### Verified
+- `npx tsc --noEmit` — **no type errors in any new/changed file.**
+
+### GATEs NOT crossed (explicitly out of scope)
+- **Neither new migration has been run.** Both `20260720_consent_choices_column.sql` and
+  `20260720_consent_template.sql` are written but **NOT executed**. Running them against production
+  is a separate step needing Craig's explicit go-ahead.
+- No database connected to, no `pnpm/npm install`, no `git push`. Local commit only.
+
 ## Work Order — Craig's decisions + Lane B migration run (2026-07-20, ~12:40pm)
 
 - **Trainerize:** Craig confirmed manual entry — client data will be typed into the hub by hand,
