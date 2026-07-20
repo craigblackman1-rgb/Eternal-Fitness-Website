@@ -10,8 +10,8 @@ interface HubCardHeaderProps {
   className?: string;
   /** Remove bottom padding when card content is immediately adjacent. */
   noBottomPadding?: boolean;
-  /** Drop the 1px divider under the header (e.g. when header is the only content). */
-  noDivider?: boolean;
+  /** Add a 1px divider under the header. Off by default — preserves existing usage across the hub. */
+  divider?: boolean;
 }
 
 const badgeColors: Record<string, { bg: string; text: string }> = {
@@ -26,10 +26,10 @@ const badgeColors: Record<string, { bg: string; text: string }> = {
  * Card header with optional icon badge, title, subtitle, and action.
  * Use inside <HubCard> — not inside shadcn <Card>.
  */
-export function HubCardHeader({ icon, title, subtitle, action, color = "rose", className, noBottomPadding, noDivider }: HubCardHeaderProps) {
+export function HubCardHeader({ icon, title, subtitle, action, color = "rose", className, noBottomPadding, divider }: HubCardHeaderProps) {
   const c = badgeColors[color];
   return (
-    <div className={cn("flex flex-row items-start justify-between gap-3 pb-4", noBottomPadding ? "pb-0" : "", !noDivider ? "border-b border-[var(--hub-border)]" : "", className)}>
+    <div className={cn("flex flex-row items-start justify-between gap-3 pb-4", noBottomPadding ? "pb-0" : "", divider ? "border-b border-[var(--hub-border)]" : "", className)}>
       <div className="flex items-center gap-3 min-w-0">
         {icon && (
           <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center shrink-0", c.bg, c.text)}>
