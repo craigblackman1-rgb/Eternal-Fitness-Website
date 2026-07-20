@@ -52,7 +52,7 @@ A and B run in parallel from the start. C runs in parallel with A/B. D starts on
 ### Lane A — Client data consolidation
 - [AUTO] Audit current `clients` table + all extension migrations (`20260509_training_app.sql`, `20260603_seed_clients.sql`, `20260630_client_profile_extensions.sql`, `20260704_client_master_consolidation.sql`) — produce a field-by-field map of what the hub already captures per client. VERIFY: map covers every column, flags any that are unused/dead.
 - [AUTO] Determine the actual Trainerize export path available (CSV export, admin panel screen-scrape, or manual read-and-type) — there is no existing client-data script, only the exercise-library scraper (`scripts/scrape-trainerize-exercises.mjs`) which is a different data type. VERIFY: method documented with a worked example on one real client.
-- [AUTO] Build (or extend `import-parq.mjs`'s pattern into) a reusable client-import script if volume justifies it; otherwise document a manual entry SOP if only a handful of clients are on Trainerize/paper. VERIFY: decision documented with the actual client count behind it.
+- [AUTO] ~~Build (or extend `import-parq.mjs`'s pattern into) a reusable client-import script if volume justifies it; otherwise document a manual entry SOP if only a handful of clients are on Trainerize/paper.~~ **Decided 2026-07-20 by Craig: manual entry.** No import script needed — client data will be typed into the hub by hand from Trainerize/Outlook/paper sources.
 - [AUTO] Draft a JSON/CSV staging file per client from Outlook/OneDrive/paper sources, cross-checked against the field map for completeness. VERIFY: every listed client has a staging file, no client silently dropped.
 - [GATE] Writing any staged client record to production Postgres.
 
@@ -71,7 +71,7 @@ A and B run in parallel from the start. C runs in parallel with A/B. D starts on
 - [GATE] Retiring/deprecating the legacy `signed_parq` table or bespoke `/agreement` form once parity is proven.
 
 ### Lane D — Client portal MVP
-- [AUTO] Design client auth (magic-link or password, scoped to own data only) — no implementation yet, just the approach + a WCAG 2.2 AA check on the login flow itself (no CAPTCHA, no puzzle 2FA per the existing accessibility charter §3.1). VERIFY: approach reviewed against baseline accessibility checklist before build starts.
+- [AUTO] Design client auth (magic-link or password, scoped to own data only) — no implementation yet, just the approach + a WCAG 2.2 AA check on the login flow itself (no CAPTCHA, no puzzle 2FA per the existing accessibility charter §3.1). VERIFY: approach reviewed against baseline accessibility checklist before build starts. **Decided 2026-07-20 by Craig: magic-link, approved as designed in `.context/lane-d1-client-auth-design.md`.** Cleared to start the unit below.
 - [AUTO] Build the read-only portal view: signed documents, outstanding/unsigned documents, update-email history — reusing existing hub components/data where possible rather than a parallel UI system. VERIFY: a client can only ever see their own records (tested with two different client accounts).
 - [AUTO] Run the WCAG 2.2 AA baseline pass (keyboard-only walkthrough, contrast check, touch target sizing, no colour-only status indicators) on every portal screen before any client sees it. VERIFY: documented pass/fail per screen, not a single overall claim.
 - [GATE] Implementing client login as a live auth surface on production.

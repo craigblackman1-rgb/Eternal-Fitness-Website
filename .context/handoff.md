@@ -1,5 +1,26 @@
 # Handoff
 
+## Work Order — Craig's decisions + Lane B migration run (2026-07-20, ~12:40pm)
+
+- **Trainerize:** Craig confirmed manual entry — client data will be typed into the hub by hand,
+  not scraped/exported. Closes Lane A units 2/3's open decision; no import script needed. Roster
+  is small enough that this is the right call, not a shortcut.
+- **Lane D auth:** Craig approved the magic-link design in `.context/lane-d1-client-auth-design.md`
+  as-is. Green light for Lane D unit 2 (build the portal view) to proceed — but the two remaining
+  `[GATE]`s on Lane D (implementing login as a *live* surface on production, and inviting any real
+  client) are unchanged and still need separate explicit go-ahead, consistent with how Lane B/C's
+  DB writes were staged-then-gated.
+- **Lane B migration run:** Craig gave explicit per-session authorisation to write to production
+  Postgres for Lane B specifically. Ran `supabase/migrations/20260720_process_quality_system.sql`
+  against prod via the standing Coolify tunnel (`127.0.0.1:5433` → `10.10.10.2:5432`, role
+  `ef_app`, `DATABASE_URL` sourced from `.env.local`, never printed/persisted elsewhere). Migration
+  is purely additive (`CREATE TABLE IF NOT EXISTS` × 3 + indexes, no ALTER/DROP on anything
+  existing) and idempotent. **Confirmed live:** `process_entries`, `sops`, `improvement_log` all
+  exist, all 0 rows (as designed — no content seeded). Runner script was a temp file inside the
+  repo (for `pg` module resolution), deleted immediately after, nothing else touched. This
+  authorisation was scoped to Lane B only — Lane C's PAR-Q migration script remains un-run and
+  needs its own separate go-ahead per the Work Order's MUST clause.
+
 ## Work Order — Lane C, unit 1 — PAR-Q → document engine migration plan (planning only, no DB)
 
 - **File-based read only — NOT a live-DB confirmation.** Reconstructed `signed_parq` and
