@@ -1,5 +1,22 @@
 # Handoff
 
+## Remaining hub screen mockups restyled — dashboard, exercises, process & quality, reports/updates, SOP detail, studio equipment (2026-07-20, later session)
+
+### What was built
+Craig dropped 6 new mockups into `D:\apps\design-systems\brand-staging-2662e9` (`hub-dashboard.html`, `hub-exercise-library.html`, `hub-process-quality.html`, `hub-reports-updates.html`, `hub-sop.html`, `hub-studio-equipment.html`) and asked for them to be wired in, restyle-only (any functionality shown that doesn't already exist in the hub is explicitly out of scope). An Explore agent scoped mockup → live-component mapping first; six OpenCode units then restyled each screen in parallel (sequencing the SOP-detail unit after Process & Quality since both touch `ProcessQualityManager.tsx`). Full detail and per-screen VERIFY notes are in `.context/workorder-eternal-fitness-hub-consolidation-2026-07-20.md`'s "Lane E (cont.)" section — not duplicated here.
+
+### Two silent OpenCode failures caught during verification (neither surfaced from the unit's own self-report)
+1. **Studio equipment, first attempt:** planned the entire restyle in prose ("Let me write the new page.tsx...") then exited with code 0 having never called Write/Edit — files on disk were untouched (mtimes from July 9/11). Caught via `git diff`/mtime check, not the CLI's reported success. Re-dispatched with an explicit "you must call Write before ending your turn" instruction; the retry worked.
+2. **Dashboard unit:** left an unclosed `/* Recent check-ins */` JSX comment (missing the closing `*/}`) that broke `tsc` project-wide. The unit's own isolated check didn't catch it; a full-project `tsc --noEmit` run after all units landed did. Fixed directly (one-line).
+
+### Verification done
+- `npx tsc --noEmit` across the whole project: clean except one **pre-existing, unrelated** error (`components/hub/ClientUpdatesPanel.tsx:60` — a `subtitle` prop typed `string` receiving a JSX element). Confirmed pre-existing via `git stash` (still present against clean HEAD `043a354`). Left alone — out of scope, flagged for Craig.
+- `pnpm build`: compile step is clean ("Compiled successfully"); the build then hits an `EPERM`/`symlink` failure during Next's `output: standalone` file-tracing step — a pre-existing Windows/OneDrive filesystem permission limitation on this dev machine, unrelated to any of this session's code changes.
+- **Not done:** live visual verification. Dev server was running at `localhost:3001`, but the hub login connects through to the real production DB (`DATABASE_URL` in `.env.local` points at the `localhost:5433` tunnel) and no credentials were available — rather than guess at a login, Craig was asked and chose to check the 6 screens himself instead of sharing credentials for a browser-automation pass.
+
+### Not committed / not pushed
+All changes are uncommitted in the working tree (`eternal-fitness-website`, 8 files, ~1050 insertions / 580 deletions per `git diff --stat`) pending Craig's visual check and go-ahead — matches the Work Order's `[GATE]` on `git push`/deploy.
+
 ## Consent document type + document-engine token cleanup (2026-07-20)
 
 ### What was built
@@ -583,3 +600,47 @@ Both commits pushed to `origin/main` (`2acaf4e`, then `211f3f7`) with Craig's ex
 each time. Coolify auto-deploys on push to this repo (confirmed via deployment history — both
 commits show `status: finished` within ~3 minutes of push) — live on
 `https://staging.eternal-fitness.co.uk`.
+
+## Process Register + SOPs content published (2026-07-20, background session)
+
+Closes the Lane B content gap flagged throughout this file ("Process Register entries + the 3
+required SOPs — needs real input from Craig/Esther").
+
+### What was done
+Drafted and published **10 real SOPs** (not the 3 originally scoped) + 10 matching Process
+Register entries into the live, empty `sops`/`process_entries` tables. Content was grounded in
+what's actually built — PAR-Q, risk_assessment/annual_review document templates, GP-letter
+tracking (`GpLetterCard`), package/payment tracking (`PackagePaymentsCard`), the 6-week block
+model and session structure in `project_specs.md`/`Skills/eternal-fitness-master/SKILL.md` — not
+generic PT boilerplate.
+
+**SOPs published** (ref — title): SOP-001 New Client Enquiry & Consultation · SOP-002 Client
+Onboarding: PAR-Q & Medical Screening · SOP-003 Risk Assessment & GP Medical Clearance · SOP-004
+Training Plan Creation (6-Week Block) · SOP-005 Session Delivery & Real-Time Adaptation · SOP-006
+Annual Review & Ongoing Health Monitoring · SOP-007 Package Sales, Booking & Payment · SOP-008
+Client Update Communication · SOP-009 Incident, Injury & Adverse Event Response · SOP-010 Client
+Data Privacy & Health Record Handling. Each has the full `sops` schema (trigger, owner, what, good
+looks like, ordered steps). Matching `process_entries` (PR-001..PR-010) cross-reference each SOP
+via `sop_ref`, all `status='active'`, `reviewed='Jul 2026'`.
+
+### How it was published
+Ran a temp idempotent upsert script (`ON CONFLICT (ref) DO UPDATE`) against prod Postgres via the
+standing Coolify tunnel — same pattern as the existing `scripts/import-parq.mjs`. **Craig gave
+explicit per-session go-ahead** for this specific write after being asked which of three publish
+options he wanted (direct DB write / paste into admin UI himself / review-then-run script). Runner
+script and its data file were temp files inside the repo (for `pg` module resolution), deleted
+immediately after running; `git status` confirms no tracked changes in `scripts/`. `DATABASE_URL`
+sourced from `.env.local`, never printed or persisted elsewhere (per SOP-009 Secrets & Credential
+Handling, itself one of the Decoded Ops framework SOPs this pattern was ported from).
+
+### Verified
+Script output confirmed `sops` and `process_entries` each have exactly 10 rows after the run
+(counted via a `select count(*)` in the same transaction). Not yet verified in the browser —
+Craig/Esther should open the hub's Process & Quality tab to confirm the content renders and reads
+well before treating this as fully signed off.
+
+### Not done
+- `improvement_log` still empty — no incidents/improvements exist yet to log; will fill
+  organically as SOP-009 (Incident Response) generates entries.
+- No code changes, no migration, no deploy, no push — this was a data-only publish into tables
+  that already existed live.
