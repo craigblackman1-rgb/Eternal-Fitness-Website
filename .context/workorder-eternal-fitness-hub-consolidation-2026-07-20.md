@@ -30,14 +30,16 @@ ASK FIRST (`[GATE]`):
 
 ## DONE (ticks to zero = stop)
 - [ ] Every client record consolidated into the hub `clients` table with a documented source (Trainerize / Outlook / OneDrive / paper) and no duplicate/orphaned entries
-- [ ] Trainerize client-data extraction method chosen and documented (no existing script — this is new work, unlike the PAR-Q and exercise-library imports)
-- [ ] Process & Quality System (Process Register / SOPs / Improvement Log) ported into the EF hub and populated with EF-specific content, not placeholder/copied content
+- [x] Trainerize client-data extraction method chosen and documented — Craig decided manual entry 2026-07-20, no script needed
+- [ ] Process & Quality System (Process Register / SOPs / Improvement Log) ported into the EF hub and populated with EF-specific content, not placeholder/copied content — module + migration live, **content not yet written**
 - [ ] Three SOPs written and reviewed by Esther: "migrate a client into the hub," "onboard a new client," "build a plan using the hub"
-- [ ] PAR-Q fully migrated onto the `document_templates`/`client_documents` engine with 1:1 verified parity against existing `signed_parq` rows (`charter-document-engine.md` Phase 4)
-- [ ] Client login/auth surface built, scoped to each client's own data only
-- [ ] Read-only client portal live: shows signed documents, outstanding/unsigned documents, and a history of update emails sent to that client
+- [ ] PAR-Q fully migrated onto the `document_templates`/`client_documents` engine with 1:1 verified parity against existing `signed_parq` rows (`charter-document-engine.md` Phase 4) — script written, **not run, not verified against live records**
+- [ ] Client login/auth surface built, scoped to each client's own data only — code built (magic-link, `/portal/*`), **not deployed live, no real account created**
+- [ ] Read-only client portal live: shows signed documents, outstanding/unsigned documents, and a history of update emails sent to that client — view built, **not deployed live**
 - [ ] Portal passes a WCAG 2.2 AA baseline check (keyboard nav, contrast, touch targets, no colour-only states) before any client is invited
 - [ ] First real client invited to the portal and confirmed it works end-to-end (sign-in → see their own documents only)
+- [x] **New (2026-07-20, Craig-directed): the client document engine (consent/terms/risk-assessment/annual-review) visually matches the new brand design system** — masthead, eyebrow, serif title, meta strip, accessibility toolbar, sign-boxes, footer; deployed and verified live
+- [ ] Document email sending (primary = email to client, fallback = copy link, resend once sent) — in progress
 
 ## LANES (dependency graph)
 - **Lane A — Client data consolidation** (`clients` table + source docs) — no dependencies, start first.
@@ -72,10 +74,18 @@ A and B run in parallel from the start. C runs in parallel with A/B. D starts on
 
 ### Lane D — Client portal MVP
 - [AUTO] Design client auth (magic-link or password, scoped to own data only) — no implementation yet, just the approach + a WCAG 2.2 AA check on the login flow itself (no CAPTCHA, no puzzle 2FA per the existing accessibility charter §3.1). VERIFY: approach reviewed against baseline accessibility checklist before build starts. **Decided 2026-07-20 by Craig: magic-link, approved as designed in `.context/lane-d1-client-auth-design.md`.** Cleared to start the unit below.
-- [AUTO] Build the read-only portal view: signed documents, outstanding/unsigned documents, update-email history — reusing existing hub components/data where possible rather than a parallel UI system. VERIFY: a client can only ever see their own records (tested with two different client accounts).
-- [AUTO] Run the WCAG 2.2 AA baseline pass (keyboard-only walkthrough, contrast check, touch target sizing, no colour-only status indicators) on every portal screen before any client sees it. VERIFY: documented pass/fail per screen, not a single overall claim.
+- [AUTO] Build the read-only portal view: signed documents, outstanding/unsigned documents, update-email history — reusing existing hub components/data where possible rather than a parallel UI system. VERIFY: a client can only ever see their own records (tested with two different client accounts). **Built 2026-07-20** (`78a650b`) — magic-link auth + `/portal/*` view. Not yet run/deployed live, not yet tested with real accounts.
+- [AUTO] Run the WCAG 2.2 AA baseline pass (keyboard-only walkthrough, contrast check, touch target sizing, no colour-only status indicators) on every portal screen before any client sees it. VERIFY: documented pass/fail per screen, not a single overall claim. **Doc produced** (`.context/lane-d2-wcag-check.md`) but this was a self-check during the build, not an independent walkthrough — worth a real pass before inviting anyone.
 - [GATE] Implementing client login as a live auth surface on production.
 - [GATE] Inviting any real client to use the portal.
+
+### Lane E — Design system rollout + document delivery (added 2026-07-20, Craig-directed, not in the original scope)
+- [AUTO] Port the brand-staging design system (`D:\apps\design-systems\brand-staging-2662e9`) into the client document engine (all 4 kinds: terms/risk_assessment/annual_review/consent) — masthead, eyebrow, serif title, meta strip, functional accessibility toolbar (text size + high contrast), numbered sections, sign-boxes, footer. **Done** (`0767276`), deployed and verified live on staging.
+- [AUTO] Build the `consent` document type end-to-end (schema, interactive checkbox capture, sign flow, API persistence) using the accessible reader-controls variant from the reference (not the card/progress-bar alt). **Done** (`8b3b689`), migrations run against prod, template live, verified via a real staging document.
+- [AUTO] Align hub client detail + edit pages to the reference mockups (tabs, meta chips, segmented controls, field contrast, sticky save bar) — scoped narrowly after confirming the sidebar and client list table already matched. **Done** (`0601531` + `c4586a4` safety fix for a shared-component blast-radius issue caught before push), deployed and verified live.
+- [AUTO] Fix the document-page focus ring to match the hub's existing focus convention (was a 6px full-strength rose glow vs. the hub's 3px/30%-opacity rose ring). **Done** (`2fb225e`), deployed and verified live.
+- [AUTO] Document email sending — primary method = email the client the sign link (reusing the existing branded email layer), copy-link kept as manual fallback, "Resend email" once already sent. **In progress** — first attempt stalled with no output and was restarted.
+- [ ] Broader hub design sweep beyond client list/detail/edit — explicitly deferred; Craig scoped this down to client pages only when asked.
 
 ## LEDGER
 Progress written per unit to `eternal-fitness-website/.context/handoff.md` (all lanes) and this Work Order's DONE checklist. Add a row to `infrastructure/.context/active-workorders.md` when this moves from DRAFT to ACTIVE.
