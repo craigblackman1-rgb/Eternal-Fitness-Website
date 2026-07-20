@@ -293,3 +293,72 @@ bound 1:1 to `clients.id`, server-filtered to the client's own data, staff auth 
 ### Constraints honoured
 No DB access, no installs, no push, no migration/script executed, no real email/account. Local
 commit only.
+
+---
+
+## Document engine — real design system port
+
+**Date:** 2026-07-20
+**Scope:** `app/documents/[id]/sign/DocumentSignClient.tsx`, `lib/documents/render.tsx`,
+`components/documents/DocumentView.tsx` (new), `components/documents/DocumentAccessibilityControls.tsx` (new),
+`app/globals.css` (document-engine block appended), `.context/handoff.md` (this entry).
+
+### What changed
+The earlier pass only swapped a few JS colour consts — the document pages still rendered with the
+old dark-charcoal `BrandHeader` block and unstyled `dangerouslySetInnerHTML` sections. This rebuild
+ports the **actual visual structure** from the canonical reference
+(`D:/apps/design-systems/brand-staging-2662e9/documents/client-consent.html` +
+`document-system.css`) so the live documents match the new brand.
+
+New shared component `DocumentView` renders, in order, for **every** document kind:
+1. **Masthead** — light warm/white surface (NOT the old dark charcoal block; the reference
+   masthead is light), with EF rose-heart logo mark + "Esther Fair — Level 4 Personal Trainer /
+   Private studio, Worthing, West Sussex" org text.
+2. **Eyebrow** (`Client document NN`, per-kind number) + **serif italic display title** (DM Serif
+   Display via existing `--font-serif`) + **standfirst** paragraph.
+3. **Meta info list** — Document / Completed by / Review / Reference (per-kind reference code).
+4. **Accessibility toolbar** — Text size Normal/Larger/Largest + High-contrast toggle + Print,
+   persisted to `localStorage` (`ef-doc-text`, `ef-doc-contrast`) and reflected onto `<html>`
+   `data-text` / `data-contrast` attributes exactly like the reference's inline script, ported to
+   a React effect (`DocumentAccessibilityControls`). These are functional client features for EF's
+   visually-impaired population, not decoration.
+5. **Intro + numbered sections** (eyebrow numeral + serif H2 + body), 18px minimum body text,
+   generous spacing, hairline rules.
+6. **Consent groups** — for `consent` docs, rendered as real interactive checkboxes styled with the
+   new `.consent` card style (interactive state wired to React state, captured on submit).
+7. **Sign-boxes** — name/date/signature fields + sign-box visual style (Signed / Date / Logged).
+8. **Footer** — review + accessibility note.
+
+CSS was added to `app/globals.css` as a self-contained document-engine block, bound to the repo's
+**existing** brand tokens (rose `#C1839F`, teal `#087E8B`, warm `#F5EFEA`, border-warm `#E4DDD7`,
+charcoal/ink, etc.) and the already-loaded `font-serif` (DM Serif Display) / `font-body` (DM Sans).
+**No new hex values, no new fonts, no new dependencies.** `color-mix()` is used to derive accessible
+tints from the registered tokens, matching the reference's approach. High-contrast and A4 print/PDF
+rules included.
+
+### Applies to all four document kinds
+It is a single shared component (`DocumentView`) consumed only by `DocumentSignClient`. The
+masthead/title/sections/footer render from `doc.body` + `doc.kind`; the eyebrow number, reference
+code, and meta "Document" line are keyed off `doc.kind`. **Fixing the structure fixes terms,
+risk_assessment, annual_review, and consent at once** — not just consent.
+
+### Functionality preserved (no regressions)
+- Signing flow (`/api/documents/[id]/sign` POST with name/signature/date + `consent_choices`).
+- `consent_choices` capture + re-render interactively inside the body.
+- Already-signed state (shows "signed by … on …" note, no form).
+- `done` / already-signed confirmation screen (restyled to match).
+- Validation + inline error summary.
+
+### What was NOT touched
+Template editor (`app/hub/(protected)/templates/[id]/`) — it only edits content, it does not render
+the document visually, so no matching visual update was required. Marketing front-end and public
+pages untouched. No migration, no DB connection, no install, no push.
+
+### Verified
+- `npx tsc --noEmit` — no type errors in any changed/new file. (Two pre-existing unrelated errors in
+  `exercise-browser.tsx` and `ClientUpdatesPanel.tsx` are untouched by this work.)
+- All brand tokens/fonts reused — zero new colour literals or font loads.
+
+### Next (manual, Craig)
+Browser + screen-reader pass on a real document to confirm the contrast toggle and text-size
+controls behave; then local review + push.

@@ -1,25 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { DocumentBodyView } from "@/lib/documents/render";
+import { DocumentView } from "@/components/documents/DocumentView";
 import type { ClientDocument } from "@/lib/documents/types";
 
-function BrandHeader({ title }: { title: string }) {
+function CheckIcon() {
   return (
-    <div className="bg-charcoal px-6 py-6 rounded-t-2xl">
-      <div className="flex items-center gap-3">
-        <div className="bg-rose w-11 h-11 rounded-full flex items-center justify-center text-white font-bold tracking-wide">EF</div>
-        <div>
-          <div className="text-white font-bold tracking-[0.2em] uppercase text-lg leading-none">Eternal</div>
-          <div className="text-rose text-[11px] font-medium tracking-[0.3em] uppercase mt-1 leading-none">Fitness</div>
-        </div>
-      </div>
-      <h1 className="text-white text-xl font-bold mt-5">{title}</h1>
-      <p className="text-white/60 text-xs mt-1">Please read this document and sign at the bottom to confirm.</p>
-    </div>
+    <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M5 13l4 4L19 7" />
+    </svg>
   );
 }
 
@@ -74,64 +63,114 @@ export function DocumentSignClient({ doc }: { doc: ClientDocument }) {
 
   if (done) {
     return (
-      <div className="min-h-screen bg-warm flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-md p-8 text-center">
-          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+      <div className="doc-signed-page">
+        <div className="doc-signed-card">
+          <div className="doc-signed-check">
+            <CheckIcon />
           </div>
-          <h2 className="text-xl font-bold text-charcoal mb-2">Signed — thank you</h2>
-          <p className="text-[#525A61] text-sm">Your signature has been recorded. Esther has a copy on file.</p>
+          <h2 className="doc-signed-title">Signed — thank you</h2>
+          <p className="doc-signed-copy">
+            Your signature has been recorded. Esther has a copy on file.
+          </p>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-warm py-8 px-4">
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-md overflow-hidden">
-        <BrandHeader title={doc.title} />
-        <div className="px-6 py-6">
-          <DocumentBodyView
-            body={doc.body}
-            consentChoices={consentChoices}
-            onConsentChange={onConsentChange}
-          />
+  const signSlot = (
+    <div>
+      <h2 className="doc-section__title">Sign</h2>
 
-          {alreadySigned ? (
-            <div className="mt-8 rounded-xl bg-warm p-4 text-sm text-[#525A61]">
-              This document was signed by {doc.client_name} on {doc.client_signed_date}.
-            </div>
-          ) : (
-            <div className="mt-8 border-t border-border-warm pt-6">
-              <h3 className="text-base font-bold text-charcoal mb-4">Sign this document</h3>
-              {error && <div className="mb-4 rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-700">{error}</div>}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label htmlFor="name">Full name</Label>
-                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="date">Date</Label>
-                  <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-                </div>
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="sig">Type your full name as your signature</Label>
-                  <Input id="sig" value={signature} onChange={(e) => setSignature(e.target.value)} placeholder="Type your full name" />
-                </div>
-              </div>
-              <label className="flex items-start gap-2 mt-4 cursor-pointer">
-                <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-1 h-4 w-4 rounded accent-rose" />
-                <span className="text-sm text-[#525A61]">I confirm I have read and agree to this document.</span>
+      {alreadySigned ? (
+        <div className="doc-note doc-note--plain">
+          <p>
+            This document was signed by {doc.client_name} on {doc.client_signed_date}.
+          </p>
+        </div>
+      ) : (
+        <>
+          <p className="doc-section__intro">
+            Please check your details below, then confirm you have read and agree to this document.
+          </p>
+
+          <div className="sign-grid">
+            <div className="field">
+              <label className="field__label" htmlFor="name">
+                Name
               </label>
-              <div className="mt-6 flex justify-end">
-                <Button onClick={submit} disabled={submitting} className="bg-teal text-white hover:opacity-90 px-8 rounded-full">
-                  {submitting ? "Signing…" : "Sign & submit"}
-                </Button>
-              </div>
+              <input
+                id="name"
+                className="input"
+                type="text"
+                autoComplete="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div className="field">
+              <label className="field__label" htmlFor="date">
+                Date
+              </label>
+              <input
+                id="date"
+                className="input"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
+            </div>
+            <div className="field field--full">
+              <label className="field__label" htmlFor="sig">
+                Type your full name as your signature
+              </label>
+              <input
+                id="sig"
+                className="input"
+                type="text"
+                value={signature}
+                onChange={(e) => setSignature(e.target.value)}
+                placeholder="Type your full name"
+              />
+            </div>
+          </div>
+
+          <label className="doc-agree">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              className="doc-agree__box"
+            />
+            <span>I confirm I have read and agree to this document.</span>
+          </label>
+
+          {error && (
+            <div className="doc-error-summary" role="alert">
+              <p>{error}</p>
             </div>
           )}
-        </div>
-      </div>
+
+          <div className="actions no-print">
+            <button
+              type="button"
+              className="btn btn--primary"
+              onClick={submit}
+              disabled={submitting}
+            >
+              {submitting ? "Signing…" : "Sign & submit"}
+            </button>
+          </div>
+        </>
+      )}
     </div>
+  );
+
+  return (
+    <DocumentView
+      doc={doc}
+      signSlot={signSlot}
+      consentChoices={consentChoices}
+      onConsentChange={onConsentChange}
+    />
   );
 }

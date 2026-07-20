@@ -12,26 +12,32 @@ export function DocumentBodyView({
   body,
   consentChoices,
   onConsentChange,
+  startIndex = 1,
 }: {
   body: DocumentBody;
   consentChoices?: Record<string, boolean>;
   onConsentChange?: (key: string, value: boolean) => void;
+  /** Number the first section starts at (used so refreshed docs continue the count). */
+  startIndex?: number;
 }) {
   return (
-    <div className="space-y-6">
+    <div className="doc-prose">
       {body.intro && (
         <div
-          className="text-sm leading-relaxed text-[#525A61] [&_strong]:text-[#1E1E1E]"
+          className="doc-standfirst"
           dangerouslySetInnerHTML={{ __html: body.intro }}
         />
       )}
-      {body.sections.map((s) => (
-        <section key={s.id} aria-labelledby={`sec-${s.id}`}>
-          <h3 id={`sec-${s.id}`} className="text-base font-bold text-[#1E1E1E] mb-2 pb-1.5 border-b border-[#E5E5E5]">
+      {body.sections.map((s, i) => (
+        <section key={s.id} className="doc-section" aria-labelledby={`sec-${s.id}`}>
+          <p className="doc-section__num">
+            {String(startIndex + i).padStart(2, "0")}
+          </p>
+          <h2 id={`sec-${s.id}`} className="doc-section__title">
             {s.title}
-          </h3>
+          </h2>
           <div
-            className="text-sm leading-relaxed text-[#525A61] [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-2 [&_li]:mb-1 [&_p]:mb-2 [&_a]:text-[#087E8B] [&_a]:underline [&_table]:w-full [&_table]:border-collapse [&_table]:my-2 [&_th]:text-left [&_th]:bg-[#F5F5F5] [&_th]:p-2 [&_th]:border [&_th]:border-[#E5E5E5] [&_th]:text-[#1E1E1E] [&_td]:p-2 [&_td]:border [&_td]:border-[#E5E5E5] [&_td]:align-top"
+            className="doc-section__intro"
             dangerouslySetInnerHTML={{ __html: s.html }}
           />
         </section>
@@ -54,20 +60,19 @@ function ConsentGroupsView({
   onChange: (key: string, value: boolean) => void;
 }) {
   return (
-    <div className="space-y-6">
+    <div className="doc-consent-groups">
       {groups.map((group) => (
-        <fieldset key={group.id} className="border-0 p-0 m-0">
-          <legend className="text-sm font-semibold text-charcoal mb-3">{group.legend}</legend>
-          <div className="space-y-2">
+        <fieldset key={group.id} className="doc-consent-fieldset">
+          <legend className="check-group-legend">{group.legend}</legend>
+          <div className="doc-consent-options">
             {group.options.map((opt) => (
-              <label key={opt.key} className="flex items-start gap-2 cursor-pointer">
+              <label key={opt.key} className="consent">
                 <input
                   type="checkbox"
                   checked={!!choices[opt.key]}
                   onChange={(e) => onChange(opt.key, e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded accent-rose"
                 />
-                <span className="text-sm text-[#525A61]">{opt.label}</span>
+                <span>{opt.label}</span>
               </label>
             ))}
           </div>
