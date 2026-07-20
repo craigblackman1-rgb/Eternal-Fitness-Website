@@ -14,8 +14,8 @@ Craig dropped 6 new mockups into `D:\apps\design-systems\brand-staging-2662e9` (
 - `pnpm build`: compile step is clean ("Compiled successfully"); the build then hits an `EPERM`/`symlink` failure during Next's `output: standalone` file-tracing step — a pre-existing Windows/OneDrive filesystem permission limitation on this dev machine, unrelated to any of this session's code changes.
 - **Not done:** live visual verification. Dev server was running at `localhost:3001`, but the hub login connects through to the real production DB (`DATABASE_URL` in `.env.local` points at the `localhost:5433` tunnel) and no credentials were available — rather than guess at a login, Craig was asked and chose to check the 6 screens himself instead of sharing credentials for a browser-automation pass.
 
-### Not committed / not pushed
-All changes are uncommitted in the working tree (`eternal-fitness-website`, 8 files, ~1050 insertions / 580 deletions per `git diff --stat`) pending Craig's visual check and go-ahead — matches the Work Order's `[GATE]` on `git push`/deploy.
+### Committed and pushed (2026-07-20, Craig's go-ahead)
+Two commits on `main`: `cebc3a1` (the six-screen restyle, 8 files/1034 insertions/580 deletions) and `e66c6ba` (this handoff/state/Work Order doc update). Pushed to `origin/main` (`043a354..e66c6ba`). Coolify auto-deployed (`ac82qg9h7wtawl2rgqyqa2md`, commit `e66c6ba`) — confirmed `finished` and app `running:healthy` on `https://staging.eternal-fitness.co.uk` via the Coolify MCP, not just a self-report. Craig's own visual check at `localhost:3001` was not confirmed back before the push — worth a live look at staging next session if anything looks off.
 
 ## Consent document type + document-engine token cleanup (2026-07-20)
 
