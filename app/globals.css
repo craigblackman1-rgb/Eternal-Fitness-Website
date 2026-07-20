@@ -383,12 +383,13 @@
 }
 :root[data-contrast="high"] .doc-sheet { box-shadow: none; }
 
-/* Shared focus ring — never removed */
+/* Shared focus ring — never removed. Matches the hub's existing focus
+   convention (3px ring at ~30% rose) rather than a full-strength rose glow. */
 .doc-page :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
   outline: 3px solid var(--color-ink);
   outline-offset: 2px;
   border-radius: 4px;
-  box-shadow: 0 0 0 6px var(--color-rose);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-rose) 30%, transparent);
 }
 :root[data-contrast="high"] .doc-page :where(a, button, input, select, textarea):focus-visible {
   outline-width: 4px;
