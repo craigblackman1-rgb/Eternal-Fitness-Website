@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
 
 interface HubPageHeaderProps {
-  title: string;
-  subtitle?: string;
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
   actions?: React.ReactNode;
   className?: string;
 }

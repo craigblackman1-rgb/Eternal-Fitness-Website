@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { IconChevronLeft, IconClipboardList, IconFileText, IconHeart, IconMail, IconPencil, IconPlus, IconTarget, IconTriangleAlert, IconDumbbell, IconEdit3, IconAlertCircle } from "@/components/icons";
+import { IconChevronLeft, IconClipboardList, IconClipboardCheck, IconFileText, IconHeart, IconMail, IconPencil, IconPlus, IconTarget, IconTriangleAlert, IconDumbbell, IconEdit3, IconAlertCircle, IconLayoutDashboard, IconUsers, IconBot } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
 import { HubCard, HubCardHeader, HubPageHeader, HubSection, HubDataGrid, HubDataField, HubQuickActions } from "@/components/hub";
 import { StatusBadge } from "@/components/hub/StatusBadge";
@@ -44,6 +44,28 @@ function OutstandingActionsInline({ actions }: { actions: string[] | null }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+/** Small count pill for the tab strip — only rendered when a tab carries real outstanding state. */
+function TabCountBadge({ count, tone }: { count: number; tone: "danger" | "warning" }) {
+  const classes = tone === "danger"
+    ? "bg-[var(--status-danger-bg)] text-[var(--status-danger)] border-[var(--status-danger-border)]"
+    : "bg-[var(--status-warning-bg)] text-[var(--status-warning)] border-[var(--status-warning-border)]";
+  return (
+    <span className={`inline-grid place-items-center min-w-[18px] h-[18px] px-1 rounded-full border text-[11px] font-bold leading-none tabular-nums ${classes}`}>
+      {count}
+    </span>
+  );
+}
+
+/** Meta chip — label + value, used in the page header key-facts row. */
+function KeyFactChip({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-baseline gap-1.5 rounded-lg bg-[var(--hub-card)] border border-[var(--hub-border)] px-2.5 py-1 text-xs font-medium text-foreground">
+      <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</span>
+      {children}
+    </span>
   );
 }
 
@@ -89,13 +111,14 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   const gpClearance = p?.health?.gp_clearance;
   const manualActions = client.outstanding_actions ?? [];
   const outstandingCount = flags.autoOutstanding.length + manualActions.length;
+  const draftUpdatesCount = (clientUpdates ?? []).filter((u) => u.status === "draft").length;
 
   /* ── Right rail (Status, Active Block, Quick Actions) ── */
   const rightRail = (
     <div className="space-y-5">
       <HubCard>
         <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Status" color="slate" noBottomPadding />
-        <div className="px-5 pb-5 space-y-0">
+        <div className="pb-5 space-y-0">
           <div className="flex items-center justify-between py-2 text-sm">
             <span className="text-muted-foreground">Compliance</span>
             {complianceLookup ? <StatusBadge status={flags.effectiveStatus} /> : <span className="text-muted-foreground">—</span>}
@@ -119,7 +142,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
       <HubCard>
         <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Active Block" noBottomPadding />
-        <div className="px-5 pb-5">
+        <div className="pb-5">
           {latestBlock ? (
             <Link href={`/hub/clients/${client.client_number}/blocks/${latestBlock.id}`} className="flex items-center justify-between group py-1">
               <div>
@@ -141,7 +164,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
       <HubCard>
         <HubCardHeader icon={<IconTarget className="w-4 h-4" />} title="Quick Actions" color="amber" noBottomPadding />
-        <div className="px-5 pb-5">
+        <div className="pb-5">
           <HubQuickActions actions={[
             { href: `/hub/clients/${client.client_number}/edit`, label: "Edit client", icon: <IconPencil className="w-4 h-4" /> },
             { href: `/hub/clients/${client.client_number}?tab=plan-agent`, label: "Plan a block", icon: <IconPlus className="w-4 h-4" /> },
@@ -155,49 +178,60 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   return (
     <div className="space-y-6">
       {/* ── Page header ── */}
-      <div className="flex items-start gap-4">
-        <Link href="/hub/clients" className="text-muted-foreground hover:text-foreground transition-colors shrink-0 mt-1">
-          <IconChevronLeft className="h-5 w-5" />
+      <div>
+        <Link href="/hub/clients" className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground rounded-md px-1 py-0.5 -ml-1 mb-3 transition-colors">
+          <IconChevronLeft className="h-3.5 w-3.5" />
+          All clients
         </Link>
-        <div className="flex-1 min-w-0">
-          <HubPageHeader
-            title={client.name}
-            subtitle={metaParts.join(" · ")}
-            actions={
-              <div className="flex items-center gap-2">
-                <Link href={`/hub/clients/${client.client_number}/edit`}>
-                  <Button variant="outline" className="border border-[var(--color-muted-text)] rounded-lg px-3.5 py-1.5 h-auto text-sm font-medium hover:bg-[var(--hub-hover)] gap-1.5">
-                    <IconPencil className="h-4 w-4" /> Edit
-                  </Button>
-                </Link>
-                <Link href={`/hub/clients/${client.client_number}?tab=plan-agent`}>
-                  <Button className="bg-rose hover:bg-rose/90 text-white rounded-lg px-3.5 py-1.5 h-auto text-sm font-semibold gap-1.5">
-                    <IconPlus className="h-4 w-4" /> Plan Block
-                  </Button>
-                </Link>
-              </div>
-            }
-          />
-          {/* Meta chips — label + value, on a card surface (matches reference chip-kv) */}
-          <div className="flex items-center gap-2 mt-2 flex-wrap">
-            {client.group_type && (
-              <span className="inline-flex items-baseline gap-1.5 rounded-lg bg-[var(--hub-card)] border border-[var(--hub-border)] px-2.5 py-1 text-xs font-medium text-foreground">
-                <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">Group</span>
-                <GroupTypeLabel groupType={client.group_type} />
-              </span>
-            )}
-            {client.pace_mode && (
-              <span className="inline-flex items-baseline gap-1.5 rounded-lg bg-[var(--hub-card)] border border-[var(--hub-border)] px-2.5 py-1 text-xs font-medium text-foreground">
-                <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">Pace</span>
-                {client.pace_mode === 'fast' ? 'Fast' : client.pace_mode === 'medium' ? 'Medium' : 'Slow'}
-              </span>
-            )}
-            {p?.logistics?.time_tier && (
-              <span className="inline-flex items-baseline gap-1.5 rounded-lg bg-[var(--hub-card)] border border-[var(--hub-border)] px-2.5 py-1 text-xs font-medium text-foreground capitalize">
-                <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">Session</span>
-                {p.logistics.time_tier}
-              </span>
-            )}
+        <div className="flex items-start gap-3.5">
+          <div className="w-12 h-12 rounded-full bg-rose/15 text-rose flex items-center justify-center text-base font-bold shrink-0" aria-hidden="true">
+            {initials}
+          </div>
+          <div className="flex-1 min-w-0">
+            <HubPageHeader
+              title={
+                <span className="inline-flex items-center gap-2.5 flex-wrap">
+                  {client.name}
+                  <span className="text-xs font-medium text-muted-foreground bg-[var(--hub-canvas)] border border-[var(--hub-border)] rounded-md px-1.5 py-0.5">
+                    #{client.client_number}
+                  </span>
+                  {complianceLookup && <StatusBadge status={flags.effectiveStatus} />}
+                </span>
+              }
+              subtitle={metaParts.slice(1).join(" · ") || undefined}
+              actions={
+                <div className="flex items-center gap-2">
+                  <Link href={`/hub/clients/${client.client_number}/edit`}>
+                    <Button variant="outline" className="border border-[var(--color-muted-text)] rounded-lg px-3.5 py-1.5 h-auto text-sm font-medium hover:bg-[var(--hub-hover)] gap-1.5">
+                      <IconPencil className="h-4 w-4" /> Edit
+                    </Button>
+                  </Link>
+                  <Link href={`/hub/clients/${client.client_number}?tab=plan-agent`}>
+                    <Button className="bg-rose hover:bg-rose/90 text-white rounded-lg px-3.5 py-1.5 h-auto text-sm font-semibold gap-1.5">
+                      <IconPlus className="h-4 w-4" /> Plan Block
+                    </Button>
+                  </Link>
+                </div>
+              }
+            />
+            {/* Key facts — label + value chips (matches reference chip-kv) */}
+            <div className="flex items-center gap-2 mt-3 flex-wrap">
+              {client.group_type && (
+                <KeyFactChip label="Format"><GroupTypeLabel groupType={client.group_type} /></KeyFactChip>
+              )}
+              {client.pace_mode && (
+                <KeyFactChip label="Pace">{client.pace_mode === 'fast' ? 'Fast' : client.pace_mode === 'medium' ? 'Medium' : 'Slow'}</KeyFactChip>
+              )}
+              {p?.logistics?.time_tier && (
+                <KeyFactChip label="Session"><span className="capitalize">{p.logistics.time_tier}</span></KeyFactChip>
+              )}
+              {p?.logistics?.sessions_per_week && (
+                <KeyFactChip label="Frequency">{p.logistics.sessions_per_week}&times; per week</KeyFactChip>
+              )}
+              {client.referral_source && (
+                <KeyFactChip label="Referral">{client.referral_source}</KeyFactChip>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -223,12 +257,26 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       {/* ── Tabs ── */}
       <ClientDetailTabs>
         <TabsList className="inline-flex w-full max-w-full justify-start gap-1 overflow-x-auto rounded-xl border border-[var(--hub-border)] bg-[var(--hub-card)] p-1 shadow-sm sm:w-auto">
-          <TabsTrigger value="overview" className="rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none">Overview</TabsTrigger>
-          <TabsTrigger value="profile" className="rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none">Profile</TabsTrigger>
-          <TabsTrigger value="compliance" className="rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none">Compliance</TabsTrigger>
-          <TabsTrigger value="training" className="rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none">Training</TabsTrigger>
-          <TabsTrigger value="plan-agent" className="rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none">Plan Agent</TabsTrigger>
-          <TabsTrigger value="updates" className="rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none">Updates</TabsTrigger>
+          <TabsTrigger value="overview" className="gap-2 rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none [&[data-state=active]_svg]:text-rose">
+            <IconLayoutDashboard className="w-3.5 h-3.5 text-muted-foreground" /> Overview
+          </TabsTrigger>
+          <TabsTrigger value="profile" className="gap-2 rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none [&[data-state=active]_svg]:text-rose">
+            <IconUsers className="w-3.5 h-3.5 text-muted-foreground" /> Profile
+          </TabsTrigger>
+          <TabsTrigger value="compliance" className="gap-2 rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none [&[data-state=active]_svg]:text-rose">
+            <IconClipboardCheck className="w-3.5 h-3.5 text-muted-foreground" /> Compliance
+            {outstandingCount > 0 && <TabCountBadge count={outstandingCount} tone={flags.effectiveStatus === "do_not_train" ? "danger" : "warning"} />}
+          </TabsTrigger>
+          <TabsTrigger value="training" className="gap-2 rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none [&[data-state=active]_svg]:text-rose">
+            <IconDumbbell className="w-3.5 h-3.5 text-muted-foreground" /> Training
+          </TabsTrigger>
+          <TabsTrigger value="plan-agent" className="gap-2 rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none [&[data-state=active]_svg]:text-rose">
+            <IconBot className="w-3.5 h-3.5 text-muted-foreground" /> Plan Agent
+          </TabsTrigger>
+          <TabsTrigger value="updates" className="gap-2 rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none [&[data-state=active]_svg]:text-rose">
+            <IconMail className="w-3.5 h-3.5 text-muted-foreground" /> Updates
+            {draftUpdatesCount > 0 && <TabCountBadge count={draftUpdatesCount} tone="warning" />}
+          </TabsTrigger>
         </TabsList>
 
         {/* ── Tab: Overview ── */}
@@ -237,7 +285,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             <div className="lg:col-span-8 space-y-6">
               <HubCard>
                 <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Snapshot" color="navy" noBottomPadding />
-                <div className="px-5 pb-5">
+                <div className="pb-5">
                   <HubDataGrid cols={3}>
                     <HubDataField label="Sessions/week">{p?.logistics?.sessions_per_week ?? "—"}</HubDataField>
                     <HubDataField label="Package">{p?.logistics?.package ?? "—"}</HubDataField>
@@ -248,7 +296,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
               <HubCard>
                 <HubCardHeader icon={<IconDumbbell className="w-4 h-4" />} title="Training Snapshot" color="teal" noBottomPadding />
-                <div className="px-5 pb-5">
+                <div className="pb-5">
                   {latestSessionLog ? (
                     <HubDataGrid cols={3}>
                       <HubDataField label="Last Session">
@@ -281,7 +329,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
               {p?.programming_adaptations?.some((rule: { severity: string }) => rule.severity === "hard") && (
                 <HubCard>
                   <HubCardHeader icon={<IconAlertCircle className="w-4 h-4" />} title="Active Training Rules" color="amber" noBottomPadding />
-                  <div className="px-5 pb-5">
+                  <div className="pb-5">
                     <ul className="list-none space-y-2">
                       {p!.programming_adaptations
                         .filter((rule: { severity: string }) => rule.severity === "hard")
@@ -306,222 +354,220 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           </div>
         </TabsContent>
 
-        {/* ─ Tab: Profile (decluttered — single full-width card with sections) ── */}
+        {/* ─ Tab: Profile — one card per subject, matching the Overview tab's card-per-concern pattern ── */}
         <TabsContent value="profile" className="mt-6">
           <div className="grid gap-6 lg:grid-cols-12">
-            <div className="lg:col-span-8">
-              <HubCard padded={false}>
-                {/* Logistics */}
-                {p?.logistics && (
-                  <div className="px-5">
-                    <HubSection title="Logistics" icon={<IconClipboardList className="w-3.5 h-3.5" />} color="navy">
-                      <HubDataGrid cols={3}>
-                        <HubDataField label="Location"><span className="capitalize">{p.logistics.training_location?.replace("_", " ") ?? "—"}</span></HubDataField>
-                        <HubDataField label="Sessions/week">{p.logistics.sessions_per_week ?? "—"}x</HubDataField>
-                        <HubDataField label="Time tier"><span className="capitalize">{p.logistics.time_tier ?? "—"}</span></HubDataField>
-                        <HubDataField label="Package">{p.logistics.package ?? "—"}</HubDataField>
-                        <HubDataField label="Pace mode"><PaceModeDisplay paceMode={client.pace_mode} /></HubDataField>
-                        <HubDataField label="Group type"><GroupTypeLabel groupType={client.group_type} /></HubDataField>
-                      </HubDataGrid>
-                    </HubSection>
-                  </div>
-                )}
-
-                {/* Health */}
-                {p?.health && (
-                  <div className="px-5 border-t border-[var(--hub-border)]">
-                    <HubSection title="Health" icon={<IconHeart className="w-3.5 h-3.5" />} color="rose">
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-muted-foreground text-xs">GP Clearance</span>
-                          <Badge variant={p.health.gp_clearance ? "default" : "destructive"} className="rounded-full">
-                            {p.health.gp_clearance ? "Yes" : "No"}
-                          </Badge>
-                        </div>
-                        <HubDataGrid cols={2}>
-                          {p.health.conditions?.length > 0 && (
-                            <HubDataField label="Conditions">
-                              <div className="flex flex-wrap gap-1.5">{p.health.conditions.map((item, i) => <Badge key={i} variant="secondary" className="rounded-full font-normal text-xs">{item}</Badge>)}</div>
-                            </HubDataField>
-                          )}
-                          {p.health.medications_relevant?.length > 0 && (
-                            <HubDataField label="Relevant Medications">
-                              <div className="flex flex-wrap gap-1.5">{p.health.medications_relevant.map((item, i) => <Badge key={i} variant="secondary" className="rounded-full font-normal text-xs">{item}</Badge>)}</div>
-                            </HubDataField>
-                          )}
-                          {p.health.pain_points?.length > 0 && (
-                            <HubDataField label="Pain Points" span>
-                              <div className="flex flex-wrap gap-1.5">{p.health.pain_points.map((item, i) => <Badge key={i} variant="secondary" className="rounded-full font-normal text-xs">{item}</Badge>)}</div>
-                            </HubDataField>
-                          )}
-                          {p.health.contraindications?.length > 0 && (
-                            <HubDataField label="Contraindications" span>
-                              <div className="flex flex-wrap gap-1.5">{p.health.contraindications.map((item, i) => <Badge key={i} variant="secondary" className="rounded-full font-normal text-xs">{item}</Badge>)}</div>
-                            </HubDataField>
-                          )}
-                        </HubDataGrid>
-                        {p.health.injury_history?.length > 0 && (
-                          <div>
-                            <span className="text-xs text-muted-foreground block mb-1.5">Injury History</span>
-                            <div className="overflow-x-auto rounded-lg border border-[var(--hub-border)]">
-                              <table className="w-full text-sm">
-                                <thead>
-                                  <tr className="border-b border-[var(--hub-border)] bg-[var(--hub-canvas)] text-xs text-muted-foreground">
-                                    <th className="px-3 py-1.5 text-left font-medium">Date</th>
-                                    <th className="px-3 py-1.5 text-left font-medium">Description</th>
-                                    <th className="px-3 py-1.5 text-left font-medium">Body Area</th>
-                                    <th className="px-3 py-1.5 text-left font-medium">Status</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {p.health.injury_history.map((injury: { id: string; date: string | null; description: string; body_area: string; status: string }) => (
-                                    <tr key={injury.id} className="border-b border-[var(--hub-border)] last:border-0">
-                                      <td className="px-3 py-1.5 text-muted-foreground whitespace-nowrap">
-                                        {injury.date ? new Date(injury.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"}
-                                      </td>
-                                      <td className="px-3 py-1.5 text-foreground">{injury.description || "—"}</td>
-                                      <td className="px-3 py-1.5 text-foreground">{injury.body_area || "—"}</td>
-                                      <td className="px-3 py-1.5">
-                                        <Badge variant={injury.status === "active" ? "destructive" : injury.status === "monitoring" ? "secondary" : "default"} className="rounded-full capitalize text-xs">
-                                          {injury.status}
-                                        </Badge>
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </HubSection>
-                  </div>
-                )}
-
-                {/* Physical Baseline */}
-                {p?.physical_baseline && (
-                  <div className="px-5 border-t border-[var(--hub-border)]">
-                    <HubSection title="Physical Baseline" icon={<IconDumbbell className="w-3.5 h-3.5" />} color="teal">
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-muted-foreground text-xs">Fitness Level</span>
-                          <div className="flex gap-1">
-                            {[1, 2, 3, 4, 5].map((n) => (
-                              <span
-                                key={n}
-                                className={`w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium ${
-                                  n <= (p.physical_baseline.fitness_level ?? 0)
-                                    ? "bg-rose text-white"
-                                    : "bg-border/40 text-muted-foreground"
-                                }`}
-                              >
-                                {n}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        <HubDataGrid cols={3}>
-                          <HubDataField label="Lower Body"><span className="capitalize">{p.physical_baseline.strength_baseline?.lower_body ?? "—"}</span></HubDataField>
-                          <HubDataField label="Upper Body"><span className="capitalize">{p.physical_baseline.strength_baseline?.upper_body ?? "—"}</span></HubDataField>
-                          <HubDataField label="Core"><span className="capitalize">{p.physical_baseline.strength_baseline?.core ?? "—"}</span></HubDataField>
-                        </HubDataGrid>
-                        {p.physical_baseline.movement_quality_flags?.length > 0 && (
-                          <ul className="list-none space-y-1">
-                            {p.physical_baseline.movement_quality_flags.map((flag, i) => (
-                              <li key={i} className="flex items-start gap-2 text-sm">
-                                <IconTriangleAlert className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" />
-                                <span>{flag}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    </HubSection>
-                  </div>
-                )}
-
-                {/* Goals */}
-                {p?.goals && (
-                  <div className="px-5 border-t border-[var(--hub-border)]">
-                    <HubSection title="Goals" icon={<IconTarget className="w-3.5 h-3.5" />} color="rose">
-                      <HubDataGrid cols={2}>
-                        <HubDataField label="Primary"><span className="capitalize">{p.goals.primary?.replace("_", " ") ?? "—"}</span></HubDataField>
-                        {p.goals.secondary?.length > 0 && (
-                          <HubDataField label="Secondary">
-                            <div className="flex flex-wrap gap-1.5">{p.goals.secondary.map((item, i) => <Badge key={i} variant="secondary" className="rounded-full font-normal text-xs">{item}</Badge>)}</div>
-                          </HubDataField>
-                        )}
-                      </HubDataGrid>
-                      {p.goals.milestones?.length > 0 && (
-                        <div className="mt-3">
-                          <span className="text-xs text-muted-foreground block mb-1">Milestones</span>
-                          <ul className="list-none space-y-1">
-                            {p.goals.milestones.map((m, i) => (
-                              <li key={i} className="flex items-start gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-rose/50 mt-1.5 shrink-0" />
-                                {m}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
+            <div className="lg:col-span-8 grid gap-6 sm:grid-cols-2 items-start">
+              {/* Health — spans both columns; carries the most content and matters most on a clinical record */}
+              {p?.health && (
+                <HubCard className="sm:col-span-2">
+                  <HubCardHeader icon={<IconHeart className="w-4 h-4" />} title="Health" color="rose" noBottomPadding />
+                  <div className="pb-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground text-xs">GP Clearance</span>
+                      <Badge variant={p.health.gp_clearance ? "default" : "destructive"} className="rounded-full">
+                        {p.health.gp_clearance ? "Yes" : "No"}
+                      </Badge>
+                    </div>
+                    <HubDataGrid cols={2}>
+                      {p.health.conditions?.length > 0 && (
+                        <HubDataField label="Conditions">
+                          <div className="flex flex-wrap gap-1.5">{p.health.conditions.map((item, i) => <Badge key={i} variant="secondary" className="rounded-full font-normal text-xs">{item}</Badge>)}</div>
+                        </HubDataField>
                       )}
-                    </HubSection>
-                  </div>
-                )}
-
-                {/* Training Rules */}
-                {p?.programming_adaptations && p.programming_adaptations.length > 0 && (
-                  <div className="px-5 border-t border-[var(--hub-border)]">
-                    <HubSection title="Training Rules" icon={<IconAlertCircle className="w-3.5 h-3.5" />} color="amber" collapsible defaultCollapsed>
-                      <ul className="list-none space-y-2">
-                        {p.programming_adaptations.map((rule) => {
-                          const ruleType = ruleTypesById.get(rule.rule_type_id);
-                          return (
-                            <li key={rule.id} className="flex items-start gap-2 text-sm">
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber mt-2 shrink-0" />
-                              <span className="text-foreground">
-                                <span className={rule.severity === "hard" ? "font-semibold" : "text-muted-foreground"}>
-                                  {rule.severity === "hard" ? "[HARD]" : "[soft]"}
-                                </span>{" "}
-                                {rule.detail}
-                                {ruleType && <span className="text-muted-foreground"> — {ruleType.label}</span>}
-                              </span>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </HubSection>
-                  </div>
-                )}
-
-                {/* Notes */}
-                {(p?.notes?.esther_observations || p?.notes?.motivation_notes || p?.notes?.watch_for) && (
-                  <div className="px-5 border-t border-[var(--hub-border)]">
-                    <HubSection title="Notes" icon={<IconEdit3 className="w-3.5 h-3.5" />} color="slate">
-                      <div className="space-y-3">
-                        {p.notes.esther_observations && (
-                          <div>
-                            <span className="text-xs text-muted-foreground block mb-0.5">Observations</span>
-                            <p className="text-foreground">{p.notes.esther_observations}</p>
-                          </div>
-                        )}
-                        {p.notes.motivation_notes && (
-                          <div>
-                            <span className="text-xs text-muted-foreground block mb-0.5">Motivation</span>
-                            <p className="text-foreground">{p.notes.motivation_notes}</p>
-                          </div>
-                        )}
-                        {p.notes.watch_for && (
-                          <div className="mt-1 p-3 rounded-lg bg-rose/5 border border-rose/10">
-                            <span className="text-rose font-semibold text-xs uppercase tracking-wide">Watch for</span>
-                            <p className="text-rose/80 mt-1">{p.notes.watch_for}</p>
-                          </div>
-                        )}
+                      {p.health.medications_relevant?.length > 0 && (
+                        <HubDataField label="Relevant Medications">
+                          <div className="flex flex-wrap gap-1.5">{p.health.medications_relevant.map((item, i) => <Badge key={i} variant="secondary" className="rounded-full font-normal text-xs">{item}</Badge>)}</div>
+                        </HubDataField>
+                      )}
+                      {p.health.pain_points?.length > 0 && (
+                        <HubDataField label="Pain Points" span>
+                          <div className="flex flex-wrap gap-1.5">{p.health.pain_points.map((item, i) => <Badge key={i} variant="secondary" className="rounded-full font-normal text-xs">{item}</Badge>)}</div>
+                        </HubDataField>
+                      )}
+                      {p.health.contraindications?.length > 0 && (
+                        <HubDataField label="Contraindications" span>
+                          <div className="flex flex-wrap gap-1.5">{p.health.contraindications.map((item, i) => <Badge key={i} variant="secondary" className="rounded-full font-normal text-xs">{item}</Badge>)}</div>
+                        </HubDataField>
+                      )}
+                    </HubDataGrid>
+                    {p.health.injury_history?.length > 0 && (
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-1.5">Injury History</span>
+                        <div className="overflow-x-auto rounded-lg border border-[var(--hub-border)]">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="border-b border-[var(--hub-border)] bg-[var(--hub-canvas)] text-xs text-muted-foreground">
+                                <th className="px-3 py-1.5 text-left font-medium">Date</th>
+                                <th className="px-3 py-1.5 text-left font-medium">Description</th>
+                                <th className="px-3 py-1.5 text-left font-medium">Body Area</th>
+                                <th className="px-3 py-1.5 text-left font-medium">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {p.health.injury_history.map((injury: { id: string; date: string | null; description: string; body_area: string; status: string }) => (
+                                <tr key={injury.id} className="border-b border-[var(--hub-border)] last:border-0">
+                                  <td className="px-3 py-1.5 text-muted-foreground whitespace-nowrap">
+                                    {injury.date ? new Date(injury.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"}
+                                  </td>
+                                  <td className="px-3 py-1.5 text-foreground">{injury.description || "—"}</td>
+                                  <td className="px-3 py-1.5 text-foreground">{injury.body_area || "—"}</td>
+                                  <td className="px-3 py-1.5">
+                                    <Badge variant={injury.status === "active" ? "destructive" : injury.status === "monitoring" ? "secondary" : "default"} className="rounded-full capitalize text-xs">
+                                      {injury.status}
+                                    </Badge>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
-                    </HubSection>
+                    )}
                   </div>
-                )}
-              </HubCard>
+                </HubCard>
+              )}
+
+              {/* Physical Baseline */}
+              {p?.physical_baseline && (
+                <HubCard>
+                  <HubCardHeader icon={<IconDumbbell className="w-4 h-4" />} title="Physical Baseline" color="teal" noBottomPadding />
+                  <div className="pb-5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground text-xs">Fitness Level</span>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <span
+                            key={n}
+                            className={`w-5 h-5 rounded-full text-xs flex items-center justify-center font-medium ${
+                              n <= (p.physical_baseline.fitness_level ?? 0)
+                                ? "bg-rose text-white"
+                                : "bg-border/40 text-muted-foreground"
+                            }`}
+                          >
+                            {n}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <HubDataGrid cols={2}>
+                      <HubDataField label="Lower Body"><span className="capitalize">{p.physical_baseline.strength_baseline?.lower_body ?? "—"}</span></HubDataField>
+                      <HubDataField label="Upper Body"><span className="capitalize">{p.physical_baseline.strength_baseline?.upper_body ?? "—"}</span></HubDataField>
+                      <HubDataField label="Core" span><span className="capitalize">{p.physical_baseline.strength_baseline?.core ?? "—"}</span></HubDataField>
+                    </HubDataGrid>
+                    {p.physical_baseline.movement_quality_flags?.length > 0 && (
+                      <ul className="list-none space-y-1">
+                        {p.physical_baseline.movement_quality_flags.map((flag, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm">
+                            <IconTriangleAlert className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" />
+                            <span>{flag}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </HubCard>
+              )}
+
+              {/* Goals */}
+              {p?.goals && (
+                <HubCard>
+                  <HubCardHeader icon={<IconTarget className="w-4 h-4" />} title="Goals" color="rose" noBottomPadding />
+                  <div className="pb-5">
+                    <HubDataGrid cols={2}>
+                      <HubDataField label="Primary"><span className="capitalize">{p.goals.primary?.replace("_", " ") ?? "—"}</span></HubDataField>
+                      {p.goals.secondary?.length > 0 && (
+                        <HubDataField label="Secondary">
+                          <div className="flex flex-wrap gap-1.5">{p.goals.secondary.map((item, i) => <Badge key={i} variant="secondary" className="rounded-full font-normal text-xs">{item}</Badge>)}</div>
+                        </HubDataField>
+                      )}
+                    </HubDataGrid>
+                    {p.goals.milestones?.length > 0 && (
+                      <div className="mt-3">
+                        <span className="text-xs text-muted-foreground block mb-1">Milestones</span>
+                        <ul className="list-none space-y-1">
+                          {p.goals.milestones.map((m, i) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose/50 mt-1.5 shrink-0" />
+                              {m}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </HubCard>
+              )}
+
+              {/* Logistics */}
+              {p?.logistics && (
+                <HubCard>
+                  <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Logistics" color="navy" noBottomPadding />
+                  <div className="pb-5">
+                    <HubDataGrid cols={2}>
+                      <HubDataField label="Location"><span className="capitalize">{p.logistics.training_location?.replace("_", " ") ?? "—"}</span></HubDataField>
+                      <HubDataField label="Sessions/week">{p.logistics.sessions_per_week ?? "—"}x</HubDataField>
+                      <HubDataField label="Time tier"><span className="capitalize">{p.logistics.time_tier ?? "—"}</span></HubDataField>
+                      <HubDataField label="Package">{p.logistics.package ?? "—"}</HubDataField>
+                      <HubDataField label="Pace mode"><PaceModeDisplay paceMode={client.pace_mode} /></HubDataField>
+                      <HubDataField label="Group type"><GroupTypeLabel groupType={client.group_type} /></HubDataField>
+                    </HubDataGrid>
+                  </div>
+                </HubCard>
+              )}
+
+              {/* Notes */}
+              {(p?.notes?.esther_observations || p?.notes?.motivation_notes || p?.notes?.watch_for) && (
+                <HubCard>
+                  <HubCardHeader icon={<IconEdit3 className="w-4 h-4" />} title="Notes" color="slate" noBottomPadding />
+                  <div className="pb-5 space-y-3">
+                    {p.notes.esther_observations && (
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-0.5">Observations</span>
+                        <p className="text-foreground text-sm">{p.notes.esther_observations}</p>
+                      </div>
+                    )}
+                    {p.notes.motivation_notes && (
+                      <div>
+                        <span className="text-xs text-muted-foreground block mb-0.5">Motivation</span>
+                        <p className="text-foreground text-sm">{p.notes.motivation_notes}</p>
+                      </div>
+                    )}
+                    {p.notes.watch_for && (
+                      <div className="mt-1 p-3 rounded-lg bg-rose/5 border border-rose/10">
+                        <span className="text-rose font-semibold text-xs uppercase tracking-wide">Watch for</span>
+                        <p className="text-rose/80 mt-1 text-sm">{p.notes.watch_for}</p>
+                      </div>
+                    )}
+                  </div>
+                </HubCard>
+              )}
+
+              {/* Training Rules */}
+              {p?.programming_adaptations && p.programming_adaptations.length > 0 && (
+                <HubCard className="sm:col-span-2">
+                  <HubCardHeader icon={<IconAlertCircle className="w-4 h-4" />} title="Training Rules" color="amber" noBottomPadding />
+                  <div className="pb-5">
+                    <ul className="list-none space-y-2">
+                      {p.programming_adaptations.map((rule) => {
+                        const ruleType = ruleTypesById.get(rule.rule_type_id);
+                        return (
+                          <li key={rule.id} className="flex items-start gap-2 text-sm">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber mt-2 shrink-0" />
+                            <span className="text-foreground">
+                              <span className={rule.severity === "hard" ? "font-semibold" : "text-muted-foreground"}>
+                                {rule.severity === "hard" ? "[HARD]" : "[soft]"}
+                              </span>{" "}
+                              {rule.detail}
+                              {ruleType && <span className="text-muted-foreground"> — {ruleType.label}</span>}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </HubCard>
+              )}
             </div>
             <div className="lg:col-span-4">{rightRail}</div>
           </div>
@@ -532,7 +578,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           <div className="grid gap-6 lg:grid-cols-12">
             <div className="lg:col-span-8 space-y-6">
               <HubCard>
-                <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Compliance & Documents" color="teal" noBottomPadding />
+                <HubCardHeader icon={<IconClipboardCheck className="w-4 h-4" />} title="Compliance & Documents" color="teal" noBottomPadding />
                 <div className="px-5 pb-5 space-y-4">
                   <div>
                     <span className="text-xs text-muted-foreground block mb-0.5">Compliance Status</span>
@@ -591,6 +637,13 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                 </div>
               </HubCard>
 
+              <HubAlert severity="info" title="Compliance drives the banner.">
+                While any document is outstanding the record resolves to a pending or action-needed
+                status and the warning banner appears above the tabs. The status is never set by
+                hand — it is derived by <code className="text-xs">lib/compliance.ts</code> and rendered
+                through the shared status tokens in <code className="text-xs">lib/hubStatus.ts</code>.
+              </HubAlert>
+
               <PackagePaymentsCard
                 clientId={client.id}
                 initial={{
@@ -613,40 +666,54 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
         {/* ── Tab: Training ── */}
         <TabsContent value="training" className="mt-6">
-          <HubCard>
-            <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Training Blocks" noBottomPadding />
-            <div className="px-5 pb-5">
-              {blocks && blocks.length > 0 ? (
-                <div className="space-y-2">
-                  {blocks.map((block) => (
-                    <Link
-                      key={block.id}
-                      href={`/hub/clients/${client.client_number}/blocks/${block.id}`}
-                      className="flex items-center justify-between rounded-xl border border-[var(--hub-border)] py-3 px-4 transition-all hover:bg-[var(--hub-hover)] hover:border-rose/20 group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-off-white flex items-center justify-center">
-                          <IconFileText className="h-5 w-5 text-muted-foreground group-hover:text-rose transition-colors" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-foreground">Block {block.block_number}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(block.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                            {block.block_note && ` · ${block.block_note.slice(0, 60)}${block.block_note.length > 60 ? "..." : ""}`}
-                          </p>
-                        </div>
-                      </div>
-                      <StatusBadge status={block.status} />
-                    </Link>
-                  ))}
-                </div>
-              ) : (
+          <HubCard padded={false}>
+            <HubCardHeader
+              icon={<IconFileText className="w-4 h-4" />}
+              title="Training Blocks"
+              action={
+                <Link href={`/hub/clients/${client.client_number}?tab=plan-agent`} className="inline-flex items-center gap-1.5 rounded-lg bg-rose px-3.5 py-1.5 text-sm font-semibold text-white hover:bg-rose/90 transition-colors">
+                  <IconPlus className="h-4 w-4" /> Plan Block
+                </Link>
+              }
+              className="px-5 pt-5"
+            />
+            {blocks && blocks.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[var(--hub-border)] bg-[var(--hub-canvas)]">
+                      <th className="text-left font-medium text-muted-foreground text-xs px-5 py-2.5">Block</th>
+                      <th className="text-left font-medium text-muted-foreground text-xs px-5 py-2.5">Started</th>
+                      <th className="text-left font-medium text-muted-foreground text-xs px-5 py-2.5">Note</th>
+                      <th className="text-left font-medium text-muted-foreground text-xs px-5 py-2.5">Status</th>
+                      <th className="px-5 py-2.5"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {blocks.map((block) => (
+                      <tr key={block.id} className="border-b border-[var(--hub-border)] last:border-0 hover:bg-[var(--hub-hover)]">
+                        <td className="py-2.5 px-5 font-semibold text-foreground">Block {block.block_number}</td>
+                        <td className="py-2.5 px-5 text-muted-foreground whitespace-nowrap">
+                          {new Date(block.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                        </td>
+                        <td className="py-2.5 px-5 text-muted-foreground max-w-[280px] truncate">{block.block_note || "—"}</td>
+                        <td className="py-2.5 px-5"><StatusBadge status={block.status} /></td>
+                        <td className="py-2.5 px-5 text-right whitespace-nowrap">
+                          <Link href={`/hub/clients/${client.client_number}/blocks/${block.id}`} className="text-teal font-medium hover:underline">Open</Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="px-5 pb-5">
                 <div className="flex items-center justify-between rounded-lg py-2 px-1 text-sm">
                   <span className="text-muted-foreground">No blocks yet</span>
                   <Link href={`/hub/clients/${client.client_number}?tab=plan-agent`} className="text-rose font-medium hover:underline">Create Block</Link>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </HubCard>
 
           <div className="my-4" />
