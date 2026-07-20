@@ -166,7 +166,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             actions={
               <div className="flex items-center gap-2">
                 <Link href={`/hub/clients/${client.client_number}/edit`}>
-                  <Button variant="outline" className="border border-[var(--hub-border)] rounded-lg px-3.5 py-1.5 h-auto text-sm font-medium hover:bg-[var(--hub-hover)] gap-1.5">
+                  <Button variant="outline" className="border border-[var(--color-muted-text)] rounded-lg px-3.5 py-1.5 h-auto text-sm font-medium hover:bg-[var(--hub-hover)] gap-1.5">
                     <IconPencil className="h-4 w-4" /> Edit
                   </Button>
                 </Link>
@@ -178,20 +178,23 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
               </div>
             }
           />
-          {/* Meta chips */}
-          <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+          {/* Meta chips — label + value, on a card surface (matches reference chip-kv) */}
+          <div className="flex items-center gap-2 mt-2 flex-wrap">
             {client.group_type && (
-              <span className="inline-flex rounded-md bg-[var(--hub-canvas)] border border-[var(--hub-border)] px-2 py-0.5 text-xs text-slate">
+              <span className="inline-flex items-baseline gap-1.5 rounded-lg bg-[var(--hub-card)] border border-[var(--hub-border)] px-2.5 py-1 text-xs font-medium text-foreground">
+                <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">Group</span>
                 <GroupTypeLabel groupType={client.group_type} />
               </span>
             )}
             {client.pace_mode && (
-              <span className="inline-flex rounded-md bg-[var(--hub-canvas)] border border-[var(--hub-border)] px-2 py-0.5 text-xs text-slate">
-                {client.pace_mode === 'fast' ? 'Fast pace' : client.pace_mode === 'medium' ? 'Medium pace' : 'Slow pace'}
+              <span className="inline-flex items-baseline gap-1.5 rounded-lg bg-[var(--hub-card)] border border-[var(--hub-border)] px-2.5 py-1 text-xs font-medium text-foreground">
+                <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">Pace</span>
+                {client.pace_mode === 'fast' ? 'Fast' : client.pace_mode === 'medium' ? 'Medium' : 'Slow'}
               </span>
             )}
             {p?.logistics?.time_tier && (
-              <span className="inline-flex rounded-md bg-[var(--hub-canvas)] border border-[var(--hub-border)] px-2 py-0.5 text-xs text-slate capitalize">
+              <span className="inline-flex items-baseline gap-1.5 rounded-lg bg-[var(--hub-card)] border border-[var(--hub-border)] px-2.5 py-1 text-xs font-medium text-foreground capitalize">
+                <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">Session</span>
                 {p.logistics.time_tier}
               </span>
             )}
@@ -219,13 +222,13 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
       {/* ── Tabs ── */}
       <ClientDetailTabs>
-        <TabsList className="w-full justify-start gap-1 rounded-none border-b border-[var(--hub-border)] bg-transparent p-0 h-auto">
-          <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Overview</TabsTrigger>
-          <TabsTrigger value="profile" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Profile</TabsTrigger>
-          <TabsTrigger value="compliance" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Compliance</TabsTrigger>
-          <TabsTrigger value="training" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Training</TabsTrigger>
-          <TabsTrigger value="plan-agent" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Plan Agent</TabsTrigger>
-          <TabsTrigger value="updates" className="rounded-none border-b-2 border-transparent px-3.5 py-2.5 text-sm font-medium text-muted-foreground data-[state=active]:border-rose data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">Updates</TabsTrigger>
+        <TabsList className="inline-flex w-full max-w-full justify-start gap-1 overflow-x-auto rounded-xl border border-[var(--hub-border)] bg-[var(--hub-card)] p-1 shadow-sm sm:w-auto">
+          <TabsTrigger value="overview" className="rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none">Overview</TabsTrigger>
+          <TabsTrigger value="profile" className="rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none">Profile</TabsTrigger>
+          <TabsTrigger value="compliance" className="rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none">Compliance</TabsTrigger>
+          <TabsTrigger value="training" className="rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none">Training</TabsTrigger>
+          <TabsTrigger value="plan-agent" className="rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none">Plan Agent</TabsTrigger>
+          <TabsTrigger value="updates" className="rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none">Updates</TabsTrigger>
         </TabsList>
 
         {/* ── Tab: Overview ── */}

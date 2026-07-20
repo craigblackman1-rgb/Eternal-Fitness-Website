@@ -98,7 +98,7 @@ export function TagMultiSelect({ category, selected, onChange, placeholder }: Ta
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between rounded-lg border-border/60 font-normal text-muted-foreground"
+            className="w-full justify-between rounded-lg border-[var(--color-muted-text)] font-normal text-muted-foreground"
           >
             {placeholder ?? "Select or add..."}
             <IconChevronDown className="h-4 w-4 opacity-50" />

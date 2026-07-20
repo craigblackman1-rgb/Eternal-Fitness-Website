@@ -67,7 +67,7 @@ export function TrainingRulesEditor({ value, onChange }: TrainingRulesEditorProp
           <div className="space-y-1">
             <label className="text-xs text-muted-foreground">Rule type</label>
             <Select value={rule.rule_type_id} onValueChange={(v) => update(rule.id, { rule_type_id: v })} disabled={loading}>
-              <SelectTrigger><SelectValue>{labelFor(rule.rule_type_id)}</SelectValue></SelectTrigger>
+               <SelectTrigger className="border-[var(--color-muted-text)] focus:border-rose focus:ring-rose/30"><SelectValue>{labelFor(rule.rule_type_id)}</SelectValue></SelectTrigger>
               <SelectContent>
                 {ruleTypes.map((rt) => (
                   <SelectItem key={rt.id} value={rt.id}>{rt.label}</SelectItem>
@@ -81,12 +81,13 @@ export function TrainingRulesEditor({ value, onChange }: TrainingRulesEditorProp
               value={rule.detail}
               onChange={(e) => update(rule.id, { detail: e.target.value })}
               placeholder="e.g. Foam roller — refuses, do not programme"
+              className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30"
             />
           </div>
           <div className="space-y-1">
             <label className="text-xs text-muted-foreground">Severity</label>
             <Select value={rule.severity} onValueChange={(v: TrainingRule["severity"]) => update(rule.id, { severity: v })}>
-              <SelectTrigger className="md:w-32"><SelectValue /></SelectTrigger>
+               <SelectTrigger className="md:w-32 border-[var(--color-muted-text)] focus:border-rose focus:ring-rose/30"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="hard">Hard constraint</SelectItem>
                 <SelectItem value="soft">Soft preference</SelectItem>

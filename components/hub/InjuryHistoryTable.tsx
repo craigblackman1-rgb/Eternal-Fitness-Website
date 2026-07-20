@@ -43,7 +43,7 @@ export function InjuryHistoryTable({ value, onChange }: InjuryHistoryTableProps)
               type="date"
               value={entry.date ?? ""}
               onChange={(e) => update(entry.id, { date: e.target.value || null })}
-              className="md:w-36"
+              className="md:w-36 border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30"
             />
           </div>
           <div className="space-y-1">
@@ -52,6 +52,7 @@ export function InjuryHistoryTable({ value, onChange }: InjuryHistoryTableProps)
               value={entry.description}
               onChange={(e) => update(entry.id, { description: e.target.value })}
               placeholder="e.g. Right shoulder impingement"
+              className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30"
             />
           </div>
           <div className="space-y-1">
@@ -60,12 +61,13 @@ export function InjuryHistoryTable({ value, onChange }: InjuryHistoryTableProps)
               value={entry.body_area}
               onChange={(e) => update(entry.id, { body_area: e.target.value })}
               placeholder="e.g. Shoulder"
+              className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30"
             />
           </div>
           <div className="space-y-1">
             <label className="text-xs text-muted-foreground">Status</label>
             <Select value={entry.status} onValueChange={(v: InjuryHistoryEntry["status"]) => update(entry.id, { status: v })}>
-              <SelectTrigger className="md:w-32"><SelectValue /></SelectTrigger>
+               <SelectTrigger className="md:w-32 border-[var(--color-muted-text)] focus:border-rose focus:ring-rose/30"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="monitoring">Monitoring</SelectItem>

@@ -362,3 +362,66 @@ pages untouched. No migration, no DB connection, no install, no push.
 ### Next (manual, Craig)
 Browser + screen-reader pass on a real document to confirm the contrast toggle and text-size
 controls behave; then local review + push.
+
+## Hub client detail/edit pages — design audit + fixes (2026-07-20)
+
+### What was wrong vs the reference mockups
+References: `D:/apps/design-systems/brand-staging-2662e9/hub-client-detail.html` and `hub-client-edit.html`.
+
+**Detail page (`app/hub/(protected)/clients/[id]/page.tsx`)**
+- Tabs used a shadcn underline `TabsList`/`TabsTrigger` (bottom-border, no fill). Reference uses a
+  **raised pill container** (`bg-hub-card`, `border-hub-border`, `rounded-xl`, `p-1`, `shadow-sm`)
+  with the active tab as a rose-tint **fill** = `var(--hub-sidebar-active)` (`rgba(193,131,159,.14)`).
+- Header meta chips were plain `<Badge>`s. Reference uses label+value `chip-kv` chips on
+  `bg-hub-card` with a `border-[var(--hub-border)]`, `rounded-lg`, placed under the title.
+- Outline "Edit" button border was the default shadcn ring colour. Reference outline buttons use
+  `var(--color-muted-text)` (`#7E8088`) for a deliberate 3:1 border contrast.
+
+**Edit page (`app/hub/(protected)/clients/[id]/edit/page.tsx`)**
+- Cards used shadcn `Card`/`CardHeader` (no icon, no bottom divider, different radius). Reference
+  uses `HubCard` + `HubCardHeader` (icon + title + subtitle, divider under header).
+- Field controls that should be **segmented controls** (training_location, sessions_per_week,
+  time_tier, fitness_level, pace_mode) were rendered as **dropdown `Select`s** in several places.
+  Reference uses segmented controls for these discrete choices.
+- Field borders used `--hub-field-border` (`#C7CCD4`), which is below 3:1 on the canvas. Reference
+  deliberately uses `var(--color-muted-text)` (`#7E8088`) for input/select borders (3:1 contrast).
+- Buttons used `rounded-xl`/`rounded-md`. Reference buttons are `rounded-lg` (8px).
+- No sticky save bar / dirty-state. Reference shows a bottom sticky bar with "No changes yet." /
+  "Unsaved changes." based on form dirty state.
+
+### What was fixed
+- Detail: tabs → raised pill container + rose-fill active; meta → label+value `chip-kv` on
+  `bg-hub-card`; outline Edit button border → `var(--color-muted-text)`.
+- `components/hub/HubCardHeader.tsx`: added `noDivider` prop; root now renders a
+  `border-b border-[var(--hub-border)]` divider by default (matches both mockups — detail and edit
+  cards both show a header divider).
+- Edit: all `Card`→`HubCard`+`HubCardHeader` with icon/title/subtitle; added `SegmentedControl`
+  helper and replaced the dropdown controls with segmented controls for the 5 fields; form inputs /
+  textareas / `SelectTrigger`s / `TagMultiSelect` trigger / `InjuryHistoryTable` + `TrainingRulesEditor`
+  inputs all use `border-[var(--color-muted-text)] focus(-visible):border-rose focus(-visible):ring-rose/30`;
+  checkboxes use `border-[var(--color-muted-text)] accent-rose`; Cancel/Save buttons `rounded-lg` with
+  muted outline border; sticky save bar wired to a `dirty`/`markDirty` state ("No changes yet." /
+  "Unsaved changes."), reset on load and on save.
+
+### What was already correct (no change needed)
+- `HubSidebar.tsx` — confirms to the mockup sidebar.
+- `clients-table.tsx` — confirms to the mockup clients list.
+- `app/globals.css` token layer — values confirmed baseline-correct against the reference
+  (`--hub-canvas` `#F4F5F7`, `--hub-card` `#FFFFFF`, `--hub-border` `#E6E8EC`,
+  `--hub-sidebar-active` `rgba(193,131,159,.14)`, `--color-muted-text` `#7E8088`, `--hub-hover`
+  `#F8F9FB`; `rounded-lg` = 8px). No token values changed.
+- `HubCard` radius stays `rounded-2xl` (acceptable — the reference cards read as a larger radius).
+
+### Verified
+- `npx tsc --noEmit` — no type errors in any changed file. (Two pre-existing unrelated errors in
+  `exercise-browser.tsx` and `ClientUpdatesPanel.tsx` are untouched by this work.)
+- All brand tokens/facets reused — zero new colour literals or font loads.
+
+### Not touched (per scope)
+No migration, no DB connection, no install, no push. Marketing front-end, `HubSidebar.tsx`,
+`clients-table.tsx`, and the document engine (`app/documents/`, `lib/documents/`,
+`components/documents/`) intentionally out of scope.
+
+### Next (manual, Craig)
+Local browser pass on a real client detail + edit screen to confirm tabs, chips, segmented controls,
+and the sticky save bar render as intended; then local review + push.
