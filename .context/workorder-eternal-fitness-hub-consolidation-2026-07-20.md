@@ -39,7 +39,7 @@ ASK FIRST (`[GATE]`):
 - [ ] Portal passes a WCAG 2.2 AA baseline check (keyboard nav, contrast, touch targets, no colour-only states) before any client is invited
 - [ ] First real client invited to the portal and confirmed it works end-to-end (sign-in → see their own documents only)
 - [x] **New (2026-07-20, Craig-directed): the client document engine (consent/terms/risk-assessment/annual-review) visually matches the new brand design system** — masthead, eyebrow, serif title, meta strip, accessibility toolbar, sign-boxes, footer; deployed and verified live
-- [ ] Document email sending (primary = email to client, fallback = copy link, resend once sent) — in progress
+- [x] Document email sending (primary = email to client, fallback = copy link, resend once sent) — built, deployed, a real bug caught and fixed before ship; not yet tested with a live send
 
 ## LANES (dependency graph)
 - **Lane A — Client data consolidation** (`clients` table + source docs) — no dependencies, start first.
@@ -84,7 +84,7 @@ A and B run in parallel from the start. C runs in parallel with A/B. D starts on
 - [AUTO] Build the `consent` document type end-to-end (schema, interactive checkbox capture, sign flow, API persistence) using the accessible reader-controls variant from the reference (not the card/progress-bar alt). **Done** (`8b3b689`), migrations run against prod, template live, verified via a real staging document.
 - [AUTO] Align hub client detail + edit pages to the reference mockups (tabs, meta chips, segmented controls, field contrast, sticky save bar) — scoped narrowly after confirming the sidebar and client list table already matched. **Done** (`0601531` + `c4586a4` safety fix for a shared-component blast-radius issue caught before push), deployed and verified live.
 - [AUTO] Fix the document-page focus ring to match the hub's existing focus convention (was a 6px full-strength rose glow vs. the hub's 3px/30%-opacity rose ring). **Done** (`2fb225e`), deployed and verified live.
-- [AUTO] Document email sending — primary method = email the client the sign link (reusing the existing branded email layer), copy-link kept as manual fallback, "Resend email" once already sent. **In progress** — first attempt stalled with no output and was restarted.
+- [AUTO] Document email sending — primary method = email the client the sign link (reusing the existing branded email layer), copy-link kept as manual fallback, "Resend email" once already sent. **Done** (`06b8c6b`/`28d6fb2`/`d4ac915`) — caught and fixed a real bug before shipping: the email template built a `signUrl` variable but never put it in the HTML, so the "Review & sign" button it promised didn't exist. Deployed. Not yet tested with a real send (no email backend confirmed configured — dry-run fallback applies if not).
 - [ ] Broader hub design sweep beyond client list/detail/edit — explicitly deferred; Craig scoped this down to client pages only when asked.
 
 ## LEDGER
