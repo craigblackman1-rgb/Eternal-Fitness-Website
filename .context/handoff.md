@@ -1,5 +1,104 @@
 # Handoff
 
+## Work Order — Lane C, unit 1 — PAR-Q → document engine migration plan (planning only, no DB)
+
+- **File-based read only — NOT a live-DB confirmation.** Reconstructed `signed_parq` and
+  `document_templates`/`client_documents` schemas from `supabase/migrations/*.sql` only. No DB
+  tunnel open this session; no connection to production Postgres was attempted or made.
+- Verified current state: `document_templates` is seeded with `terms` (real copy), `risk_assessment`
+  and `annual_review` (both dual-signed) — **no `parq` template exists yet**. `signed_parq` carries
+  the full 29-question structure (q1–q29, split Sections 2/3/4/6) plus free-text detail fields and a
+  single client declaration/signature, with versioning (`version`, `supersedes_id`) added by
+  `20260710120000_parq_versioning.sql`.
+- Produced `.context/lane-c-parq-migration-plan.md` covering: (1) current `signed_parq` schema
+  reconstruction, (2) current engine schema, (3) a field-mapping plan for a new `parq`
+  `document_templates` entry — a `body` JSON of `{ intro, sections[html], data:{ answers, details,
+  personal, signature } }` that preserves the 29-question structure used by `scripts/import-parq.mjs`,
+  (4) a migration-script **skeleton only** (not run), and (5) a parity/verification checklist.
+- Key mapping decisions: q1–q29 → `body.data.answers`; detail fields → `body.data.details`;
+  personal/GP/emergency → `body.data.personal`; signature → `body.data.signature`. Top-level
+  `client_id`/`kind='parq'`/`title`/`template_id`/`template_version`/`body`/`client_signature`/
+  `client_signed_date`/`status`/`version`/`supersedes_id`/`signed_at` map directly, with legacy
+  `status` values folded into the engine's `draft/sent/signed/superseded` set. Migration must also
+  recompute `anyYes` → preserve `clients.medical_clearance_status` + `client_tracker.clearance_*`
+  (same rule the import script uses), keeping it idempotent.
+- **Colin-flow caveat acknowledged**: legacy `signed_parq` RLS is authenticated-only (anon INSERT
+  policy was dropped in `20260603_*`), so a logged-out client resume link fails — the migration
+  moves PAR-Q onto the engine's service-role public-read pattern, resolving it.
+- **Gates (not crossed)**: running the migration needs Craig's explicit per-session prod-DB go-ahead;
+  retiring `signed_parq` / the `/agreement` form is gated until 1:1 parity is proven. Neither was
+  done — planning artifact only.
+
+## Work Order — Lane A, unit 1
+- **Audit complete (read-only local research, no DB touched).** Full field-by-field map written to `.context/lane-a-client-field-map.md`.
+- **`clients` table is the intended single source of truth** for per-client commercial + clinical + compliance state. Every column from `20260509` (base), `20260630` (profile extensions), and `20260704` (master consolidation) is actively read/written by the hub UI.
+- **Columns sourced from *other* migrations** that the consolidation view (`client_documents_summary`) exposes: `client_number`, `display_code`, `email`, `phone`, `gp_letter_*`, `annual_review_due_date`, `clearance_from`, `specialist_name`, `block_summaries`.
+- **Dead / unused `clients` columns flagged:**
+  - `display_code` — view-only (computed on the fly in the UI); no TS/TSX reference.
+  - `clearance_from` — backfilled from `client_tracker` but never read by the app; the read path still uses `signed_agreements.medical_clearance_from`.
+  - `specialist_name` — same as above; never read anywhere.
+  - **Consolidation loose-end:** `clearance_from`/`specialist_name` were moved onto `clients` but the UI read path was never repointed off `signed_agreements`.
+- **Related dead surface:** `client_tracker` is historical-only (not written by app); its clearance join was dropped from the rebuilt `client_documents_summary` view.
+- **Next unit (A2):** determine the actual Trainerize client-data export path — no existing client-data script exists (only `scripts/scrape-trainerize-exercises.mjs`, a different data type).
+
+## Work Order — Lane B (2026-07-20) — Process & Quality System, DB-backed
+
+- **Task**: Port `decoded-ops-hub`'s `OperationsFramework.tsx` three-tab pattern (Process
+  Register / SOPs / Improvement Log) into the EF hub as a **DB-backed** module so Esther can
+  edit entries herself with no code deploy (decided 2026-07-20, replacing the original
+  hardcoded-TSX approach).
+- **Read-only reference**: `D:\apps\decoded-ops-hub\src\components\decoded-ops\operations/OperationsFramework.tsx`
+  (confirmed structure: `ProcessEntry[]` / `SOP[]` / `ImprovementEntry[]`, tabs Process
+  Register · SOPs · Improvement Log — plus Overview and AI Systems tabs that are Decoded-Ops
+  specific and were intentionally **not** ported). No edits made to the decoded-ops-hub repo.
+- **Migration** (`supabase/migrations/20260720_process_quality_system.sql`): creates
+  `process_entries`, `sops`, `improvement_log` matching the TSX shape, adapted to EF (single
+  brand — dropped `service` line, replaced with a free `area` text field; dropped the AI
+  `skills[]` array as not relevant to EF). `sops.steps` stored as `jsonb`. FK-by-reference via
+  `ref` strings (no hard FK — keeps entries independently editable). Tables ship **empty**; no
+  content seeded. **NOT run** — needs Craig's explicit per-session prod-DB go-ahead.
+- **Types** (`types/index.ts`): added `ProcessEntry`, `Sop`, `ImprovementEntry`, `ProcessStatus`.
+- **UI** (`app/hub/(protected)/process-quality/`): server page reads all three tables via the
+  existing supabase server client; `ProcessQualityManager.tsx` is a client component rendering
+  the three tabs with the hub's own design system (`HubCard`/`HubCardHeader`/`EmptyState`/
+  `Button`/`rose`/`teal`/`amber` accents — not Decoded Ops' `.doa-*` classes). Each tab has an
+  inline add/edit form (reusing `Input`/`Label`/`Textarea`) and row edit/delete, wired to new
+  API routes. Renders empty states until Esther adds content. Added sidebar nav link under
+  "Resources".
+- **API routes**: `app/api/process-entries` (+ `[id]` PATCH/DELETE), `app/api/sops` (+
+  `[id]`), `app/api/improvement-log` (+ `[id]`) — all GET/POST/PATCH/DELETE, auth-gated via
+  `supabase.auth.getUser()`, mirroring the existing `/api/equipment` pattern.
+- **Verified**: `npx tsc --noEmit` passes for all new files (two pre-existing errors in
+  `exercise-browser.tsx` and `ClientUpdatesPanel.tsx` are unrelated). Did **not** run the
+  migration, did not write to any DB, did not run `next build`, did not `git push`.
+- **Remaining / not done**:
+  - Migration must be run against prod Postgres (Coolify SSH tunnel) with Craig's explicit
+    go-ahead before the module works — tables don't exist yet.
+  - EF-specific **content** (Process Register entries, the three required SOPs — migrate a
+    client / onboard a new client / build a plan in the hub, and any Improvement Log entries)
+    is not written; Esther/Craig supply it via the new admin UI once tables exist.
+  - Decoded-Ops' "Framework Overview" and "AI Systems" tabs were intentionally omitted (not
+    EF-relevant). Could add an EF-flavoured Overview tab later if wanted.
+  - No row-level locking beyond supabase auth (any hub user can edit) — fine for a 1–2 person
+    studio; revisit if multi-staff access is needed.
+
+## Work Order — Lane A, unit 2 — Trainerize client-data export plan (research, unverified)
+
+- Created `.context/lane-a2-trainerize-export-plan.md`.
+- The existing scraper (`scripts/scrape-trainerize-exercises.mjs`) uses **headless Playwright
+  trainer-login** on the `eternalfitness8` tenant, reading DOM — no API/token. It handles
+  *exercise* data, a different type from client records; there is no existing client-data
+  export script.
+- Ranked export options: **manual read-and-type** (likely default for small roster) > **native
+  CSV export** (if the tenant plan exposes it) > **screen-scrape** (extend existing script) >
+  **partner API** (unlikely, no API usage today).
+- **Explicitly unverifiable in this environment** — no Trainerize credentials or browser session
+  available, so no real client was tested. The Work Order's VERIFY criterion ("worked example on
+  one real client") cannot be met here. To close: Craig opens a session with browser access +
+  his Trainerize login, confirms the tenant's export capability, and runs one real client through
+  the chosen method. Treat the plan doc as a feasibility hypothesis until then.
+- Constraints honoured: no DB access, no installs, no push — local commit only.
+
 ## Work Order — Lane D, unit 1
 
 - **Unit:** Lane D (Client portal MVP), unit 1 — Design client auth approach
@@ -56,3 +155,11 @@
   public route. Flagged so it is not silently assumed solved.
 - **Constraints honoured**: no DB access, no installs (`pg` already a dep), no push, no migration
   or script executed. Local commit only.
+
+## Process note (2026-07-20)
+Lane A/C/D's units 2 above ran as three parallel OpenCode processes that all read-appended-wrote
+this same file concurrently, causing a lost-update race — several sections were silently dropped
+from disk (though preserved in each unit's own commit diff, which is how this file was
+reconstructed). Fixed by merging all sections back in chronological order. **Going forward:
+handoff.md appends from parallel lane units should be serialized (one writer at a time, or Claude
+merges after the fact) rather than left to concurrent agents.**
