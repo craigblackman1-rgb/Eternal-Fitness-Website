@@ -440,14 +440,14 @@ fallback. Three behaviours per Craig's request:
   existing `buildBrandedUpdateEmail` from `shell.ts` (shell.ts NOT modified). Carries a rose
   (`#C1839F`) rounded inline-styled CTA button linking to the sign URL, plus a short friendly intro
   and "what to do / why it matters" sections. Input: `clientName`, `greetingName` (first name),
-  `documentTitle`, `documentKindLabel`, `signUrl`, `senderName`.
+   `documentTitle`, `signUrl`. The CTA is the rose `#C1839F` rounded button rendered inside the branded shell.
 - **`app/api/documents/[id]/route.ts`** — PATCH now supports `action: "send_email"`. Uses
   `createAdminClient()` (same pattern as the public GET sign route) to read the document's
   `client_id`, then looks up the client's `name`/`email` from the `clients` table. Builds the email
   via `buildDocumentReadyEmail`, sends via `getEmailSender().send({ to, subject, html })`, then sets
   `status → "sent"` and `sent_at → now` (regardless of first send or resend). Returns
   `{ success: true, dryRun }` so the UI can tell Craig whether a real backend fired. If the client
-  has no email on file, returns **400** with `"No email on file for this client"`.
+   has no email on file, returns **400** with a clear message pointing Craig to add one on the client record.
 - **`app/hub/(protected)/clients/[id]/documents/[docId]/page.tsx`** — now fetches the client's
   `name`/`email` (second select on `clients` via `doc.client_id`) and passes `clientEmail` to
   `DocumentDetailClient`.

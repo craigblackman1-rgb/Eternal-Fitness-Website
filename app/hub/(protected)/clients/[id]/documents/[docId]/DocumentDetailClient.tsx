@@ -15,7 +15,7 @@ import type { ClientDocument, DocumentBody } from "@/lib/documents/types";
 
 const readOnlyStatuses = ["signed", "superseded"];
 
-export function DocumentDetailClient({ clientNumber, doc, clientEmail }: { clientNumber: number; doc: ClientDocument; clientEmail: string | null }) {
+export function DocumentDetailClient({ clientNumber, doc, clientName, clientEmail }: { clientNumber: number; doc: ClientDocument; clientName: string | null; clientEmail: string | null }) {
   const router = useRouter();
   const [title, setTitle] = useState(doc.title);
   const [body, setBody] = useState<DocumentBody>(doc.body);
@@ -26,6 +26,7 @@ export function DocumentDetailClient({ clientNumber, doc, clientEmail }: { clien
 
   const locked = readOnlyStatuses.includes(doc.status);
   const signUrl = typeof window !== "undefined" ? `${window.location.origin}/documents/${doc.id}/sign` : "";
+  const hasClientEmail = Boolean(clientEmail && clientEmail.trim());
 
   const setSection = (id: string, html: string) =>
     setBody((prev) => ({ ...prev, sections: prev.sections.map((s) => (s.id === id ? { ...s, html } : s)) }));
@@ -62,23 +63,22 @@ export function DocumentDetailClient({ clientNumber, doc, clientEmail }: { clien
     }
   };
 
-  const isResend = doc.status !== "draft";
-  const hasEmail = Boolean(clientEmail);
-
   const sendEmail = () =>
     act("send-email", () => fetch(`/api/documents/${doc.id}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "send_email" }),
     }), (data) => {
       const dry = Boolean((data as { dryRun?: boolean }).dryRun);
-      if (dry) toast.success("No email backend configured — logged a dry run, client was not emailed. Add a backend to send for real.");
-      else toast.success(isResend ? "Resent — the email is on its way" : "Sent — the email is on its way");
+      toast.success(dry ? "Email queued (dry run — no email backend configured)" : `Email sent to ${clientEmail}`);
       router.refresh();
     });
 
-  const copyLink = async () => {
-    try { await navigator.clipboard.writeText(signUrl); } catch { /* ignore */ }
-    toast.success("Sign link copied — you can paste it into a text or WhatsApp message");
-  };
+  const copyLink = () =>
+    act("copy-link", async () => {
+      try { await navigator.clipboard.writeText(signUrl); } catch { /* ignore */ }
+      return new Response("{}", { status: 200 });
+    }, () => {
+      toast.success("Sign link copied to clipboard");
+    });
 
   const signAsTrainer = () => {
     if (!trainerSig.trim()) { toast.error("Type your signature"); return; }
@@ -187,35 +187,39 @@ export function DocumentDetailClient({ clientNumber, doc, clientEmail }: { clien
           <CardHeader><CardTitle>Send to client</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Send the client an email with their signing link. They open it, read the document, and sign.
+              Email the client their signing link, or copy it to send manually (text, WhatsApp, etc.).
             </p>
-
-            {/* Primary: email the client */}
-            <Button
-              onClick={sendEmail}
-              disabled={busy !== null || !hasEmail}
-              className="w-full rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white"
-            >
-              {busy === "send-email" ? "…" : <IconMail className="h-4 w-4" />}
-              {isResend ? "Resend email" : "Send email to client"}
-            </Button>
-            {!hasEmail && (
-              <p className="text-xs text-muted-foreground">
-                No email on file for this client. Add one in their profile, then come back to send — or use copy link below to send it manually.
-              </p>
-            )}
-
-            {/* Secondary: copy link for manual resend */}
-            <div className="flex items-center gap-2 pt-1">
-              <Input readOnly value={signUrl} className="font-mono text-xs" />
-              <Button onClick={copyLink} variant="outline" className="rounded-full gap-1.5 shrink-0">
-                <IconSend className="h-4 w-4" />
-                Copy link
+            <div className="flex flex-wrap items-center gap-2">
+              {hasClientEmail ? (
+                <Button
+                  onClick={sendEmail}
+                  disabled={busy !== null}
+                  className="rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white shrink-0"
+                >
+                  {busy === "send-email" ? "…" : (
+                    <>
+                      <IconMail className="h-4 w-4" />
+                      {doc.status === "draft" ? "Send email to client" : "Resend email"}
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <Button disabled className="rounded-full gap-1.5 bg-rose/60 text-white shrink-0 cursor-not-allowed">
+                  <IconMail className="h-4 w-4" />Send email to client
+                </Button>
+              )}
+              <Button onClick={copyLink} disabled={busy !== null} variant="outline" className="rounded-full gap-1.5 shrink-0">
+                <IconSend className="h-4 w-4" />Copy link
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Copy link sends nothing — use it to paste the signing link into a text or WhatsApp message yourself.
-            </p>
+            {!hasClientEmail && (
+              <p className="text-xs text-muted-foreground">
+                No email address on file for {clientName || "this client"} — add one on the client record to enable email sending. You can still copy the link manually below.
+              </p>
+            )}
+            <div className="flex items-center gap-2">
+              <Input readOnly value={signUrl} className="font-mono text-xs" />
+            </div>
           </CardContent>
         </Card>
       )}
