@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { HubCard, HubCardHeader, EmptyState } from "@/components/hub";
+import { HubCard, HubCardHeader, KpiTile, StatusBadge, EmptyState } from "@/components/hub";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,12 @@ import {
   IconSparkles,
   IconTrash2,
   IconPencil,
+  IconClipboardCheck,
+  IconTriangleAlert,
+  IconClock,
+  IconBookText,
+  IconEye,
+  IconX,
 } from "@/components/icons";
 import { toast } from "sonner";
 import type {
@@ -38,6 +44,33 @@ interface ProcessQualityManagerProps {
   initialImprovementLog: ImprovementEntry[];
 }
 
+/** Map a register status to a hub status token for the shared badge tokens. */
+function registerStatusBadge(status: ProcessStatus) {
+  switch (status) {
+    case "active":
+      return <StatusBadge status="active" />;
+    case "review":
+      return (
+        <span className="inline-flex items-center rounded-full border border-[var(--status-warning-border)] bg-[var(--status-warning-bg)] px-2.5 py-0.5 text-xs font-semibold text-[var(--status-warning)]">
+          Review
+        </span>
+      );
+    case "archived":
+      return (
+        <span className="inline-flex items-center rounded-full border border-[var(--status-neutral-border)] bg-[var(--status-neutral-bg)] px-2.5 py-0.5 text-xs font-semibold text-[var(--status-neutral)]">
+          Archived
+        </span>
+      );
+    case "draft":
+    default:
+      return (
+        <span className="inline-flex items-center rounded-full border border-[var(--status-primary-border)] bg-[var(--status-primary-bg)] px-2.5 py-0.5 text-xs font-semibold text-[var(--status-primary)]">
+          Draft
+        </span>
+      );
+  }
+}
+
 export function ProcessQualityManager({
   initialProcessEntries,
   initialSops,
@@ -45,22 +78,74 @@ export function ProcessQualityManager({
 }: ProcessQualityManagerProps) {
   const [activeTab, setActiveTab] = useState<TabId>("register");
 
+  const processCount = initialProcessEntries.length;
+  const sopCount = initialSops.length;
+  const reviewDue = initialProcessEntries.filter((p) => p.status === "review").length;
+  const improvementCount = initialImprovementLog.length;
+
   return (
-    <div>
-      <div className="flex gap-1 border-b border-[var(--hub-border)] mb-6">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
-              activeTab === tab.id
-                ? "border-rose text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+    <div className="space-y-6">
+      {/* ── KPI band ── */}
+      <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
+        <KpiTile
+          statusToken="primary"
+          icon={<IconClipboardList className="w-5 h-5" />}
+          label="Processes"
+          value={processCount}
+        />
+        <KpiTile
+          statusToken="success"
+          icon={<IconBookText className="w-5 h-5" />}
+          label="SOPs"
+          value={sopCount}
+        />
+        <KpiTile
+          statusToken="warning"
+          icon={<IconClock className="w-5 h-5" />}
+          label="Reviews due"
+          value={reviewDue}
+        />
+        <KpiTile
+          statusToken="neutral"
+          icon={<IconSparkles className="w-5 h-5" />}
+          label="Improvements logged"
+          value={improvementCount}
+        />
+      </div>
+
+      {/* ── Tab strip ── */}
+      <div className="inline-flex w-full max-w-full justify-start gap-1 overflow-x-auto rounded-xl border border-[var(--hub-border)] bg-[var(--hub-card)] p-1 shadow-sm sm:w-auto">
+        {TABS.map((tab) => {
+          const count =
+            tab.id === "register"
+              ? processCount
+              : tab.id === "sops"
+                ? sopCount
+                : improvementCount;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`inline-flex items-center gap-2 rounded-lg border-0 px-3.5 py-2 text-sm font-medium transition-colors ${
+                isActive
+                  ? "bg-[var(--hub-sidebar-active)] font-semibold text-foreground shadow-none"
+                  : "bg-transparent text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
+              }`}
+            >
+              {tab.label}
+              <span
+                className={`inline-grid min-w-[18px] h-[18px] place-items-center rounded-full border px-1 text-[11px] font-bold leading-none tabular-nums ${
+                  isActive
+                    ? "border-[var(--status-primary-border)] bg-[var(--status-primary-bg)] text-[var(--status-primary)]"
+                    : "border-[var(--hub-border)] bg-[var(--hub-canvas)] text-muted-foreground"
+                }`}
+              >
+                {count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {activeTab === "register" && (
@@ -163,23 +248,21 @@ function RegisterSection({ initial }: { initial: ProcessEntry[] }) {
 
   return (
     <HubCard padded={false}>
-      <div className="p-5">
-        <HubCardHeader
-          icon={<IconClipboardList className="w-4 h-4" />}
-          title="Process Register"
-          subtitle="Every core process, owned and dated. Plain English, one page per process."
-          color="rose"
-          action={
-            <Button size="sm" variant="outline" className="gap-1.5 rounded-full" onClick={startAdd}>
-              <IconPlus className="h-4 w-4" /> Add process
-            </Button>
-          }
-          noBottomPadding
-        />
-      </div>
+      <HubCardHeader
+        icon={<IconClipboardList className="w-4 h-4" />}
+        title="Process Register"
+        subtitle="Every core process, owned and dated. Plain English, one page per process."
+        color="rose"
+        action={
+          <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={startAdd}>
+            <IconPlus className="h-4 w-4" /> Add process
+          </Button>
+        }
+        className="px-5 pt-5"
+      />
 
-      <div className="px-5 pb-5">
-        {showForm && (
+      {showForm && (
+        <div className="px-5 pb-5">
           <div className="mb-5 space-y-3 rounded-xl border border-[var(--hub-border)] p-4">
             <div className="grid gap-3 md:grid-cols-3">
               <div className="space-y-2">
@@ -232,52 +315,52 @@ function RegisterSection({ initial }: { initial: ProcessEntry[] }) {
               <Button onClick={save} disabled={saving}>{editing ? "Save changes" : "Add process"}</Button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {items.length === 0 ? (
+      {items.length === 0 ? (
+        <div className="px-5 pb-5">
           <EmptyState
             icon={<IconClipboardList className="w-7 h-7" />}
             title="No processes yet"
             description="Add Eternal Fitness's own processes here — client onboarding, plan building, PAR-Q handling, update-email sending."
           />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-[var(--hub-border)] text-left text-muted-foreground">
-                  <th className="py-2 pr-4 font-medium">Ref</th>
-                  <th className="py-2 pr-4 font-medium">Name</th>
-                  <th className="py-2 pr-4 font-medium">Category</th>
-                  <th className="py-2 pr-4 font-medium">Status</th>
-                  <th className="py-2 pr-4 font-medium">Reviewed</th>
-                  <th className="py-2 pr-4 font-medium">SOP</th>
-                  <th className="py-2" />
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-[var(--hub-border)] bg-[var(--hub-hover)] text-left">
+                <th className="px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ref</th>
+                <th className="px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Name</th>
+                <th className="px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</th>
+                <th className="px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</th>
+                <th className="px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Reviewed</th>
+                <th className="px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">SOP</th>
+                <th className="px-5 py-2.5" />
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item) => (
+                <tr key={item.id} className="border-b border-[var(--hub-border)] last:border-0 hover:bg-[var(--hub-hover)] transition-colors">
+                  <td className="px-5 py-2.5 font-mono text-xs text-rose">{item.ref}</td>
+                  <td className="px-5 py-2.5 font-medium text-foreground">{item.name}</td>
+                  <td className="px-5 py-2.5 text-muted-foreground">{item.category}</td>
+                  <td className="px-5 py-2.5">{registerStatusBadge(item.status)}</td>
+                  <td className="px-5 py-2.5 text-muted-foreground">{item.reviewed ?? "—"}</td>
+                  <td className="px-5 py-2.5 font-mono text-xs text-muted-foreground">{item.sop_ref ?? "—"}</td>
+                  <td className="px-5 py-2.5">
+                    <div className="flex justify-end gap-1">
+                      <Button size="icon" variant="ghost" onClick={() => startEdit(item)}><IconPencil className="h-4 w-4" /></Button>
+                      <Button size="icon" variant="ghost" className="text-destructive" onClick={() => remove(item)}><IconTrash2 className="h-4 w-4" /></Button>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {items.map((item) => (
-                  <tr key={item.id} className="border-b border-[var(--hub-border)] last:border-0">
-                    <td className="py-2.5 pr-4 font-mono text-xs text-rose">{item.ref}</td>
-                    <td className="py-2.5 pr-4 font-medium">{item.name}</td>
-                    <td className="py-2.5 pr-4 text-muted-foreground">{item.category}</td>
-                    <td className="py-2.5 pr-4">
-                      <span className="rounded-full bg-rose/10 px-2 py-0.5 text-xs font-medium text-rose">{item.status}</span>
-                    </td>
-                    <td className="py-2.5 pr-4 text-muted-foreground">{item.reviewed ?? "—"}</td>
-                    <td className="py-2.5 pr-4 font-mono text-xs text-muted-foreground">{item.sop_ref ?? "—"}</td>
-                    <td className="py-2.5">
-                      <div className="flex justify-end gap-1">
-                        <Button size="icon" variant="ghost" onClick={() => startEdit(item)}><IconPencil className="h-4 w-4" /></Button>
-                        <Button size="icon" variant="ghost" className="text-destructive" onClick={() => remove(item)}><IconTrash2 className="h-4 w-4" /></Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </HubCard>
   );
 }
@@ -289,6 +372,7 @@ function SopsSection({ initial }: { initial: Sop[] }) {
   const [editing, setEditing] = useState<Sop | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [viewing, setViewing] = useState<Sop | null>(null);
 
   const blank: Omit<Sop, "id" | "created_at"> = {
     ref: "",
@@ -377,23 +461,21 @@ function SopsSection({ initial }: { initial: Sop[] }) {
 
   return (
     <HubCard padded={false}>
-      <div className="p-5">
-        <HubCardHeader
-          icon={<IconFileText className="w-4 h-4" />}
-          title="Standard Operating Procedures"
-          subtitle="What it does · Trigger · Steps · Owner · What good looks like — one page per process."
-          color="teal"
-          action={
-            <Button size="sm" variant="outline" className="gap-1.5 rounded-full" onClick={startAdd}>
-              <IconPlus className="h-4 w-4" /> Add SOP
-            </Button>
-          }
-          noBottomPadding
-        />
-      </div>
+      <HubCardHeader
+        icon={<IconFileText className="w-4 h-4" />}
+        title="Standard Operating Procedures"
+        subtitle="What it does · Trigger · Steps · Owner · What good looks like — one page per process."
+        color="teal"
+        action={
+          <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={startAdd}>
+            <IconPlus className="h-4 w-4" /> Add SOP
+          </Button>
+        }
+        className="px-5 pt-5"
+      />
 
-      <div className="px-5 pb-5">
-        {showForm && (
+      {showForm && (
+        <div className="px-5 pb-5">
           <div className="mb-5 space-y-3 rounded-xl border border-[var(--hub-border)] p-4">
             <div className="grid gap-3 md:grid-cols-3">
               <div className="space-y-2">
@@ -449,24 +531,29 @@ function SopsSection({ initial }: { initial: Sop[] }) {
               <Button onClick={save} disabled={saving}>{editing ? "Save changes" : "Add SOP"}</Button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {items.length === 0 ? (
+      {items.length === 0 ? (
+        <div className="px-5 pb-5">
           <EmptyState
             icon={<IconFileText className="w-7 h-7" />}
             title="No SOPs yet"
             description="Write the three required SOPs: migrate a client, onboard a new client, build a plan in the hub."
           />
-        ) : (
+        </div>
+      ) : (
+        <div className="px-5 pb-5">
           <div className="grid gap-4 md:grid-cols-2">
             {items.map((item) => (
-              <div key={item.id} className="rounded-xl border border-[var(--hub-border)] p-4">
+              <div key={item.id} className="rounded-xl border border-[var(--hub-border)] bg-[var(--hub-card)] p-4 hover:border-[var(--hub-field-border-hover)] transition-colors">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <span className="font-mono text-xs text-teal">{item.ref}</span>
                     <p className="font-semibold text-foreground truncate">{item.title}</p>
                   </div>
                   <div className="flex gap-1 shrink-0">
+                    <Button size="icon" variant="ghost" onClick={() => setViewing(item)} aria-label={`View ${item.ref}`}><IconEye className="h-4 w-4" /></Button>
                     <Button size="icon" variant="ghost" onClick={() => startEdit(item)}><IconPencil className="h-4 w-4" /></Button>
                     <Button size="icon" variant="ghost" className="text-destructive" onClick={() => remove(item)}><IconTrash2 className="h-4 w-4" /></Button>
                   </div>
@@ -476,9 +563,103 @@ function SopsSection({ initial }: { initial: Sop[] }) {
               </div>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {viewing && <SopDetailModal sop={viewing} onClose={() => setViewing(null)} />}
     </HubCard>
+  );
+}
+
+// ─── SOP detail (read-only) ──────────────────────────────────────────────────
+
+function SopDetailModal({ sop, onClose }: { sop: Sop; onClose: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[rgba(16,24,40,.45)] p-4 sm:p-6"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`SOP detail ${sop.ref}`}
+    >
+      <div
+        className="my-4 w-full max-w-[680px] overflow-hidden rounded-2xl border border-[var(--hub-border)] bg-[var(--hub-card)] shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-3 border-b border-[var(--hub-border)] px-5 py-4">
+          <div className="min-w-0">
+            <span className="font-mono text-xs text-teal">{sop.ref}</span>
+            <h2 className="truncate text-lg font-bold tracking-tight text-foreground">{sop.title}</h2>
+          </div>
+          <Button size="icon" variant="ghost" onClick={onClose} aria-label="Close" className="shrink-0">
+            <IconX className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 gap-px bg-[var(--hub-border)] sm:grid-cols-3">
+          <div className="bg-[var(--hub-card)] px-5 py-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Owner</p>
+            <p className="mt-1 text-sm font-semibold text-foreground">{sop.owner}</p>
+          </div>
+          <div className="bg-[var(--hub-card)] px-5 py-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Area</p>
+            <p className="mt-1 text-sm font-semibold text-foreground">{sop.area}</p>
+          </div>
+          <div className="bg-[var(--hub-card)] px-5 py-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Last updated</p>
+            <p className="mt-1 text-sm font-semibold text-foreground">{sop.last_updated ?? "—"}</p>
+          </div>
+        </div>
+
+        <div className="divide-y divide-[var(--hub-border)]">
+          <Section n={1} title="Purpose">
+            <p className="m-0 text-sm text-muted-foreground">{sop.what}</p>
+          </Section>
+
+          <Section n={2} title="Scope">
+            <p className="m-0 text-sm text-muted-foreground">{sop.trigger}</p>
+          </Section>
+
+          <Section n={3} title="Procedure">
+            {sop.steps.length === 0 ? (
+              <p className="m-0 text-sm text-muted-foreground">No steps recorded.</p>
+            ) : (
+              <ol className="m-0 list-decimal space-y-2 pl-5 text-sm text-muted-foreground">
+                {sop.steps.map((step, i) => (
+                  <li key={i}>{step}</li>
+                ))}
+              </ol>
+            )}
+          </Section>
+
+          <Section n={4} title="What good looks like">
+            <p className="m-0 text-sm text-muted-foreground">{sop.good_looks_like}</p>
+          </Section>
+
+          <Section n={5} title="Prompt template">
+            {sop.prompt_template ? (
+              <pre className="m-0 whitespace-pre-wrap rounded-lg border border-[var(--hub-border)] bg-[var(--hub-hover)] p-3 text-xs text-foreground">{sop.prompt_template}</pre>
+            ) : (
+              <p className="m-0 text-sm text-muted-foreground">No prompt template.</p>
+            )}
+          </Section>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Section({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
+  return (
+    <div className="px-5 py-4">
+      <div className="mb-2.5 flex items-center gap-2.5">
+        <span className="grid h-[26px] w-[26px] place-items-center rounded-lg bg-[var(--status-primary-bg)] text-xs font-bold text-[var(--status-primary)]">
+          {n}
+        </span>
+        <h3 className="m-0 text-[15px] font-semibold text-foreground">{title}</h3>
+      </div>
+      {children}
+    </div>
   );
 }
 
@@ -571,23 +752,21 @@ function LogSection({ initial }: { initial: ImprovementEntry[] }) {
 
   return (
     <HubCard padded={false}>
-      <div className="p-5">
-        <HubCardHeader
-          icon={<IconSparkles className="w-4 h-4" />}
-          title="Improvement Log"
-          subtitle="What broke · What changed · What the result was — the Kaizen loop without the ceremony."
-          color="amber"
-          action={
-            <Button size="sm" variant="outline" className="gap-1.5 rounded-full" onClick={startAdd}>
-              <IconPlus className="h-4 w-4" /> Log improvement
-            </Button>
-          }
-          noBottomPadding
-        />
-      </div>
+      <HubCardHeader
+        icon={<IconSparkles className="w-4 h-4" />}
+        title="Improvement Log"
+        subtitle="What broke · What changed · What the result was — the Kaizen loop without the ceremony."
+        color="amber"
+        action={
+          <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={startAdd}>
+            <IconPlus className="h-4 w-4" /> Log improvement
+          </Button>
+        }
+        className="px-5 pt-5"
+      />
 
-      <div className="px-5 pb-5">
-        {showForm && (
+      {showForm && (
+        <div className="px-5 pb-5">
           <div className="mb-5 space-y-3 rounded-xl border border-[var(--hub-border)] p-4">
             <div className="grid gap-3 md:grid-cols-3">
               <div className="space-y-2">
@@ -622,46 +801,48 @@ function LogSection({ initial }: { initial: ImprovementEntry[] }) {
               <Button onClick={save} disabled={saving}>{editing ? "Save changes" : "Log improvement"}</Button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {items.length === 0 ? (
+      {items.length === 0 ? (
+        <div className="px-5 pb-5">
           <EmptyState
             icon={<IconSparkles className="w-7 h-7" />}
             title="No improvements logged yet"
             description="When something breaks and you fix it, log it here: what broke, what changed, what the result was."
           />
-        ) : (
-          <div className="space-y-3">
-            {items.map((item) => (
-              <div key={item.id} className="rounded-xl border border-[var(--hub-border)] p-4">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs text-amber">{item.ref}</span>
-                  <span className="font-semibold text-foreground flex-1 truncate">{item.title}</span>
-                  {item.process_ref && <span className="font-mono text-xs text-muted-foreground">→ {item.process_ref}</span>}
-                  <div className="flex gap-1 shrink-0">
-                    <Button size="icon" variant="ghost" onClick={() => startEdit(item)}><IconPencil className="h-4 w-4" /></Button>
-                    <Button size="icon" variant="ghost" className="text-destructive" onClick={() => remove(item)}><IconTrash2 className="h-4 w-4" /></Button>
-                  </div>
-                </div>
-                <div className="mt-3 grid gap-3 md:grid-cols-3">
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-destructive/80">What broke</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{item.broke}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-teal">What changed</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{item.changed}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-rose">Result</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{item.result}</p>
-                  </div>
+        </div>
+      ) : (
+        <div className="px-5 pb-5 space-y-3">
+          {items.map((item) => (
+            <div key={item.id} className="rounded-xl border border-[var(--hub-border)] bg-[var(--hub-card)] p-4 hover:border-[var(--hub-field-border-hover)] transition-colors">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs text-amber">{item.ref}</span>
+                <span className="font-semibold text-foreground flex-1 truncate">{item.title}</span>
+                {item.process_ref && <span className="font-mono text-xs text-muted-foreground">→ {item.process_ref}</span>}
+                <div className="flex gap-1 shrink-0">
+                  <Button size="icon" variant="ghost" onClick={() => startEdit(item)}><IconPencil className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" className="text-destructive" onClick={() => remove(item)}><IconTrash2 className="h-4 w-4" /></Button>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+              <div className="mt-3 grid gap-3 md:grid-cols-3">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--status-danger)]">What broke</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{item.broke}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-teal">What changed</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{item.changed}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-rose">Result</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{item.result}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </HubCard>
   );
 }

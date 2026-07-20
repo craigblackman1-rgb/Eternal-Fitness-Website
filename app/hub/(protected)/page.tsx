@@ -3,8 +3,16 @@ import Link from "next/link";
 import { HubCard, HubCardHeader, HubPageHeader, HubQuickActions } from "@/components/hub";
 import { StatusBadge } from "@/components/hub/StatusBadge";
 import { KpiTile } from "@/components/hub/KpiTile";
+import { HubAlert } from "@/components/hub/HubAlert";
 import { IconActivity, IconArrowUpRight, IconCalendar, IconCheckCircle, IconFileText, IconTriangleAlert, IconUserPlus, IconUsers, IconPencil, IconPlus, IconMail } from "@/components/icons";
 import type { DBClientComplianceStatus } from "@/types";
+
+interface RecentCheckIn {
+  clientName: string;
+  clientNumber: string | number;
+  programme: string;
+  loggedLabel: string;
+}
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -30,10 +38,10 @@ export default async function DashboardPage() {
   const { data: activeSessions } = activeBlockIds.length > 0
     ? await supabase
         .from("sessions")
-        .select("id, block_id, session_number, data")
+        .select("id, block_id, session_number, data, blocks!inner(block_number, client_id, clients!inner(client_number, name, profile))")
         .in("block_id", activeBlockIds)
-        .order("session_number", { ascending: true })
-    : { data: [] as { id: string; block_id: string; session_number: number; data: any }[] };
+        .order("session_number", { ascending: false })
+    : { data: [] as any[] };
 
   const nextUpByBlock = (activeBlocks ?? []).map((block) => {
     const blockSessions = (activeSessions ?? []).filter((s) => s.block_id === block.id);
@@ -53,6 +61,37 @@ export default async function DashboardPage() {
   const needsAttention = (clients ?? []).filter(
     (c) => c.compliance_status && (c.compliance_status as DBClientComplianceStatus) !== "clear",
   );
+
+  const doNotTrain = needsAttention.filter((c) => c.compliance_status === "do_not_train");
+  const pendingReview = needsAttention.filter(
+    (c) => c.compliance_status === "pending_medical" || c.compliance_status === "action_needed",
+  );
+
+  // Recent check-ins — real logged sessions only (no fabricated trends)
+  const recentCheckIns: RecentCheckIn[] = (activeSessions ?? [])
+    .filter((s) => s.data?.session_log?.completed_at)
+    .slice(0, 5)
+    .map((session) => {
+      const log = session.data.session_log;
+      const client = (session.blocks as any)?.clients;
+      const profile = client?.profile;
+      const primaryGoal = profile?.goals?.primary
+        ? profile.goals.primary.replace("_", " ")
+        : null;
+      const completedAt = new Date(log.completed_at);
+      const daysAgo = Math.floor((Date.now() - completedAt.getTime()) / 86_400_000);
+      const loggedLabel =
+        daysAgo <= 0 ? "Today"
+        : daysAgo === 1 ? "Yesterday"
+        : daysAgo < 7 ? `${daysAgo} days ago`
+        : completedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+      return {
+        clientName: client?.name ?? "Unknown client",
+        clientNumber: client?.client_number ?? "#?",
+        programme: primaryGoal ? `Block ${(session.blocks as any)?.block_number} · ${primaryGoal}` : `Block ${(session.blocks as any)?.block_number}`,
+        loggedLabel,
+      };
+    });
 
   return (
     <div className="space-y-6">
@@ -77,11 +116,72 @@ export default async function DashboardPage() {
         <KpiTile icon={<IconActivity className="w-5 h-5" />} label="Total Blocks" value={blocks?.length ?? 0} statusToken="primary" />
       </div>
 
+      {doNotTrain.length > 0 && (
+        <HubAlert severity="danger" title={`Do Not Train — ${doNotTrain.length} client${doNotTrain.length > 1 ? "s" : ""}`}>
+          {doNotTrain.map((c) => c.name).join(", ")}
+          {doNotTrain.length === 1 ? " has" : " have"} outstanding paperwork that must be resolved before any further sessions.
+        </HubAlert>
+      )}
+      {pendingReview.length > 0 && (
+        <HubAlert severity="warning" title={`Action needed — ${pendingReview.length} client${pendingReview.length > 1 ? "s" : ""}`}>
+          {pendingReview.map((c) => c.name).join(", ")}
+          {pendingReview.length === 1 ? " needs" : " need"} clearance or outstanding actions resolved.
+        </HubAlert>
+      )}
+
       {/* Main grid */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left column */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Needs Attention */}
+          {/* Recent check-ins */}
+          <HubCard padded={false}>
+            <HubCardHeader
+              icon={<IconCheckCircle className="w-4 h-4" />}
+              title="Recent Check-ins"
+              color="teal"
+              subtitle="Logged sessions across active blocks"
+              noBottomPadding
+              className="px-5 pt-5"
+            />
+            <div className="px-5 pb-5">
+              {recentCheckIns.length > 0 ? (
+                <div className="overflow-x-auto -mx-5">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr className="border-b border-[var(--hub-border)] bg-[var(--hub-hover)] text-left">
+                        <th className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-5 h-10">Client</th>
+                        <th className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-5 h-10">Programme</th>
+                        <th className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-5 h-10">Logged</th>
+                        <th className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-5 h-10">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentCheckIns.map((row, i) => {
+                        const initials = row.clientName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
+                        return (
+                          <tr key={i} className="border-b border-[var(--hub-border)] last:border-0 hover:bg-[var(--hub-hover)] transition-colors">
+                            <td className="px-5 py-3">
+                              <Link href={`/hub/clients/${row.clientNumber}`} className="inline-flex items-center gap-2.5 min-w-0 group">
+                                <span className="w-7 h-7 rounded-full bg-[var(--status-primary-bg)] text-[var(--status-primary)] grid place-items-center text-[11px] font-bold shrink-0">{initials}</span>
+                                <span className="font-semibold text-foreground group-hover:text-rose transition-colors truncate">{row.clientName}</span>
+                              </Link>
+                            </td>
+                            <td className="px-5 py-3 text-muted-foreground">{row.programme}</td>
+                            <td className="px-5 py-3 text-muted-foreground whitespace-nowrap">{row.loggedLabel}</td>
+                            <td className="px-5 py-3"><StatusBadge status="success" /></td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground py-2">No check-ins logged yet.</p>
+              )}
+            </div>
+          </HubCard>
+
+          /* Needs Attention */
           <HubCard>
             <HubCardHeader
               icon={<IconTriangleAlert className="w-4 h-4" />}
