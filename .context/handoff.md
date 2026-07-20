@@ -1,5 +1,34 @@
 # Handoff
 
+## Work Order — Lane C, unit 1 — PAR-Q → document engine migration plan (planning only, no DB)
+
+- **File-based read only — NOT a live-DB confirmation.** Reconstructed `signed_parq` and
+  `document_templates`/`client_documents` schemas from `supabase/migrations/*.sql` only. No DB
+  tunnel open this session; no connection to production Postgres was attempted or made.
+- Verified current state: `document_templates` is seeded with `terms` (real copy), `risk_assessment`
+  and `annual_review` (both dual-signed) — **no `parq` template exists yet**. `signed_parq` carries
+  the full 29-question structure (q1–q29, split Sections 2/3/4/6) plus free-text detail fields and a
+  single client declaration/signature, with versioning (`version`, `supersedes_id`) added by
+  `20260710120000_parq_versioning.sql`.
+- Produced `.context/lane-c-parq-migration-plan.md` covering: (1) current `signed_parq` schema
+  reconstruction, (2) current engine schema, (3) a field-mapping plan for a new `parq`
+  `document_templates` entry — a `body` JSON of `{ intro, sections[html], data:{ answers, details,
+  personal, signature } }` that preserves the 29-question structure used by `scripts/import-parq.mjs`,
+  (4) a migration-script **skeleton only** (not run), and (5) a parity/verification checklist.
+- Key mapping decisions: q1–q29 → `body.data.answers`; detail fields → `body.data.details`;
+  personal/GP/emergency → `body.data.personal`; signature → `body.data.signature`. Top-level
+  `client_id`/`kind='parq'`/`title`/`template_id`/`template_version`/`body`/`client_signature`/
+  `client_signed_date`/`status`/`version`/`supersedes_id`/`signed_at` map directly, with legacy
+  `status` values folded into the engine's `draft/sent/signed/superseded` set. Migration must also
+  recompute `anyYes` → preserve `clients.medical_clearance_status` + `client_tracker.clearance_*`
+  (same rule the import script uses), keeping it idempotent.
+- **Colin-flow caveat acknowledged**: legacy `signed_parq` RLS is authenticated-only (anon INSERT
+  policy was dropped in `20260603_*`), so a logged-out client resume link fails — the migration
+  moves PAR-Q onto the engine's service-role public-read pattern, resolving it.
+- **Gates (not crossed)**: running the migration needs Craig's explicit per-session prod-DB go-ahead;
+  retiring `signed_parq` / the `/agreement` form is gated until 1:1 parity is proven. Neither was
+  done — planning artifact only.
+
 ## Session (2026-07-17) — Ian Healey 4-week update draft + fixed a real Edit-page bug
 - Craig asked for a draft training update email for Ian Healey (client #9) with a
   structure that doesn't fit the standard `six_week_update` template — two extra
