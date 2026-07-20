@@ -1,5 +1,46 @@
 # Handoff
 
+## Work Order — Lane B (2026-07-20) — Process & Quality System, DB-backed
+
+- **Task**: Port `decoded-ops-hub`'s `OperationsFramework.tsx` three-tab pattern (Process
+  Register / SOPs / Improvement Log) into the EF hub as a **DB-backed** module so Esther can
+  edit entries herself with no code deploy (decided 2026-07-20, replacing the original
+  hardcoded-TSX approach).
+- **Read-only reference**: `D:\apps\decoded-ops-hub\src\components\decoded-ops\operations/OperationsFramework.tsx`
+  (confirmed structure: `ProcessEntry[]` / `SOP[]` / `ImprovementEntry[]`, tabs Process
+  Register · SOPs · Improvement Log — plus Overview and AI Systems tabs that are Decoded-Ops
+  specific and were intentionally **not** ported). No edits made to the decoded-ops-hub repo.
+- **Migration** (`supabase/migrations/20260720_process_quality_system.sql`): creates
+  `process_entries`, `sops`, `improvement_log` matching the TSX shape, adapted to EF (single
+  brand — dropped `service` line, replaced with a free `area` text field; dropped the AI
+  `skills[]` array as not relevant to EF). `sops.steps` stored as `jsonb`. FK-by-reference via
+  `ref` strings (no hard FK — keeps entries independently editable). Tables ship **empty**; no
+  content seeded. **NOT run** — needs Craig's explicit per-session prod-DB go-ahead.
+- **Types** (`types/index.ts`): added `ProcessEntry`, `Sop`, `ImprovementEntry`, `ProcessStatus`.
+- **UI** (`app/hub/(protected)/process-quality/`): server page reads all three tables via the
+  existing supabase server client; `ProcessQualityManager.tsx` is a client component rendering
+  the three tabs with the hub's own design system (`HubCard`/`HubCardHeader`/`EmptyState`/
+  `Button`/`rose`/`teal`/`amber` accents — not Decoded Ops' `.doa-*` classes). Each tab has an
+  inline add/edit form (reusing `Input`/`Label`/`Textarea`) and row edit/delete, wired to new
+  API routes. Renders empty states until Esther adds content. Added sidebar nav link under
+  "Resources".
+- **API routes**: `app/api/process-entries` (+ `[id]` PATCH/DELETE), `app/api/sops` (+
+  `[id]`), `app/api/improvement-log` (+ `[id]`) — all GET/POST/PATCH/DELETE, auth-gated via
+  `supabase.auth.getUser()`, mirroring the existing `/api/equipment` pattern.
+- **Verified**: `npx tsc --noEmit` passes for all new files (two pre-existing errors in
+  `exercise-browser.tsx` and `ClientUpdatesPanel.tsx` are unrelated). Did **not** run the
+  migration, did not write to any DB, did not run `next build`, did not `git push`.
+- **Remaining / not done**:
+  - Migration must be run against prod Postgres (Coolify SSH tunnel) with Craig's explicit
+    go-ahead before the module works — tables don't exist yet.
+  - EF-specific **content** (Process Register entries, the three required SOPs — migrate a
+    client / onboard a new client / build a plan in the hub, and any Improvement Log entries)
+    is not written; Esther/Craig supply it via the new admin UI once tables exist.
+  - Decoded-Ops' "Framework Overview" and "AI Systems" tabs were intentionally omitted (not
+    EF-relevant). Could add an EF-flavoured Overview tab later if wanted.
+  - No row-level locking beyond supabase auth (any hub user can edit) — fine for a 1–2 person
+    studio; revisit if multi-staff access is needed.
+
 ## Work Order — Lane C, unit 1 — PAR-Q → document engine migration plan (planning only, no DB)
 
 - **File-based read only — NOT a live-DB confirmation.** Reconstructed `signed_parq` and

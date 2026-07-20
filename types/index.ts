@@ -51,9 +51,52 @@ export interface StudioEquipment {
   created_at: string;
 }
 
+/** Lane B — Process & Quality System tables (see supabase/migrations/20260720_process_quality_system.sql). */
+export type ProcessStatus = "active" | "draft" | "review" | "archived";
+
+export interface ProcessEntry {
+  id: string;
+  ref: string;
+  name: string;
+  owner: string;
+  area: string;
+  status: ProcessStatus;
+  reviewed: string | null;
+  category: string;
+  sop_ref: string | null;
+  created_at: string;
+}
+
+export interface Sop {
+  id: string;
+  ref: string;
+  title: string;
+  area: string;
+  trigger: string;
+  owner: string;
+  last_updated: string | null;
+  what: string;
+  good_looks_like: string;
+  steps: string[];
+  prompt_template: string | null;
+  created_at: string;
+}
+
+export interface ImprovementEntry {
+  id: string;
+  ref: string;
+  title: string;
+  entry_date: string | null;
+  process_ref: string | null;
+  broke: string;
+  changed: string;
+  result: string;
+  created_at: string;
+}
+
 /** A structured, per-client instance of a TrainingRuleType — replaces bare-string
- *  programming_adaptations so the Plan Agent applies it systematically rather than
- *  parsing prose. Stored inline in ClientProfile, not a separate table. */
+  *  programming_adaptations so the Plan Agent applies it systematically rather than
+  *  parsing prose. Stored inline in ClientProfile, not a separate table. */
 export interface TrainingRule {
   id: string;
   rule_type_id: string;
