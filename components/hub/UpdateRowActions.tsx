@@ -72,7 +72,7 @@ export function UpdateRowActions({ clientNumber, updateId, status, hasEmail, sub
         <Button
           variant="outline"
           size="sm"
-          className="rounded-full gap-1.5 h-8"
+          className="rounded-lg gap-1.5 h-8"
           onClick={() => setPreviewOpen(true)}
           disabled={busy !== null}
         >
@@ -82,12 +82,12 @@ export function UpdateRowActions({ clientNumber, updateId, status, hasEmail, sub
         {editable && (
           <>
             <Link href={`/hub/clients/${clientNumber}/updates/${updateId}/edit`}>
-              <Button variant="outline" size="sm" className="rounded-full gap-1.5 h-8" disabled={busy !== null}>
+              <Button variant="outline" size="sm" className="rounded-lg gap-1.5 h-8" disabled={busy !== null}>
                 <IconEdit3 className="h-3.5 w-3.5" />
                 Edit
               </Button>
             </Link>
-            <Button variant="outline" size="sm" className="rounded-full gap-1.5 h-8" onClick={handleSendNow} disabled={busy !== null}>
+            <Button variant="outline" size="sm" className="rounded-lg gap-1.5 h-8" onClick={handleSendNow} disabled={busy !== null}>
               <IconSend className="h-3.5 w-3.5" />
               {busy === "send" ? "Sending…" : "Send now"}
             </Button>
@@ -96,7 +96,7 @@ export function UpdateRowActions({ clientNumber, updateId, status, hasEmail, sub
         <Button
           variant="ghost"
           size="sm"
-          className="rounded-full h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+          className="rounded-lg h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
           onClick={handleDelete}
           disabled={busy !== null}
           title="Delete"

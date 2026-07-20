@@ -140,7 +140,7 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
     <div className="space-y-4 mt-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-dark-navy/10 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-lg bg-dark-navy/10 flex items-center justify-center">
             <IconBot className="w-4 h-4 text-dark-navy" />
           </div>
           <div>
@@ -154,7 +154,7 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
           <Button
             onClick={generateBlock}
             disabled={generatingBlock}
-            className="rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white"
+            className="rounded-lg gap-1.5 bg-rose hover:bg-rose/90 text-white"
           >
             {generatingBlock ? (
               <IconLoader2 className="h-4 w-4 animate-spin" />

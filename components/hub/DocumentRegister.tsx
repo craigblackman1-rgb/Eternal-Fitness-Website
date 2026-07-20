@@ -109,7 +109,7 @@ export function DocumentRegister({ clientNumber, parqs, agreements, documents = 
           />
           <Link
             href={`/hub/clients/${clientNumber}/documents`}
-            className="inline-flex items-center gap-1 rounded-full bg-rose px-2.5 h-7 text-xs font-medium text-white hover:bg-rose/90"
+            className="inline-flex items-center gap-1 rounded-lg bg-rose px-2.5 h-7 text-xs font-medium text-white hover:bg-rose/90"
           >
             <IconPlus className="h-3 w-3" />
             New document

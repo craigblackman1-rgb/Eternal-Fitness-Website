@@ -36,7 +36,7 @@ export function ClientUpdatesPanel({ clientNumber, updates }: { clientNumber: nu
     <div className="space-y-3">
       <div className="flex justify-end">
         <Link href={`/hub/clients/${clientNumber}/updates/new`}>
-          <Button size="sm" className="rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white">
+          <Button size="sm" className="rounded-lg gap-1.5 bg-rose hover:bg-rose/90 text-white">
             <IconPlus className="h-4 w-4" />
             New Update
           </Button>

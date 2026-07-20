@@ -32,7 +32,7 @@ export function SendDocumentLink({ path, clientNumber, label, existingId, exp, s
   };
 
   return (
-    <Button variant="outline" size="sm" onClick={copyLink} className="rounded-full gap-1.5 border-border/60 h-7 px-2.5 text-xs">
+    <Button variant="outline" size="sm" onClick={copyLink} className="rounded-lg gap-1.5 border-border/60 h-7 px-2.5 text-xs">
       <IconMail className="h-3 w-3" />
       {label}
     </Button>
