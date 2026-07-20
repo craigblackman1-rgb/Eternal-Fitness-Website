@@ -81,9 +81,6 @@ export function DocumentView({
           <div className="doc-titleblock">
             <p className="doc-eyebrow">{eyebrow}</p>
             <h1 className="doc-title">{doc.title}</h1>
-            {doc.body.intro && (
-              <p className="doc-standfirst" aria-hidden="true" />
-            )}
           </div>
 
           <dl className="doc-meta">
