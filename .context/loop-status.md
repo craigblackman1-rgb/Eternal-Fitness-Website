@@ -1,0 +1,1 @@
+2026-07-20T16:26Z | Lane E | Client detail page: full 6-tab redesign rollout (2acaf4e) + button-radius restyle on Compliance/Training/Plan Agent/Updates (211f3f7). Both pushed to origin/main, confirmed live via Coolify deployment history. Session closed.

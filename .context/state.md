@@ -7,6 +7,7 @@
 - 6-week client update email feature: **BUILT** (all phases complete, build+tsc clean)
 - **Active Work Order** (2026-07-20, SOP-008): `.context/workorder-eternal-fitness-hub-consolidation-2026-07-20.md` — client data consolidation + document-led client portal. See that file's DONE checklist for live status; see `.context/handoff.md` for the full per-unit log.
 - Client document engine now visually matches the new brand design system (`D:\apps\design-systems\brand-staging-2662e9`) — masthead, accessibility toolbar (text size + high contrast), sign-boxes — applied to all 4 document kinds. New `consent` document type live (checkbox-based content permissions). Documents can now be emailed to clients directly from the hub, not just copy-link.
+- Client detail page (`/hub/clients/[id]`) fully rolled out against `hub-client-detail.html` (the design folder's complete 6-tab mockup, found 2026-07-20 — had been missed in the earlier design-system pass): new page header, tab strip icons/badges, Profile tab restructured to card-per-subject, Training tab table, plus a button-radius restyle (`rounded-full` → `rounded-lg`) across Compliance/Training/Plan Agent/Updates so all six tabs now read consistently. Live on staging (commits `2acaf4e`, `211f3f7`).
 
 ## Built
 - DB schema (now on plain Postgres, originally built on Supabase): clients, blocks, sessions, signed_agreements, signed_parq, medical_clearance_tracker, client_tracker
@@ -28,6 +29,8 @@
 - **Client portal** (2026-07-20): magic-link auth (`lib/portal-auth.ts`, separate from staff auth) + read-only `/portal/*` view — **built but not deployed live**, no real client account exists.
 
 ## Known Issues
+- `components/hub/PackagePaymentsCard.tsx` still has the old `rounded-full` pill buttons — same fix as the rest of the hub restyle, just not yet done (flagged 2026-07-20, Craig hasn't said whether to include it)
+- Client detail page's "Send email" button greyed out for at least one client Craig tested — likely just that client having no email on file (`DocumentDetailClient.tsx` disables intentionally when `clients.email` is empty), but not confirmed which client or ruled out as a real bug
 - RESEND_API_KEY not set — PDF email is dead until configured
 - ANTHROPIC_API_KEY empty — Claude generation (blocks + updates) falls back to template
 - SMTP/SendGrid backend status for the new document-email feature is unconfirmed as of 2026-07-20 — check `getEmailStatus()` (`lib/email.ts`) before assuming real client emails go out, not just dry-run

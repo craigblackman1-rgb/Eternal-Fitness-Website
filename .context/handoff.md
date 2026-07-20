@@ -510,3 +510,76 @@ it was actually checked.
 
 **Registry**: `infrastructure/.context/active-workorders.md` reflects current status. Work Order
 itself has an updated DONE checklist and a new Lane E documenting today's Craig-directed work.
+
+## Client detail page — full redesign rollout + tab restyle (2026-07-20, later session)
+
+Craig reported UI issues on the client detail page (greyed-out email button, a stray chevron,
+misaligned Snapshot card, and — key discovery — a full mockup he'd forgotten was in the design
+folder). Investigation + implementation ran in two passes.
+
+### What was found
+- **Email button "grey"**: not a bug — `DocumentDetailClient.tsx` disables the send button when
+  `clients.email` is empty, with on-page text explaining it. Not resolved as a code fix; flagged
+  for Craig to check the specific client's record.
+- **Chevron / Snapshot alignment**: real, small issues — collapsible chevron only existed on the
+  Profile tab's "Training Rules" section (`HubSection`'s `CollapsibleSection`); Overview-tab cards
+  had doubled `px-5` padding (once from `HubCard`, once from an inner wrapper div).
+- **The actual design gap**: `D:\apps\design-systems\brand-staging-2662e9\hub-client-detail.html`
+  (found at the folder root, missed by an earlier narrower search of `documents/`/`preview/`/
+  `ui_kits/`) is a complete, explicitly-1:1-modelled redesign of **all six client detail tabs** —
+  Overview, Profile, Compliance, Training, Plan Agent, Updates — plus page header, severity banner,
+  and tab strip. This had not been implemented; Lane E's earlier design-system pass only covered
+  client list/detail/**edit** at a token level, not this full tab-by-tab layout.
+
+### Pass 1 — full layout redesign (commit `2acaf4e`)
+`app/hub/(protected)/clients/[id]/page.tsx` (+358/−291) + `components/hub/HubPageHeader.tsx`
+(widened `title`/`subtitle` to `React.ReactNode`, additive, no callers broken):
+- Page header: avatar-initials circle, client-number chip, `StatusBadge` inline with name, 5-chip
+  key-facts row (Format/Pace/Session/Frequency/Referral) — all wired to real fields.
+- Tab strip: per-tab icons + outstanding-count badges (Compliance = real outstanding count, danger
+  tone on `do_not_train`; Updates = new `draftUpdatesCount` derived from `clientUpdates`).
+- Profile tab: rebuilt from one long collapsible card into card-per-subject (Health spans full
+  width; Baseline/Goals/Logistics/Notes/Training Rules paired) — this also resolves the chevron
+  complaint, since nothing on the page is collapsible anymore.
+- Training tab: block list converted from link-rows to a proper table.
+- Compliance tab: added an info note on how status is derived, referencing the real
+  `lib/compliance.ts`/`lib/hubStatus.ts` logic (not the mockup's fictional note).
+- **Deliberately kept, not flattened**: Compliance/Training/Updates/Plan Agent kept their existing
+  richer components (`DocumentRegister`, `ClinicalComplianceCard`, `GpLetterCard`,
+  `ClientUpdatesPanel`, `PlanAgentTab`) rather than being replaced by the mockup's simpler static
+  tables — those already do more (editable fields, per-row actions, chat UI) than the mock's
+  placeholder example.
+- **Honestly omitted, not fabricated**: mockup's "Photography consent" document row (no real data
+  field) and its separate "Record" rail card (kept the existing Status/Active Block/Quick Actions
+  rail instead, to avoid duplicating the client-number chip already in the header).
+- Verified: `npx tsc --noEmit` and `npm run build` both pass; two pre-existing unrelated errors
+  (`exercise-browser.tsx`, `ClientUpdatesPanel.tsx`) confirmed identical before/after via
+  `git stash`.
+
+### Pass 2 — restyle the four kept-as-is tabs (commit `211f3f7`)
+Craig confirmed after Pass 1 deployed that Compliance/Training/Plan Agent/Updates still looked
+visually old next to the redesigned Overview/Profile. Investigation found their cards, table
+styling, and badge tokens were **already** aligned with the design system (already using
+`HubCard`/`HubCardHeader` with the `color` prop, `StatusBadge`, the same border/hover table
+conventions as the newly-restyled Training tab) — the one real, consistent mismatch was
+**pill-shaped (`rounded-full`) buttons** where the mockup calls for `rounded-lg` (8px), per its own
+explicit comment ("Hub buttons are rounded-lg (8px), NOT the 48px marketing pill").
+Fixed (styling-only, no logic/props changed) in: `components/hub/DocumentRegister.tsx`,
+`components/hub/SendDocumentLink.tsx`, `components/hub/ClinicalComplianceCard.tsx`,
+`components/hub/ClientUpdatesPanel.tsx`, `components/hub/UpdateRowActions.tsx`,
+`app/hub/(protected)/clients/[id]/PlanAgentTab.tsx` (button + chat-header icon radius).
+`components/hub/GpLetterCard.tsx` had nothing to restyle (no bespoke buttons/badges/card wrapper).
+Verified: `npx tsc --noEmit` clean (same two pre-existing errors, confirmed unrelated) + a full
+`npm run build` passed clean.
+
+### Flagged, not done
+- `components/hub/PackagePaymentsCard.tsx` has the same `rounded-full` button pattern as the fixed
+  files but was out of scope for this pass — Craig has not yet said whether to include it.
+- Email-button "greyed out" report still needs Craig to confirm which client he tested with (real
+  missing email vs. a genuine bug in the check).
+
+### Deployed
+Both commits pushed to `origin/main` (`2acaf4e`, then `211f3f7`) with Craig's explicit go-ahead
+each time. Coolify auto-deploys on push to this repo (confirmed via deployment history — both
+commits show `status: finished` within ~3 minutes of push) — live on
+`https://staging.eternal-fitness.co.uk`.
