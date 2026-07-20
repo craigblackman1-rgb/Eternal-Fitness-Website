@@ -12,5 +12,18 @@ export default async function DocumentDetailPage({ params }: { params: { id: str
     .single();
   if (!doc) notFound();
 
-  return <DocumentDetailClient clientNumber={parseInt(params.id)} doc={doc as ClientDocument} />;
+  const { data: client } = await supabase
+    .from("clients")
+    .select("name, email")
+    .eq("id", doc.client_id)
+    .single();
+
+  return (
+    <DocumentDetailClient
+      clientNumber={parseInt(params.id)}
+      doc={doc as ClientDocument}
+      clientName={client?.name ?? null}
+      clientEmail={client?.email ?? null}
+    />
+  );
 }

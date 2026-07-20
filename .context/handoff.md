@@ -425,3 +425,46 @@ No migration, no DB connection, no install, no push. Marketing front-end, `HubSi
 ### Next (manual, Craig)
 Local browser pass on a real client detail + edit screen to confirm tabs, chips, segmented controls,
 and the sticky save bar render as intended; then local review + push.
+
+## Document email sending (2026-07-20)
+
+### What was built
+Client documents can now be emailed to the client with their signing link, plus a manual copy-link
+fallback. Three behaviours per Craig's request:
+1. PRIMARY action = email the client the sign link (first send or resend).
+2. SECONDARY action = copy the sign link (always available) for manual resend via text/WhatsApp.
+3. Once `status` is not `draft`, the primary button flips to "Resend email".
+
+### Files changed / added
+- **`lib/email-templates/document-ready.ts`** (NEW) — `buildDocumentReadyEmail(input)` reuses the
+  existing `buildBrandedUpdateEmail` from `shell.ts` (shell.ts NOT modified). Carries a rose
+  (`#C1839F`) rounded inline-styled CTA button linking to the sign URL, plus a short friendly intro
+  and "what to do / why it matters" sections. Input: `clientName`, `greetingName` (first name),
+  `documentTitle`, `documentKindLabel`, `signUrl`, `senderName`.
+- **`app/api/documents/[id]/route.ts`** — PATCH now supports `action: "send_email"`. Uses
+  `createAdminClient()` (same pattern as the public GET sign route) to read the document's
+  `client_id`, then looks up the client's `name`/`email` from the `clients` table. Builds the email
+  via `buildDocumentReadyEmail`, sends via `getEmailSender().send({ to, subject, html })`, then sets
+  `status → "sent"` and `sent_at → now` (regardless of first send or resend). Returns
+  `{ success: true, dryRun }` so the UI can tell Craig whether a real backend fired. If the client
+  has no email on file, returns **400** with `"No email on file for this client"`.
+- **`app/hub/(protected)/clients/[id]/documents/[docId]/page.tsx`** — now fetches the client's
+  `name`/`email` (second select on `clients` via `doc.client_id`) and passes `clientEmail` to
+  `DocumentDetailClient`.
+- **`app/hub/(protected)/clients/[id]/documents/[docId]/DocumentDetailClient.tsx`** — the "Send to
+  client" card restructured: PRIMARY button "Send email to client" / "Resend email" (disabled with an
+  inline note when `clientEmail` is empty/null), SECONDARY always-available "Copy link". After send,
+  the toast reports a real send vs a dry run so Craig isn't misled when a client reports nothing
+  arrived.
+
+### Design notes / constraints honoured
+- No migration run — reused existing `status` / `sent_at` columns.
+- No direct DB connection outside the app's normal Supabase clients.
+- `shell.ts` untouched — other live emails still depend on it.
+- Marketing front-end and `components/documents/` visual redesign intentionally out of scope.
+
+### Verified
+- `npx tsc --noEmit` — no new type errors in any changed file. (Two pre-existing unrelated errors in
+  `exercise-browser.tsx` and `ClientUpdatesPanel.tsx` remain, untouched.)
+- **No real email was sent during the build.** The live `send_email` action was NOT invoked against
+  any real document; verification was type-check only.
