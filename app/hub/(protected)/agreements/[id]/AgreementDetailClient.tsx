@@ -71,10 +71,6 @@ interface AgreementData {
 
 export default function AgreementDetailClient({ agreement, clientNumber }: { agreement: AgreementData; clientNumber: number | null }) {
   const [data, setData] = useState<AgreementData>(agreement);
-  const [editingTrainer, setEditingTrainer] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [saveSuccess, setSaveSuccess] = useState(false);
   const [emailing, setEmailing] = useState(false);
   const [emailStatus, setEmailStatus] = useState<"idle" | "success" | "error">("idle");
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -92,28 +88,6 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
   const [parqLoaded, setParqLoaded] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
 
-  const [trainerForm, setTrainerForm] = useState({
-    trainerNotes: data.trainer_notes || "",
-    packageType: data.package_type || "",
-    sessionsPurchased: data.sessions_purchased || "",
-    sessionDuration: data.session_duration || 60,
-    paymentMethod: data.payment_method || "",
-    paymentStatus: data.payment_status || "pending",
-    sessionsUsed: data.sessions_used || 0,
-    sessionsRemaining: data.sessions_remaining ?? (data.sessions_purchased || 0),
-    blockExpiryDate: data.block_expiry_date || "",
-    medicalClearanceStatus: data.medical_clearance_status || "not_required",
-    gpLetterRequestedDate: data.gp_letter_requested_date || "",
-    gpLetterReceivedDate: data.gp_letter_received_date || "",
-    annualReviewDueDate: data.annual_review_due_date || "",
-    trainerObservations: data.trainer_observations || "",
-    riskLevel: data.risk_level || "low",
-    exerciseModifications: data.exercise_modifications || "",
-    watchFor: data.watch_for || "",
-    referralSource: data.referral_source || "",
-    clientStatus: data.client_status || "active",
-  });
-
   const formatDate = (date: string | null) => {
     if (!date) return "Not provided";
     return new Date(date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -122,49 +96,6 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
   const formatDateShort = (date: string | null) => {
     if (!date) return "—";
     return new Date(date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-  };
-
-  const handleTrainerChange = (field: string, value: string | number) => {
-    setTrainerForm((prev) => {
-      const next = { ...prev, [field]: value };
-      if (field === "sessionsUsed" && typeof value === "number") {
-        const purchased = parseInt(String(next.sessionsPurchased)) || 0;
-        next.sessionsRemaining = Math.max(0, purchased - value);
-      }
-      if (field === "sessionsPurchased" && typeof value === "number") {
-        next.sessionsRemaining = Math.max(0, value - next.sessionsUsed);
-      }
-      return next;
-    });
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    setSaveError(null);
-    setSaveSuccess(false);
-
-    try {
-      const response = await fetch(`/api/agreements/${data.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(trainerForm),
-      });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || "Failed to save");
-      }
-
-      const updated = await response.json();
-      setData((prev) => ({ ...prev, ...updated }));
-      setEditingTrainer(false);
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (err) {
-      setSaveError(err instanceof Error ? err.message : "Something went wrong");
-    } finally {
-      setSaving(false);
-    }
   };
 
   const handlePrint = () => {
@@ -393,20 +324,6 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
           </Badge>
         )}
       </div>
-
-      {/* Save feedback */}
-      {saveSuccess && (
-        <div className="bg-green-50 border border-green-200 rounded-md p-3 flex items-center gap-2">
-          <IconCheckCircle className="w-4 h-4 text-green-600" />
-          <p className="text-sm text-green-800">Trainer information saved successfully</p>
-        </div>
-      )}
-      {saveError && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-3 flex items-center gap-2">
-          <IconAlertCircle className="w-4 h-4 text-red-600" />
-          <p className="text-sm text-red-800">{saveError}</p>
-        </div>
-      )}
 
       {/* Email feedback */}
       {emailStatus === "success" && (

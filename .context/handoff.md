@@ -1,5 +1,39 @@
 # Handoff
 
+## Session 2026-07-21 (actually final) — Fixed the signed_agreements/clients duplication, instead of just flagging it
+
+Craig: "can we fix this issue now rather than leaving it, otherwise it will get forgotten about" — fair,
+so did it immediately rather than leaving the background task queued.
+
+### What was actually there
+Investigated properly before touching anything. The dangerous part (Esther able to edit
+package/payment/clinical fields on the Agreement page, silently diverging from what `PackagePaymentsCard`/
+`ClinicalComplianceCard` show on the live client page) turned out to have **already been half-fixed** by
+an earlier session — the "Client Management" section of `AgreementDetailClient.tsx` is already
+read-only, with a banner: "Package, payments and compliance are managed on the client profile... edit
+the live values on the profile." Good instinct, incomplete execution: the actual edit machinery behind
+it — `editingTrainer`/`trainerForm`/`handleTrainerChange`/`handleSave` state, and the entire
+`PATCH /api/agreements/[id]` route it called — was still sitting there, fully wired, just with no
+button left in the UI to trigger it. Confirmed via grep: zero call sites for any of it outside its own
+declarations.
+
+### What was fixed
+- Removed the dead `editingTrainer`, `trainerForm`, `handleTrainerChange`, `handleSave` state/logic and
+  the "Trainer information saved" success/error banner JSX from `AgreementDetailClient.tsx` (never
+  reachable, never rendered any trigger).
+- Deleted `app/api/agreements/[id]/route.ts` entirely — its only handler (PATCH) wrote exactly the
+  fields that duplicate `clients`, and nothing else in the app called it (confirmed via grep before
+  deleting). `app/api/agreements/[id]/email/route.tsx` (a sibling file, different concern — the PDF
+  email) is untouched.
+- This closes the actual risk: there is no longer any code path, dead or live, that can write
+  package/payment/clinical data to `signed_agreements` and have it diverge from `clients`. The read-only
+  display + banner (already in place) still shows the historical snapshot for old records, correctly
+  labelled as a snapshot rather than something editable here.
+
+### Verified
+`rm -rf .next && npx tsc --noEmit` clean (the first run hit two stale-cache errors referencing the
+just-deleted route from `.next/types` — not real errors, cleared by removing `.next`).
+
 ## Session 2026-07-21 (truly final) — Agreement migrated too; every document type now hub-only
 
 Immediately followed the PAR-Q migration with Agreement, per Craig's "migrate that too."
