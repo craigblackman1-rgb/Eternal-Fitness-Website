@@ -4,11 +4,9 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HubCard, HubCardHeader } from "@/components/hub";
-import { SendDocumentLink } from "@/components/hub/SendDocumentLink";
 import { IconChevronLeft, IconFileText, IconTriangleAlert, IconPencil } from "@/components/icons";
 import { parqSections } from "@/lib/parq-data";
 import { diffParq } from "@/lib/parq-diff";
-import { mintParqLinkParams } from "@/lib/parq-link";
 import type { SignedPARQ } from "@/types";
 
 function formatDate(value: string | null) {
@@ -150,7 +148,6 @@ export default async function ParqHistoryPage({ params }: { params: { id: string
   const active = rows.filter((r) => r.status !== "superseded");
   const latest = active[0] ?? rows[0] ?? null;
   const earlier = rows.filter((r) => r.id !== latest?.id);
-  const parqLink = latest ? mintParqLinkParams(latest.id) : null;
 
   return (
     <div className="space-y-5">
@@ -161,12 +158,11 @@ export default async function ParqHistoryPage({ params }: { params: { id: string
         </Link>
         <div className="flex items-start gap-3.5">
           <div className="flex-1">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">PAR-Q</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">PAR-Q (legacy record)</h1>
             <p className="text-muted-foreground text-sm mt-1">{client.name}</p>
           </div>
           {latest && (
             <div className="flex items-center gap-2 shrink-0">
-              <SendDocumentLink path="/parq" clientNumber={client.client_number} label="Send update" existingId={latest.id} exp={parqLink?.exp} sig={parqLink?.sig} clientEmail={client.email} />
               <Link
                 href={`/hub/clients/${client.client_number}/parq/${latest.id}/edit`}
                 className="inline-flex items-center gap-1.5"
@@ -179,6 +175,13 @@ export default async function ParqHistoryPage({ params }: { params: { id: string
             </div>
           )}
         </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          New and updated PAR-Qs are now sent from the client&apos;s{" "}
+          <Link href={`/hub/clients/${client.client_number}/documents`} className="text-teal font-medium hover:underline">
+            Documents
+          </Link>{" "}
+          tab — this page shows the pre-migration record for reference.
+        </p>
       </div>
 
       {!latest ? (

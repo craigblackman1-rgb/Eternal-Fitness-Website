@@ -1,4 +1,4 @@
-export type DocumentKind = "terms" | "risk_assessment" | "annual_review" | "consent" | "feedback";
+export type DocumentKind = "terms" | "risk_assessment" | "annual_review" | "consent" | "feedback" | "parq";
 
 export type DocumentStatus = "draft" | "sent" | "signed" | "superseded";
 
@@ -20,6 +20,8 @@ export interface FeedbackQuestion {
   label: string;
   /** Required for type "choice" — rendered as a radio group. */
   options?: { value: string; label: string }[];
+  /** Clinical/explanatory note shown under the question (e.g. "If yes, give details in Section 5") — used by PAR-Q. */
+  note?: string;
 }
 
 export interface FeedbackSection {
@@ -92,6 +94,7 @@ export const DOCUMENT_KIND_LABEL: Record<DocumentKind, string> = {
   annual_review: "Annual Review",
   consent: "Consent",
   feedback: "Client Feedback",
+  parq: "PAR-Q",
 };
 
 /** Whether every required signature is present — used to decide "signed" status. */

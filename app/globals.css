@@ -742,6 +742,13 @@
   max-width: 60ch;
   margin: 0;
 }
+.q__note {
+  flex-basis: 100%;
+  font-size: 0.88em;
+  color: color-mix(in oklch, var(--color-ink) 70%, transparent);
+  margin: 4px 0 0;
+  max-width: 60ch;
+}
 .q__answer { display: flex; flex-wrap: wrap; gap: 8px; flex: none; }
 .pick { position: relative; }
 .pick input {

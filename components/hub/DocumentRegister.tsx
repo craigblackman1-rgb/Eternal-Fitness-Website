@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { StatusBadge } from "@/components/hub/StatusBadge";
-import { SendDocumentLink } from "@/components/hub/SendDocumentLink";
-import { IconFileText, IconFileSignature, IconPlus } from "@/components/icons";
+import { IconFileSignature, IconPlus } from "@/components/icons";
 import { DOCUMENT_KIND_LABEL, type DocumentKind } from "@/lib/documents/types";
-import { mintParqLinkParams } from "@/lib/parq-link";
-import type { SignedAgreement, SignedPARQ } from "@/types";
+import type { SignedAgreement } from "@/types";
 
 interface RegisterDocument {
   id: string;
@@ -20,10 +18,8 @@ interface RegisterDocument {
 
 interface DocumentRegisterProps {
   clientNumber: number;
-  parqs: SignedPARQ[];
   agreements: SignedAgreement[];
   documents?: RegisterDocument[];
-  clientEmail?: string | null;
 }
 
 function formatDate(value: string | null) {
@@ -52,24 +48,8 @@ type Row = {
   icon: React.ReactNode;
 };
 
-export function DocumentRegister({ clientNumber, parqs, agreements, documents = [], clientEmail }: DocumentRegisterProps) {
-  // Latest PAR-Q on file (parqs arrive newest-first). If one exists, "Send PAR-Q"
-  // links the client to their existing document to update it, not a blank form.
-  const latestParqId = parqs[0]?.id;
-  const parqLink = latestParqId ? mintParqLinkParams(latestParqId) : null;
+export function DocumentRegister({ clientNumber, agreements, documents = [] }: DocumentRegisterProps) {
   const rows: Row[] = [
-    ...parqs.map((p) => ({
-      key: `parq-${p.id}`,
-      label: "PAR-Q",
-      status: p.status,
-      date: docDate(p.status, p.sent_date, p.received_date, p.signed_at, p.created_at),
-      version: p.version ?? 1,
-      updatedAt: p.updated_at || p.created_at,
-      updatedBy: p.client_name_print || p.client_typed_signature || p.full_name || "—",
-      href: `/hub/clients/${clientNumber}/parq`,
-      editHref: `/hub/clients/${clientNumber}/parq/${p.id}/edit`,
-      icon: <IconFileText className="h-4 w-4 text-muted-foreground" />,
-    })),
     ...agreements.map((a) => ({
       key: `agreement-${a.id}`,
       label: "Personal Training Agreement",
@@ -99,28 +79,17 @@ export function DocumentRegister({ clientNumber, parqs, agreements, documents = 
     <div>
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs text-muted-foreground">Document register</span>
-        <div className="flex items-center gap-2">
-          <SendDocumentLink
-            path="/parq"
-            clientNumber={clientNumber}
-            label={latestParqId ? "Send PAR-Q update" : "Send PAR-Q"}
-            existingId={latestParqId}
-            exp={parqLink?.exp}
-            sig={parqLink?.sig}
-            clientEmail={clientEmail}
-          />
-          <Link
-            href={`/hub/clients/${clientNumber}/documents`}
-            className="inline-flex items-center gap-1 rounded-lg bg-rose px-2.5 h-7 text-xs font-medium text-white hover:bg-rose/90"
-          >
-            <IconPlus className="h-3 w-3" />
-            New document
-          </Link>
-        </div>
+        <Link
+          href={`/hub/clients/${clientNumber}/documents`}
+          className="inline-flex items-center gap-1 rounded-lg bg-rose px-2.5 h-7 text-xs font-medium text-white hover:bg-rose/90"
+        >
+          <IconPlus className="h-3 w-3" />
+          New document
+        </Link>
       </div>
 
       {rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-2">No documents on file yet — create one with &ldquo;New document&rdquo; or send a PAR-Q.</p>
+        <p className="text-sm text-muted-foreground py-2">No documents on file yet — create one with &ldquo;New document&rdquo;.</p>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-[var(--hub-border)]">
           <table className="w-full text-sm">

@@ -116,6 +116,7 @@ function FeedbackSectionsView({
                   <p className="q__legend" id={`fb-q-${q.id}-t`}>
                     {q.label}
                   </p>
+                  {q.note && <p className="q__note">{q.note}</p>}
                   <div className="q__answer">
                     {q.options?.map((opt) => (
                       <label key={opt.value} className="pick">

@@ -147,9 +147,10 @@ export function DocumentDetailClient({ clientNumber, doc, clientName, clientEmai
         </CardContent>
       </Card>
 
-      {/* Feedback responses — the "feedback" kind has no client_signature-style content to
-          review elsewhere, so this is the only place Esther can read what the client sent. */}
-      {doc.kind === "feedback" && doc.feedback_responses && (
+      {/* Questionnaire responses — any kind built on the feedbackSections schema
+          (feedback, parq) has no other place for Esther to read what the client
+          answered, so this is generic on body shape, not hardcoded to one kind. */}
+      {!!doc.body.feedbackSections?.length && doc.feedback_responses && (
         <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
           <CardHeader><CardTitle>Responses</CardTitle></CardHeader>
           <CardContent className="space-y-5">

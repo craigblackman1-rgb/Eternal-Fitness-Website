@@ -30,7 +30,11 @@ export function DocumentSignClient({ doc }: { doc: ClientDocument }) {
   const [done, setDone] = useState(doc.status === "signed" && !!doc.client_signature);
   const [error, setError] = useState<string | null>(null);
 
+  // Only "feedback" skips a real signature — a survey, not an attestation. PAR-Q
+  // uses questions from the same feedbackSections schema but is still a signed
+  // clinical declaration, so it stays on the full name+date+signature+agree flow.
   const isFeedback = doc.kind === "feedback";
+  const hasQuestionnaire = !!doc.body.feedbackSections?.length;
   const alreadySigned = doc.client_signature && doc.client_signed_date;
   const hasConsentGroups = !!doc.body.consentGroups?.length;
 
@@ -62,7 +66,7 @@ export function DocumentSignClient({ doc }: { doc: ClientDocument }) {
         date,
       };
       if (hasConsentGroups) body.consent_choices = consentChoices;
-      if (isFeedback) body.feedback_responses = { answers: feedbackAnswers, consents: feedbackConsentChoices };
+      if (hasQuestionnaire) body.feedback_responses = { answers: feedbackAnswers, consents: feedbackConsentChoices };
       const res = await fetch(`/api/documents/${doc.id}/sign`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

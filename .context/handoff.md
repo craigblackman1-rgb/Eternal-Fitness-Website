@@ -1,5 +1,69 @@
 # Handoff
 
+## Session 2026-07-21 (final) — PAR-Q migrated onto the document engine; standalone-send buttons retired
+
+Craig's ask, in his own words: "we just need to have the same mechanism to send any document or
+template going forward so they won't ever be web facing... always from the hub." He confirmed PAR-Q
+and the standalone Agreement page were both quick wins built before the hub existed — PAR-Q now gets
+the full treatment; Agreement is scoped but deliberately NOT touched this session (see below).
+
+### What changed
+- **Generalized the interactive-questionnaire schema.** `FeedbackQuestion` gained an optional `note`
+  field (clinical context like "If yes, give details in Section 5") so the same
+  `feedbackSections`/`feedbackConsents` schema built for the Feedback Questionnaire could carry PAR-Q's
+  29 real clinical questions verbatim from `lib/parq-data.ts`, plus personal/GP/detail fields as `text`
+  questions. `DocumentKind` gained `'parq'`.
+- **New PAR-Q document template** (`supabase/migrations/20260721_seed_parq_template.sql`) — real
+  interactive radio-group/text fields, not the earlier Lane C plan's raw-HTML-table body. That plan is
+  superseded; `scripts/migrate-parq-to-engine.mjs` was rewritten to target this new schema instead
+  (its file header still documents the field mapping).
+- **PAR-Q stays a real signed clinical declaration** — unlike the Feedback kind (survey, name-only), a
+  `doc.kind === "feedback"` check (not "has feedbackSections") gates the simplified sign flow, so PAR-Q
+  keeps the full name+date+typed-signature+"I agree" flow, matching what `ParqEditClient.tsx` already
+  required.
+- **Esther's "Responses" card generalized** — was hardcoded to `kind === "feedback"`, now keys off
+  `body.feedbackSections` presence so it renders PAR-Q answers too, with proper labels (not raw
+  `q1`/`full_name` keys) since the template supplies them.
+- **Migration run against prod, verified** (Craig's go-ahead, this session): 17/17 `signed_parq` rows
+  snapshotted into `client_documents` (kind='parq'). Spot-checked 3 real clients (Colin Farley — a real
+  "yes" answer and free-text conditions field, Sarah Tyler, Craig Blackman) — every field byte-matches
+  the legacy row. Clearance-status side effect re-derived idempotently, matching pre-migration state.
+  **No legacy `signed_parq` row was touched, updated, or deleted** — this is a pure additive snapshot;
+  retiring the old table is a separate, later, explicitly-gated step once more time has passed.
+- **Removed the mechanisms that generated new public-page links**: `SendDocumentLink.tsx` (the
+  "Send PAR-Q"/"Send PAR-Q update" buttons on the client detail page and the dedicated PAR-Q history
+  page) and `app/api/parq/send-email/route.ts` (built two sessions ago specifically to fix PAR-Q's
+  broken email button — now superseded, not wasted, by the document engine's own send/resend, which
+  every other kind already uses). `DocumentRegister.tsx` no longer reads `signed_parq` directly at all
+  — PAR-Q data (old and new) now flows through the same generic `client_documents` rows as every other
+  kind, so it no longer double-lists PAR-Q entries post-migration.
+- **The dedicated PAR-Q history page** (`/hub/clients/[id]/parq`) is kept, relabelled "PAR-Q (legacy
+  record)", with a note pointing to the client's Documents tab for anything new — not deleted, since
+  it's still the only place to read pre-migration free-text/diff history, and deleting working code
+  without a reason isn't the move.
+- **`NewDocumentButton.tsx`** now offers "PAR-Q" alongside every other kind — Esther picks it, hits
+  send, done, exactly like Terms/Consent/Feedback.
+
+### Deliberately NOT done this session
+- **Agreement (`/agreement`, `signed_agreements`) — not migrated.** No schema mapping exists yet (unlike
+  PAR-Q, which had a head start from Lane C). It also needs to keep the PDF-attachment email, which
+  only got fixed to a working backend two sessions ago. This is real, separate scope — flagged for next
+  session, not silently skipped.
+- **`/parq` (blank first-submission form) and `/parq/edit/[id]` are NOT deleted.** Nothing links to them
+  anymore (no new client will ever be sent one), but any already-outstanding link from before this
+  session (7-day TTL) will still resolve correctly rather than 404 on a client mid-form. Safe to fully
+  retire once enough time has passed that no live links remain — a later, low-risk cleanup.
+- **The hub's admin PAR-Q edit page** (`/hub/clients/[id]/parq/[parqId]/edit`, `signed_parq`-backed) and
+  the `tracker`/compliance-tab code paths that also read `signed_parq` directly were left completely
+  untouched — those are safety-critical (medical clearance tracking) and reviewing/repointing all of
+  them properly is its own scoped pass, not something to sweep up as a side effect of this one.
+
+### Verified
+`npx tsc --noEmit` clean. `npm run build` compiles successfully (fails only at the known pre-existing
+Windows/OneDrive symlink trace step, confirmed unrelated — same failure exists on unmodified code).
+Not live-browser-verified (no hub credentials this session) — a real click-through sending/signing a
+new PAR-Q from the hub is worth doing before fully trusting this.
+
 ## Session 2026-07-21 (latest) — New "Client Feedback Questionnaire" document type (local, NOT pushed, migrations NOT run)
 
 Added a 5th document-engine kind, `feedback`, matching `D:\apps\design-systems\brand-staging-2662e9\documents\client-feedback-questionnaire.html` verbatim in content. Unlike terms/risk_assessment/annual_review/consent, this isn't a legally-signed document — it's a survey (free-text + radio-choice questions + two optional consent checkboxes about using the client's words publicly), so "submitting" it just needs the client's typed name to identify the response, not a real signature/agree checkbox.
