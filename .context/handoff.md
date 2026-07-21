@@ -1,5 +1,57 @@
 # Handoff
 
+## Session close — 2026-07-21
+
+Long session, mostly reactive (Craig using what got built earlier the same day and reporting real
+gaps as he hit them). Everything below is pushed to `origin/main` and confirmed deployed
+(`running:healthy` via the Coolify MCP, not a self-report) unless noted. Full detail for each item is
+in its own entry above — this is the map for whoever picks this up next.
+
+**Shipped and live, in order:**
+1. Real "email a document" capability added to PAR-Q specifically (it was copy-link-only) — later
+   superseded (see #4).
+2. Resend enabled for 6-week/4-week update emails (previously blocked outright once sent) and for
+   Agreements (real backend was dead, wired to an unconfigured `RESEND_API_KEY`; `lib/email.ts` gained
+   attachment support so the PDF still works).
+3. Full mockup-alignment pass (Lane H) across the hub's list/editor pages — most already matched from
+   earlier sessions (verified, not assumed); real fixes on All Documents, Site Content list/editor.
+4. New "Client Feedback Questionnaire" document kind, then PAR-Q and Personal Training Agreement both
+   migrated onto the same document engine — every document kind (Terms/Agreement, Risk Assessment,
+   Annual Review, Consent, Feedback, PAR-Q) now shares one send/resend mechanism from the hub. Nothing
+   generates a fresh standalone public-page link anymore (the old `/parq`, `/parq/edit/[id]`,
+   `/agreement` pages are left in place, just unlinked — a safety net for pre-migration links, not
+   deleted). Found and fixed a real, separate data-integrity bug along the way (Agreement page's dead
+   package/payment edit path duplicating the client page's own).
+5. Inline Send/Resend/Copy-link/Delete added to every document list (previously only inside each
+   document); update-email section headers made editable for the templates Esther actually uses (a
+   real fix for this existed already, just shipped as a non-default option); a stale `/hub/templates`
+   card still linking to the retired PAR-Q form removed; document-ready email spacing fixed.
+6. **The real bug**: a second, undiscovered "Create & send" button on the Templates page was faking
+   sends entirely (marked "sent" with no email ever attempted). Found via real data (a 36ms
+   created→sent gap, physically too fast for a real send), not by re-checking the same code path
+   again. Fixed at the source and the fake-send branch deleted from the API so it can't recur from
+   anywhere else. Added `client_documents.emailed` (mirroring `sent_updates.emailed`, which had
+   already solved this exact problem for update emails) so status and real delivery are never
+   conflated again.
+
+**Not started / explicitly deferred:**
+- Whether the SendGrid/SMTP backend is actually functioning in production is still unconfirmed — needs
+  a real test send via the hub UI (or Craig checking the SendGrid dashboard), not something checkable
+  without live credentials.
+- `tracker`/compliance-tab code still reads the legacy `signed_parq` table directly — deliberately not
+  touched, since it's medical-clearance-critical and deserves its own reviewed pass.
+- The client-edit page's missing right rail/clearance banner, `ProcessQualityManager.tsx`'s badge-markup
+  dedup, and the `hub-sop.html`/All-Documents mockup mismatch — all flagged as background-task
+  suggestions during the session, not actioned.
+- 5 of 8 exercise-for-health condition pages, production domain cutover, client data consolidation from
+  Trainerize — all still open from before this session, untouched.
+
+**Process note:** three real, distinct bugs were found this session by checking real data (DB queries,
+timestamps) rather than re-trusting a prior code read — the PAR-Q signed-link signature bug, the
+36ms-send-gap that led to the `emailed` flag, and the templates-page fake-send button underneath it.
+Worth remembering for next time something "still doesn't work" after a fix: check what actually happened
+in the data before re-explaining the same analysis.
+
 ## Session 2026-07-21 (the actual root cause) — a second, undiscovered "send" path was faking it
 
 Craig came back with the same screenshot after the `emailed`-flag fix deployed — the document still
