@@ -78,6 +78,17 @@
     --status-neutral-bg: #D9D9D9;
     --status-neutral-border: rgba(82, 90, 97, 0.20);
 
+    /* Badge text only — darker than --status-*, needed to clear WCAG AA 4.5:1
+       text contrast against the pastel badge backgrounds above (the base
+       --status-* hues only clear the 3:1 non-text threshold used for icons/
+       borders elsewhere; found failing at 2.5–4.2:1 in a live WCAG check
+       2026-07-21, primary/warning/success all affected). Same hue/saturation
+       as --status-*, lightness reduced until contrast >= 4.5:1 on both the
+       tinted-on-canvas and tinted-on-card badge backgrounds. */
+    --status-primary-text: #9E4F73;
+    --status-success-text: #07717D;
+    --status-warning-text: #83672E;
+
     /* Solid variants — alert banners and high-urgency badges only */
     --status-danger-solid: #7A3D52;
     --status-danger-solid-fg: #FFFFFF;

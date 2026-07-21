@@ -11,7 +11,7 @@ export default function robots(): MetadataRoute.Robots {
     return { rules: { userAgent: "*", disallow: "/" } };
   }
 
-  const disallow = ["/api/", "/hub/", "/parq", "/agreement", "/documents/"];
+  const disallow = ["/api/", "/hub/", "/portal/", "/parq", "/agreement", "/documents/"];
 
   return {
     rules: [

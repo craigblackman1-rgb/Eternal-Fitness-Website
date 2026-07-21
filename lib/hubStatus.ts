@@ -13,20 +13,23 @@ export interface StatusLookup {
   label: string;
 }
 
+// Text uses the darker --status-*-text variant where one exists — the base
+// --status-* hue only clears the 3:1 non-text threshold (fine for icons/
+// borders), not the 4.5:1 text threshold badge labels need. See globals.css.
 const statusClassMap: Record<StatusToken, StatusClasses> = {
   primary: {
     bg: "bg-[var(--status-primary-bg)]",
-    text: "text-[var(--status-primary)]",
+    text: "text-[var(--status-primary-text)]",
     border: "border-[var(--status-primary-border)]",
   },
   success: {
     bg: "bg-[var(--status-success-bg)]",
-    text: "text-[var(--status-success)]",
+    text: "text-[var(--status-success-text)]",
     border: "border-[var(--status-success-border)]",
   },
   warning: {
     bg: "bg-[var(--status-warning-bg)]",
-    text: "text-[var(--status-warning)]",
+    text: "text-[var(--status-warning-text)]",
     border: "border-[var(--status-warning-border)]",
   },
   danger: {
