@@ -147,6 +147,44 @@ export function DocumentDetailClient({ clientNumber, doc, clientName, clientEmai
         </CardContent>
       </Card>
 
+      {/* Feedback responses — the "feedback" kind has no client_signature-style content to
+          review elsewhere, so this is the only place Esther can read what the client sent. */}
+      {doc.kind === "feedback" && doc.feedback_responses && (
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
+          <CardHeader><CardTitle>Responses</CardTitle></CardHeader>
+          <CardContent className="space-y-5">
+            {(doc.body.feedbackSections ?? []).map((s) => (
+              <div key={s.id} className="space-y-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{s.title}</p>
+                {s.questions.map((q) => {
+                  const raw = (doc.feedback_responses?.answers as Record<string, string> | undefined)?.[q.id];
+                  const answer = q.type === "choice" ? q.options?.find((o) => o.value === raw)?.label ?? raw : raw;
+                  return (
+                    <div key={q.id} className="rounded-lg border border-[var(--hub-border)] bg-background p-3">
+                      <p className="text-xs text-muted-foreground mb-1">{q.label}</p>
+                      <p className="text-sm text-foreground whitespace-pre-wrap">{answer || <span className="text-muted-foreground italic">Not answered</span>}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+            {(doc.body.feedbackConsents ?? []).length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Permissions</p>
+                {(doc.body.feedbackConsents ?? []).map((c) => {
+                  const checked = !!(doc.feedback_responses?.consents as Record<string, boolean> | undefined)?.[c.id];
+                  return (
+                    <p key={c.id} className="text-sm text-foreground">
+                      {checked ? "✓" : "✗"} {c.label}
+                    </p>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Signatures */}
       <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
         <CardHeader><CardTitle>Signatures</CardTitle></CardHeader>

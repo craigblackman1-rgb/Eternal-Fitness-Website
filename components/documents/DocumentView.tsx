@@ -8,6 +8,7 @@ const KIND_EYEBROW: Record<DocumentKind, string> = {
   risk_assessment: "Client document 02",
   annual_review: "Client document 03",
   consent: "Client document 05",
+  feedback: "Client document 06",
 };
 
 const KIND_REFERENCE: Record<DocumentKind, string> = {
@@ -15,6 +16,7 @@ const KIND_REFERENCE: Record<DocumentKind, string> = {
   risk_assessment: "EF-RISK-2026",
   annual_review: "EF-REVIEW-2026",
   consent: "EF-CONSENT-2026",
+  feedback: "EF-FEEDBACK-2026",
 };
 
 function EfLogo() {
@@ -49,6 +51,10 @@ export function DocumentView({
   children,
   consentChoices,
   onConsentChange,
+  feedbackAnswers,
+  onFeedbackAnswerChange,
+  feedbackConsentChoices,
+  onFeedbackConsentChange,
 }: {
   doc: ClientDocument;
   showToolbar?: boolean;
@@ -58,6 +64,11 @@ export function DocumentView({
   /** Live consent state + handler, so the embedded consent groups are interactive. */
   consentChoices?: Record<string, boolean>;
   onConsentChange?: (key: string, value: boolean) => void;
+  /** Live feedback questionnaire state + handlers (the "feedback" kind). */
+  feedbackAnswers?: Record<string, string>;
+  onFeedbackAnswerChange?: (id: string, value: string) => void;
+  feedbackConsentChoices?: Record<string, boolean>;
+  onFeedbackConsentChange?: (id: string, value: boolean) => void;
 }) {
   const eyebrow = KIND_EYEBROW[doc.kind];
   const reference = KIND_REFERENCE[doc.kind];
@@ -112,6 +123,10 @@ export function DocumentView({
             body={doc.body}
             consentChoices={consentChoices}
             onConsentChange={onConsentChange}
+            feedbackAnswers={feedbackAnswers}
+            onFeedbackAnswerChange={onFeedbackAnswerChange}
+            feedbackConsentChoices={feedbackConsentChoices}
+            onFeedbackConsentChange={onFeedbackConsentChange}
           />
 
           {signSlot && (

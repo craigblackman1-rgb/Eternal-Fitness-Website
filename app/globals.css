@@ -688,6 +688,11 @@
 :root[data-contrast="high"] .doc-note { background: #ffffff; }
 
 /* ----- Fields ----- */
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
 .field { min-width: 0; }
 .field--full { grid-column: 1 / -1; }
 .field__label {
@@ -697,7 +702,7 @@
   color: var(--color-ink);
   margin-bottom: 8px;
 }
-.input {
+.input, .textarea {
   display: block;
   width: 100%;
   min-height: 52px;
@@ -712,9 +717,60 @@
   border-radius: 10px 10px 0 0;
   transition: background-color 150ms ease, border-color 150ms ease;
 }
-.input:hover { border-bottom-color: var(--color-ink); }
-.input:focus { background: #fff; }
-:root[data-contrast="high"] .input { background: #ffffff; }
+.textarea { min-height: 120px; resize: vertical; padding-top: 12px; border-radius: 10px; }
+.input:hover, .textarea:hover { border-bottom-color: var(--color-ink); }
+.input:focus, .textarea:focus { background: #fff; }
+:root[data-contrast="high"] .input, :root[data-contrast="high"] .textarea { background: #ffffff; }
+
+/* ----- Radio-pill questions (feedback questionnaires) ----- */
+.q {
+  border: 1px solid var(--color-border-warm);
+  border-radius: 10px;
+  background: #fff;
+  padding: 16px 20px;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 16px;
+}
+.q + .q { margin-top: 16px; }
+.q__legend {
+  font-weight: 500;
+  color: var(--color-ink);
+  max-width: 60ch;
+  margin: 0;
+}
+.q__answer { display: flex; flex-wrap: wrap; gap: 8px; flex: none; }
+.pick { position: relative; }
+.pick input {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.pick span {
+  display: grid;
+  place-items: center;
+  min-width: 76px;
+  min-height: 48px;
+  padding: 0 16px;
+  font-weight: 700;
+  font-size: 1em;
+  color: var(--color-ink);
+  background: #fff;
+  border: 2px solid color-mix(in oklch, var(--color-ink) 58%, #fff);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+.pick input:hover + span { border-color: var(--color-ink); background: color-mix(in oklch, var(--color-warm) 62%, #fff); }
+.pick input:checked + span { background: var(--color-ink); border-color: var(--color-ink); color: #fff; }
+.pick input:focus-visible + span { outline: 3px solid var(--color-ink); outline-offset: 2px; box-shadow: 0 0 0 6px var(--color-rose); }
+:root[data-contrast="high"] .q { background: #ffffff; }
 
 /* ----- Agree checkbox ----- */
 .doc-agree {

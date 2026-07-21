@@ -20,31 +20,49 @@ export function DocumentSignClient({ doc }: { doc: ClientDocument }) {
   const [consentChoices, setConsentChoices] = useState<Record<string, boolean>>(
     doc.consent_choices ?? {},
   );
+  const [feedbackAnswers, setFeedbackAnswers] = useState<Record<string, string>>(
+    (doc.feedback_responses?.answers as Record<string, string>) ?? {},
+  );
+  const [feedbackConsentChoices, setFeedbackConsentChoices] = useState<Record<string, boolean>>(
+    (doc.feedback_responses?.consents as Record<string, boolean>) ?? {},
+  );
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(doc.status === "signed" && !!doc.client_signature);
   const [error, setError] = useState<string | null>(null);
 
+  const isFeedback = doc.kind === "feedback";
   const alreadySigned = doc.client_signature && doc.client_signed_date;
   const hasConsentGroups = !!doc.body.consentGroups?.length;
 
   const onConsentChange = (key: string, value: boolean) => {
     setConsentChoices((prev) => ({ ...prev, [key]: value }));
   };
+  const onFeedbackAnswerChange = (id: string, value: string) => {
+    setFeedbackAnswers((prev) => ({ ...prev, [id]: value }));
+  };
+  const onFeedbackConsentChange = (id: string, value: boolean) => {
+    setFeedbackConsentChoices((prev) => ({ ...prev, [id]: value }));
+  };
 
   const submit = async () => {
     setError(null);
-    if (!name.trim()) return setError("Please enter your full name.");
-    if (!signature.trim()) return setError("Please type your name as your signature.");
-    if (!agreed) return setError("Please confirm you have read and agree to this document.");
+    if (!name.trim()) return setError(isFeedback ? "Please enter your name." : "Please enter your full name.");
+    // A feedback questionnaire isn't a legal signature — the name alone identifies
+    // the response, so the separate "type your signature"/"I agree" checks don't apply.
+    if (!isFeedback) {
+      if (!signature.trim()) return setError("Please type your name as your signature.");
+      if (!agreed) return setError("Please confirm you have read and agree to this document.");
+    }
     setSubmitting(true);
     try {
       const body: Record<string, unknown> = {
         role: "client",
         name: name.trim(),
-        signature: signature.trim(),
+        signature: isFeedback ? name.trim() : signature.trim(),
         date,
       };
       if (hasConsentGroups) body.consent_choices = consentChoices;
+      if (isFeedback) body.feedback_responses = { answers: feedbackAnswers, consents: feedbackConsentChoices };
       const res = await fetch(`/api/documents/${doc.id}/sign`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -68,16 +86,58 @@ export function DocumentSignClient({ doc }: { doc: ClientDocument }) {
           <div className="doc-signed-check">
             <CheckIcon />
           </div>
-          <h2 className="doc-signed-title">Signed — thank you</h2>
+          <h2 className="doc-signed-title">{isFeedback ? "Thank you" : "Signed — thank you"}</h2>
           <p className="doc-signed-copy">
-            Your signature has been recorded. Esther has a copy on file.
+            {isFeedback
+              ? "Your feedback has been recorded. Esther has a copy on file."
+              : "Your signature has been recorded. Esther has a copy on file."}
           </p>
         </div>
       </div>
     );
   }
 
-  const signSlot = (
+  const signSlot = isFeedback ? (
+    <div>
+      <h2 className="doc-section__title">Your name</h2>
+
+      {alreadySigned ? (
+        <div className="doc-note doc-note--plain">
+          <p>Feedback already submitted by {doc.client_name} on {doc.client_signed_date}.</p>
+        </div>
+      ) : (
+        <>
+          <div className="sign-grid">
+            <div className="field field--full">
+              <label className="field__label" htmlFor="name">
+                Your name
+              </label>
+              <input
+                id="name"
+                className="input"
+                type="text"
+                autoComplete="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {error && (
+            <div className="doc-error-summary" role="alert">
+              <p>{error}</p>
+            </div>
+          )}
+
+          <div className="actions no-print">
+            <button type="button" className="btn btn--primary" onClick={submit} disabled={submitting}>
+              {submitting ? "Submitting…" : "Submit feedback"}
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  ) : (
     <div>
       <h2 className="doc-section__title">Sign</h2>
 
@@ -171,6 +231,10 @@ export function DocumentSignClient({ doc }: { doc: ClientDocument }) {
       signSlot={signSlot}
       consentChoices={consentChoices}
       onConsentChange={onConsentChange}
+      feedbackAnswers={feedbackAnswers}
+      onFeedbackAnswerChange={onFeedbackAnswerChange}
+      feedbackConsentChoices={feedbackConsentChoices}
+      onFeedbackConsentChange={onFeedbackConsentChange}
     />
   );
 }

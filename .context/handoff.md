@@ -1,5 +1,31 @@
 # Handoff
 
+## Session 2026-07-21 (latest) — New "Client Feedback Questionnaire" document type (local, NOT pushed, migrations NOT run)
+
+Added a 5th document-engine kind, `feedback`, matching `D:\apps\design-systems\brand-staging-2662e9\documents\client-feedback-questionnaire.html` verbatim in content. Unlike terms/risk_assessment/annual_review/consent, this isn't a legally-signed document — it's a survey (free-text + radio-choice questions + two optional consent checkboxes about using the client's words publicly), so "submitting" it just needs the client's typed name to identify the response, not a real signature/agree checkbox.
+
+**Schema extension** (`lib/documents/types.ts`): `DocumentBody` gained `feedbackSections` (numbered sections of text/choice questions) and `feedbackConsents` (checkbox list), parallel to the existing `consentGroups` pattern. `ClientDocument` gained `feedback_responses` (jsonb: `{answers, consents}`).
+
+**Rendering** (`lib/documents/render.tsx`, `components/documents/DocumentView.tsx`): new `FeedbackSectionsView`/`FeedbackConsentsView`, real interactive React state (not `dangerouslySetInnerHTML`) — same trust model as the existing interactive consent checkboxes.
+
+**Signing flow** (`app/documents/[id]/sign/DocumentSignClient.tsx`): a `doc.kind === "feedback"` branch renders a simplified slot — "Your name" field + "Submit feedback" button, no separate signature field or "I agree" checkbox (both meaningless for a survey). Submits `signature = name` under the hood so it flows through the existing `/api/documents/[id]/sign` route and `isFullySigned()` logic completely unmodified — only real route change was accepting and persisting an optional `feedback_responses` field.
+
+**Esther's view** (`DocumentDetailClient.tsx`): added a "Responses" card, since a feedback doc has no other content for her to review once submitted (this is the whole point of the feature — a document she can't read the answers to would be useless). Not wired for inline editing of the questions themselves (matches how `consentGroups` also aren't editable via the hub UI today — a template-level change, not a per-document one).
+
+**CSS** (`app/globals.css`): ported `.field-grid`, `.textarea`, and the mockup's radio-pill question pattern (`.q`/`.q__legend`/`.q__answer`/`.pick`) into the existing document-engine CSS block, deriving all colours from the app's existing tokens via `color-mix()` — no new hex values, matching the pattern used for the rest of the document engine.
+
+**New document creation**: `NewDocumentButton.tsx`'s kind selector now includes "Client Feedback" — sending one to a client works exactly like every other document kind (create from the client's Documents tab → email/resend/copy-link, all already built).
+
+### Migrations run (Craig's go-ahead, same session)
+Both migrations run against prod via the standing Coolify tunnel (`127.0.0.1:5433`, `DATABASE_URL` from `.env.local`) using a temp runner script (deleted immediately after, `git status` confirms nothing left in `scripts/`):
+- `feedback_responses` column confirmed present on `client_documents`.
+- `document_templates` row confirmed live: `kind='feedback'`, `name='Tell us about your online training'`, `version=1`, `requires_client_signature=true`, `requires_trainer_signature=false`.
+
+"Client Feedback" is now a real, creatable document kind end-to-end — send/resend/copy-link all work exactly like every other kind.
+
+### Verified
+`npx tsc --noEmit` clean project-wide. Not live-browser-verified (no hub credentials this session) — worth a real click-through + a real client-facing submission before fully trusting the flow.
+
 ## Session 2026-07-21 (later still) — Hub mockup-alignment pass, Lane H (local, NOT pushed)
 
 Full 12-agent pass bringing every hub route in line with its `hub-*.html` mockup — see the Work

@@ -1,4 +1,4 @@
-export type DocumentKind = "terms" | "risk_assessment" | "annual_review" | "consent";
+export type DocumentKind = "terms" | "risk_assessment" | "annual_review" | "consent" | "feedback";
 
 export type DocumentStatus = "draft" | "sent" | "signed" | "superseded";
 
@@ -14,10 +14,35 @@ export interface ConsentGroup {
   options: { key: string; label: string }[];
 }
 
+export interface FeedbackQuestion {
+  id: string;
+  type: "text" | "choice";
+  label: string;
+  /** Required for type "choice" — rendered as a radio group. */
+  options?: { value: string; label: string }[];
+}
+
+export interface FeedbackSection {
+  id: string;
+  /** Cosmetic "Section N" label, kept as data since it's author-set, not derived. */
+  num: string;
+  title: string;
+  intro?: string;
+  questions: FeedbackQuestion[];
+}
+
+export interface FeedbackConsent {
+  id: string;
+  label: string;
+}
+
 export interface DocumentBody {
   intro?: string;
   sections: DocumentSection[];
   consentGroups?: ConsentGroup[];
+  /** Free-text/choice questionnaire content — used by the "feedback" kind. */
+  feedbackSections?: FeedbackSection[];
+  feedbackConsents?: FeedbackConsent[];
 }
 
 export interface DocumentTemplate {
@@ -55,6 +80,8 @@ export interface ClientDocument {
   sent_at: string | null;
   signed_at: string | null;
   consent_choices?: Record<string, boolean> | null;
+  /** Free-text/choice questionnaire answers — used by the "feedback" kind. Question id -> text answer, or { consents: {...} } for checkbox state. */
+  feedback_responses?: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
 }
@@ -64,6 +91,7 @@ export const DOCUMENT_KIND_LABEL: Record<DocumentKind, string> = {
   risk_assessment: "Risk Assessment",
   annual_review: "Annual Review",
   consent: "Consent",
+  feedback: "Client Feedback",
 };
 
 /** Whether every required signature is present — used to decide "signed" status. */

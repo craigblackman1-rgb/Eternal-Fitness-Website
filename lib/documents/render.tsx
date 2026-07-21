@@ -1,4 +1,4 @@
-import type { DocumentBody, ConsentGroup } from "./types";
+import type { DocumentBody, ConsentGroup, FeedbackSection, FeedbackConsent } from "./types";
 
 /**
  * Renders a document body (intro + sections) as branded, read-only HTML.
@@ -7,16 +7,28 @@ import type { DocumentBody, ConsentGroup } from "./types";
  *
  * If `consentGroups` are present and `onConsentChange` is supplied, the groups
  * render as REAL interactive checkboxes (React state) rather than static HTML.
+ *
+ * If `feedbackSections`/`feedbackConsents` are present (the "feedback" kind),
+ * they render as real interactive text inputs / radio groups / checkboxes,
+ * gated behind their own answer-state props the same way consentGroups is.
  */
 export function DocumentBodyView({
   body,
   consentChoices,
   onConsentChange,
+  feedbackAnswers,
+  onFeedbackAnswerChange,
+  feedbackConsentChoices,
+  onFeedbackConsentChange,
   startIndex = 1,
 }: {
   body: DocumentBody;
   consentChoices?: Record<string, boolean>;
   onConsentChange?: (key: string, value: boolean) => void;
+  feedbackAnswers?: Record<string, string>;
+  onFeedbackAnswerChange?: (id: string, value: string) => void;
+  feedbackConsentChoices?: Record<string, boolean>;
+  onFeedbackConsentChange?: (id: string, value: boolean) => void;
   /** Number the first section starts at (used so refreshed docs continue the count). */
   startIndex?: number;
 }) {
@@ -46,6 +58,109 @@ export function DocumentBodyView({
       {body.consentGroups && onConsentChange && (
         <ConsentGroupsView groups={body.consentGroups} choices={consentChoices ?? {}} onChange={onConsentChange} />
       )}
+
+      {body.feedbackSections && onFeedbackAnswerChange && (
+        <FeedbackSectionsView
+          sections={body.feedbackSections}
+          answers={feedbackAnswers ?? {}}
+          onAnswerChange={onFeedbackAnswerChange}
+        />
+      )}
+
+      {body.feedbackConsents && onFeedbackConsentChange && (
+        <FeedbackConsentsView
+          consents={body.feedbackConsents}
+          choices={feedbackConsentChoices ?? {}}
+          onChange={onFeedbackConsentChange}
+        />
+      )}
+    </div>
+  );
+}
+
+function FeedbackSectionsView({
+  sections,
+  answers,
+  onAnswerChange,
+}: {
+  sections: FeedbackSection[];
+  answers: Record<string, string>;
+  onAnswerChange: (id: string, value: string) => void;
+}) {
+  return (
+    <>
+      {sections.map((s) => (
+        <section key={s.id} className="doc-section" aria-labelledby={`fb-${s.id}`}>
+          <p className="doc-section__num">{s.num}</p>
+          <h2 id={`fb-${s.id}`} className="doc-section__title">
+            {s.title}
+          </h2>
+          {s.intro && <p className="doc-section__intro">{s.intro}</p>}
+
+          <div className="field-grid">
+            {s.questions.map((q) =>
+              q.type === "text" ? (
+                <div key={q.id} className="field field--full">
+                  <label className="field__label" htmlFor={`fb-q-${q.id}`}>
+                    {q.label}
+                  </label>
+                  <textarea
+                    id={`fb-q-${q.id}`}
+                    className="textarea"
+                    value={answers[q.id] ?? ""}
+                    onChange={(e) => onAnswerChange(q.id, e.target.value)}
+                  />
+                </div>
+              ) : (
+                <div key={q.id} className="q field--full" role="radiogroup" aria-labelledby={`fb-q-${q.id}-t`}>
+                  <p className="q__legend" id={`fb-q-${q.id}-t`}>
+                    {q.label}
+                  </p>
+                  <div className="q__answer">
+                    {q.options?.map((opt) => (
+                      <label key={opt.value} className="pick">
+                        <input
+                          type="radio"
+                          name={q.id}
+                          value={opt.value}
+                          checked={answers[q.id] === opt.value}
+                          onChange={() => onAnswerChange(q.id, opt.value)}
+                        />
+                        <span>{opt.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ),
+            )}
+          </div>
+        </section>
+      ))}
+    </>
+  );
+}
+
+function FeedbackConsentsView({
+  consents,
+  choices,
+  onChange,
+}: {
+  consents: FeedbackConsent[];
+  choices: Record<string, boolean>;
+  onChange: (id: string, value: boolean) => void;
+}) {
+  return (
+    <div className="doc-consent-groups">
+      {consents.map((c) => (
+        <label key={c.id} className="consent">
+          <input
+            type="checkbox"
+            checked={!!choices[c.id]}
+            onChange={(e) => onChange(c.id, e.target.checked)}
+          />
+          <span>{c.label}</span>
+        </label>
+      ))}
     </div>
   );
 }
