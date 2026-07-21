@@ -17,7 +17,7 @@ export default async function SiteContentPage() {
     <div className="space-y-6">
       <HubPageHeader
         title="Site Content"
-        subtitle="Manage SEO keywords and editable content blocks for each page"
+        subtitle="Every page on the site — published, needs writing, or needs updating"
       />
       <SiteContentTable keywords={keywords ?? []} />
     </div>
