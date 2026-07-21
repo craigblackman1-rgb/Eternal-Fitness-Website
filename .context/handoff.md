@@ -1,5 +1,25 @@
 # Handoff
 
+## Lane F — full hub design-consistency sweep, remaining routes (2026-07-20, later session)
+
+### What was built
+Added Lane F to the existing hub consolidation Work Order (`.context/workorder-eternal-fitness-hub-consolidation-2026-07-20.md`) to restyle every hub route that had no source mockup: `PackagePaymentsCard.tsx` button fix, `clients/new`, training delivery pages (block/review/print/session), PAR-Q (list+edit), agreements (list+detail), top-level documents register, settings (plan-agent+training-rules), site-content (list+editor), site-review, templates (list+editor), tracker, and the three hub auth screens (login/forgot-password/reset-password). 12 units total, all landed against the token system documented in `D:\apps\design-systems\brand-staging-2662e9\DESIGN.md`.
+
+### How it was actually delivered
+First attempt was 4 parallel `opencode run` CLI launches — all four stalled at bootstrap (36 min, near-zero CPU, zero file changes) and were killed. Craig redirected: Claude Code took over implementation directly via Haiku subagents (one per unit, token-efficient model for mechanical restyle work) instead of the OpenCode CLI. All 12 units landed this way across 3 batches.
+
+### Verified, not just self-reported
+Every unit was independently checked by Claude Code (Sonnet, this session) via `git diff` review plus `tsc --noEmit`/`npm run build`, not trusted from the subagent's own report. Caught and fixed 3 real issues before calling anything done:
+- **Tracker page** — a subagent removed the `sm:` responsive breakpoint from the KPI tile grid, incorrectly claiming it matched the dashboard (the dashboard actually uses `lg:grid-cols-3`, still responsive). Reverted to `sm:grid-cols-3`.
+- **Templates page** — a subagent mapped "template active/inactive" and the PAR-Q "Form" tag onto `StatusBadge status="signed"`, which would have shown a misleading green "Signed" badge for an active template (conflating document-signed status with template-active status). Fixed to `status="active"` (resolves via `blockStatusMap`) and a plain neutral "Form" badge.
+- **Hub auth screens** (login/forgot-password/reset-password) — a subagent used `font-400` and `text-muted-text`, neither of which are real classes in this project's Tailwind config (no `fontWeight` extension, no `muted-text` color key) — both silent no-ops. Fixed to `font-normal` and `text-[var(--color-muted-text)]` across all 3 files (9 occurrences).
+
+One unit (`clients/new`) also went beyond a pure token restyle — Contraindications/Pain Points moved from plain `Input` to `TagMultiSelect`, Training Location/Sessions-per-Week from `Select` to `SegmentedControl` — checked against the sibling `clients/[id]/edit/page.tsx` and confirmed it matches an already-shipped, already-proven pattern rather than introducing something new.
+
+### Not done
+- **Not pushed** — 21 files changed locally, all verified, `git push`/deploy is `[GATE]` per the standing rule. Awaiting Craig's go-ahead.
+- Full-project `npm run build` still ends in the known pre-existing Windows/OneDrive `EPERM` symlink error at the file-tracing step (unrelated to any of this session's changes, confirmed present on unmodified code too).
+
 ## Remaining hub screen mockups restyled — dashboard, exercises, process & quality, reports/updates, SOP detail, studio equipment (2026-07-20, later session)
 
 ### What was built
