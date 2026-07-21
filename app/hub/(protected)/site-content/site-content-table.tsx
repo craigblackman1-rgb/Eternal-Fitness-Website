@@ -5,12 +5,12 @@ import { HubTable, type HubColumn } from "@/components/hub/HubTable";
 import { HubCard, HubCardHeader } from "@/components/hub";
 import { StatusBadge } from "@/components/hub/StatusBadge";
 import { KpiTile } from "@/components/hub/KpiTile";
-import { cn } from "@/lib/utils";
 import {
   IconFileText,
   IconCheckCircle,
   IconAlertTriangle,
   IconEdit3,
+  IconChevronDown,
 } from "@/components/icons";
 
 interface PageKeyword {
@@ -34,40 +34,42 @@ const EDITABLE_SLUGS = new Set([
   "faqs", "home", "personal-training", "pricing",
 ]);
 
-const STATUS_FILTERS = [
-  { value: "all", label: "All statuses" },
-  { value: "published", label: "Published" },
-  { value: "needs_writing", label: "Needs Writing" },
-  { value: "needs_updating", label: "Needs Updating" },
-];
+const STATUS_LABELS: Record<string, string> = {
+  published: "Published",
+  needs_writing: "Needs writing",
+  needs_updating: "Needs updating",
+};
 
-const TYPE_FILTERS = [
-  { value: "all", label: "All pages" },
-  { value: "static", label: "Static" },
-  { value: "condition", label: "Condition" },
-  { value: "blog", label: "Blog" },
-  { value: "legal", label: "Legal" },
-];
+const TYPE_LABELS: Record<PageKeyword["page_type"], string> = {
+  static: "Static",
+  condition: "Condition",
+  blog: "Blog",
+  legal: "Legal",
+};
 
 const columns: HubColumn<PageKeyword>[] = [
   {
     key: "page",
     header: "Page",
-    render: (row) => (
-      <div>
-        <p className="font-medium">{row.page_title}</p>
-        <p className="text-xs text-muted-foreground">{row.url_path}</p>
-      </div>
-    ),
+    render: (row) => <span className="font-medium">{row.page_title}</span>,
     sortable: true,
     sortValue: (row) => row.page_title,
+  },
+  {
+    key: "url",
+    header: "URL",
+    render: (row) => (
+      <span className="text-xs text-muted-foreground font-mono whitespace-nowrap">{row.url_path}</span>
+    ),
+    sortable: true,
+    sortValue: (row) => row.url_path,
   },
   {
     key: "type",
     header: "Type",
     render: (row) => (
-      <span className="inline-flex items-center rounded-full border border-[var(--hub-border)] bg-[var(--hub-hover)] px-2 py-0.5 text-xs capitalize text-muted-foreground">
-        {row.page_type}
+      <span className="inline-flex items-center rounded-full border border-[var(--hub-border)] bg-[var(--hub-hover)] px-2 py-0.5 text-xs text-muted-foreground">
+        {TYPE_LABELS[row.page_type]}
       </span>
     ),
     sortable: true,
@@ -93,11 +95,41 @@ const columns: HubColumn<PageKeyword>[] = [
       EDITABLE_SLUGS.has(row.page_slug) ? (
         <span className="text-rose text-sm font-medium">Edit copy →</span>
       ) : (
-        <span className="text-xs text-muted-foreground">—</span>
+        <span className="text-xs text-muted-foreground">Inventory only</span>
       ),
     className: "text-right",
   },
 ];
+
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (val: string) => void;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <div className="flex flex-col gap-1.5 min-w-[190px]">
+      <label className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</label>
+      <div className="relative">
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-9 w-full rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] pl-3 pr-8 text-sm text-foreground hover:border-[var(--hub-field-border-hover)] focus:outline-none focus:border-rose focus:ring-2 focus:ring-rose/30 appearance-none"
+        >
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        <IconChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+      </div>
+    </div>
+  );
+}
 
 export function SiteContentTable({ keywords }: { keywords: PageKeyword[] }) {
   const [statusFilter, setStatusFilter] = useState("all");
@@ -112,6 +144,27 @@ export function SiteContentTable({ keywords }: { keywords: PageKeyword[] }) {
     };
   }, [keywords]);
 
+  const typeCounts = useMemo(() => {
+    const c: Record<string, number> = { static: 0, condition: 0, blog: 0, legal: 0 };
+    keywords.forEach((k) => { c[k.page_type] = (c[k.page_type] ?? 0) + 1; });
+    return c;
+  }, [keywords]);
+
+  const statusOptions = [
+    { value: "all", label: `All statuses (${counts.total})` },
+    { value: "published", label: `Published (${counts.published})` },
+    { value: "needs_writing", label: `Needs writing (${counts.needsWriting})` },
+    { value: "needs_updating", label: `Needs updating (${counts.needsUpdating})` },
+  ];
+
+  const typeOptions = [
+    { value: "all", label: `All types (${keywords.length})` },
+    { value: "static", label: `Static (${typeCounts.static})` },
+    { value: "condition", label: `Condition (${typeCounts.condition})` },
+    { value: "blog", label: `Blog (${typeCounts.blog})` },
+    { value: "legal", label: `Legal (${typeCounts.legal})` },
+  ];
+
   const filtered = useMemo(() => {
     return keywords.filter((row) => {
       if (statusFilter !== "all" && row.status !== statusFilter) return false;
@@ -125,45 +178,15 @@ export function SiteContentTable({ keywords }: { keywords: PageKeyword[] }) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiTile icon={<IconFileText className="w-5 h-5" />} label="Total Pages" value={counts.total} statusToken="neutral" />
         <KpiTile icon={<IconCheckCircle className="w-5 h-5" />} label="Published" value={counts.published} statusToken="success" />
-        <KpiTile icon={<IconAlertTriangle className="w-5 h-5" />} label="Needs Writing" value={counts.needsWriting} statusToken="danger" />
-        <KpiTile icon={<IconEdit3 className="w-5 h-5" />} label="Needs Updating" value={counts.needsUpdating} statusToken="warning" />
+        <KpiTile icon={<IconAlertTriangle className="w-5 h-5" />} label="Needs Writing" value={counts.needsWriting} statusToken="warning" />
+        <KpiTile icon={<IconEdit3 className="w-5 h-5" />} label="Needs Updating" value={counts.needsUpdating} statusToken="primary" />
       </div>
 
       <HubCard padded={false}>
-        <HubCardHeader title="Pages" />
-        <div className="px-5 pb-4 flex flex-wrap gap-4">
-          <div className="flex flex-wrap gap-1.5">
-            {STATUS_FILTERS.map((f) => (
-              <button
-                key={f.value}
-                onClick={() => setStatusFilter(f.value)}
-                className={cn(
-                  "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
-                  statusFilter === f.value
-                    ? "bg-rose text-white border-rose"
-                    : "bg-[var(--hub-card)] text-muted-foreground border-[var(--hub-border)] hover:bg-[var(--hub-hover)]",
-                )}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {TYPE_FILTERS.map((f) => (
-              <button
-                key={f.value}
-                onClick={() => setTypeFilter(f.value)}
-                className={cn(
-                  "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
-                  typeFilter === f.value
-                    ? "bg-teal text-white border-teal"
-                    : "bg-[var(--hub-card)] text-muted-foreground border-[var(--hub-border)] hover:bg-[var(--hub-hover)]",
-                )}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
+        <HubCardHeader title="Page inventory" subtitle="Filter by status or type, then edit copy on any static page" />
+        <div className="px-5 py-4 border-b border-[var(--hub-border)] flex flex-wrap gap-4">
+          <SelectField label="Status" value={statusFilter} onChange={setStatusFilter} options={statusOptions} />
+          <SelectField label="Type" value={typeFilter} onChange={setTypeFilter} options={typeOptions} />
         </div>
         <HubTable
           data={filtered}

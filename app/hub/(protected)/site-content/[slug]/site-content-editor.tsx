@@ -55,10 +55,12 @@ export function SiteContentEditor({
   const [keyword, setKeyword] = useState<KeywordData>(initialKeyword);
   const [keywordSaving, setKeywordSaving] = useState(false);
   const [keywordDirty, setKeywordDirty] = useState(false);
+  const [keywordJustSaved, setKeywordJustSaved] = useState(false);
 
   // Blocks state
   const [blocks, setBlocks] = useState<BlockData[]>(initialBlocks);
   const [savingBlock, setSavingBlock] = useState<string | null>(null);
+  const [justSavedBlocks, setJustSavedBlocks] = useState<Set<string>>(new Set());
 
   // Add-block form state
   const [showAdd, setShowAdd] = useState(false);
@@ -74,6 +76,7 @@ export function SiteContentEditor({
     (field: string, value: string | string[] | null) => {
       setKeyword((prev) => ({ ...prev, [field]: value }));
       setKeywordDirty(true);
+      setKeywordJustSaved(false);
     },
     [],
   );
@@ -94,6 +97,7 @@ export function SiteContentEditor({
       });
       if (!res.ok) throw new Error("Failed to save keyword");
       setKeywordDirty(false);
+      setKeywordJustSaved(true);
       router.refresh();
     } catch (err) {
       console.error(err);
@@ -128,6 +132,7 @@ export function SiteContentEditor({
         delete next[block.id];
         return next;
       });
+      setJustSavedBlocks((prev) => new Set(prev).add(block.id));
       router.refresh();
     } catch (err) {
       console.error(err);
@@ -199,7 +204,7 @@ export function SiteContentEditor({
 
       {/* Keyword / SEO card */}
       <HubCard>
-        <HubCardHeader title="SEO &amp; Keywords" />
+        <HubCardHeader title="SEO &amp; Keywords" subtitle="What this page should rank for" />
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
@@ -215,19 +220,7 @@ export function SiteContentEditor({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="keyword_cluster">Keyword Cluster</Label>
-              <Input
-                id="keyword_cluster"
-                value={clusterString}
-                onChange={(e) => setClusterFromString(e.target.value)}
-                placeholder="Comma-separated keywords"
-                className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="status">Status</Label>
+              <Label htmlFor="status">Review Status</Label>
               <Select
                 value={keyword.status}
                 onValueChange={(val) => handleKeywordChange("status", val)}
@@ -236,12 +229,25 @@ export function SiteContentEditor({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="reviewed">Reviewed</SelectItem>
-                  <SelectItem value="needs_rewrite">Needs Rewrite</SelectItem>
+                  <SelectItem value="published">Published</SelectItem>
+                  <SelectItem value="needs_writing">Needs Writing</SelectItem>
+                  <SelectItem value="needs_updating">Needs Updating</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="keyword_cluster">Keyword Cluster</Label>
+            <p className="text-xs text-muted-foreground -mt-0.5">
+              Comma-separated. Used to group related pages and check for cannibalisation.
+            </p>
+            <Input
+              id="keyword_cluster"
+              value={clusterString}
+              onChange={(e) => setClusterFromString(e.target.value)}
+              placeholder="Comma-separated keywords"
+              className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30"
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="notes">Notes</Label>
@@ -260,10 +266,14 @@ export function SiteContentEditor({
             <Button
               onClick={saveKeyword}
               disabled={!keywordDirty || keywordSaving}
-              className="gap-1.5 rounded-lg bg-rose hover:bg-rose/90 text-white"
+              className={
+                keywordJustSaved && !keywordDirty
+                  ? "gap-1.5 rounded-lg bg-teal text-white"
+                  : "gap-1.5 rounded-lg bg-rose hover:bg-rose/90 text-white"
+              }
             >
               <IconSave className="h-4 w-4" />
-              {keywordSaving ? "Saving..." : "Save"}
+              {keywordSaving ? "Saving..." : keywordJustSaved && !keywordDirty ? "Saved" : "Save"}
             </Button>
           </div>
         </div>
@@ -367,6 +377,7 @@ export function SiteContentEditor({
                 (contentEdits[block.id] !== undefined &&
                   contentEdits[block.id] !== block.content) ||
                 false;
+              const justSaved = justSavedBlocks.has(block.id) && !isDirty;
 
               return (
                 <HubCard key={block.id}>
@@ -382,23 +393,33 @@ export function SiteContentEditor({
                     </div>
                     <Button
                       size="sm"
-                      className="gap-1.5 rounded-lg bg-rose hover:bg-rose/90 text-white shrink-0"
+                      className={
+                        justSaved
+                          ? "gap-1.5 rounded-lg bg-teal text-white shrink-0"
+                          : "gap-1.5 rounded-lg bg-rose hover:bg-rose/90 text-white shrink-0"
+                      }
                       disabled={!isDirty || isSaving}
                       onClick={() => saveBlock(block)}
                     >
                       <IconSave className="h-4 w-4" />
-                      {isSaving ? "Saving..." : "Save"}
+                      {isSaving ? "Saving..." : justSaved ? "Saved" : "Save"}
                     </Button>
                   </div>
                   <div className="pt-4">
                     <Textarea
                       value={editContent}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setContentEdits((prev) => ({
                           ...prev,
                           [block.id]: e.target.value,
-                        }))
-                      }
+                        }));
+                        setJustSavedBlocks((prev) => {
+                          if (!prev.has(block.id)) return prev;
+                          const next = new Set(prev);
+                          next.delete(block.id);
+                          return next;
+                        });
+                      }}
                       rows={4}
                       className="font-mono text-sm border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30"
                     />

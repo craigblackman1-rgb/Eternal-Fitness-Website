@@ -646,6 +646,17 @@ export function IconEdit3({ className, style }: IconProps) {
   );
 }
 
+export function IconRefreshCw({ className, style }: IconProps) {
+  return (
+    <svg {...base(className, style)}>
+      <path d="M27 6v8h-8" />
+      <path d="M5 15a11 11 0 0 1 18.5-8L27 10" />
+      <path d="M5 26v-8h8" />
+      <path d="M27 17a11 11 0 0 1-18.5 8L5 22" />
+    </svg>
+  );
+}
+
 export function IconSave({ className, style }: IconProps) {
   return (
     <svg {...base(className, style)}>
