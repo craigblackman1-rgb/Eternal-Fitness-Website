@@ -45,7 +45,11 @@ export default async function TemplatesPage() {
                     <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                       <span>{DOCUMENT_KIND_LABEL[t.kind as DocumentKind] ?? t.kind}</span>
                       <span className="text-[var(--hub-border)]">·</span>
-                      <span>{t.body?.sections?.length ?? 0} sections</span>
+                      <span>
+                        {t.body?.feedbackSections?.length
+                          ? `${t.body.feedbackSections.length} sections`
+                          : `${t.body?.sections?.length ?? 0} sections`}
+                      </span>
                       {t.requires_trainer_signature && (
                         <>
                           <span className="text-[var(--hub-border)]">·</span>
@@ -61,26 +65,6 @@ export default async function TemplatesPage() {
               </div>
             </Link>
           ))}
-
-          {/* PAR-Q — a structured questionnaire, managed as its own form rather than an editable template */}
-          <Link href="/parq" className="block">
-            <div className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm hover:border-teal/40 transition p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-lg bg-teal/10 flex items-center justify-center shrink-0">
-                  <IconFileText className="h-5 w-5 text-teal" />
-                </div>
-                <div className="min-w-0">
-                  <p className="font-medium text-foreground">PAR-Q</p>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                    <span>Health questionnaire</span>
-                    <span className="text-[var(--hub-border)]">·</span>
-                    <span>Client-signed</span>
-                  </div>
-                </div>
-              </div>
-              <span className="inline-flex items-center rounded-full border border-[var(--status-neutral-border)] bg-[var(--status-neutral-bg)] px-2.5 py-0.5 text-xs font-semibold text-[var(--status-neutral)] shrink-0">Form</span>
-            </div>
-          </Link>
         </div>
       )}
     </div>

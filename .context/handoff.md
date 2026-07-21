@@ -1,5 +1,45 @@
 # Handoff
 
+## Session 2026-07-21 (genuinely final) — Inline Send/Resend on every document list, not just inside each document
+
+Esther reported the Personal Training Agreement "only gives you a link, not an email." Investigated with
+real data before assuming a bug.
+
+### Root cause of what Esther saw
+Not a bug. The most recent `terms` (Personal Training Agreement) document was created against the
+"Craig Blackman" client record, which has `email: null` in `clients` — confirmed by querying prod. The
+Send button is *correctly* disabled with no client email; only Copy Link shows, exactly as designed
+(same behaviour every document kind has always had). Clients with a real email on file (Sam Gibbons,
+Ellie Wallwork, Colin Farley) all show a working Send button. Flagging for Craig: add an email to the
+test client record, or test with a real one, to see the working flow.
+
+### The real, structural gap — fixed
+Craig's actual ask was broader than one bug: every document should be sendable by email (not just
+link), from more places than just inside each individual document page — the client's Documents tab
+list AND the hub-wide All Documents list, the same "click Send now" pattern `UpdateRowActions` already
+has for update emails. That capability genuinely didn't exist on either list before this — both only
+had an "Open"/"View" link, requiring you to open the document first to find the Send button.
+
+- **New `components/hub/DocumentRowActions.tsx`** — inline Send/Resend + Copy link per row, same
+  pattern as `UpdateRowActions.tsx`. Hidden once a document is locked (signed/superseded, nothing left
+  to send).
+- **`DocumentRegister.tsx`** (client Documents tab) — added an actions column using it; needed
+  `clientEmail`/`clientName` threaded back in as props (removed a few commits ago when the old
+  PAR-Q-specific send button was deleted — this is the real, generic replacement). Renamed "New
+  document" → "Create & send" (Craig's own words for it).
+- **`app/hub/(protected)/documents/page.tsx`** (All Documents, hub-wide) — same actions column added;
+  query extended to also select `clients.email` so per-row Send/Resend can work here too, not just on
+  a single client's page.
+- **Real bug found and fixed in passing**: `/hub/templates` still had a hardcoded card linking straight
+  to the retired `/parq` blank form — a leftover from before PAR-Q was migrated onto the document
+  engine. Removed it; PAR-Q's real template already appears in the normal list now (confirmed it does).
+  Also fixed template-list section counts always showing "0 sections" for `feedback`/`parq` kinds (their
+  content lives in `body.feedbackSections`, not `body.sections` — the count didn't know to look there).
+
+### Verified
+`rm -rf .next && npx tsc --noEmit` clean; `npm run build` compiles successfully (same known pre-existing
+Windows/OneDrive symlink trace failure, unrelated). Not live-browser-verified this session.
+
 ## Session 2026-07-21 (actually final) — Fixed the signed_agreements/clients duplication, instead of just flagging it
 
 Craig: "can we fix this issue now rather than leaving it, otherwise it will get forgotten about" — fair,

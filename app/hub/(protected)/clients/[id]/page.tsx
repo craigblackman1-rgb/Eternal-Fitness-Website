@@ -600,6 +600,8 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                     <DocumentRegister
                       clientNumber={client.client_number}
                       documents={clientDocuments ?? []}
+                      clientEmail={client.email}
+                      clientName={client.name}
                     />
                   </div>
 

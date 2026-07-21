@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { StatusBadge } from "@/components/hub/StatusBadge";
+import { DocumentRowActions } from "@/components/hub/DocumentRowActions";
 import { IconFileSignature, IconPlus } from "@/components/icons";
 import { DOCUMENT_KIND_LABEL, type DocumentKind } from "@/lib/documents/types";
 
@@ -18,6 +19,9 @@ interface RegisterDocument {
 interface DocumentRegisterProps {
   clientNumber: number;
   documents?: RegisterDocument[];
+  /** Enables the inline Send/Resend action per row — omit only when the client's email isn't loaded here. */
+  clientEmail?: string | null;
+  clientName?: string | null;
 }
 
 function formatDate(value: string | null) {
@@ -27,6 +31,7 @@ function formatDate(value: string | null) {
 
 type Row = {
   key: string;
+  id: string;
   label: string;
   status: string;
   date: string;
@@ -38,10 +43,12 @@ type Row = {
   icon: React.ReactNode;
 };
 
-export function DocumentRegister({ clientNumber, documents = [] }: DocumentRegisterProps) {
+export function DocumentRegister({ clientNumber, documents = [], clientEmail, clientName }: DocumentRegisterProps) {
+  const hasEmail = Boolean(clientEmail && clientEmail.trim());
   const rows: Row[] = [
     ...documents.map((d) => ({
       key: `doc-${d.id}`,
+      id: d.id,
       label: `${DOCUMENT_KIND_LABEL[d.kind as DocumentKind] ?? d.title}${d.version > 1 ? ` (v${d.version})` : ""}`,
       status: d.status,
       date: d.created_at,
@@ -63,12 +70,12 @@ export function DocumentRegister({ clientNumber, documents = [] }: DocumentRegis
           className="inline-flex items-center gap-1 rounded-lg bg-rose px-2.5 h-7 text-xs font-medium text-white hover:bg-rose/90"
         >
           <IconPlus className="h-3 w-3" />
-          New document
+          Create &amp; send
         </Link>
       </div>
 
       {rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-2">No documents on file yet — create one with &ldquo;New document&rdquo;.</p>
+        <p className="text-sm text-muted-foreground py-2">No documents on file yet — create one with &ldquo;Create &amp; send&rdquo;.</p>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-[var(--hub-border)]">
           <table className="w-full text-sm">
@@ -80,6 +87,7 @@ export function DocumentRegister({ clientNumber, documents = [] }: DocumentRegis
                 <th className="px-3 py-1.5 text-left font-medium">Version</th>
                 <th className="px-3 py-1.5 text-left font-medium">Last updated</th>
                 <th className="px-3 py-1.5 text-left font-medium">Last updated by</th>
+                <th className="px-3 py-1.5 text-right font-medium">&nbsp;</th>
                 <th className="px-3 py-1.5 text-right font-medium">&nbsp;</th>
               </tr>
             </thead>
@@ -94,6 +102,9 @@ export function DocumentRegister({ clientNumber, documents = [] }: DocumentRegis
                   <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">v{r.version}</td>
                   <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">{formatDate(r.updatedAt)}</td>
                   <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">{r.updatedBy}</td>
+                  <td className="px-3 py-2 text-right whitespace-nowrap">
+                    <DocumentRowActions docId={r.id} status={r.status} hasEmail={hasEmail} clientName={clientName} />
+                  </td>
                   <td className="px-3 py-2 text-right whitespace-nowrap">
                     {r.editHref && (
                       <Link href={r.editHref} className="text-teal font-medium hover:underline mr-3">Open</Link>
