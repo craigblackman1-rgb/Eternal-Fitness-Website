@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase-server";
-import { IconMail, IconClock, IconFileText, IconAlertTriangle } from "@/components/icons";
+import { IconSend, IconClock, IconFileText, IconAlertTriangle } from "@/components/icons";
 import { UpdatesReport } from "./UpdatesReport";
 import type { UpdateWithClient } from "@/types";
 
@@ -20,7 +20,7 @@ export default async function UpdatesReportPage() {
 
   const stat = (s: string) => updates.filter((u) => u.status === s).length;
   const tiles = [
-    { label: "Sent", value: stat("sent"), icon: IconMail, tone: "rose" },
+    { label: "Sent", value: stat("sent"), icon: IconSend, tone: "rose" },
     { label: "Scheduled", value: stat("scheduled"), icon: IconClock, tone: "teal" },
     { label: "Drafts", value: stat("draft"), icon: IconFileText, tone: "amber" },
     { label: "Failed", value: stat("failed"), icon: IconAlertTriangle, tone: "destructive" },

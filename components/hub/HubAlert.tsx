@@ -27,7 +27,7 @@ export function HubAlert({ severity, title, children, action, className }: HubAl
         )}
       >
         <div className="flex items-start gap-3">
-          <IconTriangleAlert className="w-5 h-5 shrink-0 mt-0.5" />
+          <IconAlertCircle className="w-[18px] h-[18px] shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <p className="font-bold text-sm uppercase tracking-wide">{title}</p>
             {children && <div className="text-sm text-white/85 mt-1">{children}</div>}
@@ -63,7 +63,7 @@ export function HubAlert({ severity, title, children, action, className }: HubAl
   return (
     <div role="status" className={cn("rounded-xl border px-4 py-3", bg, border, className)}>
       <div className="flex items-start gap-2.5">
-        <Icon className={cn("w-4 h-4 shrink-0 mt-0.5", text)} />
+        <Icon className={cn("w-[18px] h-[18px] shrink-0 mt-0.5", text)} />
         <div className="flex-1 min-w-0">
           <p className={cn("font-semibold text-sm", text)}>{title}</p>
           {children && <div className="text-sm text-foreground/75 mt-0.5">{children}</div>}

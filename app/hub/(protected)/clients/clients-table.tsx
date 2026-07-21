@@ -68,6 +68,7 @@ const columns: HubColumn<DBClient>[] = [
       const count = client.profile?.health?.conditions?.length ?? 0;
       return count > 0 ? String(count) : "—";
     },
+    sortable: true,
     sortValue: (client) => client.profile?.health?.conditions?.length ?? 0,
   },
   {

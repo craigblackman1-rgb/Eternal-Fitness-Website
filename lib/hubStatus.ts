@@ -45,6 +45,7 @@ const statusClassMap: Record<StatusToken, StatusClasses> = {
 };
 
 const blockStatusMap: Record<string, StatusLookup> = {
+  on_track: { token: "success", label: "On Track" },
   draft:    { token: "neutral", label: "Draft" },
   active:   { token: "primary", label: "Active" },
   approved: { token: "success", label: "Approved" },

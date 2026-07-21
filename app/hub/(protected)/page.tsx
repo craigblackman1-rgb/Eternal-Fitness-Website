@@ -168,7 +168,7 @@ export default async function DashboardPage() {
                             </td>
                             <td className="px-5 py-3 text-muted-foreground">{row.programme}</td>
                             <td className="px-5 py-3 text-muted-foreground whitespace-nowrap">{row.loggedLabel}</td>
-                            <td className="px-5 py-3"><StatusBadge status="success" /></td>
+                            <td className="px-5 py-3"><StatusBadge status="on_track" /></td>
                           </tr>
                         );
                       })}

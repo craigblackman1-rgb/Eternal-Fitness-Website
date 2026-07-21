@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { HubCard, HubCardHeader } from "@/components/hub";
 import { Badge } from "@/components/ui/badge";
+import { TokenPill } from "@/components/hub/StatusBadge";
 import { IconChevronLeft, IconMail, IconPlus, IconCalendar, IconClock, IconEye } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
 import { UpdateRowActions } from "@/components/hub/UpdateRowActions";
@@ -91,7 +92,7 @@ export default async function UpdatesHistoryPage({ params }: { params: { id: str
                       <IconCalendar className="h-3 w-3" />
                       {timeLabel}
                     </span>
-                    <Badge variant={meta.variant} className="rounded-full text-xs">{meta.label}</Badge>
+                    <TokenPill token={meta.token} label={meta.label} />
                     {update.block_number > 0 && (
                       <Badge variant="outline" className="rounded-full text-xs">Block {update.block_number}</Badge>
                     )}

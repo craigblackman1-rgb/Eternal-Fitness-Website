@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 interface HubCardHeaderProps {
   icon?: React.ReactNode;
   title: string;
-  subtitle?: string;
+  subtitle?: React.ReactNode;
   action?: React.ReactNode;
   /** Semantic color for the icon badge. Defaults to "rose". */
   color?: "rose" | "teal" | "navy" | "slate" | "amber";
@@ -32,7 +32,7 @@ export function HubCardHeader({ icon, title, subtitle, action, color = "rose", c
     <div className={cn("flex flex-row items-start justify-between gap-3 pb-4", noBottomPadding ? "pb-0" : "", divider ? "border-b border-[var(--hub-border)]" : "", className)}>
       <div className="flex items-center gap-3 min-w-0">
         {icon && (
-          <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center shrink-0", c.bg, c.text)}>
+          <div className={cn("w-[30px] h-[30px] rounded-lg flex items-center justify-center shrink-0", c.bg, c.text)}>
             {icon}
           </div>
         )}

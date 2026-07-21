@@ -53,6 +53,35 @@ export function IconHeartHandshake({ className, style }: IconProps) {
   );
 }
 
+export function IconUser({ className, style }: IconProps) {
+  return (
+    <svg {...base(className, style)}>
+      <circle cx="16" cy="10" r="5" />
+      <path d="M6 27a10 10 0 0 1 20 0" />
+    </svg>
+  );
+}
+
+export function IconShieldCheck({ className, style }: IconProps) {
+  return (
+    <svg {...base(className, style)}>
+      <path d="M16 3l11 4v8c0 8-5 12-11 14C10 27 5 23 5 15V7z" />
+      <path d="M11 16l3.5 3.5L21 12" />
+    </svg>
+  );
+}
+
+export function IconRuler({ className, style }: IconProps) {
+  return (
+    <svg {...base(className, style)}>
+      <path d="M6 26L26 6" />
+      <path d="M9 23l3-3" />
+      <path d="M14 18l3-3" />
+      <path d="M19 13l3-3" />
+    </svg>
+  );
+}
+
 export function IconUsers({ className, style }: IconProps) {
   return (
     <svg {...base(className, style)}>

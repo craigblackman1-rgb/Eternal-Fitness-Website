@@ -16,7 +16,6 @@ import {
   IconClipboardCheck,
   IconTriangleAlert,
   IconClock,
-  IconBookText,
   IconEye,
   IconX,
 } from "@/components/icons";
@@ -64,7 +63,7 @@ function registerStatusBadge(status: ProcessStatus) {
     case "draft":
     default:
       return (
-        <span className="inline-flex items-center rounded-full border border-[var(--status-primary-border)] bg-[var(--status-primary-bg)] px-2.5 py-0.5 text-xs font-semibold text-[var(--status-primary)]">
+        <span className="inline-flex items-center rounded-full border border-[var(--status-neutral-border)] bg-[var(--status-neutral-bg)] px-2.5 py-0.5 text-xs font-semibold text-[var(--status-neutral)]">
           Draft
         </span>
       );
@@ -94,8 +93,8 @@ export function ProcessQualityManager({
           value={processCount}
         />
         <KpiTile
-          statusToken="success"
-          icon={<IconBookText className="w-5 h-5" />}
+          statusToken="neutral"
+          icon={<IconFileText className="w-5 h-5" />}
           label="SOPs"
           value={sopCount}
         />

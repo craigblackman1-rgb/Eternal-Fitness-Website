@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { IconChevronLeft, IconCalendar, IconUsers, IconMapPin, IconHeart, IconDumbbell, IconTarget, IconAlertCircle, IconClipboardList, IconFileText, IconEdit3 } from "@/components/icons";
+import { IconChevronLeft, IconCalendar, IconUser, IconHeart, IconRuler, IconTarget, IconShieldCheck, IconBot, IconFileText } from "@/components/icons";
 import Link from "next/link";
 import { HubCard, HubCardHeader, HubPageHeader } from "@/components/hub";
 import { TagMultiSelect } from "@/components/hub/TagMultiSelect";
@@ -228,7 +228,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
 
       <div className="space-y-6">
         <HubCard>
-          <HubCardHeader icon={<IconUsers className="w-4 h-4" />} title="Basic info" subtitle="Who the client is, and how to reach them" color="navy" noBottomPadding />
+          <HubCardHeader icon={<IconUser className="w-4 h-4" />} title="Basic info" subtitle="Who the client is, and how to reach them" color="navy" noBottomPadding />
           <div className="px-5 pb-5 pt-4 space-y-4">
             <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-2">
@@ -290,7 +290,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
         </HubCard>
 
         <HubCard>
-          <HubCardHeader icon={<IconMapPin className="w-4 h-4" />} title="Logistics" subtitle="Where, how often and how long" color="slate" noBottomPadding />
+          <HubCardHeader icon={<IconCalendar className="w-4 h-4" />} title="Logistics" subtitle="Where, how often and how long" color="slate" noBottomPadding />
           <div className="px-5 pb-5 pt-4 space-y-4">
             <SegmentedControl
               legend="Training location"
@@ -436,7 +436,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
         </HubCard>
 
         <HubCard>
-          <HubCardHeader icon={<IconDumbbell className="w-4 h-4" />} title="Physical baseline" subtitle="Where the client is starting from" color="teal" noBottomPadding />
+          <HubCardHeader icon={<IconRuler className="w-4 h-4" />} title="Physical baseline" subtitle="Where the client is starting from" color="teal" noBottomPadding />
           <div className="px-5 pb-5 pt-4 space-y-4">
             <div className="space-y-2">
               <Label>Fitness Level</Label>
@@ -517,7 +517,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
         </HubCard>
 
         <HubCard>
-          <HubCardHeader icon={<IconAlertCircle className="w-4 h-4" />} title="Compliance and pace" subtitle="The safety brake, and how hard the Plan Agent may push" color="amber" noBottomPadding />
+          <HubCardHeader icon={<IconShieldCheck className="w-4 h-4" />} title="Compliance and pace" subtitle="The safety brake, and how hard the Plan Agent may push" color="amber" noBottomPadding />
           <div className="px-5 pb-5 pt-4 space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
@@ -602,7 +602,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
         </HubCard>
 
         <HubCard>
-          <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Training rules" subtitle="Applied systematically by the Plan Agent" color="navy" noBottomPadding />
+          <HubCardHeader icon={<IconBot className="w-4 h-4" />} title="Training rules" subtitle="Applied systematically by the Plan Agent" color="navy" noBottomPadding />
           <div className="px-5 pb-5 pt-4">
             <TrainingRulesEditor
               value={profile.programming_adaptations}
@@ -612,7 +612,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
         </HubCard>
 
         <HubCard>
-          <HubCardHeader icon={<IconEdit3 className="w-4 h-4" />} title="Notes" subtitle="Prose the Plan Agent reads for context" color="slate" noBottomPadding />
+          <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Notes" subtitle="Prose the Plan Agent reads for context" color="slate" noBottomPadding />
           <div className="px-5 pb-5 pt-4 space-y-4">
             <div className="space-y-2">
               <Label>Esther's Observations</Label>

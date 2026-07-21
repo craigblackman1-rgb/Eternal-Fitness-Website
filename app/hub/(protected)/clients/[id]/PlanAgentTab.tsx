@@ -140,8 +140,8 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
     <div className="space-y-4 mt-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-dark-navy/10 flex items-center justify-center">
-            <IconBot className="w-4 h-4 text-dark-navy" />
+          <div className="w-9 h-9 rounded-lg bg-teal/10 flex items-center justify-center">
+            <IconBot className="w-4 h-4 text-teal" />
           </div>
           <div>
             <p className="font-semibold text-foreground">Plan Agent</p>
@@ -182,7 +182,7 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
 
       {hasConversation && (
         <HubCard>
-          <HubCardHeader icon={<IconBot className="w-4 h-4" />} title="Conversation" color="navy" noBottomPadding />
+          <HubCardHeader icon={<IconBot className="w-4 h-4" />} title="Conversation" color="teal" noBottomPadding />
           <div className="px-5 pb-5 space-y-4 max-h-[520px] overflow-y-auto">
             {messages.map((message, i) => (
               <div
@@ -193,7 +193,7 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
                   className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
                     message.role === "user"
                       ? "bg-rose/15 text-rose"
-                      : "bg-dark-navy/10 text-dark-navy"
+                      : "bg-teal/10 text-teal"
                   }`}
                 >
                   {message.role === "user" ? "E" : <IconBot className="w-3.5 h-3.5" />}

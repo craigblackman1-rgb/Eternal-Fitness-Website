@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { IconSearch, IconEye, IconEdit3, IconTrash2, IconMail, IconExternalLink, IconSend } from "@/components/icons";
 import { HubCard } from "@/components/hub/HubCard";
 import { HubCardHeader } from "@/components/hub/HubCardHeader";
+import { TokenPill } from "@/components/hub/StatusBadge";
 import { updateStatusMeta, formatUpdateTime } from "@/lib/updates/status";
 import { getTemplateKind } from "@/lib/email-templates/registry";
 import type { UpdateWithClient, UpdateStatus } from "@/types";
@@ -179,7 +180,7 @@ export function UpdatesReport({ updates }: { updates: UpdateWithClient[] }) {
                         )}
                       </td>
                       <td className="py-3 px-5">
-                        <Badge variant={meta.variant} className="rounded-full text-xs shrink-0">{meta.label}</Badge>
+                        <TokenPill token={meta.token} label={meta.label} />
                       </td>
                       <td className="py-3 px-5 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
@@ -233,9 +234,7 @@ export function UpdatesReport({ updates }: { updates: UpdateWithClient[] }) {
                 {preview.client_email && <span><span className="font-semibold uppercase tracking-wide text-muted-foreground text-[10px]">To</span> <span className="text-foreground">{preview.client_email}</span></span>}
                 <span><span className="font-semibold uppercase tracking-wide text-muted-foreground text-[10px]">Template</span> <span className="text-foreground">{getTemplateKind(preview.template_kind).label}</span></span>
                 <span className="ml-auto">
-                  <Badge variant={updateStatusMeta(preview.status).variant} className="rounded-full text-xs">
-                    {updateStatusMeta(preview.status).label}
-                  </Badge>
+                  <TokenPill token={updateStatusMeta(preview.status).token} label={updateStatusMeta(preview.status).label} />
                 </span>
               </div>
               <div className="border border-[var(--hub-border)] rounded-xl overflow-hidden bg-[var(--hub-card)]">

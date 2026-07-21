@@ -1,21 +1,22 @@
 import type { UpdateStatus } from "@/types";
-
-type BadgeVariant = "default" | "secondary" | "outline" | "destructive";
+import type { StatusToken } from "@/lib/hubStatus";
 
 interface StatusMeta {
   label: string;
-  variant: BadgeVariant;
-  /** Tailwind classes for a coloured dot / accent. */
-  dot: string;
+  token: StatusToken;
 }
 
+// Resolved via token directly rather than the shared lookupStatus() —
+// "sent"/"draft" already exist in hubStatus.ts's document-status map with
+// different colours, so reusing that global string lookup here would
+// silently pick up the wrong (document) meaning for the same word.
 const META: Record<UpdateStatus, StatusMeta> = {
-  draft: { label: "Draft", variant: "secondary", dot: "bg-muted-foreground" },
-  scheduled: { label: "Scheduled", variant: "outline", dot: "bg-teal" },
-  sending: { label: "Sending…", variant: "outline", dot: "bg-amber" },
-  sent: { label: "Sent", variant: "default", dot: "bg-rose" },
-  failed: { label: "Failed", variant: "destructive", dot: "bg-destructive" },
-  cancelled: { label: "Cancelled", variant: "secondary", dot: "bg-muted-foreground" },
+  draft: { label: "Draft", token: "warning" },
+  scheduled: { label: "Scheduled", token: "primary" },
+  sending: { label: "Sending…", token: "warning" },
+  sent: { label: "Sent", token: "success" },
+  failed: { label: "Failed", token: "danger" },
+  cancelled: { label: "Cancelled", token: "neutral" },
 };
 
 export function updateStatusMeta(status: UpdateStatus): StatusMeta {

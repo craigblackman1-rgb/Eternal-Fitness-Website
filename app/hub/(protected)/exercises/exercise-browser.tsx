@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { HubCard, HubCardHeader } from "@/components/hub";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { IconChevronDown, IconChevronLeft, IconChevronRight, IconChevronUp, IconDumbbell, IconPlus, IconSearch, IconVideo, IconEdit3 } from "@/components/icons";
+import { IconChevronDown, IconChevronLeft, IconChevronRight, IconChevronUp, IconDumbbell, IconMenu, IconPlus, IconSearch, IconVideo, IconEdit3 } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
 import type { Archetype } from "@/types";
 import type { ExerciseEntry } from "./page";
@@ -308,7 +308,7 @@ export function ExerciseBrowser({
       <HubCard padded={false}>
         <div className="flex items-center gap-3 px-5 pt-5 pb-4 border-b border-[var(--hub-border)]">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--status-success-bg)] text-teal shrink-0">
-            <IconDumbbell className="w-4 h-4" />
+            <IconMenu className="w-4 h-4" />
           </div>
           <div>
             <div className="text-[13px] font-semibold text-[var(--color-ink)]">Exercises</div>

@@ -4,10 +4,10 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { IconChevronLeft, IconClipboardList, IconClipboardCheck, IconFileText, IconHeart, IconMail, IconPencil, IconPlus, IconTarget, IconTriangleAlert, IconDumbbell, IconEdit3, IconAlertCircle, IconLayoutDashboard, IconUsers, IconBot } from "@/components/icons";
+import { IconChevronLeft, IconClipboardList, IconClipboardCheck, IconFileText, IconHeart, IconMail, IconPencil, IconPlus, IconTarget, IconTriangleAlert, IconDumbbell, IconEdit3, IconAlertCircle, IconLayoutDashboard, IconUser, IconBot } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
 import { HubCard, HubCardHeader, HubPageHeader, HubSection, HubDataGrid, HubDataField, HubQuickActions } from "@/components/hub";
-import { StatusBadge } from "@/components/hub/StatusBadge";
+import { StatusBadge, TokenPill } from "@/components/hub/StatusBadge";
 import { HubAlert } from "@/components/hub/HubAlert";
 import { lookupStatus } from "@/lib/hubStatus";
 import { computeComplianceFlags } from "@/lib/compliance";
@@ -20,6 +20,10 @@ import { ClinicalComplianceCard } from "@/components/hub/ClinicalComplianceCard"
 import { PackagePaymentsCard } from "@/components/hub/PackagePaymentsCard";
 import { ClientUpdatesPanel } from "@/components/hub/ClientUpdatesPanel";
 import type { SentUpdate } from "@/types";
+
+function YesNoPill({ yes }: { yes: boolean }) {
+  return <TokenPill token={yes ? "success" : "danger"} label={yes ? "Yes" : "No"} />;
+}
 
 function GroupTypeLabel({ groupType }: { groupType: DBClientGroupType | null }) {
   if (!groupType) return null;
@@ -126,9 +130,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
           <div className="flex items-center justify-between py-2 text-sm">
             <span className="text-muted-foreground">GP Clearance</span>
             {p?.health ? (
-              <Badge variant={gpClearance ? "default" : "destructive"} className="rounded-full">
-                {gpClearance ? "Yes" : "No"}
-              </Badge>
+              <YesNoPill yes={gpClearance} />
             ) : (
               <span className="text-muted-foreground">—</span>
             )}
@@ -141,7 +143,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       </HubCard>
 
       <HubCard>
-        <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Active Block" noBottomPadding />
+        <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Active Block" color="slate" noBottomPadding />
         <div className="pb-5">
           {latestBlock ? (
             <Link href={`/hub/clients/${client.client_number}/blocks/${latestBlock.id}`} className="flex items-center justify-between group py-1">
@@ -261,7 +263,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             <IconLayoutDashboard className="w-3.5 h-3.5 text-muted-foreground" /> Overview
           </TabsTrigger>
           <TabsTrigger value="profile" className="gap-2 rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none [&[data-state=active]_svg]:text-rose">
-            <IconUsers className="w-3.5 h-3.5 text-muted-foreground" /> Profile
+            <IconUser className="w-3.5 h-3.5 text-muted-foreground" /> Profile
           </TabsTrigger>
           <TabsTrigger value="compliance" className="gap-2 rounded-lg border-0 bg-transparent px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--hub-hover)] hover:text-foreground data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none [&[data-state=active]_svg]:text-rose">
             <IconClipboardCheck className="w-3.5 h-3.5 text-muted-foreground" /> Compliance
@@ -365,9 +367,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                   <div className="pb-5 space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground text-xs">GP Clearance</span>
-                      <Badge variant={p.health.gp_clearance ? "default" : "destructive"} className="rounded-full">
-                        {p.health.gp_clearance ? "Yes" : "No"}
-                      </Badge>
+                      <YesNoPill yes={!!p.health.gp_clearance} />
                     </div>
                     <HubDataGrid cols={2}>
                       {p.health.conditions?.length > 0 && (
@@ -670,6 +670,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             <HubCardHeader
               icon={<IconFileText className="w-4 h-4" />}
               title="Training Blocks"
+              color="slate"
               action={
                 <Link href={`/hub/clients/${client.client_number}?tab=plan-agent`} className="inline-flex items-center gap-1.5 rounded-lg bg-rose px-3.5 py-1.5 text-sm font-semibold text-white hover:bg-rose/90 transition-colors">
                   <IconPlus className="h-4 w-4" /> Plan Block
@@ -777,7 +778,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
             <HubCardHeader
               icon={<IconMail className="w-4 h-4" />}
               title="6-Week Updates"
-              color="teal"
+              color="rose"
               action={
                 <Link href={`/hub/clients/${client.client_number}/updates`} className="text-xs font-medium text-teal hover:underline">
                   Full history &amp; report

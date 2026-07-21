@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { HubCard, HubCardHeader } from "@/components/hub";
+import { TokenPill } from "@/components/hub/StatusBadge";
 import { IconMail, IconClock, IconCalendar, IconPlus } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
 import { UpdateRowActions } from "@/components/hub/UpdateRowActions";
@@ -63,14 +64,12 @@ export function ClientUpdatesPanel({ clientNumber, updates }: { clientNumber: nu
                     <IconCalendar className="h-3 w-3" />
                     {timeLabel}
                   </span>
-                  <Badge variant={meta.variant} className="rounded-full text-xs">{meta.label}</Badge>
+                  <TokenPill token={meta.token} label={meta.label} />
                   {u.block_number > 0 && (
                     <Badge variant="outline" className="rounded-full text-xs">Block {u.block_number}</Badge>
                   )}
                   {u.status === "sent" && (
-                    <Badge variant={u.emailed ? "default" : "secondary"} className="rounded-full text-xs">
-                      {u.emailed ? "Emailed" : "Not sent"}
-                    </Badge>
+                    <TokenPill token={u.emailed ? "success" : "neutral"} label={u.emailed ? "Emailed" : "Not sent"} />
                   )}
                 </div>
               }
