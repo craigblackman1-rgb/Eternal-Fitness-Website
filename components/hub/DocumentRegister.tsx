@@ -2,7 +2,6 @@ import Link from "next/link";
 import { StatusBadge } from "@/components/hub/StatusBadge";
 import { IconFileSignature, IconPlus } from "@/components/icons";
 import { DOCUMENT_KIND_LABEL, type DocumentKind } from "@/lib/documents/types";
-import type { SignedAgreement } from "@/types";
 
 interface RegisterDocument {
   id: string;
@@ -18,21 +17,12 @@ interface RegisterDocument {
 
 interface DocumentRegisterProps {
   clientNumber: number;
-  agreements: SignedAgreement[];
   documents?: RegisterDocument[];
 }
 
 function formatDate(value: string | null) {
   if (!value) return "—";
   return new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-}
-
-/** The most relevant date for a document, given its status. */
-function docDate(status: string, sent: string | null, received: string | null, signed: string | null, created: string) {
-  if (status === "signed") return signed ?? received ?? created;
-  if (status === "received") return received ?? created;
-  if (status === "sent") return sent ?? created;
-  return created;
 }
 
 type Row = {
@@ -48,19 +38,8 @@ type Row = {
   icon: React.ReactNode;
 };
 
-export function DocumentRegister({ clientNumber, agreements, documents = [] }: DocumentRegisterProps) {
+export function DocumentRegister({ clientNumber, documents = [] }: DocumentRegisterProps) {
   const rows: Row[] = [
-    ...agreements.map((a) => ({
-      key: `agreement-${a.id}`,
-      label: "Personal Training Agreement",
-      status: a.status,
-      date: docDate(a.status, a.sent_date, a.received_date, a.signed_at, a.created_at),
-      version: 1,
-      updatedAt: a.updated_at || a.created_at,
-      updatedBy: a.client_name_print || a.client_typed_signature || a.client_name || "—",
-      href: `/hub/agreements/${a.id}`,
-      icon: <IconFileSignature className="h-4 w-4 text-muted-foreground" />,
-    })),
     ...documents.map((d) => ({
       key: `doc-${d.id}`,
       label: `${DOCUMENT_KIND_LABEL[d.kind as DocumentKind] ?? d.title}${d.version > 1 ? ` (v${d.version})` : ""}`,

@@ -599,7 +599,6 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                   <div className="pt-3 border-t border-[var(--hub-border)]">
                     <DocumentRegister
                       clientNumber={client.client_number}
-                      agreements={agreements ?? []}
                       documents={clientDocuments ?? []}
                     />
                   </div>

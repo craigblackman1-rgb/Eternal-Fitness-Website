@@ -89,7 +89,9 @@ export interface ClientDocument {
 }
 
 export const DOCUMENT_KIND_LABEL: Record<DocumentKind, string> = {
-  terms: "Terms & Conditions",
+  // The 'terms' template was updated 2026-07-04 to BE the real, dual-signed
+  // Personal Training Agreement (not a generic T&Cs doc) — label reflects that.
+  terms: "Personal Training Agreement",
   risk_assessment: "Risk Assessment",
   annual_review: "Annual Review",
   consent: "Consent",

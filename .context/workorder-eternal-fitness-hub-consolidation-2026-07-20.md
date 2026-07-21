@@ -71,7 +71,27 @@ A and B run in parallel from the start. C runs in parallel with A/B. D starts on
 - [AUTO] Build a `document_templates` entry for PAR-Q (structured `body` JSON, matching the 29-question structure already used) and a migration script to snapshot each existing `signed_parq` row into `client_documents`. VERIFY: 1:1 field mapping documented, spot-checked against at least 3 real client records. **Done — superseded the original raw-HTML-table body plan with the real interactive feedbackSections/feedbackConsents schema (same one built for the Feedback Questionnaire), a strictly better outcome: actual typed/radio-group fields a screen reader can operate, not a read-only dump. Spot-checked Colin Farley (real "yes" + free-text), Sarah Tyler, Craig Blackman — byte-for-byte match.**
 - ~~[AUTO] Fix the known Colin-flow caveat (anon read of `/parq/edit/[id]` fails under authenticated-only RLS)~~ — **superseded, not done as originally scoped.** The document engine's public sign route (`/documents/[id]/sign`) already uses the service-role pattern for every kind; PAR-Q inherits that for free by moving onto the engine, rather than needing its own fix.
 - [GATE] Running the migration against production Postgres. **Done 2026-07-21, Craig's explicit go-ahead — 17/17 rows, verified, zero legacy data touched.**
-- [GATE] Retiring/deprecating the legacy `signed_parq` table or bespoke `/agreement` form once parity is proven. **Partially done, deliberately not completed:** stopped generating NEW links to `/parq`/`/parq/edit/[id]` (removed `SendDocumentLink.tsx` + the buttons using it) so no client is ever newly sent a standalone-page link again — but the table and pages themselves are NOT deleted (safety net for any outstanding pre-migration link, plus `tracker`/compliance-tab code still reads `signed_parq` directly and was deliberately left untouched — that's medical-clearance-critical code needing its own reviewed pass, not a side effect of this one). `/agreement` is unaffected — no migration plan exists for it yet, flagged as the next real piece of scope, separate from this lane.
+- [GATE] Retiring/deprecating the legacy `signed_parq` table or bespoke `/agreement` form once parity is proven. **Partially done, deliberately not completed:** stopped generating NEW links to `/parq`/`/parq/edit/[id]` (removed `SendDocumentLink.tsx` + the buttons using it) so no client is ever newly sent a standalone-page link again — but the table and pages themselves are NOT deleted (safety net for any outstanding pre-migration link, plus `tracker`/compliance-tab code still reads `signed_parq` directly and was deliberately left untouched — that's medical-clearance-critical code needing its own reviewed pass, not a side effect of this one).
+
+### Lane C (cont.) — Agreement → document engine migration — **DONE 2026-07-21, same session**
+Craig: "migrate that too." Found the `'terms'` document_templates kind was already the real, dual-signed
+Personal Training Agreement (updated 2026-07-04) — never formally taken over from the standalone
+`/agreement` page, which nothing in the hub even linked to. No new kind needed: relabelled
+`DOCUMENT_KIND_LABEL.terms` → "Personal Training Agreement" and built
+`scripts/migrate-agreements-to-engine.mjs` to backfill all 6 `signed_agreements` rows into
+`client_documents`. Hit and fixed a real bug mid-run: 2 rows had `client_id = null` (never linked to a
+`clients` row); the script now resolves by exact case-insensitive name match, skipping — never
+guessing — on ambiguity. Re-ran clean: 6/6, 0 skipped, spot-checked. `DocumentRegister.tsx`,
+`clients/[id]/page.tsx`, and `app/hub/(protected)/documents/page.tsx` all stopped reading
+`signed_agreements` (the last one also stopped reading `signed_parq`) to prevent double-listing.
+`/hub/agreements` relabelled "(legacy record)", not deleted. **Found and deliberately NOT fixed**: a
+real, separate data-integrity bug — `signed_agreements`' package/payment/clinical columns are edited by
+`AgreementDetailClient.tsx` while the live client page edits the same concepts on `clients` via a
+totally separate, unsynced path. Spawned as its own background task, not folded into this migration.
+**Behaviour change, not silently dropped**: new-flow agreements send as a sign-link email, not an
+auto-attached PDF — a signed copy is still obtainable via the document engine's existing
+"Print or save as PDF" toolbar button. Result: every document kind in the hub now shares one
+send/resend mechanism; nothing generates a fresh standalone public-page link anymore.
 
 ### Lane D — Client portal MVP
 - [AUTO] Design client auth (magic-link or password, scoped to own data only) — no implementation yet, just the approach + a WCAG 2.2 AA check on the login flow itself (no CAPTCHA, no puzzle 2FA per the existing accessibility charter §3.1). VERIFY: approach reviewed against baseline accessibility checklist before build starts. **Decided 2026-07-20 by Craig: magic-link, approved as designed in `.context/lane-d1-client-auth-design.md`.** Cleared to start the unit below.

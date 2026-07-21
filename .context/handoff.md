@@ -1,5 +1,69 @@
 # Handoff
 
+## Session 2026-07-21 (truly final) — Agreement migrated too; every document type now hub-only
+
+Immediately followed the PAR-Q migration with Agreement, per Craig's "migrate that too."
+
+### The key discovery that changed the plan
+Went in expecting to build a new `'agreement'` document kind from scratch (like PAR-Q). Instead found
+the document engine's existing `'terms'` template was **already** updated on 2026-07-04
+(`20260704_terms_real_content.sql`) to literally BE the real, dual-signed Personal Training Agreement —
+same section structure (trainer commitments, client responsibilities, medical clearance, payment,
+risk/liability, data protection, general terms) as the standalone `/agreement` page's embedded terms
+text. Nobody ever formally retired the old standalone system after that — it just kept existing in
+parallel, unlinked from the hub (confirmed last session: nothing in the hub links to `/agreement` at
+all). So no new kind, no new template — just relabelled `DOCUMENT_KIND_LABEL.terms` from generic
+"Terms & Conditions" to "Personal Training Agreement" so it's not confusing in the "New document" picker,
+and backfilled the historical data.
+
+### What changed
+- **`scripts/migrate-agreements-to-engine.mjs`** (new) — snapshots every `signed_agreements` row into
+  `client_documents` (kind='terms'). No questionnaire content needed (unlike PAR-Q) — it's pure legal
+  text (the shared template body) plus client + trainer signatures.
+- **Real bug hit and fixed mid-run**: 2 of 8 legacy rows had `client_id = null` (never linked to a real
+  `clients` row) — `client_documents.client_id` is NOT NULL, so the first run failed partway through
+  (3 rows already inserted). Cleaned up the exact 3 partial inserts by id (not a broad delete), then
+  fixed the script to resolve unlinked rows by exact case-insensitive name match against `clients`,
+  skipping (never guessing) if that doesn't resolve to exactly one row. Both cases resolved cleanly
+  ("Sam gibbons"→Sam Gibbons #13, "Ellie wallwork"→Ellie Wallwork #7). Re-ran clean: 6/6 migrated, 0
+  skipped. Spot-checked the output — signatures, names, dates all correct.
+- **`DocumentRegister.tsx`, `clients/[id]/page.tsx`, `app/hub/(protected)/documents/page.tsx`** — all
+  three stopped reading `signed_agreements` (and `documents/page.tsx` also stopped reading
+  `signed_parq`) now that both are fully represented in `client_documents` — otherwise every migrated
+  row would show twice (once as the legacy row, once as the new snapshot).
+- **`/hub/agreements`** relabelled "(legacy record)" with a pointer to All Documents, same treatment as
+  the PAR-Q history page last session. Not deleted — still the only place to see pre-migration records.
+
+### A real, separate bug found — NOT fixed here, flagged as a background task
+While reading `AgreementDetailClient.tsx` to understand what "the agreement" actually contains, found
+that `signed_agreements` carries a full second copy of package/payment/clinical-tracking columns
+(sessions used, payment status, medical clearance, risk level, GP letter dates, trainer observations —
+added 2026-05-25) that the Agreement detail page still actively edits via `PATCH /api/agreements/[id]`.
+But the *live* client detail page's `PackagePaymentsCard`/`ClinicalComplianceCard` edit the same
+concepts on the `clients` table instead, via a completely separate `/api/clients/[id]` path — never
+synced. Two screens can silently show different, diverging answers to "has this client paid" or "is
+medical clearance in place." **Deliberately not migrated or fixed** — this is a real pre-existing data
+integrity bug, not something to paper over as a side effect of a document-type migration. Spawned as a
+background task for Craig to pick up separately.
+
+### Also a deliberate behaviour change, not silently dropped
+The old `/agreement` → `AgreementDetailClient`'s "Email PDF" button attached a real generated PDF.
+Going forward, a new-flow agreement is sent as a sign-this-link email, like every other document kind —
+no automatic PDF. A signed copy can still be saved as a PDF via the document's own
+"Print or save as PDF" accessibility-toolbar button (browser print), which was already built in. The
+old `/agreement`/`AgreementDetailClient` PDF-email path is untouched and still works for legacy records.
+
+### Net result across both sessions today
+Every document type in the hub — Terms/Personal Training Agreement, Risk Assessment, Annual Review,
+Consent, Feedback, and now PAR-Q — is sent, resent, and signed through the exact same mechanism, from
+the hub, never a fresh standalone public-page link. Nothing is left that still needs "migrating" in
+that sense.
+
+### Verified
+`npx tsc --noEmit` clean. Not live-browser-verified this session (no hub credentials) — worth a real
+click-through creating and sending a new Personal Training Agreement from the hub before fully trusting
+it, same caveat as PAR-Q.
+
 ## Session 2026-07-21 (final) — PAR-Q migrated onto the document engine; standalone-send buttons retired
 
 Craig's ask, in his own words: "we just need to have the same mechanism to send any document or
