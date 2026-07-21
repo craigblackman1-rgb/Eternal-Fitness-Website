@@ -36,11 +36,11 @@ and sends from `/hub/clients/10/updates`.
 trace-file-copy stage fails locally with `EPERM` on symlinks — a pre-existing Windows/pnpm quirk in
 the standalone-output step, unrelated to this change and not present in Coolify's Docker build).
 Committed `cc29c03`, pushed to `main` (Craig's explicit go-ahead). Coolify auto-triggered deployment
-`oe8ppywxvdv1odhbq1kvn9yk` on the push — **still `in_progress` at session close, not yet confirmed
-`running:healthy`**. First thing next session: check `mcp__coolify__deployment get` on that UUID (or
-`list_deployments`) before treating this as live, then do a real "New Update" → Flexible Update → chat
-→ Create Draft round-trip in the hub to verify the fix actually works end-to-end (only typecheck/build
-verified this session, not a live UI test — no hub session available).
+`oe8ppywxvdv1odhbq1kvn9yk` on the push — **confirmed `finished` via `mcp__coolify__deployment get`
+before session close.** Still not live-UI-tested, though — next session (or Craig) should do a real
+"New Update" → Flexible Update → chat → Create Draft round-trip in the hub to verify the fix actually
+works end-to-end (only typecheck/build/deployment-status verified this session, no hub session
+available to click through it).
 
 ## Session close — 2026-07-21
 
