@@ -1,6 +1,18 @@
 # Eternal Fitness Website — State
 
 ## Current
+- **Flexible/four-week update AI drafting fixed, pushed, deploy in progress at session close** (2026-07-21,
+  latest) — `generate` route only ever supported `six_week_update`; picking Flexible or 4-Week Update in
+  the hub's "New Update" chat flow hit a hard 400 ("not implemented yet"). `generateUpdateDraft()`
+  (`lib/generate-six-week-update.ts`) now covers all three kinds; flexible lets the AI choose its own
+  section count/headings from the conversation instead of a fixed shape (Craig's explicit ask, so Esther
+  stops drafting these by hand in Claude Desktop). `NewUpdateClient.tsx` now populates `flexSections` from
+  the AI draft too (previously silently did nothing for the flexible kind). `tsc`/build clean. Committed
+  `cc29c03`, pushed to main — **Coolify deployment `oe8ppywxvdv1odhbq1kvn9yk` was still `in_progress` at
+  session close, not yet confirmed live** — check that first next session. Not live-UI-tested (no hub
+  session this session). Monique Weardon's (#10) actual draft was built directly via
+  `scripts/create-update-draft.mjs` against prod as an immediate workaround — sitting as a draft at
+  `/hub/clients/10/updates`, nothing sent. See handoff.md and decisions.log.
 - **Real root cause of "still shows as sent" found and fixed** (2026-07-21) — a second, previously-undiscovered "Create & send" component on the *template* detail page (`app/hub/(protected)/templates/[id]/SendTemplateToClient.tsx`) was bypassing the whole document-engine send flow: it PATCHed a bare `action: "send"` that just flipped status to "sent" with no email attempt and no `emailed` field ever set. That's what Craig meant weeks-turns ago by "/hub/templates needs the same send mechanism" — there genuinely was a broken send button there, missed by an earlier grep that only checked the server page component, not the client component it renders. Fixed: `SendTemplateToClient.tsx` now just creates the draft and redirects to the real document page; the bare `action: "send"` branch is deleted from `app/api/documents/[id]/route.ts` entirely (confirmed zero other callers first) — `send_email` is now the only way status becomes "sent", closing off this exact failure mode for good. `tsc`/build clean. See handoff.md.
 - **`client_documents.emailed` flag added, live** (2026-07-21) — status "sent" no longer the only signal of whether an email actually delivered. Real data showed a document marked "sent" 36ms after creation — physically too fast for a real SendGrid API round-trip, strong evidence the backend is dry-running in prod (not definitively confirmed — didn't reveal/test the raw SENDGRID_API_KEY/SMTP_* values, which do exist as env vars on Coolify). `sendDocumentEmail()` now records `emailed: !dryRun`; `DocumentRegister.tsx`/All Documents/`DocumentDetailClient.tsx` all show a "Not delivered" indicator when status says sent but emailed is false. Mirrors the same pattern `sent_updates.emailed`/`ClientUpdatesPanel.tsx` already used for update emails — this problem had already been solved once, just not applied to documents. **Needs a real test send (hub UI or SendGrid dashboard) to confirm whether the backend is actually broken** — flagged for Craig, not something confirmable without live credentials. See handoff.md.
 - **4 more document/update-email issues fixed** (2026-07-21) — editable section headers extended to the 6-week/4-week update templates (previously only the non-default "Flexible Update" had this); documents can now be deleted (`DELETE /api/documents/[id]`, wired into both list and detail views) with a clearer draft-status note; the confusing Copy-link icon (was reusing the send/paper-plane icon) swapped to a real copy icon; document-ready email button/link spacing rebalanced (was `20px 0 4px` → `margin:0`, now `24px 0 16px` → `margin:8px 0 0`). Migrated PAR-Q/Agreement documents can still show "sent" from legacy status carry-over — Craig confirmed leave that historical data as-is. `tsc`/build clean. See handoff.md.
@@ -31,8 +43,8 @@
 - **6-week update emails**: block_summaries JSONB + sent_updates table (migration)
 - **4-week update template**: `four_week_update` kind (lib/email-templates/four-week-update.ts) —
   7 sections incl. "What Every Session Is Actually Doing" / "A Couple of Things to Keep an Eye On",
-  for injury/recovery-block reviews. No auto-generate-from-data path yet (six-week only); drafts
-  authored via scripts/create-update-draft.mjs or hand-edited in the hub. See handoff.md 2026-07-17.
+  for injury/recovery-block reviews. AI auto-generate now works (fixed 2026-07-21 — see handoff.md);
+  drafts can still be authored via scripts/create-update-draft.mjs or hand-edited in the hub too.
 - **Reusable SMTP send layer**: lib/email.ts — nodemailer, dry-runs gracefully when unconfigured
 - **Branded email template**: inline-CSS, 6 sections, Rose/Teal brand colours
 - **Generation API**: pulls profile + blocks + summaries → Claude or template-based fallback

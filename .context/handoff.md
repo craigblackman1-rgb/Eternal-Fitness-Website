@@ -1,5 +1,47 @@
 # Handoff
 
+## Session close — 2026-07-21 (later) — flexible/four-week update draft generation fixed
+
+Craig reported "email updates are now not working at all" while trying to build a real update for
+Monique Weardon (client #10) using the Flexible Update template, pasting the exact email text he
+wanted (6kg/lunges/floor-work content) and asking why the agent wasn't drafting to match it.
+
+**Root cause**: `app/api/clients/[id]/six-week-update/generate/route.ts` only ever implemented
+`six_week_update` — it hard-rejected `four_week_update` and `flexible_update` with a 400
+(`Template kind "..." is not implemented yet`), even though the template picker, editor, and email
+builders (`lib/email-templates/{four-week,flexible}-update.ts`) for both had already shipped. Picking
+either template in the hub's "New Update" → chat → "Create Draft" flow broke outright. This was a
+half-shipped feature (frontend done, backend never extended), not a regression.
+
+**Immediate fix for Monique**: built her actual draft directly via `scripts/create-update-draft.mjs`
+against prod (`clientNumber: 10`, `templateKind: "flexible_update"`, 6 sections matching Craig's
+pasted text verbatim: Attendance & Consistency / The Big Win / Lunges / Getting Up From The Floor /
+What's Next / Worth Saying). Rendered to `--preview-only` HTML and eyeballed it before writing —
+`sent_updates` id `24a05df4-47ef-4cd1-8a46-090aa9b81116`, status `draft`, nothing sent. Craig reviews
+and sends from `/hub/clients/10/updates`.
+
+**Real fix**: `lib/generate-six-week-update.ts` rewritten from a six-week-only module into
+`generateUpdateDraft(clientNumber, templateKind, options)` covering all three kinds:
+- `six_week_update` / `four_week_update`: same AI-JSON-per-section-key pattern as before, just added
+  the four-week kind's 2 extra sections (`whatEverySessionSection`, `keepAnEyeOnSection`).
+- `flexible_update`: **no fixed section list** — the AI is prompted to decide section count and
+  headings itself from the chat conversation (mirrors how Esther drafts these by hand today; this was
+  Craig's explicit ask — "the agent doesn't create a template against what I paste... it does its own
+  thing"), not forced into six_week_update's shape.
+- `NewUpdateClient.tsx`'s `handleCreateDraft` previously only populated `sections`/`sectionLabels` from
+  `kind.sections` (empty for flexible) — added a `kind.flexible` branch that populates `flexSections`
+  (+ `greetingName`/`introText` if the AI set them) from `draft.data.sections` instead.
+
+`tsc --noEmit` clean, `next build` compiles/typechecks/generates all 61 pages clean (the build's
+trace-file-copy stage fails locally with `EPERM` on symlinks — a pre-existing Windows/pnpm quirk in
+the standalone-output step, unrelated to this change and not present in Coolify's Docker build).
+Committed `cc29c03`, pushed to `main` (Craig's explicit go-ahead). Coolify auto-triggered deployment
+`oe8ppywxvdv1odhbq1kvn9yk` on the push — **still `in_progress` at session close, not yet confirmed
+`running:healthy`**. First thing next session: check `mcp__coolify__deployment get` on that UUID (or
+`list_deployments`) before treating this as live, then do a real "New Update" → Flexible Update → chat
+→ Create Draft round-trip in the hub to verify the fix actually works end-to-end (only typecheck/build
+verified this session, not a live UI test — no hub session available).
+
 ## Session close — 2026-07-21
 
 Long session, mostly reactive (Craig using what got built earlier the same day and reporting real
