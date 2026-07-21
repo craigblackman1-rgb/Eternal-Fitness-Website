@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
-import { generateSixWeekUpdate } from "@/lib/generate-six-week-update";
+import { generateUpdateDraft } from "@/lib/generate-six-week-update";
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -10,12 +10,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const body = await request.json().catch(() => ({}));
   const { conversationSummary, templateKind } = body as { conversationSummary?: string; templateKind?: string };
 
-  if (templateKind && templateKind !== "six_week_update") {
-    return NextResponse.json({ error: `Template kind "${templateKind}" is not implemented yet` }, { status: 400 });
-  }
-
   try {
-    const draft = await generateSixWeekUpdate(parseInt(params.id), { conversationSummary });
+    const draft = await generateUpdateDraft(parseInt(params.id), templateKind || "six_week_update", { conversationSummary });
     return NextResponse.json(draft);
   } catch (err) {
     return NextResponse.json(

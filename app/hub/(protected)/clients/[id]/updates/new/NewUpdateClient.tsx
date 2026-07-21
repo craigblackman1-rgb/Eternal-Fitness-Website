@@ -148,14 +148,21 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
         throw new Error(err.error || "Failed to generate update");
       }
       const draft = await res.json();
-      const nextSections: SectionValues = {};
-      const nextLabels: SectionValues = {};
-      for (const s of kind.sections) {
-        nextSections[s.key] = draft.data?.[s.key] ?? "";
-        nextLabels[s.key] = s.label;
+      if (kind.flexible) {
+        const draftSections = Array.isArray(draft.data?.sections) ? (draft.data.sections as FlexibleSection[]) : [];
+        setFlexSections(draftSections.length > 0 ? draftSections : [{ ...EMPTY_FLEX_SECTION }]);
+        if (draft.data?.greetingName) setGreetingName(draft.data.greetingName as string);
+        if (draft.data?.introText) setIntroText(draft.data.introText as string);
+      } else {
+        const nextSections: SectionValues = {};
+        const nextLabels: SectionValues = {};
+        for (const s of kind.sections) {
+          nextSections[s.key] = draft.data?.[s.key] ?? "";
+          nextLabels[s.key] = s.label;
+        }
+        setSections(nextSections);
+        setSectionLabels(nextLabels);
       }
-      setSections(nextSections);
-      setSectionLabels(nextLabels);
       setSubject(draft.subject ?? kind.defaultSubject);
       setBlockNumber(draft.blockNumber ?? 0);
       setHasDraft(true);
