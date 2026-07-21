@@ -181,7 +181,7 @@ export default async function DashboardPage() {
             </div>
           </HubCard>
 
-          /* Needs Attention */
+          {/* Needs Attention */}
           <HubCard>
             <HubCardHeader
               icon={<IconTriangleAlert className="w-4 h-4" />}
