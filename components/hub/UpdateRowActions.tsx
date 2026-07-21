@@ -23,25 +23,26 @@ interface UpdateRowActionsProps {
   body_html: string;
 }
 
-/** Edit / Send-now / Delete controls for an update row, plus a read-only Preview dialog.
- *  Edit + Send-now show only for draft/scheduled/failed; Delete is available on any update;
- *  Preview is available on every update regardless of status. */
+/** Edit / Send-now / Resend / Delete controls for an update row, plus a read-only Preview dialog.
+ *  Edit + Send-now show only for draft/scheduled/failed; Resend shows only once sent;
+ *  Delete is available on any update; Preview is available on every update regardless of status. */
 export function UpdateRowActions({ clientNumber, updateId, status, hasEmail, subject, body_html }: UpdateRowActionsProps) {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
 
   const editable = status === "draft" || status === "scheduled" || status === "failed";
+  const resendable = status === "sent";
 
-  const handleSendNow = async () => {
+  const handleSendNow = async (isResend: boolean) => {
     if (!hasEmail) return toast.error("This update has no recipient — open it to add one");
-    if (!confirm("Send this update to the client now?")) return;
-    setBusy("send");
+    if (!confirm(isResend ? "Resend this update to the client?" : "Send this update to the client now?")) return;
+    setBusy(isResend ? "resend" : "send");
     try {
       const res = await fetch(`/api/updates/${updateId}/send`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || "Failed to send");
-      toast.success(data.emailed ? "Update sent" : "Email sending isn't configured — logged without sending");
+      toast.success(data.emailed ? (isResend ? "Update resent" : "Update sent") : "Email sending isn't configured — logged without sending");
       router.refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
@@ -87,11 +88,17 @@ export function UpdateRowActions({ clientNumber, updateId, status, hasEmail, sub
                 Edit
               </Button>
             </Link>
-            <Button variant="outline" size="sm" className="rounded-lg gap-1.5 h-8" onClick={handleSendNow} disabled={busy !== null}>
+            <Button variant="outline" size="sm" className="rounded-lg gap-1.5 h-8" onClick={() => handleSendNow(false)} disabled={busy !== null}>
               <IconSend className="h-3.5 w-3.5" />
               {busy === "send" ? "Sending…" : "Send now"}
             </Button>
           </>
+        )}
+        {resendable && (
+          <Button variant="outline" size="sm" className="rounded-lg gap-1.5 h-8" onClick={() => handleSendNow(true)} disabled={busy !== null}>
+            <IconSend className="h-3.5 w-3.5" />
+            {busy === "resend" ? "Resending…" : "Resend"}
+          </Button>
         )}
         <Button
           variant="ghost"

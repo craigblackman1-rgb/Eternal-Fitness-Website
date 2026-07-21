@@ -602,6 +602,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                       parqs={parqs ?? []}
                       agreements={agreements ?? []}
                       documents={clientDocuments ?? []}
+                      clientEmail={client.email}
                     />
                   </div>
 

@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { IconMail } from "@/components/icons";
+import { IconMail, IconSend } from "@/components/icons";
 import { toast } from "sonner";
 
 interface SendDocumentLinkProps {
@@ -13,17 +15,25 @@ interface SendDocumentLinkProps {
   /** Signed 7-day link params (minted server-side) for the existing-document link. */
   exp?: number;
   sig?: string;
+  /** Client's email on file — enables the real "Email" send action. Copy-link stays available without it. */
+  clientEmail?: string | null;
 }
 
-export function SendDocumentLink({ path, clientNumber, label, existingId, exp, sig }: SendDocumentLinkProps) {
+/** PRIMARY = actually email the client the link (only wired up for PAR-Q so far).
+ *  SECONDARY = copy the link to the clipboard for manual sending (text, WhatsApp). */
+export function SendDocumentLink({ path, clientNumber, label, existingId, exp, sig, clientEmail }: SendDocumentLinkProps) {
+  const router = useRouter();
+  const [sending, setSending] = useState(false);
+  const hasEmail = Boolean(clientEmail && clientEmail.trim());
+  const canEmail = path === "/parq";
+
+  const buildUrl = () =>
+    existingId && exp && sig
+      ? `${window.location.origin}${path}/edit/${existingId}?exp=${exp}&sig=${sig}`
+      : `${window.location.origin}${path}?client=${clientNumber}`;
+
   const copyLink = async () => {
-    // Existing PAR-Q → send the signed, 7-day edit link so the client updates
-    // their own document. No existing doc → send the blank form for a first submission.
-    const url =
-      existingId && exp && sig
-        ? `${window.location.origin}${path}/edit/${existingId}?exp=${exp}&sig=${sig}`
-        : `${window.location.origin}${path}?client=${clientNumber}`;
-    await navigator.clipboard.writeText(url);
+    await navigator.clipboard.writeText(buildUrl());
     toast.success(
       existingId && exp && sig
         ? "Fresh 7-day link to the client's PAR-Q copied — send it so they can update it"
@@ -31,10 +41,56 @@ export function SendDocumentLink({ path, clientNumber, label, existingId, exp, s
     );
   };
 
+  const sendEmail = async () => {
+    setSending(true);
+    try {
+      const res = await fetch("/api/parq/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientNumber, parqId: existingId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to send email");
+      toast.success(data.dryRun ? "Email queued (dry run — no email backend configured)" : `Email sent to ${clientEmail}`);
+      router.refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Something went wrong");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if (!canEmail) {
+    return (
+      <Button variant="outline" size="sm" onClick={copyLink} className="rounded-lg gap-1.5 border-border/60 h-7 px-2.5 text-xs">
+        <IconMail className="h-3 w-3" />
+        {label}
+      </Button>
+    );
+  }
+
   return (
-    <Button variant="outline" size="sm" onClick={copyLink} className="rounded-lg gap-1.5 border-border/60 h-7 px-2.5 text-xs">
-      <IconMail className="h-3 w-3" />
-      {label}
-    </Button>
+    <div className="flex items-center gap-1.5">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={sendEmail}
+        disabled={sending || !hasEmail}
+        title={hasEmail ? undefined : "No email address on file for this client"}
+        className="rounded-lg gap-1.5 border-border/60 h-7 px-2.5 text-xs disabled:opacity-50"
+      >
+        <IconMail className="h-3 w-3" />
+        {sending ? "Sending…" : `Email ${label.replace(/^Send /i, "")}`}
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={copyLink}
+        title="Copy link"
+        className="rounded-lg h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+      >
+        <IconSend className="h-3 w-3" />
+      </Button>
+    </div>
   );
 }

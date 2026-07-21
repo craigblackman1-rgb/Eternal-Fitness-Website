@@ -136,7 +136,7 @@ function DiffList({ diffs }: { diffs: { label: string; from: string; to: string 
 
 export default async function ParqHistoryPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
-  const { data: client } = await supabase.from("clients").select("id, name, client_number").eq("client_number", parseInt(params.id)).single();
+  const { data: client } = await supabase.from("clients").select("id, name, client_number, email").eq("client_number", parseInt(params.id)).single();
   if (!client) notFound();
 
   const { data: submissions } = await supabase
@@ -166,7 +166,7 @@ export default async function ParqHistoryPage({ params }: { params: { id: string
           </div>
           {latest && (
             <div className="flex items-center gap-2 shrink-0">
-              <SendDocumentLink path="/parq" clientNumber={client.client_number} label="Send update" existingId={latest.id} exp={parqLink?.exp} sig={parqLink?.sig} />
+              <SendDocumentLink path="/parq" clientNumber={client.client_number} label="Send update" existingId={latest.id} exp={parqLink?.exp} sig={parqLink?.sig} clientEmail={client.email} />
               <Link
                 href={`/hub/clients/${client.client_number}/parq/${latest.id}/edit`}
                 className="inline-flex items-center gap-1.5"

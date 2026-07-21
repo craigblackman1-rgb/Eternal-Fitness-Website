@@ -23,6 +23,7 @@ interface DocumentRegisterProps {
   parqs: SignedPARQ[];
   agreements: SignedAgreement[];
   documents?: RegisterDocument[];
+  clientEmail?: string | null;
 }
 
 function formatDate(value: string | null) {
@@ -51,7 +52,7 @@ type Row = {
   icon: React.ReactNode;
 };
 
-export function DocumentRegister({ clientNumber, parqs, agreements, documents = [] }: DocumentRegisterProps) {
+export function DocumentRegister({ clientNumber, parqs, agreements, documents = [], clientEmail }: DocumentRegisterProps) {
   // Latest PAR-Q on file (parqs arrive newest-first). If one exists, "Send PAR-Q"
   // links the client to their existing document to update it, not a blank form.
   const latestParqId = parqs[0]?.id;
@@ -106,6 +107,7 @@ export function DocumentRegister({ clientNumber, parqs, agreements, documents = 
             existingId={latestParqId}
             exp={parqLink?.exp}
             sig={parqLink?.sig}
+            clientEmail={clientEmail}
           />
           <Link
             href={`/hub/clients/${clientNumber}/documents`}

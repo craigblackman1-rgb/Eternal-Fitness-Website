@@ -78,6 +78,8 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
   const [emailing, setEmailing] = useState(false);
   const [emailStatus, setEmailStatus] = useState<"idle" | "success" | "error">("idle");
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailDryRun, setEmailDryRun] = useState(false);
+  const [everEmailed, setEverEmailed] = useState(false);
   const [printView, setPrintView] = useState(false);
 
   // PAR-Q editing state
@@ -180,11 +182,13 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
         method: "POST",
       });
 
+      const result = await response.json();
       if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || "Failed to send email");
+        throw new Error(result.error || "Failed to send email");
       }
 
+      setEmailDryRun(Boolean(result.dryRun));
+      setEverEmailed(true);
       setEmailStatus("success");
       setTimeout(() => setEmailStatus("idle"), 5000);
     } catch (err) {
@@ -359,7 +363,7 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
             ) : (
               <>
                 <IconSend className="w-4 h-4" />
-                Email PDF
+                {everEmailed ? "Resend email" : "Email PDF"}
               </>
             )}
           </Button>
@@ -415,7 +419,11 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
       {emailStatus === "success" && (
         <div className="bg-green-50 border border-green-200 rounded-md p-3 flex items-center gap-2">
           <IconCheckCircle className="w-4 h-4 text-green-600" />
-          <p className="text-sm text-green-800">Agreement emailed to {data.client_email} with PDF attachment</p>
+          <p className="text-sm text-green-800">
+            {emailDryRun
+              ? "Email queued (dry run — no email backend configured)"
+              : `Agreement emailed to ${data.client_email} with PDF attachment`}
+          </p>
         </div>
       )}
       {emailStatus === "error" && (

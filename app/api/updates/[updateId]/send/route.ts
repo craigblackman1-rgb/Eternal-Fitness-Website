@@ -4,7 +4,8 @@ import { dispatchUpdateEmail } from "@/lib/updates/send";
 
 /**
  * Send a saved draft/scheduled update right now (the "send it now instead of
- * waiting" button). Marks the record sent/failed just like the cron dispatcher.
+ * waiting" button), or resend one that's already gone out. Marks the record
+ * sent/failed just like the cron dispatcher.
  *
  * Uses insert-first reliability: transitions the row to "sending" before
  * dispatch, then resolves to "sent" or "failed" afterward.
@@ -21,8 +22,10 @@ export async function POST(request: Request, { params }: { params: { updateId: s
     .single();
 
   if (!update) return NextResponse.json({ error: "Update not found" }, { status: 404 });
-  if (!["draft", "scheduled", "failed"].includes(update.status)) {
-    return NextResponse.json({ error: "This update has already been sent" }, { status: 409 });
+  // "sent" is allowed through as a resend — the client asked for it again, or the
+  // first send needs re-triggering (bounced, wrong address now fixed, etc).
+  if (!["draft", "scheduled", "failed", "sent"].includes(update.status)) {
+    return NextResponse.json({ error: "This update can't be sent from its current status" }, { status: 409 });
   }
 
   // Allow overriding the recipient from the request (edit screen may have a fresher one).

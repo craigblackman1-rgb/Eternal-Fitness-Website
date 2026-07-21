@@ -15,11 +15,19 @@
  *   SMTP_HOST/PORT/USER/PASS/FROM — SMTP relay fallback
  */
 
+export interface EmailAttachment {
+  filename: string;
+  /** Raw file bytes. */
+  content: Buffer;
+  contentType?: string;
+}
+
 export interface SendEmailInput {
   to: string | string[];
   subject: string;
   html: string;
   text?: string;
+  attachments?: EmailAttachment[];
 }
 
 export interface SendEmailResult {
@@ -92,6 +100,12 @@ async function sendSendgrid(input: SendEmailInput): Promise<SendEmailResult> {
         { type: "text/plain", value: text || " " },
         { type: "text/html", value: input.html },
       ],
+      attachments: input.attachments?.map((a) => ({
+        filename: a.filename,
+        type: a.contentType || "application/octet-stream",
+        content: a.content.toString("base64"),
+        disposition: "attachment",
+      })),
     }),
   });
 
@@ -122,6 +136,11 @@ async function sendNodemailer(input: SendEmailInput): Promise<SendEmailResult> {
     subject: input.subject,
     html: input.html,
     text: input.text || htmlToText(input.html) || undefined,
+    attachments: input.attachments?.map((a) => ({
+      filename: a.filename,
+      content: a.content,
+      contentType: a.contentType,
+    })),
   });
 
   return { success: true, messageId: info.messageId };

@@ -1,5 +1,84 @@
 # Handoff
 
+## Session 2026-07-21 (later) — PAR-Q real email sending + update-email resend (local, NOT pushed)
+
+Craig reported two gaps: no way to resend a 6-week/4-week client update email once it's gone out,
+and no way to actually *email* a PAR-Q to a client (or see options to email other documents) — he
+said this was requested yesterday (2026-07-20).
+
+### What was found
+- **6-week update emails**: `app/api/updates/[updateId]/send/route.ts` explicitly blocked sending
+  once `status === "sent"` (`409 "This update has already been sent"`) — no resend path existed,
+  by design, not a bug.
+- **PAR-Q**: `SendDocumentLink.tsx` (used on both the client-detail Compliance card and the
+  standalone PAR-Q history page) has always been copy-link-only despite the mail icon/label —
+  clicking it copies a URL to the clipboard, it never emails anything. This is the actual gap Craig
+  hit — there never was a real "email the PAR-Q" option, only "Send PAR-Q update" phrasing that
+  implies one.
+- **Agreements**, by contrast, already have a real email option (`AgreementDetailClient.tsx` →
+  `/api/agreements/[id]/email`) — but it uses `RESEND_API_KEY`/the `resend` npm package, a
+  *different* backend from the one everything else in the app uses (`lib/email.ts`,
+  SendGrid/SMTP-based). `state.md` already flags `RESEND_API_KEY` as unset — so the agreement email
+  button is present in the UI but silently dead (`501` on click). **Not fixed this session** — flagged
+  here for a decision (rewire it onto `lib/email.ts` vs. set `RESEND_API_KEY`), since fixing it means
+  either losing the PDF attachment (SendGrid/SMTP path has no attachment support yet) or extending
+  `lib/email.ts` to support attachments — a slightly bigger change than the two asked-for items.
+
+### What was built
+1. **Update-email resend**: `send/route.ts`'s guard now allows `"sent"` through alongside
+   draft/scheduled/failed (resend re-dispatches and updates `sent_at`, no schema change).
+   `UpdateRowActions.tsx` gets a new "Resend" button, shown only when `status === "sent"`, alongside
+   the existing Preview/Delete (Edit/Send-now stay draft/scheduled/failed-only, unchanged).
+2. **Real PAR-Q email**: new `lib/email-templates/parq-request.ts` (reuses the shared
+   `buildBrandedUpdateEmail` shell, wording tailored to "complete/update a questionnaire" rather than
+   "sign a document") + new `app/api/parq/send-email/route.ts` (mirrors the document-engine's
+   `send_email` action in `app/api/documents/[id]/route.ts`: looks up the client by `clientNumber`,
+   400s with a clear message if no email on file, mints a signed 7-day edit link via
+   `mintParqLinkParams` for updates or a blank-form link for first sends, sends via `getEmailSender()`,
+   stamps `signed_parq.sent_date`). `SendDocumentLink.tsx` now renders a real "Email …" button (primary,
+   disabled with a tooltip when the client has no email on file) plus the existing copy-link action as
+   a secondary icon button, for PAR-Q specifically (`path === "/parq"`; agreements keep the old
+   copy-only behaviour since they already have their own separate email button on the agreement page).
+   `DocumentRegister.tsx` and the standalone PAR-Q page now thread `clientEmail` down from the already
+   -loaded `clients.email` column (both call sites already had it or a one-line `select` addition
+   away).
+
+### Verified
+- `npx tsc --noEmit` — clean, zero errors project-wide.
+- **Not verified live** — no hub login credentials available this session (same limitation noted
+  throughout this Work Order), so this was checked by code review + type-check only, not a real
+  browser send. Before trusting a real client receives an email: confirm which backend `lib/email.ts`
+  resolves to on this environment (`getEmailStatus()`) — `state.md` flags this as previously
+  unconfirmed for the document-engine feature too.
+
+### Follow-up (same session): Agreements email fixed, resend now works on every document kind
+Craig confirmed the goal broadly — "every document should have the ability to resend in case they
+didn't receive it the first time or it added in junk mail" — so the Agreements gap flagged above
+was closed rather than just documented:
+- **`lib/email.ts`** gained `attachments?: EmailAttachment[]` on `SendEmailInput`, implemented for
+  both the SendGrid Web API path (base64 `content`) and the Nodemailer/SMTP path (native
+  `attachments`). This is the first attachment support in the shared send layer.
+- **`app/api/agreements/[id]/email/route.tsx`** rewritten to build the PDF the same way as before
+  (`AgreementPDF` + `@react-pdf/renderer`) but send it through `getEmailSender()` instead of a raw
+  `Resend` SDK call keyed off the never-set `RESEND_API_KEY` — same working backend as everything
+  else in the app now.
+- **`AgreementDetailClient.tsx`** — button now reads "Resend email" after the first successful send
+  in the session (was always "Email PDF"); success message distinguishes a real send from a dry run
+  (no backend configured), matching the document-engine's own send feedback pattern. No DB
+  column tracks "has this ever been emailed" across sessions — the button resets to "Email PDF" on
+  a fresh page load; a persistent flag would need a migration, not added here since it wasn't asked
+  for and the button was already always-clickable regardless of label.
+
+**State of resend across every document kind, after this session:**
+- Document engine (terms/risk_assessment/annual_review/consent): already had it (built 2026-07-20).
+- PAR-Q: fixed this session (real email, was copy-link-only).
+- Agreements: fixed this session (email existed but the backend was dead).
+- 6-week/4-week client update emails: fixed this session (resend was blocked outright once sent).
+
+### Not done
+- **Not committed, not pushed** — local changes only, per the standing push/deploy `[GATE]`.
+- No live send test — no hub credentials this session; verified via `tsc --noEmit` + code review only.
+
 ## Session 2026-07-21 — Lane F pushed, portal fixed & live, hub-wide icon/colour audit, Site Content inventory, blog byline + SEO
 
 ### Status snapshot
