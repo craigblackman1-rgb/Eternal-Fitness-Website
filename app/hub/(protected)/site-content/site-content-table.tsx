@@ -8,8 +8,8 @@ import { KpiTile } from "@/components/hub/KpiTile";
 import {
   IconFileText,
   IconCheckCircle,
-  IconAlertTriangle,
   IconEdit3,
+  IconRefreshCw,
   IconChevronDown,
 } from "@/components/icons";
 
@@ -178,8 +178,8 @@ export function SiteContentTable({ keywords }: { keywords: PageKeyword[] }) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiTile icon={<IconFileText className="w-5 h-5" />} label="Total Pages" value={counts.total} statusToken="neutral" />
         <KpiTile icon={<IconCheckCircle className="w-5 h-5" />} label="Published" value={counts.published} statusToken="success" />
-        <KpiTile icon={<IconAlertTriangle className="w-5 h-5" />} label="Needs Writing" value={counts.needsWriting} statusToken="warning" />
-        <KpiTile icon={<IconEdit3 className="w-5 h-5" />} label="Needs Updating" value={counts.needsUpdating} statusToken="primary" />
+        <KpiTile icon={<IconEdit3 className="w-5 h-5" />} label="Needs Writing" value={counts.needsWriting} statusToken="warning" />
+        <KpiTile icon={<IconRefreshCw className="w-5 h-5" />} label="Needs Updating" value={counts.needsUpdating} statusToken="primary" />
       </div>
 
       <HubCard padded={false}>

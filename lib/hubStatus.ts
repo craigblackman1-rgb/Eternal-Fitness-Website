@@ -70,8 +70,8 @@ const documentStatusMap: Record<DocumentStatus, StatusLookup> = {
 
 const keywordStatusMap: Record<string, StatusLookup> = {
   published:       { token: "success", label: "Published" },
-  needs_writing:   { token: "danger",  label: "Needs Writing" },
-  needs_updating:  { token: "warning", label: "Needs Updating" },
+  needs_writing:   { token: "warning", label: "Needs Writing" },
+  needs_updating:  { token: "danger",  label: "Needs Updating" },
   // Legacy values — kept so any row not yet migrated still renders sensibly.
   pending:         { token: "neutral", label: "Pending" },
   reviewed:        { token: "success", label: "Reviewed" },
