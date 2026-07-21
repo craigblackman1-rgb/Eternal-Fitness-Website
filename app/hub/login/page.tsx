@@ -8,8 +8,9 @@ import EternalFitnessLogo from "@/components/EternalFitnessLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { HubCard, HubCardHeader } from "@/components/hub";
+import { HubCard } from "@/components/hub";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { IconAlertTriangle } from "@/components/icons";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -37,7 +38,6 @@ export default function LoginPage() {
 
   return (
     <div className="hub-shell relative flex min-h-screen items-center justify-center bg-[var(--hub-canvas)] overflow-hidden">
-      {/* Subtle background accent */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 -left-32 w-96 h-96 bg-rose/5 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-teal/5 rounded-full blur-3xl" />
@@ -45,26 +45,28 @@ export default function LoginPage() {
 
       <HubCard className="relative w-full max-w-md shadow-md border-border/60">
         <div className="px-6 pt-8 pb-6 text-center">
-          {/* Logo */}
           <div className="mx-auto mb-5 flex items-center justify-center">
             <EternalFitnessLogo variant="dark" size="lg" />
           </div>
-          <h2 className="text-2xl font-semibold tracking-tight text-foreground">Trainer Hub</h2>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Trainer Hub</h1>
           <p className="text-sm text-muted-foreground mt-1">Sign in to manage clients and training blocks</p>
         </div>
 
         <div className="px-6 pb-8">
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4" noValidate>
             {error && (
               <Alert variant="destructive">
+                <IconAlertTriangle className="h-5 w-5" aria-hidden="true" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Email address</Label>
               <Input
                 id="email"
                 type="email"
+                autoComplete="email"
+                inputMode="email"
                 placeholder="esther@eternal-fitness.co.uk"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -81,12 +83,17 @@ export default function LoginPage() {
               <Input
                 id="password"
                 type="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
-            <Button type="submit" className="w-full rounded-full bg-rose hover:bg-rose/90 text-white h-11 text-base font-semibold" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full min-h-11 rounded-full bg-rose hover:bg-rose/90 text-white text-base font-semibold"
+              disabled={loading}
+            >
               {loading ? "Signing in..." : "Sign in"}
             </Button>
           </form>

@@ -41,13 +41,13 @@ export function HubAlert({ severity, title, children, action, className }: HubAl
   const styles: Record<Exclude<Severity, "danger">, { bg: string; text: string; border: string; Icon: typeof IconAlertCircle }> = {
     warning: {
       bg: "bg-[var(--status-warning-bg)]",
-      text: "text-[var(--status-warning)]",
+      text: "text-[var(--status-warning-text)]",
       border: "border-[var(--status-warning-border)]",
       Icon: IconTriangleAlert,
     },
     success: {
       bg: "bg-[var(--status-success-bg)]",
-      text: "text-[var(--status-success)]",
+      text: "text-[var(--status-success-text)]",
       border: "border-[var(--status-success-border)]",
       Icon: IconCheckCircle,
     },

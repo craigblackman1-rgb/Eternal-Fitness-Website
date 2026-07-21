@@ -126,7 +126,7 @@ export function SwapExerciseDialog({
             <button
               key={ex.id}
               onClick={() => handleSelect(ex)}
-              className="w-full rounded-md border p-3 text-left text-sm transition-colors hover:bg-muted"
+              className="w-full rounded-md border border-[var(--hub-border)] p-3 text-left text-sm transition-colors hover:bg-[var(--hub-hover)]"
             >
               <div className="flex items-center justify-between">
                 <span className="font-medium">{ex.name}</span>

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { HubCard } from "@/components/hub";
 import { Badge } from "@/components/ui/badge";
 import { IconBot, IconLoader2, IconSparkles, IconSend } from "@/components/icons";
 import ReactMarkdown from "react-markdown";
@@ -140,8 +140,8 @@ export function UpdateChatPanel({
       )}
 
       {hasConversation && (
-        <Card className="shadow-sm border-border/60 rounded-2xl">
-          <CardContent className="p-4 space-y-4 max-h-[420px] overflow-y-auto">
+        <HubCard className="shadow-sm" padded={false}>
+          <div className="p-4 space-y-4 max-h-[420px] overflow-y-auto">
             {messages.map((message, i) => (
               <div key={i} className={`flex gap-3 ${message.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
                 <div
@@ -173,8 +173,8 @@ export function UpdateChatPanel({
               </div>
             ))}
             <div ref={bottomRef} />
-          </CardContent>
-        </Card>
+          </div>
+        </HubCard>
       )}
 
       {error && <div className="p-3 rounded-lg bg-rose/8 border border-rose/20 text-sm text-rose">{error}</div>}
