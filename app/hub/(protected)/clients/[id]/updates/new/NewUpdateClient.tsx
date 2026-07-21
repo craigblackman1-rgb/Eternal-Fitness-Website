@@ -30,9 +30,10 @@ const TEST_RECIPIENTS = [
 type SectionValues = Record<string, string>;
 
 /** Existing draft/scheduled record being edited (null = compose new). Loosely typed
- *  because the flexible template stores a nested `flexSections` array alongside
- *  the flat greetingName/introText strings every kind carries. */
-type SavedSections = Record<string, string | FlexibleSection[] | undefined>;
+ *  because the flexible template stores a nested `flexSections` array, and every
+ *  kind carries a `sectionLabels` map, alongside the flat greetingName/introText
+ *  strings every kind also carries. */
+type SavedSections = Record<string, string | FlexibleSection[] | SectionValues | undefined>;
 
 /** Existing draft/scheduled record being edited (null = compose new). */
 export interface EditableUpdate {
@@ -64,14 +65,15 @@ function buildHtmlForKind(
   introText: string,
   sections: SectionValues,
   flexSections: FlexibleSection[],
+  sectionLabels: SectionValues,
 ): string {
   if (kind === "flexible_update") {
     return buildFlexibleUpdateHtml({ clientName, greetingName, introText, sections: flexSections });
   }
   if (kind === "four_week_update") {
-    return buildFourWeekUpdateHtml({ clientName, ...sections, greetingName, introText } as unknown as FourWeekUpdateData);
+    return buildFourWeekUpdateHtml({ clientName, ...sections, greetingName, introText, sectionLabels } as unknown as FourWeekUpdateData);
   }
-  return buildSixWeekUpdateHtml({ clientName, ...sections, greetingName, introText } as unknown as SixWeekUpdateData);
+  return buildSixWeekUpdateHtml({ clientName, ...sections, greetingName, introText, sectionLabels } as unknown as SixWeekUpdateData);
 }
 
 /** An empty trailing row, so the editor always offers one more slot to fill in. */
@@ -109,6 +111,10 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
       Object.entries(existing?.sections ?? {}).filter((e): e is [string, string] => typeof e[1] === "string"),
     ),
   );
+  /** Per-section header text — editable per send, defaults to the template's own labels. */
+  const [sectionLabels, setSectionLabels] = useState<SectionValues>(
+    (existing?.sections?.sectionLabels as unknown as SectionValues | undefined) ?? {},
+  );
   const [flexSections, setFlexSections] = useState<FlexibleSection[]>(
     (existing?.sections?.flexSections as FlexibleSection[] | undefined) ?? [{ ...EMPTY_FLEX_SECTION }],
   );
@@ -121,12 +127,12 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
 
   const html = useMemo(() => {
     if (!hasDraft) return "";
-    return buildHtmlForKind(templateKind, clientName, greetingName, introText, sections, flexSections);
-  }, [hasDraft, templateKind, clientName, greetingName, introText, sections, flexSections]);
+    return buildHtmlForKind(templateKind, clientName, greetingName, introText, sections, flexSections, sectionLabels);
+  }, [hasDraft, templateKind, clientName, greetingName, introText, sections, flexSections, sectionLabels]);
 
   /** Section values plus the greeting/intro, for persisting to the DB. */
   const sectionsForSave = (): SavedSections =>
-    kind.flexible ? { greetingName, introText, flexSections } : { ...sections, greetingName, introText };
+    kind.flexible ? { greetingName, introText, flexSections } : { ...sections, greetingName, introText, sectionLabels };
 
   const handleCreateDraft = async (conversationSummary: string) => {
     setGenerating(true);
@@ -143,8 +149,13 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
       }
       const draft = await res.json();
       const nextSections: SectionValues = {};
-      for (const s of kind.sections) nextSections[s.key] = draft.data?.[s.key] ?? "";
+      const nextLabels: SectionValues = {};
+      for (const s of kind.sections) {
+        nextSections[s.key] = draft.data?.[s.key] ?? "";
+        nextLabels[s.key] = s.label;
+      }
       setSections(nextSections);
+      setSectionLabels(nextLabels);
       setSubject(draft.subject ?? kind.defaultSubject);
       setBlockNumber(draft.blockNumber ?? 0);
       setHasDraft(true);
@@ -428,7 +439,13 @@ export function NewUpdateClient({ clientNumber, clientName, defaultEmail = "", d
                   ))
                 : kind.sections.map((s) => (
                     <div key={s.key} className="space-y-2">
-                      <Label>{s.label}</Label>
+                      <Label htmlFor={`label-${s.key}`}>Section header</Label>
+                      <Input
+                        id={`label-${s.key}`}
+                        value={sectionLabels[s.key] ?? s.label}
+                        onChange={(e) => setSectionLabels((prev) => ({ ...prev, [s.key]: e.target.value }))}
+                        placeholder={s.label}
+                      />
                       <RichTextEditor
                         value={sections[s.key] ?? ""}
                         onChange={(v) => setSections((prev) => ({ ...prev, [s.key]: v }))}

@@ -23,7 +23,7 @@ export function buildDocumentReadyEmail(input: DocumentReadyInput): string {
   // Email-client-safe button: table layout, inline styles, no CSS classes —
   // matches shell.ts's own conventions so it survives Outlook/Gmail stripping.
   const ctaButton = `
-    <table role="presentation" cellpadding="0" cellspacing="0" style="margin:20px 0 4px;">
+    <table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0 16px;">
       <tr>
         <td align="center" bgcolor="${ROSE}" style="border-radius:999px;">
           <a href="${signUrl}" target="_blank" rel="noopener"
@@ -33,7 +33,7 @@ export function buildDocumentReadyEmail(input: DocumentReadyInput): string {
         </td>
       </tr>
     </table>
-    <p style="margin:0;font-size:12px;color:#8A8790;">Or copy this link: <a href="${signUrl}" style="color:#087E8B;">${signUrl}</a></p>`;
+    <p style="margin:8px 0 0;font-size:12px;color:#8A8790;">Or copy this link: <a href="${signUrl}" style="color:#087E8B;">${signUrl}</a></p>`;
 
   return buildBrandedUpdateEmail({
     documentTitle: input.documentTitle,

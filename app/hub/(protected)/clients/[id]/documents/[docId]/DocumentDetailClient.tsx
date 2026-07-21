@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { IconChevronLeft, IconSend, IconSave, IconMail, IconFileText } from "@/components/icons";
+import { IconChevronLeft, IconCopy, IconSave, IconMail, IconFileText, IconTrash2 } from "@/components/icons";
 import { RichTextEditor } from "@/components/hub/RichTextEditor";
 import { toast } from "sonner";
 import type { ClientDocument, DocumentBody } from "@/lib/documents/types";
@@ -92,6 +92,14 @@ export function DocumentDetailClient({ clientNumber, doc, clientName, clientEmai
     act("version", () => fetch(`/api/documents/${doc.id}/version`, { method: "POST" }),
       (data) => router.push(`/hub/clients/${clientNumber}/documents/${(data as { id: string }).id}`));
 
+  const deleteDoc = () => {
+    if (!confirm(`Delete this ${doc.status} document? This can't be undone.`)) return;
+    act("delete", () => fetch(`/api/documents/${doc.id}`, { method: "DELETE" }), () => {
+      toast.success("Document deleted");
+      router.push(`/hub/clients/${clientNumber}/documents`);
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -111,7 +119,22 @@ export function DocumentDetailClient({ clientNumber, doc, clientName, clientEmai
             {busy === "version" ? "…" : "New version"}
           </Button>
         )}
+        <Button
+          variant="outline"
+          onClick={deleteDoc}
+          disabled={busy !== null}
+          className="rounded-full gap-1.5 text-muted-foreground hover:text-destructive"
+        >
+          <IconTrash2 className="h-4 w-4" />
+          {busy === "delete" ? "…" : "Delete"}
+        </Button>
       </div>
+
+      {doc.status === "draft" && (
+        <p className="text-sm text-muted-foreground rounded-lg bg-[var(--hub-canvas)] border border-[var(--hub-border)] px-3 py-2">
+          This is a draft — nothing has been sent to the client yet.
+        </p>
+      )}
 
       {/* Edit */}
       <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
@@ -248,7 +271,7 @@ export function DocumentDetailClient({ clientNumber, doc, clientName, clientEmai
                 </Button>
               )}
               <Button onClick={copyLink} disabled={busy !== null} variant="outline" className="rounded-full gap-1.5 shrink-0">
-                <IconSend className="h-4 w-4" />Copy link
+                <IconCopy className="h-4 w-4" />Copy link
               </Button>
             </div>
             {!hasClientEmail && (

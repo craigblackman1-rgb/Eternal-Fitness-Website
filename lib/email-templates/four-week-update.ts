@@ -19,12 +19,15 @@ export interface FourWeekUpdateData {
   worthSayingSection: string;
   /** Optional P.S. block after the sign-off. */
   psSection?: string;
+  /** Per-section heading overrides — Esther can rename any header before sending. */
+  sectionLabels?: Partial<Record<"attendanceSection" | "bigWinSection" | "highlightsSection" | "whatEverySessionSection" | "keepAnEyeOnSection" | "whatsNextSection" | "worthSayingSection", string>>;
 }
 
 export const DEFAULT_INTRO = "I wanted to take a moment to look back over the last 4 weeks.";
 
 export function buildFourWeekUpdateHtml(data: FourWeekUpdateData): string {
   const intro = (data.introText ?? "").trim() || DEFAULT_INTRO;
+  const labels = data.sectionLabels ?? {};
   return buildBrandedUpdateEmail({
     documentTitle: "Your last 4 weeks with me",
     previewText: "A short update on how the last four weeks have gone — and what's next.",
@@ -33,13 +36,13 @@ export function buildFourWeekUpdateHtml(data: FourWeekUpdateData): string {
     greetingName: (data.greetingName ?? "").trim() || data.clientName,
     introHtml: `<p style="margin:0;">${intro}</p>`,
     sections: [
-      { label: "Attendance &amp; Consistency", color: ROSE, html: data.attendanceSection },
-      { label: "The Big Win This Block", color: TEAL, html: data.bigWinSection },
-      { label: "Strength &amp; Fitness Highlights", color: ROSE, html: data.highlightsSection },
-      { label: "What Every Session Is Actually Doing", color: TEAL, html: data.whatEverySessionSection },
-      { label: "A Couple of Things to Keep an Eye On", color: ROSE, html: data.keepAnEyeOnSection },
-      { label: "What's Next for You", color: TEAL, html: data.whatsNextSection },
-      { label: "Worth Saying&hellip;", color: BODY_COLOR, html: data.worthSayingSection },
+      { label: labels.attendanceSection || "Attendance &amp; Consistency", color: ROSE, html: data.attendanceSection },
+      { label: labels.bigWinSection || "The Big Win This Block", color: TEAL, html: data.bigWinSection },
+      { label: labels.highlightsSection || "Strength &amp; Fitness Highlights", color: ROSE, html: data.highlightsSection },
+      { label: labels.whatEverySessionSection || "What Every Session Is Actually Doing", color: TEAL, html: data.whatEverySessionSection },
+      { label: labels.keepAnEyeOnSection || "A Couple of Things to Keep an Eye On", color: ROSE, html: data.keepAnEyeOnSection },
+      { label: labels.whatsNextSection || "What's Next for You", color: TEAL, html: data.whatsNextSection },
+      { label: labels.worthSayingSection || "Worth Saying&hellip;", color: BODY_COLOR, html: data.worthSayingSection },
     ],
     psHtml: data.psSection,
   });

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { IconMail, IconSend } from "@/components/icons";
+import { IconMail, IconCopy, IconTrash2 } from "@/components/icons";
 import { toast } from "sonner";
 
 interface DocumentRowActionsProps {
@@ -13,10 +13,10 @@ interface DocumentRowActionsProps {
   clientName?: string | null;
 }
 
-/** Inline Send/Resend + Copy link for a document row — same "click Send now"
- *  pattern as UpdateRowActions, so this doesn't require opening the document
- *  first. Used on both the client profile's document register and the
- *  hub-wide All Documents list. */
+/** Inline Send/Resend/Copy-link/Delete for a document row — same "click Send
+ *  now" pattern as UpdateRowActions, so this doesn't require opening the
+ *  document first. Used on both the client profile's document register and
+ *  the hub-wide All Documents list. */
 export function DocumentRowActions({ docId, status, hasEmail, clientName }: DocumentRowActionsProps) {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
@@ -52,29 +52,57 @@ export function DocumentRowActions({ docId, status, hasEmail, clientName }: Docu
     }
   };
 
-  if (locked) return null;
+  const deleteDoc = async () => {
+    if (!confirm(`Delete this ${status} document? This can't be undone.`)) return;
+    setBusy("delete");
+    try {
+      const res = await fetch(`/api/documents/${docId}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || "Failed to delete");
+      toast.success("Document deleted");
+      router.refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Something went wrong");
+    } finally {
+      setBusy(null);
+    }
+  };
 
   return (
     <div className="flex items-center gap-1.5 justify-end" onClick={(e) => e.stopPropagation()}>
-      <Button
-        size="sm"
-        variant="outline"
-        disabled={!hasEmail || busy !== null}
-        onClick={sendEmail}
-        title={hasEmail ? undefined : `No email on file for ${clientName || "this client"}`}
-        className="rounded-lg gap-1.5 h-7 px-2.5 text-xs disabled:opacity-50"
-      >
-        <IconMail className="h-3 w-3" />
-        {busy === "send" ? "…" : status === "draft" ? "Send" : "Resend"}
-      </Button>
+      {!locked && (
+        <>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={!hasEmail || busy !== null}
+            onClick={sendEmail}
+            title={hasEmail ? undefined : `No email on file for ${clientName || "this client"}`}
+            className="rounded-lg gap-1.5 h-7 px-2.5 text-xs disabled:opacity-50"
+          >
+            <IconMail className="h-3 w-3" />
+            {busy === "send" ? "…" : status === "draft" ? "Send" : "Resend"}
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={copyLink}
+            title="Copy sign link"
+            className="rounded-lg h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+          >
+            <IconCopy className="h-3 w-3" />
+          </Button>
+        </>
+      )}
       <Button
         size="sm"
         variant="ghost"
-        onClick={copyLink}
-        title="Copy sign link"
-        className="rounded-lg h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+        onClick={deleteDoc}
+        disabled={busy !== null}
+        title="Delete document"
+        className="rounded-lg h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
       >
-        <IconSend className="h-3 w-3" />
+        <IconTrash2 className="h-3 w-3" />
       </Button>
     </div>
   );

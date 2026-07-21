@@ -42,6 +42,22 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   return NextResponse.json({ success: true });
 }
 
+// Any document can be deleted — including signed history (Esther may want to
+// tidy up drafts, test rows, or records created in error). Intentional hard
+// delete, mirroring app/api/updates/[updateId]/route.ts's DELETE.
+export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { data: existing } = await supabase.from("client_documents").select("id").eq("id", params.id).single();
+  if (!existing) return NextResponse.json({ error: "Document not found" }, { status: 404 });
+
+  const { error } = await supabase.from("client_documents").delete().eq("id", params.id);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ success: true });
+}
+
 async function sendDocumentEmail(docId: string): Promise<NextResponse> {
   const admin = createAdminClient();
 

@@ -1,5 +1,49 @@
 # Handoff
 
+## Session 2026-07-21 (the real final one) — 4 more issues Craig hit while using today's work, all fixed
+
+Craig, frustrated, listed four problems after actually using the document/update-email features built
+earlier today. Investigated each with 3 parallel Explore agents plus direct file reads before touching
+anything — all four were real, confirmed root causes, no guessing.
+
+**1. Update-email section headers still hardcoded.** A real fix for this already existed —
+`flexible_update` (commit `48fdacb`) gives fully editable section headings — but it shipped as a third,
+non-default template option; the 6-week/4-week templates Esther actually uses day-to-day were never
+wired to it. Extended editable headers to those two as well: `six-week-update.ts`/`four-week-update.ts`
+gained an optional `sectionLabels` override (falls back to the existing hardcoded default per section),
+and `NewUpdateClient.tsx` now renders an editable `Input` above each section's rich-text editor
+(same pattern the flexible template already used for its heading field), persisted with the draft.
+
+**2. No way to delete a document; draft status not obvious.** Confirmed: zero `DELETE` route existed
+for `client_documents` anywhere. Added one to `app/api/documents/[id]/route.ts`, mirroring
+`app/api/updates/[updateId]/route.ts`'s existing pattern exactly (any status deletable, hard delete,
+auth-gated). Wired a delete button into both `DocumentRowActions.tsx` (available even on locked/signed
+rows — deleting isn't just for drafts) and `DocumentDetailClient.tsx` (next to the header, redirects to
+the client's Documents tab on success). Added a plain-text draft note under the title:
+"This is a draft — nothing has been sent to the client yet."
+
+**3. All Documents shows "sent" after only copying a link — plus confusing row buttons.** Code-verified
+copying a link never touches status (`copyLink()` in both `DocumentRowActions.tsx` and
+`DocumentDetailClient.tsx` only calls `navigator.clipboard.writeText()`) — for anything created fresh
+through the document engine this genuinely cannot happen. Most likely explanation for what Craig saw:
+this session's PAR-Q/Agreement migration carried the *legacy* table's `status` column straight across,
+and in the old standalone system `status = 'sent'` could mean "a link was copied and handed over
+manually," not "a real email went out." **Craig's call on plan review: leave historical data as-is,
+fix the UI only.** The real, fixable bug: the row's Copy-link button reused `IconSend` (a paper-plane
+icon) right next to the labelled Send/Resend button — reads as a second send control. Swapped to
+`IconCopy` in both `DocumentRowActions.tsx` and `DocumentDetailClient.tsx`.
+
+**4. Document-ready email looked condensed around the button/link.** Found the exact cause: the CTA
+button's table had `margin:20px 0 4px` (only 4px below) immediately followed by a `margin:0` paragraph
+— an asymmetric, cramped gap. Rebalanced to `margin:24px 0 16px` on the button and `margin:8px 0 0` on
+the "Or copy this link" paragraph, in both `document-ready.ts` and `parq-request.ts` (identical pattern
+in both files).
+
+### Verified
+`rm -rf .next && npx tsc --noEmit` clean; `npm run build` compiles successfully (same known pre-existing
+Windows/OneDrive symlink trace failure at the final packaging step, confirmed unrelated). Not
+live-browser-verified this session — no hub credentials available.
+
 ## Session 2026-07-21 (genuinely final) — Inline Send/Resend on every document list, not just inside each document
 
 Esther reported the Personal Training Agreement "only gives you a link, not an email." Investigated with

@@ -1,6 +1,7 @@
 # Eternal Fitness Website — State
 
 ## Current
+- **4 more document/update-email issues fixed** (2026-07-21) — editable section headers extended to the 6-week/4-week update templates (previously only the non-default "Flexible Update" had this); documents can now be deleted (`DELETE /api/documents/[id]`, wired into both list and detail views) with a clearer draft-status note; the confusing Copy-link icon (was reusing the send/paper-plane icon) swapped to a real copy icon; document-ready email button/link spacing rebalanced (was `20px 0 4px` → `margin:0`, now `24px 0 16px` → `margin:8px 0 0`). Migrated PAR-Q/Agreement documents can still show "sent" from legacy status carry-over — Craig confirmed leave that historical data as-is. `tsc`/build clean. See handoff.md.
 - Next.js 14 / Tailwind / shadcn-ui / self-hosted Postgres on Coolify (migrated off Supabase — see decisions.log 2026-07-xx)
 - Hub with client management, training blocks, agreements, PAR-Q
 - **Custom icon system**: 90+ SVG icons replacing lucide-react (grew from 36+ this session — `IconRefreshCw`, `IconUser`, `IconShieldCheck`, `IconRuler` added where a mockup specified a shape genuinely missing) ✅
