@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { cleanMetaDescription } from "@/lib/seo";
 import BlogPostClient from "./BlogPostClient";
 
 export const dynamic = "force-dynamic";
@@ -43,7 +44,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   if (!post) {
     return { title: "Post Not Found — Eternal Fitness Blog", robots: { index: false, follow: false } };
   }
-  const description = post.excerpt || `Read ${post.title} on the Eternal Fitness blog. Personal training insights from Level 4 trainer Esther Fair in Worthing.`;
+  const description = post.excerpt
+    ? cleanMetaDescription(post.excerpt)
+    : `Read ${post.title} on the Eternal Fitness blog. Personal training insights from Level 4 trainer Esther Fair in Worthing.`;
   return {
     title: post.title,
     description,
@@ -77,7 +80,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     "@context": "https://schema.org",
     "@type": "Article",
     headline: post.title,
-    description: post.excerpt || "",
+    description: post.excerpt ? cleanMetaDescription(post.excerpt) : "",
     image: post.image_url || "https://eternal-fitness.co.uk/og-image.png",
     datePublished: post.published_at,
     dateModified: post.updated_at || post.published_at,

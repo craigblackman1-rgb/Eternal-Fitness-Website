@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { IconSearch, IconArrowUpRight } from "@/components/icons";
 import Navbar from "@/components/Navbar";
@@ -49,7 +50,7 @@ export default function BlogPageClient({ posts }: { posts: BlogPost[] }) {
 
       {/* Hero */}
       <section className="relative min-h-[50vh] pt-[72px] flex items-center justify-center overflow-hidden">
-        <img src="/images/blog-hero.jpg" alt="Blog" className="absolute inset-0 w-full h-full object-cover" />
+        <Image src="/images/blog-hero.jpg" alt="Blog" fill sizes="100vw" className="object-cover" priority />
         <div className="absolute inset-0 bg-gradient-to-b from-hero-overlay/55 via-hero-overlay/65 to-hero-overlay/75" />
         <div className="relative z-10 text-center px-6">
           <h1 className="text-4xl md:text-5xl lg:text-6xl text-white mb-4">My Blog</h1>
@@ -139,8 +140,8 @@ function BlogRow({ post }: { post: BlogPost }) {
   return (
     <Link href={`/blog/${post.slug}`} className="group block border-t border-border-warm pt-6">
       {post.image_url && (
-        <div className="rounded-2xl overflow-hidden mb-5 aspect-[16/10] bg-white">
-          <img src={post.image_url} alt={post.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300" />
+        <div className="relative rounded-2xl overflow-hidden mb-5 aspect-[16/10] bg-white">
+          <Image src={post.image_url} alt={post.title} fill sizes="(min-width: 1024px) 380px, (min-width: 768px) 50vw, 100vw" className="object-cover group-hover:scale-[1.03] transition-transform duration-300" />
         </div>
       )}
       <p className="text-[11px] font-bold tracking-[0.1em] uppercase text-teal mb-3">{post.category}</p>

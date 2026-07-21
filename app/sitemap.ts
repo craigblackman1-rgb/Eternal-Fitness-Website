@@ -12,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ? `https://${process.env.VERCEL_URL}`
     : process.env.NEXT_PUBLIC_SITE_URL || "https://eternal-fitness.co.uk";
 
-  let posts: { slug: string; published_at: string }[] | null = null;
+  let posts: { slug: string; published_at: string; updated_at: string | null }[] | null = null;
   try {
     const { data, error } = await supabase
       .from("blog_posts")
@@ -27,7 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const blogEntries = (posts ?? []).map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: new Date(post.published_at),
+    lastModified: new Date(post.updated_at || post.published_at),
     changeFrequency: "monthly" as const,
     priority: 0.6,
   }));

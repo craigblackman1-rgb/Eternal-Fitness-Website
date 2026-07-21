@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -105,7 +106,7 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts }: Prop
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/60">
               <span className="flex items-center gap-2">
                 {post.author_avatar ? (
-                  <img src={post.author_avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
+                  <Image src={post.author_avatar} alt="" width={28} height={28} className="w-7 h-7 rounded-full object-cover" />
                 ) : (
                   <span className="w-7 h-7 rounded-full bg-rose/40 flex items-center justify-center text-white text-[11px] font-bold">
                     {post.author_name.charAt(0)}
@@ -128,8 +129,8 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts }: Prop
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12 lg:gap-20">
             <div className="min-w-0">
               {post.image_url && (
-                <figure className="rounded-3xl overflow-hidden mb-10 border border-[#E4DDD7]">
-                  <img src={post.image_url} alt={post.title} className="w-full aspect-[16/9] object-cover" />
+                <figure className="relative aspect-[16/9] rounded-3xl overflow-hidden mb-10 border border-[#E4DDD7]">
+                  <Image src={post.image_url} alt={post.title} fill sizes="(min-width: 1024px) 860px, 100vw" className="object-cover" priority />
                 </figure>
               )}
 
@@ -219,6 +220,15 @@ export default function BlogPostClient({ post, relatedPosts, recentPosts }: Prop
                       <SocialIcon name="email" />
                     </a>
                   </div>
+                </div>
+
+                <div className="border-t border-[#E4DDD7] pt-8">
+                  <p className="text-[11px] font-bold tracking-[0.1em] uppercase text-teal mb-3">Explore</p>
+                  <ul className="space-y-2 text-sm">
+                    <li><Link href="/exercise-for-health" className="text-foreground hover:text-rose transition-colors">Exercise for Health</Link></li>
+                    <li><Link href="/cancer-rehabilitation" className="text-foreground hover:text-rose transition-colors">Cancer Rehabilitation</Link></li>
+                    <li><Link href="/personal-training" className="text-foreground hover:text-rose transition-colors">Personal Training</Link></li>
+                  </ul>
                 </div>
 
                 <div className="border-t border-[#E4DDD7] pt-8">
