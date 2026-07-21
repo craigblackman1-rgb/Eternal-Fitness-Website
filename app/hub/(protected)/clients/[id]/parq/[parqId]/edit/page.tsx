@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { IconChevronLeft } from "@/components/icons";
 import ParqEditClient from "@/app/parq/edit/[id]/ParqEditClient";
+import { mintParqLinkParams } from "@/lib/parq-link";
 
 // Esther-facing PAR-Q editor. Reuses the client edit form in admin mode so she
 // can update fields and save without a signature, then hand the client a link to
@@ -21,6 +22,11 @@ export default async function HubParqEditPage({ params }: { params: { id: string
 
   if (!parq) notFound();
 
+  // The "copy client link" button hands Esther a link she can text/WhatsApp — it
+  // must carry the same signed exp/sig pair the public /parq/edit/[id] page
+  // requires, or it's rejected outright as invalid (see lib/parq-link.ts).
+  const { exp: linkExp, sig: linkSig } = mintParqLinkParams(parq.id);
+
   return (
     <div className="space-y-4">
       <div>
@@ -35,7 +41,7 @@ export default async function HubParqEditPage({ params }: { params: { id: string
           </div>
         </div>
       </div>
-      <ParqEditClient parq={parq} adminMode clientNumber={parseInt(params.id)} />
+      <ParqEditClient parq={parq} adminMode clientNumber={parseInt(params.id)} linkExp={linkExp} linkSig={linkSig} />
     </div>
   );
 }

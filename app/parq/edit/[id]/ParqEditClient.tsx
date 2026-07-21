@@ -140,11 +140,17 @@ export default function ParqEditClient({
   parq,
   adminMode = false,
   clientNumber,
+  linkExp,
+  linkSig,
 }: {
   parq: ParqData;
   /** Esther editing in the hub — save without a signature, then hand the client a link to finish + sign. */
   adminMode?: boolean;
   clientNumber?: number;
+  /** Signed 7-day link params (minted server-side) for the "copy client link" button.
+   *  A bare /parq/edit/[id] with no exp/sig is always rejected — see lib/parq-link.ts. */
+  linkExp?: number;
+  linkSig?: string;
 }) {
   const [formData, setFormData] = useState<ParqFormData>(toFormData(parq));
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -152,7 +158,10 @@ export default function ParqEditClient({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
-  const clientResumeUrl = typeof window !== "undefined" ? `${window.location.origin}/parq/edit/${parq.id}` : `/parq/edit/${parq.id}`;
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const clientResumeUrl = linkExp && linkSig
+    ? `${origin}/parq/edit/${parq.id}?exp=${linkExp}&sig=${linkSig}`
+    : `${origin}/parq/edit/${parq.id}`;
 
   const copyClientLink = async () => {
     try {

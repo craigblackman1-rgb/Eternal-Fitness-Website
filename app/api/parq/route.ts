@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { resolveClientId } from "@/lib/resolve-client-id";
 import { getEmailSender } from "@/lib/email";
 import { diffParq } from "@/lib/parq-diff";
+import { mintParqLinkParams } from "@/lib/parq-link";
 import type { SignedPARQ } from "@/types";
 
 const COACH_EMAIL = "esther.fair@eternal-fitness.co.uk";
@@ -38,7 +39,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(data);
+  // Every caller of this endpoint (Agreement page's "copy client link", etc.) needs
+  // the same signed exp/sig pair the hub's own "Send PAR-Q update" flow mints —
+  // a bare /parq/edit/[id] is always rejected as invalid (see lib/parq-link.ts).
+  if (!data) return NextResponse.json(data);
+  const { exp, sig } = mintParqLinkParams(data.id);
+  return NextResponse.json({ ...data, link_exp: exp, link_sig: sig });
 }
 
 export async function POST(request: Request) {

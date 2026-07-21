@@ -205,28 +205,21 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
   };
 
   const handleCopyParqEditLink = async () => {
-    if (!parqId) {
-      // Fetch PAR-Q ID first
-      try {
-        const res = await fetch(`/api/parq?client_name=${encodeURIComponent(data.client_name)}`);
-        if (res.ok) {
-          const parqData = await res.json();
-          if (parqData?.id) {
-            setParqId(parqData.id);
-            const url = `${window.location.origin}/parq/edit/${parqData.id}`;
-            await navigator.clipboard.writeText(url);
-            setLinkCopied(true);
-            setTimeout(() => setLinkCopied(false), 3000);
-          }
-        }
-      } catch (err) {
-        console.error("Error copying link:", err);
-      }
-    } else {
-      const url = `${window.location.origin}/parq/edit/${parqId}`;
+    // Always mint a fresh signed link rather than reusing a cached id — a bare
+    // /parq/edit/[id] with no exp/sig is rejected outright (lib/parq-link.ts),
+    // and a stale signature from an earlier fetch could already be expired.
+    try {
+      const res = await fetch(`/api/parq?client_name=${encodeURIComponent(data.client_name)}`);
+      if (!res.ok) return;
+      const parqData = await res.json();
+      if (!parqData?.id || !parqData?.link_exp || !parqData?.link_sig) return;
+      setParqId(parqData.id);
+      const url = `${window.location.origin}/parq/edit/${parqData.id}?exp=${parqData.link_exp}&sig=${parqData.link_sig}`;
       await navigator.clipboard.writeText(url);
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 3000);
+    } catch (err) {
+      console.error("Error copying link:", err);
     }
   };
 
