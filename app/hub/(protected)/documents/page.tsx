@@ -1,11 +1,15 @@
 import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
+import { HubCard, HubPageHeader, KpiTile, StatusBadge, EmptyState } from "@/components/hub";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { IconCalendar, IconFileText, IconFileSignature } from "@/components/icons";
-import { EmptyState } from "@/components/hub/EmptyState";
-import { KpiTile } from "@/components/hub/KpiTile";
-import { HubCardHeader } from "@/components/hub/HubCardHeader";
-import { StatusBadge } from "@/components/hub/StatusBadge";
 import { DOCUMENT_KIND_LABEL, type DocumentKind } from "@/lib/documents/types";
 
 function fmt(v: string | null) {
@@ -73,64 +77,63 @@ export default async function AllDocumentsPage() {
   const drafts = rows.filter((r) => r.status === "draft").length;
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">All Documents</h1>
-        <p className="text-muted-foreground mt-1">Every document sent and signed across all clients — new documents plus legacy PAR-Qs and agreements. Click through to each one.</p>
-      </div>
+    <div className="space-y-6">
+      <HubPageHeader
+        title="All Documents"
+        subtitle="Every document sent and signed across all clients — new documents plus legacy PAR-Qs and agreements. Click through to each one."
+      />
 
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
         <KpiTile icon={<IconFileText className="w-5 h-5" />} label="Total" value={rows.length} />
-        <KpiTile icon={<IconFileSignature className="w-5 h-5" />} label="Signed" value={signed} />
-        <KpiTile icon={<IconCalendar className="w-5 h-5" />} label="Awaiting signature" value={awaiting} />
-        <KpiTile icon={<IconFileText className="w-5 h-5" />} label="Drafts" value={drafts} />
+        <KpiTile icon={<IconFileSignature className="w-5 h-5" />} label="Signed" value={signed} statusToken="success" />
+        <KpiTile icon={<IconCalendar className="w-5 h-5" />} label="Awaiting signature" value={awaiting} statusToken="warning" />
+        <KpiTile icon={<IconFileText className="w-5 h-5" />} label="Drafts" value={drafts} statusToken="neutral" />
       </div>
 
-      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-        <HubCardHeader icon={<IconFileSignature className="w-4 h-4" />} title="Documents" />
-        <CardContent>
-          {rows.length === 0 ? (
-            <EmptyState
-              icon={<IconFileText className="w-7 h-7" />}
-              title="No documents yet"
-              description="Create documents from a client's profile or send one from a template."
-            />
-          ) : (
-            <div className="overflow-x-auto rounded-lg border border-[var(--hub-border)]">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-[var(--hub-border)] bg-[var(--hub-canvas)] text-xs text-muted-foreground">
-                    <th className="px-3 py-1.5 text-left font-medium">Client</th>
-                    <th className="px-3 py-1.5 text-left font-medium">Document</th>
-                    <th className="px-3 py-1.5 text-left font-medium">Status</th>
-                    <th className="px-3 py-1.5 text-left font-medium">Date</th>
-                    <th className="px-3 py-1.5 text-right font-medium">&nbsp;</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((r) => (
-                    <tr key={r.key} className="border-b border-[var(--hub-border)] last:border-0 hover:bg-[var(--hub-hover)]">
-                      <td className="px-3 py-2 font-medium text-foreground">{r.clientName}</td>
-                      <td className="px-3 py-2 text-foreground">{r.label}</td>
-                      <td className="px-3 py-2">
-                        <StatusBadge status={r.status} />
-                      </td>
-                      <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">{fmt(r.date)}</td>
-                      <td className="px-3 py-2 text-right whitespace-nowrap">
-                        {r.href ? (
-                          <Link href={r.href} className="text-rose font-medium hover:underline">Open</Link>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {rows.length === 0 ? (
+        <HubCard>
+          <EmptyState
+            icon={<IconFileText className="w-9 h-9" />}
+            title="No documents yet"
+            description="Create documents from a client's profile or send one from a template."
+          />
+        </HubCard>
+      ) : (
+        <HubCard padded={false}>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-[var(--hub-border)] hover:bg-transparent">
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] h-10">Client</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] h-10">Document</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] h-10">Status</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] h-10">Date</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] h-10 text-right">&nbsp;</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map((r) => (
+                  <TableRow key={r.key} className="border-[var(--hub-border)] hover:bg-[var(--hub-hover)] transition-colors">
+                    <TableCell className="text-sm py-2.5 font-medium text-foreground">{r.clientName}</TableCell>
+                    <TableCell className="text-sm py-2.5 text-foreground">{r.label}</TableCell>
+                    <TableCell className="text-sm py-2.5">
+                      <StatusBadge status={r.status} />
+                    </TableCell>
+                    <TableCell className="text-sm py-2.5 text-muted-foreground whitespace-nowrap">{fmt(r.date)}</TableCell>
+                    <TableCell className="text-sm py-2.5 text-right whitespace-nowrap">
+                      {r.href ? (
+                        <Link href={r.href} className="text-rose font-medium hover:underline">Open</Link>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </HubCard>
+      )}
     </div>
   );
 }

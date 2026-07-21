@@ -16,7 +16,7 @@ import {
 import { EmptyState } from "@/components/hub/EmptyState";
 import { StatusBadge } from "@/components/hub/StatusBadge";
 import { HubCard, HubCardHeader } from "@/components/hub";
-import { IconSave, IconPlus, IconArrowLeft } from "@/components/icons";
+import { IconSave, IconPlus, IconArrowLeft, IconSearch } from "@/components/icons";
 import { useRouter } from "next/navigation";
 
 interface KeywordData {
@@ -204,11 +204,16 @@ export function SiteContentEditor({
 
       {/* Keyword / SEO card */}
       <HubCard>
-        <HubCardHeader title="SEO &amp; Keywords" subtitle="What this page should rank for" />
+        <HubCardHeader
+          icon={<IconSearch className="h-4 w-4" />}
+          color="teal"
+          title="SEO & Keywords"
+          subtitle="What this page should rank for"
+        />
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="primary_keyword">Primary Keyword</Label>
+              <Label htmlFor="primary_keyword">Primary keyword</Label>
               <Input
                 id="primary_keyword"
                 value={keyword.primary_keyword ?? ""}
@@ -220,7 +225,7 @@ export function SiteContentEditor({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="status">Review Status</Label>
+              <Label htmlFor="status">Review status</Label>
               <Select
                 value={keyword.status}
                 onValueChange={(val) => handleKeywordChange("status", val)}
@@ -237,7 +242,7 @@ export function SiteContentEditor({
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="keyword_cluster">Keyword Cluster</Label>
+            <Label htmlFor="keyword_cluster">Keyword cluster</Label>
             <p className="text-xs text-muted-foreground -mt-0.5">
               Comma-separated. Used to group related pages and check for cannibalisation.
             </p>
@@ -282,7 +287,12 @@ export function SiteContentEditor({
       {/* Editable content blocks */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Content Blocks</h2>
+          <div>
+            <h2 className="text-lg font-semibold">Content blocks</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Each block saves independently — edit one at a time.
+            </p>
+          </div>
           <Button
             variant="outline"
             size="sm"
@@ -290,17 +300,17 @@ export function SiteContentEditor({
             onClick={() => setShowAdd((s) => !s)}
           >
             <IconPlus className="h-4 w-4" />
-            Add Block
+            Add block
           </Button>
         </div>
 
         {showAdd && (
           <HubCard className="mb-4 border-dashed border-rose/30">
-            <HubCardHeader title="New Content Block" />
+            <HubCardHeader title="New content block" />
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="new_block_key">Block Key</Label>
+                  <Label htmlFor="new_block_key">Block key</Label>
                   <Input
                     id="new_block_key"
                     value={newBlockKey}
@@ -321,7 +331,7 @@ export function SiteContentEditor({
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="new_content">Initial Content</Label>
+                <Label htmlFor="new_content">Initial content</Label>
                 <Textarea
                   id="new_content"
                   value={newContent}

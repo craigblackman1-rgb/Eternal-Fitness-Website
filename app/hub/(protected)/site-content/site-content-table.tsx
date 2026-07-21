@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { HubTable, type HubColumn } from "@/components/hub/HubTable";
 import { HubCard, HubCardHeader } from "@/components/hub";
-import { StatusBadge } from "@/components/hub/StatusBadge";
+import { StatusBadge, TokenPill } from "@/components/hub/StatusBadge";
 import { KpiTile } from "@/components/hub/KpiTile";
 import {
   IconFileText,
@@ -67,11 +67,7 @@ const columns: HubColumn<PageKeyword>[] = [
   {
     key: "type",
     header: "Type",
-    render: (row) => (
-      <span className="inline-flex items-center rounded-full border border-[var(--hub-border)] bg-[var(--hub-hover)] px-2 py-0.5 text-xs text-muted-foreground">
-        {TYPE_LABELS[row.page_type]}
-      </span>
-    ),
+    render: (row) => <TokenPill token="neutral" label={TYPE_LABELS[row.page_type]} />,
     sortable: true,
     sortValue: (row) => row.page_type,
   },

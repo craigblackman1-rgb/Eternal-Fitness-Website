@@ -1,5 +1,17 @@
 # Handoff
 
+## Session 2026-07-21 (later still) — Hub mockup-alignment pass, Lane H (local, NOT pushed)
+
+Full 12-agent pass bringing every hub route in line with its `hub-*.html` mockup — see the Work
+Order's new "Lane H" section for full detail, not duplicated here. Short version: most routes already
+matched from earlier sessions (verified, not assumed); real fixes landed on All Documents (rebuilt to
+the hub's own list-page pattern — its mapped mockup turned out to be an SOP detail page, not a
+documents list), Site Content list (one TokenPill fix) and Site Content editor (a literal `&amp;amp;`
+text bug, missing icon, Title Case→sentence case labels, missing subtitle). Process & Quality's real
+CRUD/data confirmed untouched. `tsc --noEmit` clean project-wide. Three follow-up items spawned as
+separate background-task suggestions rather than actioned inline (client-edit right rail/banner gap,
+ProcessQualityManager badge dedup, hub-sop mockup mismatch needing a real mockup).
+
 ## Session 2026-07-21 (later) — PAR-Q real email sending + update-email resend (local, NOT pushed)
 
 Craig reported two gaps: no way to resend a 6-week/4-week client update email once it's gone out,

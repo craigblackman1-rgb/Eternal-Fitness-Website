@@ -138,6 +138,61 @@ Also fixed two shared-component bugs affecting every hub page that uses them: `H
 
 All fixes verified (`tsc --noEmit` + full `next build`, both clean except the known Windows/OneDrive symlink step) and deployed live across 3 commits (`ad827cf` icon/colour audit, `1ff7335` the literal-comment bug). No new icons invented without cause — `IconUser`, `IconShieldCheck`, `IconRuler` added to the icon set only where the mockup specified a shape genuinely absent from the existing 90+ icons.
 
+### Lane H — Full mockup-to-route visual/IA alignment pass (2026-07-21, later session, Craig-directed)
+
+Craig asked for a systematic pass bringing every hub route in line with its `hub-*.html` mockup — a
+broader, more deliberate version of Lane G's audit, this time covering all 10 mapped routes at once
+rather than reacting to one spotted defect. Two real decisions were surfaced during pre-brief and
+resolved by Craig before any implementation:
+
+1. **`hub-process-quality.html` mismatch** — the mockup invents an onboarding-checklist/safeguarding
+   page, entirely different from the real Process Register/SOPs/Improvement Log CRUD tool (10 real
+   published SOPs, DB-backed). **Decided: discard the mockup's content, reuse only its visual shell.**
+2. **`hub-dashboard.html` data delta** — mockup shows a simplified sessions/check-ins/alerts/weekly
+   layout with different terminology than the real Supabase-backed KPIs (Total Clients, Draft/Active/
+   Approved/Total Blocks, Do-Not-Train alerts, Recent Check-ins, etc). **Decided: re-skin only, keep
+   every real metric/field/terminology exactly as-is.**
+
+Dispatched 12 parallel agents (one per route + one for sidebar nav IA), each told to verify before
+assuming work was needed — most of these routes were already restyled in Lanes E/F/G. Findings:
+
+**Already matching, no changes needed** (verified against mockup, not assumed): Dashboard, Clients
+list, Client detail, Client edit, Studio Equipment, Email Updates (Reports), Exercise Library, Process
+& Quality (shell only — confirmed all 3 real CRUD tabs and their data untouched, no mockup checklist
+content added).
+
+**Real fixes applied:**
+- **All Documents** (`app/hub/(protected)/documents/page.tsx`) — the mapped mockup `hub-sop.html`
+  turned out to actually be an SOP *detail*-page layout, not a documents list (brief's mockup mapping
+  was wrong) — flagged as a background task for Craig rather than guessed at. Instead brought in line
+  with the hub's own established list-page pattern already proven on `tracker`/`clients` (shared
+  `HubPageHeader`, `HubCard`, `Table` primitives, KPI tiles with semantic status tokens) — same tokens,
+  consistent with every other list page, just not verified against a real "All Documents" mockup.
+- **Site Content list** — one real delta: the Type column (Static/Condition/Blog/Legal) hand-rolled
+  its own pill instead of the shared `TokenPill` component every other status pill in the hub uses.
+  Fixed in `site-content-table.tsx`.
+- **Site Content editor** — real content bugs, not just styling: a literal `&amp;amp;` rendering as
+  visible text in the "SEO & Keywords" card header (double-escaped, not `dangerouslySetInnerHTML`);
+  missing icon on that card header; several field labels in Title Case against the sentence-case
+  convention used across ~15 other hub pages; missing descriptive subtitle under "Content Blocks".
+  Fixed in `site-content-editor.tsx`. Deliberately did NOT add the mockup's `.card-actions` footer
+  band — no other hub card uses that pattern, so it would've been a one-off, not an alignment fix.
+
+**Sidebar nav grouping** — checked, not changed. None of the 11 mockups actually show "Process &
+Quality" in any sidebar at all, and the mockups' own grouping is internally inconsistent (Resources
+renamed to "Library" in one file, missing entirely in others, Settings item counts vary) — reads as
+unfinished draft copies, not a deliberate alternative IA. No evidence-based target to move to, so left
+under Resources as-is; flagged for whoever owns the mockup set.
+
+**Out-of-scope items found and spawned as separate background-task suggestions** (not actioned here):
+client-edit page is missing the mockup's right-hand summary rail + outstanding-clearance banner (needs
+new computed logic, not a style change); `ProcessQualityManager.tsx`'s `registerStatusBadge()` hand-
+rolls badge markup instead of reusing `TokenPill` (cosmetically identical today, just duplicated code);
+the `hub-sop.html`/All-Documents mockup mismatch above.
+
+**Verified:** full-project `npx tsc --noEmit` clean after all agents' combined edits. Not yet committed
+or pushed, not live-browser-verified (no hub credentials this session).
+
 ## LEDGER
 Progress written per unit to `eternal-fitness-website/.context/handoff.md` (all lanes) and this Work Order's DONE checklist. Add a row to `infrastructure/.context/active-workorders.md` when this moves from DRAFT to ACTIVE.
 
