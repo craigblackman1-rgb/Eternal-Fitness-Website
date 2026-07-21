@@ -1,5 +1,56 @@
 # Handoff
 
+## Session 2026-07-21 — Lane F pushed, portal fixed & live, hub-wide icon/colour audit, Site Content inventory, blog byline + SEO
+
+### Status snapshot
+Big session, mostly reactive fixes and follow-through on 2026-07-20's work rather than new scope. Everything below is committed, pushed, and confirmed deployed live on `staging.eternal-fitness.co.uk` via the Coolify MCP (not self-reported) unless noted.
+
+### 1. Blog byline fix
+Ran the pending `author_name = 'Craig Blackman' → 'Esther Fair'` update directly against prod (26/27 rows). Content/titles untouched — the migration file it came from also had two DELETE + three content-reframe statements that were deliberately **not** run, since Craig separately said blog content itself stays as-is until Esther reviews it.
+
+### 2. Client portal — found and fixed a real "not actually live" bug
+Craig said "do the WCAG check, then get [the portal] live." Live-browser check on `/portal/login` hit `ERR_TOO_MANY_REDIRECTS` — confirmed with a bare `curl`, zero cookies, so not a stale-session artefact. Root cause: `app/portal/layout.tsx` wrapped `/portal/login` as well as the authenticated routes, so an unauthenticated visit redirected to login, re-triggered the same layout's session check, and redirected to itself forever. Fixed by moving the protected content into `app/portal/(protected)/`, mirroring the hub's already-working `app/hub/(protected)/` pattern — login sits outside the guard. Verified locally (200 on login, single redirect on the dashboard) before pushing. **This means the portal was never actually reachable between when it was "built" on 2026-07-20 and this fix** — worth knowing if anyone assumed otherwise from the earlier handoff.
+
+### 3. WCAG contrast — real check, real failure found
+Instead of re-trusting the earlier self-check, computed actual WCAG contrast ratios from the live CSS token hex values. Found 3 of 5 `StatusBadge` tokens (primary/warning/success) measuring 2.5–4.2:1 against their tinted pill backgrounds — under the 4.5:1 AA minimum — most visibly "Signed" and "Sent", the two labels a client sees most on their portal dashboard. Added darker `--status-primary-text`/`--status-warning-text`/`--status-success-text` variants (same hue, reduced lightness, verified ≥4.5:1) used only for badge text, leaving the base tokens (icons, borders, which only need 3:1) untouched. Focus ring itself already passed. Didn't touch the colours unilaterally without checking first — these are brand-adjacent choices — but Craig said "that's fine" so it shipped.
+
+### 4. Hub/portal noindex hardening
+Found `/hub/*` was already fully noindexed (unconditional `robots: {index:false}` in `app/hub/layout.tsx`, on top of `robots.ts`'s disallow) — nothing to do there. `/portal/*` had no equivalent. Added the same defense-in-depth pattern (`app/portal/layout.tsx` metadata-only wrapper + `robots.ts` disallow entry).
+
+### 5. Blog SEO fixes
+Meta/OG descriptions were raw excerpt text truncated at 199–200 chars (past Google's ~155–160 display limit, cut mid-sentence, one sample leaking a literal `&nbsp;` into the snippet). Added `lib/seo.ts`'s `cleanMetaDescription()` — decodes entities, re-truncates at a word boundary — used in `generateMetadata` and the Article JSON-LD, presentation-layer only, doesn't touch the DB. Converted 4 of 5 raw `<img>` tags to `next/image` (left the 5th — an author avatar — alone after a direct rejection mid-session). Added an "Explore" links block (Exercise for Health / Cancer Rehabilitation / Personal Training) to the blog post sidebar — there were previously zero internal links from blog posts to condition pages. Sitemap `lastModified` now uses `updated_at` instead of `published_at`.
+
+### 6. Site Content — rebuilt into a full inventory (Craig's request, OpenDesign mockup supplied)
+Was tracking only the 9 static marketing pages. Migration `20260721_site_content_full_inventory.sql` added a `page_type` column (static/condition/legal/blog), replaced the `pending/reviewed/needs_rewrite` status enum with `published/needs_writing/needs_updating` (clearer language, matches how Craig actually talks about page state), and seeded 38 new rows: 3 legal pages, all 8 exercise-for-health condition pages (3 built + 5 gated/unbuilt), and all 27 blog posts. 47 total.
+
+List page (`site-content-table.tsx`) rebuilt twice — once from scratch matching the general "add filters, KPI tiles" ask, then rebuilt again when Craig supplied the actual OpenDesign mockups (`hub-site-content.html`/`hub-site-content-editor.html`) to match them precisely: select-dropdown filters with live counts (not pill buttons), a separate URL column, a "Rescan pages" button (visual only, not wired to real page-discovery logic). Editor page reworked to match too, and in the process caught a real bug the mockup surfaced: the status `<Select>` still offered the old `pending`/`reviewed`/`needs_rewrite` values, which the DB constraint had stopped accepting — saving with an old value would have hit a silent constraint violation.
+
+Deliberately not built: per-page content editing for the 38 new rows. Only the original 8 static pages have `page_content_blocks` entries; new rows show as inventory-only ("—" instead of "Edit copy"), no broken/no-op editor links.
+
+### 7. Hub-wide icon/status-colour audit — the big one
+Craig caught the Site Content mockup mismatch (icons and colours swapped between "Needs Writing"/"Needs Updating") and asked if it was systemic. Dispatched 8 parallel Explore agents, one per hub page with a source mockup, each diffing icon shapes and `--status-*` tokens against the mockup HTML precisely (not from memory). **6 of 8 pages had real defects**, several serious rather than cosmetic:
+- Dashboard: `StatusBadge` got a token name instead of a status value → silently rendered nothing on every "Recent Check-ins" row.
+- Reports & Updates (`lib/updates/status.ts`, shared with the client-detail Updates tab): raw shadcn `Badge` variants instead of design tokens → "Sent" was literally invisible (white-on-white), "Draft" was teal instead of amber, "Scheduled" was a plain outline instead of rose.
+- Client detail: 3 card-header icons missing/wrong colour, GP Clearance badges same invisible/wrong-colour pattern, Plan Agent bot navy instead of teal throughout, Profile tab icon wrong (group vs single-person).
+- Client edit: 5 of 8 card-header icons wrong shape, including one the mockup deliberately reused from the Plan Agent sidebar icon that got replaced with a generic clipboard.
+- Process & Quality: SOPs KPI tile wrong colour+icon; separately, a local "draft" badge coloured rose when the shared system says draft = neutral everywhere else.
+- Exercise library: one cosmetic icon mismatch.
+- Clean: `/hub/clients`, `/hub/studio-equipment`.
+
+Root cause of most of the real bugs: pages built their own disconnected status-colour system instead of the shared `lib/hubStatus.ts` tokens — introduced during the Lane E/F restyle passes. Fixed by extracting a shared `TokenPill` component (`components/hub/StatusBadge.tsx`) for status domains that collide with the global string lookup (e.g. "sent"/"draft" already mean something else for documents), and moving every raw-`Badge` call site onto it.
+
+Also fixed two shared-component bugs hitting every hub page: `HubCardHeader`'s icon badge was 36px vs the mockup's 30px; `HubAlert`'s danger severity used the same triangle icon as warning (so "Do Not Train" and "Action needed" were only distinguishable by colour). Bonus: fixed `HubCardHeader`'s `subtitle` prop type (was `string`, needed `React.ReactNode`) — this was the actual root cause of the `ClientUpdatesPanel.tsx:60` TS error that's been flagged "pre-existing, unrelated" three separate times across this Work Order. `tsc --noEmit` is now completely clean project-wide for the first time.
+
+One more bug Craig caught after this shipped: a literal `/* Needs Attention */` JS comment sitting unwrapped in the dashboard's JSX tree, rendering as visible text on the page instead of being treated as a comment. One-line fix (wrap in `{}`), shipped separately.
+
+### Verification standard used throughout
+Every fix: `rm -rf .next && tsc --noEmit` clean, full `next build` clean (except the known pre-existing Windows/OneDrive `EPERM` symlink step in the standalone-output trace phase — irrelevant to Coolify's Linux build), then commit → push → Coolify deploy confirmed via the MCP tool (`deployment get`, checking `status: finished` + healthcheck pass), not trusted from a self-report. No hub login credentials available this session, so hub pages were verified via build/type-check/code-review rather than a live browser click-through — flagged each time, not silently assumed working.
+
+### Still open
+- PAR-Q edit screen inside the hub still uses the shared public-facing `ParqEditClient` component's own (unrestyled) internals — deliberately not touched, that component is also live on the public client-signing flow and a deep edit risked breaking it. Needs a scoped decision (fork a hub-native copy vs. leave as-is) before anyone touches it.
+- 5 of 8 condition sub-pages still don't exist — gated off, not dead links, but a scope decision (which/how many to build) is still pending.
+- Production domain cutover, client data consolidation (Lane A), Process Register/SOP content review (Lane B — seeded but Esther hasn't reviewed), PAR-Q→document-engine migration run (Lane C) — none of these were touched this session, all still open from 2026-07-20.
+
 ## Lane F — full hub design-consistency sweep, remaining routes (2026-07-20, later session)
 
 ### What was built
