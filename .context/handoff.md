@@ -1,5 +1,47 @@
 # Handoff
 
+## Session 2026-07-21 (the actual root cause) — a second, undiscovered "send" path was faking it
+
+Craig came back with the same screenshot after the `emailed`-flag fix deployed — the document still
+showed plain "Sent", no "Not delivered" pill. That was the tell: it meant the new code path had never
+run at all for that document, not that the indicator logic was wrong.
+
+### Found it
+Queried the specific document again post-deploy. A brand-new one, created *after* the fix went live,
+still had `emailed: null` — proving `sendDocumentEmail()` (the function I'd just fixed) was never even
+being called for it. Grepped for every caller of the documents PATCH route and found
+`app/hub/(protected)/templates/[id]/SendTemplateToClient.tsx` — a completely separate "Create & send"
+component living on the *template* detail page (`/hub/templates/[id]`), never investigated in any
+earlier pass on this issue. It:
+1. Created a document (draft, correctly).
+2. PATCHed it with `action: "send"` — a second, bare action in `/api/documents/[id]/route.ts` that just
+   set `status: "sent"` directly, with **no email attempt, no `emailed` field, ever**.
+3. Copied the sign link to the clipboard and showed "Client signing link (copied to clipboard)" —
+   exactly what Craig described as "it just says cut and paste this link."
+
+This is what Craig meant, several turns ago, by "/hub/templates" needing the same send mechanism —
+correctly identified, mis-scoped by me at the time as "just the content editor, no send exists there."
+There *was* a send button there. It was just broken in a way a plain grep for "send" in the server
+page component didn't surface, because it lived in a client component the page renders.
+
+### The fix
+- **`SendTemplateToClient.tsx`** rewritten — no longer fakes its own send. Creates the draft, then
+  redirects straight to the real document detail page (`/hub/clients/[id]/documents/[docId]`), which
+  already has the correct Send/Resend/Copy-link UI, the dry-run handling, and the "Not delivered"
+  indicator from the previous fix. This is now a shortcut into the real flow, not a second one.
+- **`app/api/documents/[id]/route.ts`** — deleted the bare `action: "send"` branch entirely (confirmed
+  via repo-wide grep it had exactly one caller, the file above, already fixed). `send_email` is now the
+  only way a document's status becomes "sent" — closing off the possibility of this happening again
+  from anywhere else.
+
+### Verified
+`rm -rf .next && npx tsc --noEmit` clean, `npm run build` compiles successfully (known symlink-trace
+failure only). Confirmed via direct DB query that the specific document Craig screenshotted was created
+*after* the previous fix deployed but still had `emailed: null` — proof it went through the broken
+`SendTemplateToClient` path, not `sendDocumentEmail()`. Every document sent via that specific path before
+this fix will show plain "Sent" forever (unknown `emailed` state, deliberately not backfilled/guessed);
+new sends through it now go through the real flow.
+
 ## Session 2026-07-21 (no really, this one) — "It says sent when it obviously hasn't"
 
 Craig, still frustrated after the last fix: creating a document and clicking send only ever gave him a

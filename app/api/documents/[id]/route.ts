@@ -19,6 +19,12 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 }
 
 // Esther edits the document (title / body) or sends it (status → sent).
+// action "send_email" is the ONLY way status becomes "sent" — it's what
+// actually dispatches through a real email backend and records `emailed`
+// accurately. There used to be a second, bare "send" action that just flipped
+// status without ever emailing anything or setting `emailed` — that's what
+// let a document read as "sent" when nothing had gone out. Removed; nothing
+// else called it (confirmed via repo-wide search before deleting).
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -29,9 +35,6 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
   if (action === "send_email") {
     return sendDocumentEmail(params.id);
-  } else if (action === "send") {
-    update.status = "sent";
-    update.sent_at = new Date().toISOString();
   } else {
     if (title !== undefined) update.title = title;
     if (body !== undefined) update.body = body;
