@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { StatusBadge } from "@/components/hub/StatusBadge";
+import { StatusBadge, TokenPill } from "@/components/hub/StatusBadge";
 import { DocumentRowActions } from "@/components/hub/DocumentRowActions";
 import { IconFileSignature, IconPlus } from "@/components/icons";
 import { DOCUMENT_KIND_LABEL, type DocumentKind } from "@/lib/documents/types";
@@ -14,6 +14,9 @@ interface RegisterDocument {
   updated_at?: string | null;
   client_name?: string | null;
   trainer_name?: string | null;
+  /** True once a real email backend dispatched the send — false means status
+   *  is "sent" but nothing actually went out (dry run / no backend configured). */
+  emailed?: boolean | null;
 }
 
 interface DocumentRegisterProps {
@@ -34,6 +37,7 @@ type Row = {
   id: string;
   label: string;
   status: string;
+  emailed?: boolean | null;
   date: string;
   version: number;
   updatedAt: string;
@@ -51,6 +55,7 @@ export function DocumentRegister({ clientNumber, documents = [], clientEmail, cl
       id: d.id,
       label: `${DOCUMENT_KIND_LABEL[d.kind as DocumentKind] ?? d.title}${d.version > 1 ? ` (v${d.version})` : ""}`,
       status: d.status,
+      emailed: d.emailed,
       date: d.created_at,
       version: d.version ?? 1,
       updatedAt: d.updated_at || d.created_at,
@@ -97,7 +102,14 @@ export function DocumentRegister({ clientNumber, documents = [], clientEmail, cl
                   <td className="px-3 py-2">
                     <span className="inline-flex items-center gap-2 font-medium text-foreground">{r.icon}{r.label}</span>
                   </td>
-                  <td className="px-3 py-2"><StatusBadge status={r.status} /></td>
+                  <td className="px-3 py-2">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <StatusBadge status={r.status} />
+                      {r.status === "sent" && r.emailed === false && (
+                        <TokenPill token="neutral" label="Not delivered" />
+                      )}
+                    </div>
+                  </td>
                   <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">{formatDate(r.date)}</td>
                   <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">v{r.version}</td>
                   <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">{formatDate(r.updatedAt)}</td>

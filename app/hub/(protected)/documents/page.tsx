@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
 import { HubCard, HubPageHeader, KpiTile, StatusBadge, EmptyState } from "@/components/hub";
+import { TokenPill } from "@/components/hub/StatusBadge";
 import { DocumentRowActions } from "@/components/hub/DocumentRowActions";
 import {
   Table,
@@ -26,6 +27,7 @@ interface UnifiedRow {
   hasEmail: boolean;
   label: string;
   status: string;
+  emailed?: boolean | null;
   date: string;
   href: string | null;
 }
@@ -41,11 +43,11 @@ export default async function AllDocumentsPage() {
 
   const { data: docs } = await supabase
     .from("client_documents")
-    .select("id, kind, title, status, version, created_at, clients(client_number, name, email)")
+    .select("id, kind, title, status, version, created_at, emailed, clients(client_number, name, email)")
     .order("created_at", { ascending: false });
 
   const rows: UnifiedRow[] = (
-    (docs ?? []) as unknown as { id: string; kind: string; title: string; status: string; version: number; created_at: string; clients: Joined }[]
+    (docs ?? []) as unknown as { id: string; kind: string; title: string; status: string; version: number; created_at: string; emailed: boolean | null; clients: Joined }[]
   ).map((d) => ({
     key: `doc-${d.id}`,
     id: d.id,
@@ -54,6 +56,7 @@ export default async function AllDocumentsPage() {
     hasEmail: Boolean(d.clients?.email && d.clients.email.trim()),
     label: `${DOCUMENT_KIND_LABEL[d.kind as DocumentKind] ?? d.title}${d.version > 1 ? ` (v${d.version})` : ""}`,
     status: d.status,
+    emailed: d.emailed,
     date: d.created_at,
     href: d.clients?.client_number != null ? `/hub/clients/${d.clients.client_number}/documents/${d.id}` : null,
   }));
@@ -104,7 +107,12 @@ export default async function AllDocumentsPage() {
                     <TableCell className="text-sm py-2.5 font-medium text-foreground">{r.clientName}</TableCell>
                     <TableCell className="text-sm py-2.5 text-foreground">{r.label}</TableCell>
                     <TableCell className="text-sm py-2.5">
-                      <StatusBadge status={r.status} />
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <StatusBadge status={r.status} />
+                        {r.status === "sent" && r.emailed === false && (
+                          <TokenPill token="neutral" label="Not delivered" />
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="text-sm py-2.5 text-muted-foreground whitespace-nowrap">{fmt(r.date)}</TableCell>
                     <TableCell className="text-sm py-2.5 text-right whitespace-nowrap">

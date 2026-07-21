@@ -81,6 +81,10 @@ export interface ClientDocument {
   trainer_signed_date: string | null;
   sent_at: string | null;
   signed_at: string | null;
+  /** Whether the last send actually dispatched through a real email backend —
+   *  vs. status merely being "sent" while no email backend was configured
+   *  (dry run) or a real send failed. Null for rows sent before this existed. */
+  emailed?: boolean | null;
   consent_choices?: Record<string, boolean> | null;
   /** Free-text/choice questionnaire answers — used by the "feedback" kind. Question id -> text answer, or { consents: {...} } for checkbox state. */
   feedback_responses?: Record<string, unknown> | null;

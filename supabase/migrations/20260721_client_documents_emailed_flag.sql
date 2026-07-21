@@ -1,0 +1,12 @@
+-- Distinguishes "status flipped to sent" from "an email actually left the
+-- building" — mirrors sent_updates.emailed, which the update-emails feature
+-- already uses to solve exactly this problem (see ClientUpdatesPanel.tsx's
+-- "Emailed"/"Not sent" pill). Without this, a dry-run send (no email backend
+-- configured, or a delivery failure) still marks a document "sent", which is
+-- misleading — Craig hit this directly: created a document, only ever saw a
+-- copy-link result, but the All Documents list showed it as sent.
+--
+-- NULL for existing rows (unknown — sent before this column existed, no
+-- reliable way to backfill whether they were real sends or dry runs).
+-- Purely additive, safe to re-run.
+ALTER TABLE client_documents ADD COLUMN IF NOT EXISTS emailed boolean;

@@ -111,6 +111,9 @@ export function DocumentDetailClient({ clientNumber, doc, clientName, clientEmai
           <div className="flex items-center gap-2 mt-0.5">
             <Badge variant="outline" className="rounded-full text-xs capitalize">{doc.status}</Badge>
             <Badge variant="outline" className="rounded-full text-xs">v{doc.version}</Badge>
+            {doc.status === "sent" && doc.emailed === false && (
+              <Badge variant="outline" className="rounded-full text-xs border-amber-300 bg-amber-50 text-amber-800">Not actually delivered</Badge>
+            )}
           </div>
         </div>
         {locked && (
@@ -251,6 +254,13 @@ export function DocumentDetailClient({ clientNumber, doc, clientName, clientEmai
             <p className="text-sm text-muted-foreground">
               Email the client their signing link, or copy it to send manually (text, WhatsApp, etc.).
             </p>
+            {doc.status === "sent" && doc.emailed === false && (
+              <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                The last send didn&apos;t actually go out — no email backend is configured on this
+                environment, so it was logged as sent without delivering. Use Copy link below until
+                that&apos;s fixed.
+              </p>
+            )}
             <div className="flex flex-wrap items-center gap-2">
               {hasClientEmail ? (
                 <Button

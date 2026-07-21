@@ -1,5 +1,52 @@
 # Handoff
 
+## Session 2026-07-21 (no really, this one) — "It says sent when it obviously hasn't"
+
+Craig, still frustrated after the last fix: creating a document and clicking send only ever gave him a
+"copy this link" result, yet the document showed as "sent" on the All Documents list. Investigated with
+real data rather than re-asserting the earlier "copy-link never touches status" finding.
+
+### What the data showed
+Queried the most recent `client_documents` rows directly. Every recent "sent" document — including one
+created and marked sent just **36 milliseconds** later — showed `sent_at` essentially instantaneous
+with `created_at`. That's far too fast for a real outbound HTTPS call to SendGrid (TLS handshake alone
+typically takes longer). Strong circumstantial evidence the email backend is dry-running in production —
+i.e. `sendDocumentEmail()` in `app/api/documents/[id]/route.ts` always sets `status: "sent"` regardless
+of whether `getEmailSender().send()` actually delivered anything or silently no-op'd because no real
+backend was configured. **Not definitively confirmed** — `SENDGRID_API_KEY`/`SMTP_*` env vars do exist
+on the Coolify app (checked via `mcp__coolify__env_vars`), so it's possible the key exists but is
+invalid/misconfigured rather than fully absent. Didn't reveal/test the raw secret value directly (avoid
+handling live credentials unnecessarily) — flagging this as unconfirmed rather than overclaiming.
+
+### The fix — regardless of the exact backend root cause
+This exact problem was already solved once in this codebase, just not applied here: `sent_updates` (the
+6-week/4-week update emails) has an `emailed` boolean column, separate from `status`, and
+`ClientUpdatesPanel.tsx` shows an "Emailed"/"Not sent" pill using it. `client_documents` had no
+equivalent — `status: "sent"` was the only signal, and it lied whenever the send didn't really deliver.
+
+- **New migration** `20260721_client_documents_emailed_flag.sql` — additive `emailed boolean` column,
+  NULL for existing rows (no reliable way to backfill whether historical sends were real). **Run against
+  prod, confirmed live.**
+- `sendDocumentEmail()` now sets `emailed: !result.dryRun` alongside `status`/`sent_at`.
+- `lib/documents/types.ts` — `ClientDocument.emailed` added.
+- `DocumentRegister.tsx`, `app/hub/(protected)/documents/page.tsx`, `DocumentDetailClient.tsx` — all
+  three now show a distinct "Not delivered" / "Not actually delivered" indicator whenever
+  `status === "sent" && emailed === false`, instead of just trusting the status pill. The document
+  detail page also gets an explanatory banner ("no email backend is configured... use Copy link until
+  that's fixed") directly in the Send card.
+- Queries updated to select the new column: `clients/[id]/page.tsx`'s `clientDocuments`,
+  `documents/page.tsx`'s `docs` (the detail page already used `select("*")`, picked it up for free).
+
+### Still open — worth Craig's attention next
+Whether the SendGrid/SMTP backend is actually broken in production needs a real test send (via the hub
+UI, with credentials, or by Craig checking the SendGrid dashboard for recent activity) to confirm
+one way or the other. The `emailed` flag will make that visible immediately on the next real send attempt
+either way — that's the point of this fix.
+
+### Verified
+`rm -rf .next && npx tsc --noEmit` clean, `npm run build` compiles successfully (known pre-existing
+symlink-trace failure only). Migration run and confirmed live. Not live-browser-verified this session.
+
 ## Session 2026-07-21 (the real final one) — 4 more issues Craig hit while using today's work, all fixed
 
 Craig, frustrated, listed four problems after actually using the document/update-email features built

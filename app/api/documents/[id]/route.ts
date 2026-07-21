@@ -102,6 +102,9 @@ async function sendDocumentEmail(docId: string): Promise<NextResponse> {
     status: "sent",
     sent_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    // Distinct from status — status "sent" just means a send was attempted;
+    // this is whether a real email backend actually dispatched it.
+    emailed: !result.dryRun,
   }).eq("id", docId);
   if (updError) return NextResponse.json({ error: updError.message }, { status: 500 });
 
