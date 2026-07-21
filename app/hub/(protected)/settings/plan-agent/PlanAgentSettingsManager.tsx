@@ -87,10 +87,10 @@ export function PlanAgentSettingsManager({ initialSettings }: PlanAgentSettingsM
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {sortedSections.map((section) => (
-        <div key={section}>
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+        <div key={section} className="space-y-3">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">
             {section}
           </h2>
           <div className="space-y-4">
@@ -164,12 +164,12 @@ function PaceModesEditor({
 
   return (
     <HubCard>
-      <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title={setting.label} subtitle={setting.description ?? undefined} color="teal" noBottomPadding />
-      <div className="px-5 pb-5 space-y-4">
+      <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title={setting.label} subtitle={setting.description ?? undefined} color="teal" />
+      <div className="space-y-4">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[var(--hub-border)]">
+              <tr className="border-b border-[var(--hub-border)] bg-[var(--hub-hover)]">
                 <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Mode</th>
                 <th className="text-center py-2 px-3 font-medium text-muted-foreground">Superset A</th>
                 <th className="text-center py-2 px-3 font-medium text-muted-foreground">Superset B</th>
@@ -180,12 +180,12 @@ function PaceModesEditor({
             </thead>
             <tbody>
               {modeKeys.map((mode) => (
-                <tr key={mode} className="border-b border-[var(--hub-border)]/50">
+                <tr key={mode} className="border-b border-[var(--hub-border)] last:border-0 hover:bg-[var(--hub-hover)] transition-colors">
                   <td className="py-2 pr-4 font-medium capitalize">{draft[mode].label}</td>
                   <td className="py-2 px-3">
                     <Input
                       type="number"
-                      className="w-16 text-center"
+                      className="w-16 text-center h-8 rounded-lg border-[var(--hub-field-border)] bg-[var(--hub-card)] focus:border-rose focus:ring-rose/30"
                       value={draft[mode].superset_a}
                       onChange={(e) => updateField("superset_a", mode, e.target.value)}
                     />
@@ -193,7 +193,7 @@ function PaceModesEditor({
                   <td className="py-2 px-3">
                     <Input
                       type="number"
-                      className="w-16 text-center"
+                      className="w-16 text-center h-8 rounded-lg border-[var(--hub-field-border)] bg-[var(--hub-card)] focus:border-rose focus:ring-rose/30"
                       value={draft[mode].superset_b}
                       onChange={(e) => updateField("superset_b", mode, e.target.value)}
                     />
@@ -201,7 +201,7 @@ function PaceModesEditor({
                   <td className="py-2 px-3">
                     <Input
                       type="number"
-                      className="w-16 text-center"
+                      className="w-16 text-center h-8 rounded-lg border-[var(--hub-field-border)] bg-[var(--hub-card)] focus:border-rose focus:ring-rose/30"
                       value={draft[mode].arms_core}
                       onChange={(e) => updateField("arms_core", mode, e.target.value)}
                     />
@@ -209,7 +209,7 @@ function PaceModesEditor({
                   <td className="py-2 px-3">
                     <Input
                       type="number"
-                      className="w-16 text-center"
+                      className="w-16 text-center h-8 rounded-lg border-[var(--hub-field-border)] bg-[var(--hub-card)] focus:border-rose focus:ring-rose/30"
                       value={draft[mode].total}
                       onChange={(e) => updateField("total", mode, e.target.value)}
                     />
@@ -226,7 +226,7 @@ function PaceModesEditor({
           </table>
         </div>
         <div className="flex justify-end">
-          <Button size="sm" onClick={handleSave} disabled={saving}>
+          <Button size="sm" className="rounded-lg bg-rose hover:bg-rose/90 text-white font-semibold" onClick={handleSave} disabled={saving}>
             Save
           </Button>
         </div>
@@ -256,16 +256,16 @@ function TextEditor({
 
   return (
     <HubCard>
-      <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title={setting.label} subtitle={setting.description ?? undefined} color="navy" noBottomPadding />
-      <div className="px-5 pb-5 space-y-3">
+      <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title={setting.label} subtitle={setting.description ?? undefined} color="navy" />
+      <div className="space-y-3">
         <Textarea
           rows={10}
-          className="font-mono text-sm"
+          className="font-mono text-sm rounded-lg border-[var(--hub-field-border)] bg-[var(--hub-card)] focus:border-rose focus:ring-rose/30"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
         />
         <div className="flex justify-end">
-          <Button size="sm" onClick={handleSave} disabled={saving}>
+          <Button size="sm" className="rounded-lg bg-rose hover:bg-rose/90 text-white font-semibold" onClick={handleSave} disabled={saving}>
             Save
           </Button>
         </div>
@@ -297,17 +297,17 @@ function ListEditor({
 
   return (
     <HubCard>
-      <HubCardHeader icon={<IconClipboardCheck className="w-4 h-4" />} title={setting.label} subtitle={setting.description ?? undefined} color="amber" noBottomPadding />
-      <div className="px-5 pb-5 space-y-3">
+      <HubCardHeader icon={<IconClipboardCheck className="w-4 h-4" />} title={setting.label} subtitle={setting.description ?? undefined} color="amber" />
+      <div className="space-y-3">
         <Label className="text-xs text-muted-foreground">One item per line</Label>
         <Textarea
           rows={10}
-          className="font-mono text-sm"
+          className="font-mono text-sm rounded-lg border-[var(--hub-field-border)] bg-[var(--hub-card)] focus:border-rose focus:ring-rose/30"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
         />
         <div className="flex justify-end">
-          <Button size="sm" onClick={handleSave} disabled={saving}>
+          <Button size="sm" className="rounded-lg bg-rose hover:bg-rose/90 text-white font-semibold" onClick={handleSave} disabled={saving}>
             Save
           </Button>
         </div>
@@ -345,16 +345,16 @@ function KeyedTextEditor({
 
   return (
     <HubCard>
-      <HubCardHeader icon={<IconBot className="w-4 h-4" />} title={setting.label} subtitle={setting.description ?? undefined} color="slate" noBottomPadding />
-      <div className="px-5 pb-5 space-y-3">
+      <HubCardHeader icon={<IconBot className="w-4 h-4" />} title={setting.label} subtitle={setting.description ?? undefined} color="slate" />
+      <div className="space-y-3">
         {Object.keys(draft).map((k) => (
           <div key={k} className="space-y-1">
             <Label className="text-xs text-muted-foreground capitalize">{k}</Label>
-            <Input value={draft[k]} onChange={(e) => updateField(k, e.target.value)} />
+            <Input className="h-9 rounded-lg border-[var(--hub-field-border)] bg-[var(--hub-card)] focus:border-rose focus:ring-rose/30" value={draft[k]} onChange={(e) => updateField(k, e.target.value)} />
           </div>
         ))}
         <div className="flex justify-end">
-          <Button size="sm" onClick={handleSave} disabled={saving}>
+          <Button size="sm" className="rounded-lg bg-rose hover:bg-rose/90 text-white font-semibold" onClick={handleSave} disabled={saving}>
             Save
           </Button>
         </div>

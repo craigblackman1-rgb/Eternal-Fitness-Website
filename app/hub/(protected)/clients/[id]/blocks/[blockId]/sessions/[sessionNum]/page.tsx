@@ -125,12 +125,12 @@ export default function SessionViewPage({
         <div className="flex gap-2">
           {sessionNum > 1 && (
             <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}/sessions/${sessionNum - 1}`}>
-              <Button variant="outline" size="icon" className="rounded-full"><IconChevronLeft className="h-4 w-4" /></Button>
+              <Button variant="outline" size="icon" className="rounded-lg"><IconChevronLeft className="h-4 w-4" /></Button>
             </Link>
           )}
           {sessionNum < totalSessions && (
             <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}/sessions/${sessionNum + 1}`}>
-              <Button variant="outline" size="icon" className="rounded-full"><IconChevronRight className="h-4 w-4" /></Button>
+              <Button variant="outline" size="icon" className="rounded-lg"><IconChevronRight className="h-4 w-4" /></Button>
             </Link>
           )}
         </div>
@@ -225,12 +225,12 @@ export default function SessionViewPage({
               </div>
               <Textarea value={logNotes} onChange={(e) => setLogNotes(e.target.value)} rows={3} placeholder="How the session went, adjustments made, anything for next time..." />
               <div className="flex gap-2">
-                <Button onClick={() => saveLog(true)} disabled={savingLog} className="bg-rose hover:bg-rose/90 text-white gap-1.5 rounded-full">
+                <Button onClick={() => saveLog(true)} disabled={savingLog} className="bg-rose hover:bg-rose/90 text-white gap-1.5 rounded-lg">
                   <IconCheckCircle className="w-4 h-4" />
                   Mark Complete & Save
                 </Button>
-                <Button variant="outline" onClick={() => saveLog(false)} disabled={savingLog} className="rounded-full">Save Without Completing</Button>
-                <Button variant="ghost" onClick={() => setEditingLog(false)} disabled={savingLog} className="rounded-full">Cancel</Button>
+                <Button variant="outline" onClick={() => saveLog(false)} disabled={savingLog} className="rounded-lg">Save Without Completing</Button>
+                <Button variant="ghost" onClick={() => setEditingLog(false)} disabled={savingLog} className="rounded-lg">Cancel</Button>
               </div>
             </>
           ) : (
@@ -244,7 +244,7 @@ export default function SessionViewPage({
               ) : (
                 <p className="text-sm text-muted-foreground">Not logged yet.</p>
               )}
-              <Button variant="outline" size="sm" onClick={() => setEditingLog(true)} className="rounded-full">
+              <Button variant="outline" size="sm" onClick={() => setEditingLog(true)} className="rounded-lg">
                 {currentLog?.completed_at ? "Edit Log" : "Log This Session"}
               </Button>
             </>
@@ -261,14 +261,14 @@ export default function SessionViewPage({
             <>
               <Textarea value={coachingNotes} onChange={(e) => setCoachingNotes(e.target.value)} rows={4} />
               <div className="flex gap-2">
-                <Button onClick={saveNotes} className="rounded-full">Save</Button>
-                <Button variant="outline" onClick={() => setEditingNotes(false)} className="rounded-full">Cancel</Button>
+                <Button onClick={saveNotes} className="rounded-lg">Save</Button>
+                <Button variant="outline" onClick={() => setEditingNotes(false)} className="rounded-lg">Cancel</Button>
               </div>
             </>
           ) : (
             <>
               <p className="text-sm whitespace-pre-wrap">{coachingNotes || "No notes yet"}</p>
-              <Button variant="outline" size="sm" onClick={() => setEditingNotes(true)} className="rounded-full">Edit Notes</Button>
+              <Button variant="outline" size="sm" onClick={() => setEditingNotes(true)} className="rounded-lg">Edit Notes</Button>
             </>
           )}
         </CardContent>
@@ -464,7 +464,7 @@ function SessionSection({
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 title="Watch video"
-                                className="inline-flex h-7 w-7 items-center justify-center rounded-full text-rose hover:bg-[var(--hub-hover)]"
+                                className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-rose hover:bg-[var(--hub-hover)]"
                               >
                                 <IconVideo className="h-3.5 w-3.5" />
                               </a>
@@ -474,7 +474,7 @@ function SessionSection({
                                   setEditingUrl(editingUrl === i ? null : i);
                                   setUrlInput(ex.media?.video_url || "");
                                 }}
-                                className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
+                                className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
                               >
                                 <IconPencil className="h-3.5 w-3.5" />
                               </button>
@@ -486,7 +486,7 @@ function SessionSection({
                                 setEditingUrl(editingUrl === i ? null : i);
                                 setUrlInput("");
                               }}
-                              className="inline-flex h-7 w-7 items-center justify-center rounded-full text-rose hover:bg-[var(--hub-hover)]"
+                              className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-rose hover:bg-[var(--hub-hover)]"
                             >
                               <IconVideo className="h-3.5 w-3.5" />
                             </button>
@@ -494,14 +494,14 @@ function SessionSection({
                           <button
                             title="Search YouTube"
                             onClick={() => searchYoutube(ex.exercise_name)}
-                            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
+                            className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
                           >
                             <IconSearch className="h-3.5 w-3.5" />
                           </button>
                           <button
                             title="Swap exercise"
                             onClick={() => setSwapping(swapping === i ? null : i)}
-                            className="inline-flex h-7 items-center justify-center rounded-full px-2 text-xs font-medium text-rose hover:bg-[var(--hub-hover)]"
+                            className="inline-flex h-7 items-center justify-center rounded-lg px-2 text-xs font-medium text-rose hover:bg-[var(--hub-hover)]"
                           >
                             Swap
                           </button>

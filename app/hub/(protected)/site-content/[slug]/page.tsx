@@ -26,9 +26,11 @@ export default async function SiteContentSlugPage({
     .order("block_key");
 
   return (
-    <SiteContentEditor
-      keyword={keyword}
-      blocks={blocks ?? []}
-    />
+    <div className="space-y-6">
+      <SiteContentEditor
+        keyword={keyword}
+        blocks={blocks ?? []}
+      />
+    </div>
   );
 }

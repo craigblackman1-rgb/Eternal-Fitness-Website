@@ -324,7 +324,7 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         <div className="flex items-center gap-4 flex-1">
           <Link href="/hub/agreements">
-            <Button variant="ghost" size="sm" className="gap-1.5 rounded-full">
+            <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg">
               <IconArrowLeft className="w-4 h-4" />
               Back
             </Button>
@@ -337,7 +337,7 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
 
         {/* Action buttons */}
         <div className="flex items-center gap-2 flex-wrap">
-<Button variant="outline" size="sm" className="gap-1.5 rounded-lg" onClick={handlePrint}>
+          <Button variant="outline" size="sm" className="gap-1.5 rounded-lg" onClick={handlePrint}>
              <IconPrinter className="w-4 h-4" />
              Print
            </Button>
@@ -511,7 +511,7 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
             <Button
               variant="outline"
               size="sm"
-              className="gap-1.5 rounded-full"
+              className="gap-1.5 rounded-lg"
               onClick={handleCopyParqEditLink}
             >
               <IconCopy className="w-4 h-4" />
@@ -520,7 +520,7 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
             <Button
               variant={editingParq ? "default" : "outline"}
               size="sm"
-              className="gap-1.5 rounded-full"
+              className="gap-1.5 rounded-lg"
               onClick={() => {
                 if (editingParq) {
                   setEditingParq(false);
@@ -645,10 +645,10 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
               </div>
 
               <div className="flex items-center gap-3 pt-2">
-                <Button onClick={handleSaveParq} disabled={parqSaving} className="gap-1.5 bg-rose hover:bg-rose/90 text-white rounded-full">
+                <Button onClick={handleSaveParq} disabled={parqSaving} className="gap-1.5 bg-rose hover:bg-rose/90 text-white rounded-lg">
                   {parqSaving ? "Saving..." : <><IconSave className="w-4 h-4" /> Save PAR-Q</>}
                 </Button>
-                <Button variant="outline" onClick={() => { setEditingParq(false); setParqSaveError(null); }} className="gap-1.5 rounded-full">
+                <Button variant="outline" onClick={() => { setEditingParq(false); setParqSaveError(null); }} className="gap-1.5 rounded-lg">
                   <IconX className="w-4 h-4" /> Cancel
                 </Button>
               </div>

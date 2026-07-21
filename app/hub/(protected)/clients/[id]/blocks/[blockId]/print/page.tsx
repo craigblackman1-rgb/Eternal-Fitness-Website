@@ -161,7 +161,7 @@ function HeaderSection({
             {phaseCalendar.map(([phase, weeks]) => (
               <span
                 key={phase}
-                className="inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize"
+                className="inline-flex rounded-lg border px-2.5 py-0.5 text-xs font-medium capitalize"
               >
                 {phaseLabels[phase] || phase} &mdash; Week{weeks.length > 1 ? "s" : ""}{" "}
                 {weeks.join(", ")}

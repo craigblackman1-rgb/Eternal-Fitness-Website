@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { EmptyState } from "@/components/hub/EmptyState";
 import { StatusBadge } from "@/components/hub/StatusBadge";
+import { HubCard, HubCardHeader } from "@/components/hub";
 import { IconSave, IconPlus, IconArrowLeft } from "@/components/icons";
 import { useRouter } from "next/navigation";
 
@@ -198,11 +198,9 @@ export function SiteContentEditor({
       </div>
 
       {/* Keyword / SEO card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">SEO &amp; Keywords</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <HubCard>
+        <HubCardHeader title="SEO &amp; Keywords" />
+        <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label htmlFor="primary_keyword">Primary Keyword</Label>
@@ -213,6 +211,7 @@ export function SiteContentEditor({
                   handleKeywordChange("primary_keyword", e.target.value || null)
                 }
                 placeholder="e.g. personal training Worthing"
+                className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30"
               />
             </div>
             <div className="space-y-1.5">
@@ -222,6 +221,7 @@ export function SiteContentEditor({
                 value={clusterString}
                 onChange={(e) => setClusterFromString(e.target.value)}
                 placeholder="Comma-separated keywords"
+                className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30"
               />
             </div>
           </div>
@@ -232,7 +232,7 @@ export function SiteContentEditor({
                 value={keyword.status}
                 onValueChange={(val) => handleKeywordChange("status", val)}
               >
-                <SelectTrigger id="status">
+                <SelectTrigger id="status" className="border-[var(--color-muted-text)] focus:border-rose focus:ring-rose/30">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -253,20 +253,21 @@ export function SiteContentEditor({
               }
               placeholder="Internal notes about this page's SEO strategy..."
               rows={3}
+              className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30"
             />
           </div>
           <div className="flex justify-end">
             <Button
               onClick={saveKeyword}
               disabled={!keywordDirty || keywordSaving}
-              className="gap-1.5"
+              className="gap-1.5 rounded-lg bg-rose hover:bg-rose/90 text-white"
             >
               <IconSave className="h-4 w-4" />
               {keywordSaving ? "Saving..." : "Save"}
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </HubCard>
 
       {/* Editable content blocks */}
       <div>
@@ -284,11 +285,9 @@ export function SiteContentEditor({
         </div>
 
         {showAdd && (
-          <Card className="mb-4 border-dashed border-rose/30">
-            <CardHeader>
-              <CardTitle className="text-sm">New Content Block</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
+          <HubCard className="mb-4 border-dashed border-rose/30">
+            <HubCardHeader title="New Content Block" />
+            <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="new_block_key">Block Key</Label>
@@ -297,6 +296,7 @@ export function SiteContentEditor({
                     value={newBlockKey}
                     onChange={(e) => setNewBlockKey(e.target.value)}
                     placeholder="e.g. hero_heading"
+                    className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -306,6 +306,7 @@ export function SiteContentEditor({
                     value={newLabel}
                     onChange={(e) => setNewLabel(e.target.value)}
                     placeholder="e.g. Hero Heading"
+                    className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30"
                   />
                 </div>
               </div>
@@ -317,12 +318,14 @@ export function SiteContentEditor({
                   onChange={(e) => setNewContent(e.target.value)}
                   rows={3}
                   placeholder="Content..."
+                  className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30"
                 />
               </div>
               <div className="flex justify-end gap-2">
                 <Button
                   variant="ghost"
                   size="sm"
+                  className="rounded-lg"
                   onClick={() => {
                     setShowAdd(false);
                     setNewBlockKey("");
@@ -334,15 +337,15 @@ export function SiteContentEditor({
                 </Button>
                 <Button
                   size="sm"
-                  className="gap-1.5"
+                  className="gap-1.5 rounded-lg bg-rose hover:bg-rose/90 text-white"
                   disabled={!newBlockKey.trim() || !newLabel.trim() || adding}
                   onClick={addBlock}
                 >
                   {adding ? "Creating..." : "Create"}
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </HubCard>
         )}
 
         {blocks.length === 0 && !showAdd ? (
@@ -366,10 +369,10 @@ export function SiteContentEditor({
                 false;
 
               return (
-                <Card key={block.id}>
-                  <CardHeader className="flex flex-row items-center justify-between">
+                <HubCard key={block.id}>
+                  <div className="flex flex-row items-start justify-between gap-3 pb-3 border-b border-[var(--hub-border)]">
                     <div>
-                      <CardTitle className="text-sm">{block.label}</CardTitle>
+                      <h3 className="text-base font-semibold text-foreground">{block.label}</h3>
                       <p className="text-xs text-muted-foreground mt-0.5">
                         {block.block_key} &middot; v{block.version}
                         {block.updated_by && (
@@ -379,15 +382,15 @@ export function SiteContentEditor({
                     </div>
                     <Button
                       size="sm"
-                      className="gap-1.5"
+                      className="gap-1.5 rounded-lg bg-rose hover:bg-rose/90 text-white shrink-0"
                       disabled={!isDirty || isSaving}
                       onClick={() => saveBlock(block)}
                     >
                       <IconSave className="h-4 w-4" />
                       {isSaving ? "Saving..." : "Save"}
                     </Button>
-                  </CardHeader>
-                  <CardContent>
+                  </div>
+                  <div className="pt-4">
                     <Textarea
                       value={editContent}
                       onChange={(e) =>
@@ -397,10 +400,10 @@ export function SiteContentEditor({
                         }))
                       }
                       rows={4}
-                      className="font-mono text-sm"
+                      className="font-mono text-sm border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30"
                     />
-                  </CardContent>
-                </Card>
+                  </div>
+                </HubCard>
               );
             })}
           </div>

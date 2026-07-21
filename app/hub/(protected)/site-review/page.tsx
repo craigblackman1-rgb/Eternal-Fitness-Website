@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -12,7 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { IconAlertCircle, IconCheck, IconCheckSquare, IconClock, IconZap } from "@/components/icons";
+import { HubCard, HubCardHeader, KpiTile } from "@/components/hub";
+import { IconAlertCircle, IconCheck, IconCheckSquare, IconClock, IconZap, IconClipboardList, IconFileText } from "@/components/icons";
 
 interface Task {
   id: string;
@@ -165,69 +165,61 @@ export default function SiteReviewPage() {
   const statuses = Array.from(new Set(tasks.map((t) => t.status)));
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-semibold text-near-black">Site Review & Tasks</h1>
+        <h1 className="text-xl font-semibold text-foreground">Site Review & Tasks</h1>
         <p className="text-muted-foreground mt-1">Website audit checklist and project structure</p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-6 gap-4">
-        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Tasks</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.total}</div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm border-teal/20 bg-teal/5 rounded-2xl">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-teal">Completed</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-teal">{completedCount}</div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm border-rose/20 bg-rose/5 rounded-2xl">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-rose">Critical Issues</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-rose">{stats.critical}</div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Est. Hours</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.hours}h</div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Public Pages</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.public}</div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Hub Pages</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.protected}</div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-6">
+        <KpiTile
+          statusToken="primary"
+          icon={<IconClipboardList className="w-5 h-5" />}
+          label="Total Tasks"
+          value={stats.total}
+        />
+        <KpiTile
+          statusToken="success"
+          icon={<IconCheck className="w-5 h-5" />}
+          label="Completed"
+          value={completedCount}
+        />
+        <KpiTile
+          statusToken="danger"
+          icon={<IconAlertCircle className="w-5 h-5" />}
+          label="Critical Issues"
+          value={stats.critical}
+        />
+        <KpiTile
+          statusToken="neutral"
+          icon={<IconClock className="w-5 h-5" />}
+          label="Est. Hours"
+          value={`${stats.hours}h`}
+        />
+        <KpiTile
+          statusToken="primary"
+          icon={<IconFileText className="w-5 h-5" />}
+          label="Public Pages"
+          value={stats.public}
+        />
+        <KpiTile
+          statusToken="primary"
+          icon={<IconFileText className="w-5 h-5" />}
+          label="Hub Pages"
+          value={stats.protected}
+        />
       </div>
 
       <Tabs defaultValue="tasks" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="tasks">Tasks ({filteredTasks.length})</TabsTrigger>
-          <TabsTrigger value="sitemap">Sitemap ({sitemap.length})</TabsTrigger>
-        </TabsList>
+        <div className="inline-flex w-full max-w-full justify-start gap-1 overflow-x-auto rounded-xl border border-[var(--hub-border)] bg-[var(--hub-card)] p-1 shadow-sm mb-6">
+          <TabsTrigger value="tasks" className="rounded-lg border-0 px-3.5 py-2 text-sm font-medium data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:shadow-none data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground hover:data-[state=inactive]:bg-[var(--hub-hover)] hover:data-[state=inactive]:text-foreground">
+            Tasks ({filteredTasks.length})
+          </TabsTrigger>
+          <TabsTrigger value="sitemap" className="rounded-lg border-0 px-3.5 py-2 text-sm font-medium data-[state=active]:bg-[var(--hub-sidebar-active)] data-[state=active]:font-semibold data-[state=active]:shadow-none data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground hover:data-[state=inactive]:bg-[var(--hub-hover)] hover:data-[state=inactive]:text-foreground">
+            Sitemap ({sitemap.length})
+          </TabsTrigger>
+        </div>
 
         {/* Tasks Tab */}
         <TabsContent value="tasks" className="space-y-4">
@@ -271,9 +263,9 @@ export default function SiteReviewPage() {
               variant={showCompleted ? "default" : "outline"}
               size="sm"
               onClick={() => setShowCompleted(!showCompleted)}
-              className="ml-auto"
+              className="ml-auto gap-1.5 rounded-lg"
             >
-              <IconCheck className="h-4 w-4 mr-2" />
+              <IconCheck className="h-4 w-4" />
               Completed ({completedCount})
             </Button>
           </div>
@@ -282,8 +274,7 @@ export default function SiteReviewPage() {
             {filteredTasks.map((task) => {
               const currentStatus = taskStatuses[task.id] || "Not Started";
               return (
-                <Card key={task.id} className={`shadow-sm rounded-2xl transition-all ${currentStatus === "Complete" ? "border-teal/20 bg-teal/5" : "border-border/60 hover:border-rose/40 hover:shadow-md"}`}>
-                  <CardContent className="p-4">
+                <HubCard key={task.id} className={`transition-all ${currentStatus === "Complete" ? "bg-teal/5 border-teal/30" : "hover:border-rose/40"}`}>
                     <div className="flex gap-4">
                       <div className="flex-1">
                         <div className="flex items-start gap-3">
@@ -292,7 +283,7 @@ export default function SiteReviewPage() {
                               {task.priority}
                             </Badge>
                             <Badge variant="outline">{task.category}</Badge>
-                            {currentStatus === "Complete" && <Badge className="bg-teal/10 text-teal">Done</Badge>}
+                            {currentStatus === "Complete" && <Badge className="bg-teal/10 text-teal border-teal/20">Done</Badge>}
                           </div>
                         </div>
                         <p className="font-medium text-foreground mt-2">{task.id}: {task.task}</p>
@@ -305,7 +296,7 @@ export default function SiteReviewPage() {
                               size="sm"
                               variant={currentStatus === "Not Started" ? "default" : "outline"}
                               onClick={() => updateTaskStatus(task.id, "Not Started")}
-                              className="h-7 text-xs"
+                              className="h-7 text-xs rounded-lg"
                             >
                               Not Started
                             </Button>
@@ -313,7 +304,7 @@ export default function SiteReviewPage() {
                               size="sm"
                               variant={currentStatus === "In Progress" ? "default" : "outline"}
                               onClick={() => updateTaskStatus(task.id, "In Progress")}
-                              className="h-7 text-xs"
+                              className="h-7 text-xs rounded-lg"
                             >
                               In Progress
                             </Button>
@@ -321,7 +312,7 @@ export default function SiteReviewPage() {
                               size="sm"
                               variant={currentStatus === "Complete" ? "default" : "outline"}
                               onClick={() => updateTaskStatus(task.id, "Complete")}
-                              className={`h-7 text-xs ${currentStatus === "Complete" ? "bg-teal hover:bg-teal/90" : ""}`}
+                              className={`h-7 text-xs rounded-lg ${currentStatus === "Complete" ? "bg-teal hover:bg-teal/90" : ""}`}
                             >
                               Complete
                             </Button>
@@ -329,8 +320,7 @@ export default function SiteReviewPage() {
                         </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                </HubCard>
               );
             })}
           </div>
@@ -339,54 +329,58 @@ export default function SiteReviewPage() {
         {/* Sitemap Tab */}
         <TabsContent value="sitemap" className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-              <CardHeader>
-                <CardTitle className="text-base">Public Pages ({stats.public})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {sitemap.filter((s) => s.access.includes("Public")).map((page) => (
-                    <div key={page.url} className="text-sm border-l-2 border-rose/30 pl-3 py-1">
-                      <code className="text-xs bg-off-white px-2 py-1 rounded text-teal font-mono">{page.url}</code>
-                      <div className="text-xs text-muted-foreground mt-0.5">{page.title}</div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <HubCard>
+              <HubCardHeader
+                title="Public Pages"
+                subtitle={`${stats.public} pages`}
+                color="rose"
+                noBottomPadding
+              />
+              <div className="pt-4 space-y-2 max-h-96 overflow-y-auto">
+                {sitemap.filter((s) => s.access.includes("Public")).map((page) => (
+                  <div key={page.url} className="text-sm border-l-2 border-rose/30 pl-3 py-1">
+                    <code className="text-xs bg-[var(--hub-canvas)] px-2 py-1 rounded text-teal font-mono">{page.url}</code>
+                    <div className="text-xs text-muted-foreground mt-0.5">{page.title}</div>
+                  </div>
+                ))}
+              </div>
+            </HubCard>
 
-            <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-              <CardHeader>
-                <CardTitle className="text-base">Protected Hub Pages ({stats.protected})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {sitemap.filter((s) => s.access === "Protected").map((page) => (
-                    <div key={page.url} className="text-sm border-l-2 border-teal/30 pl-3 py-1">
-                      <code className="text-xs bg-off-white px-2 py-1 rounded text-teal font-mono">{page.url}</code>
-                      <div className="text-xs text-muted-foreground mt-0.5">{page.title}</div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <HubCard>
+              <HubCardHeader
+                title="Protected Hub Pages"
+                subtitle={`${stats.protected} pages`}
+                color="teal"
+                noBottomPadding
+              />
+              <div className="pt-4 space-y-2 max-h-96 overflow-y-auto">
+                {sitemap.filter((s) => s.access === "Protected").map((page) => (
+                  <div key={page.url} className="text-sm border-l-2 border-teal/30 pl-3 py-1">
+                    <code className="text-xs bg-[var(--hub-canvas)] px-2 py-1 rounded text-teal font-mono">{page.url}</code>
+                    <div className="text-xs text-muted-foreground mt-0.5">{page.title}</div>
+                  </div>
+                ))}
+              </div>
+            </HubCard>
           </div>
         </TabsContent>
       </Tabs>
 
-      <Card className="shadow-sm bg-off-white border-border/50 rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-sm">Resources</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <HubCard>
+        <HubCardHeader
+          title="Resources"
+          subtitle="Reference materials for this review"
+          noBottomPadding
+        />
+        <div className="pt-4">
           <p className="text-sm text-muted-foreground">
             For the full spreadsheet with detailed notes, image inventory, and design system reference, see:
           </p>
-          <code className="text-xs bg-white rounded px-2 py-1 mt-2 block text-teal font-mono border border-border/50">
+          <code className="text-xs bg-[var(--hub-canvas)] rounded px-2 py-1 mt-2 block text-teal font-mono border border-[var(--hub-border)]">
             /Documents/eternal-fitness/EF_Website_Review_Spreadsheet.csv
           </code>
-        </CardContent>
-      </Card>
+        </div>
+      </HubCard>
     </div>
   );
 }

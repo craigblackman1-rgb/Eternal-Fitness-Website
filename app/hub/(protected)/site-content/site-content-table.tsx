@@ -1,6 +1,7 @@
 "use client";
 
 import { HubTable, type HubColumn } from "@/components/hub/HubTable";
+import { HubCard, HubCardHeader } from "@/components/hub";
 import { StatusBadge } from "@/components/hub/StatusBadge";
 
 interface PageKeyword {
@@ -73,12 +74,15 @@ const columns: HubColumn<PageKeyword>[] = [
 
 export function SiteContentTable({ keywords }: { keywords: PageKeyword[] }) {
   return (
-    <HubTable
-      data={keywords}
-      columns={columns}
-      getRowHref={(row) => `/hub/site-content/${row.page_slug}`}
-      searchPlaceholder="Search pages..."
-      searchKeys={["page_title", "page_slug", "primary_keyword"]}
-    />
+    <HubCard padded={false}>
+      <HubCardHeader title="Pages" />
+      <HubTable
+        data={keywords}
+        columns={columns}
+        getRowHref={(row) => `/hub/site-content/${row.page_slug}`}
+        searchPlaceholder="Search pages..."
+        searchKeys={["page_title", "page_slug", "primary_keyword"]}
+      />
+    </HubCard>
   );
 }

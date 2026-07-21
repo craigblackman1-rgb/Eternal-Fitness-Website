@@ -73,12 +73,12 @@ export default async function TrackerPage() {
             <Table>
               <TableHeader>
                 <TableRow className="border-[var(--hub-border)] hover:bg-transparent">
-                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] h-10">Client</TableHead>
-                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] h-10">Status</TableHead>
-                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] h-10">PAR-Q</TableHead>
-                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] h-10">Agreement</TableHead>
-                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] h-10">GP Letter</TableHead>
-                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] h-10">Outstanding</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold bg-[var(--hub-hover)] h-10">Client</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold bg-[var(--hub-hover)] h-10">Status</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold bg-[var(--hub-hover)] h-10">PAR-Q</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold bg-[var(--hub-hover)] h-10">Agreement</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold bg-[var(--hub-hover)] h-10">GP Letter</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold bg-[var(--hub-hover)] h-10">Outstanding</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

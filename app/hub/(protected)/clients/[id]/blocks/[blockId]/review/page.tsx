@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { IconAlertTriangle, IconCheckCircle, IconChevronLeft, IconEye } from "@/components/icons";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { DBSession, DBBlock } from "@/types";
+import { HubCard, HubCardHeader, HubAlert } from "@/components/hub";
 
 export default function ReviewPage({ params }: { params: { id: string; blockId: string } }) {
   const router = useRouter();
@@ -83,19 +83,14 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
       </div>
 
       {hasMissingMods && (
-        <Alert className="border-amber-200 bg-amber-50">
-          <IconAlertTriangle className="h-4 w-4 text-amber-600" />
-          <AlertDescription className="text-amber-800">
-            Some exercises are missing client-specific modifications. Review each session before approving.
-          </AlertDescription>
-        </Alert>
+        <HubAlert severity="warning" title="Missing Modifications">
+          Some exercises are missing client-specific modifications. Review each session before approving.
+        </HubAlert>
       )}
 
-      <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-        <CardHeader>
-          <CardTitle className="text-lg">Session Overview</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <HubCard>
+        <HubCardHeader title="Session Overview" />
+        <div className="pb-5">
           <Table>
             <TableHeader>
               <TableRow className="border-border/60">
@@ -135,7 +130,7 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
                     <TableCell>{homeCount} exercises</TableCell>
                     <TableCell>
                       <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}/sessions/${session.session_number}`}>
-                        <Button variant="ghost" size="icon" className="rounded-full hover:bg-rose/10 hover:text-rose">
+                        <Button variant="ghost" size="icon" className="rounded-lg hover:bg-rose/10 hover:text-rose">
                           <IconEye className="h-4 w-4" />
                         </Button>
                       </Link>
@@ -145,14 +140,14 @@ export default function ReviewPage({ params }: { params: { id: string; blockId: 
               })}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </div>
+      </HubCard>
 
       <div className="flex justify-end gap-3">
         <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}`}>
-          <Button variant="outline" className="rounded-full">Back to Block</Button>
+          <Button variant="outline" className="rounded-lg">Back to Block</Button>
         </Link>
-        <Button onClick={handleApprove} disabled={approving} className="gap-2 bg-rose hover:bg-rose/90 text-white rounded-full">
+        <Button onClick={handleApprove} disabled={approving} className="gap-2 bg-rose hover:bg-rose/90 text-white rounded-lg">
           <IconCheckCircle className="h-4 w-4" />
           {approving ? "Approving..." : "Approve Block"}
         </Button>

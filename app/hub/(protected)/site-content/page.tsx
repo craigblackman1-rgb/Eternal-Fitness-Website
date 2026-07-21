@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 import { SiteContentTable } from "./site-content-table";
+import { HubPageHeader } from "@/components/hub";
 
 export default async function SiteContentPage() {
   const supabase = createClient();
@@ -13,13 +14,11 @@ export default async function SiteContentPage() {
     .order("page_slug");
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold tracking-tight">Site Content</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Manage SEO keywords and editable content blocks for each page.
-        </p>
-      </div>
+    <div className="space-y-6">
+      <HubPageHeader
+        title="Site Content"
+        subtitle="Manage SEO keywords and editable content blocks for each page"
+      />
       <SiteContentTable keywords={keywords ?? []} />
     </div>
   );

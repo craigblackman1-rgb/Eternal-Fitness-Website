@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { IconChevronLeft } from "@/components/icons";
+import { IconChevronLeft, IconUsers, IconMapPin, IconHeart, IconTarget, IconClipboardList, IconEdit3 } from "@/components/icons";
 import Link from "next/link";
+import { HubCard, HubCardHeader, HubPageHeader } from "@/components/hub";
 import { TagMultiSelect } from "@/components/hub/TagMultiSelect";
 import { InjuryHistoryTable } from "@/components/hub/InjuryHistoryTable";
 import { TrainingRulesEditor } from "@/components/hub/TrainingRulesEditor";
@@ -27,6 +27,59 @@ function calculateAge(dob: string | null): number {
     age--;
   }
   return age;
+}
+
+/**
+ * Segmented control — used for the short exclusive sets (training location,
+ * sessions/week, time tier, fitness level, pace mode) so every option is
+ * visible at once. Mirrors the reference edit mockup's .seg component.
+ */
+function SegmentedControl<T extends string | number>({
+  legend,
+  name,
+  value,
+  onChange,
+  options,
+}: {
+  legend: string;
+  name: string;
+  value: T;
+  onChange: (v: T) => void;
+  options: { value: T; label: string; sub?: string }[];
+}) {
+  return (
+    <fieldset className="space-y-2">
+      <legend className="text-sm font-semibold text-foreground">{legend}</legend>
+      <div className="flex rounded-lg border border-[var(--color-muted-text)] bg-[var(--hub-canvas)] p-0.5 gap-0.5">
+        {options.map((opt) => {
+          const active = opt.value === value;
+          return (
+            <label key={String(opt.value)} className="flex-1">
+              <input
+                type="radio"
+                name={name}
+                value={String(opt.value)}
+                checked={active}
+                onChange={() => onChange(opt.value)}
+                className="sr-only"
+              />
+              <span
+                className={
+                  "flex min-h-[30px] cursor-pointer items-center justify-center rounded-md px-2.5 text-center text-sm font-semibold transition-colors " +
+                  (active
+                    ? "bg-[var(--hub-card)] text-foreground shadow-sm"
+                    : "text-[var(--color-body)] hover:text-foreground")
+                }
+              >
+                {opt.label}
+                {opt.sub && <span className="ml-1 text-[11px] font-medium text-muted-foreground">{opt.sub}</span>}
+              </span>
+            </label>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
 }
 
 const emptyProfile: ClientProfile = {
@@ -53,9 +106,6 @@ export default function NewClientPage() {
       [section]: { ...prev[section], ...updates },
     }));
   };
-
-  const arrayToString = (items: string[]) => items.join(", ");
-  const stringToArray = (val: string) => val.split(",").map((s) => s.trim()).filter(Boolean);
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -95,25 +145,23 @@ export default function NewClientPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/hub/clients" className="text-muted-foreground hover:text-foreground">
+        <Link href="/hub/clients" className="text-muted-foreground hover:text-foreground shrink-0 mt-1">
           <IconChevronLeft className="h-5 w-5" />
         </Link>
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">New Client</h1>
-          <p className="text-muted-foreground">Create a new client profile</p>
-        </div>
+        <HubPageHeader
+          title="New client"
+          subtitle="Create a new client profile"
+        />
       </div>
 
       <div className="space-y-6">
-        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-          <CardHeader>
-            <CardTitle>Basic Info</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <HubCard>
+          <HubCardHeader icon={<IconUsers className="w-4 h-4" />} title="Basic info" subtitle="Who the client is, and how to reach them" color="navy" noBottomPadding />
+          <div className="px-5 pb-5 pt-4 space-y-4">
             <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Client name" />
+                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Client name" className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="dob">Date of Birth</Label>
@@ -122,6 +170,7 @@ export default function NewClientPage() {
                   type="date"
                   value={profile.client.date_of_birth ?? ""}
                   onChange={(e) => updateProfile("client", { date_of_birth: e.target.value || null })}
+                  className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30"
                 />
                 <p className="text-xs text-muted-foreground">
                   {profile.client.date_of_birth ? `Age: ${calculateAge(profile.client.date_of_birth)}` : "Age will be calculated from date of birth"}
@@ -130,7 +179,7 @@ export default function NewClientPage() {
               <div className="space-y-2">
                 <Label>Gender</Label>
                 <Select value={profile.client.gender || undefined} onValueChange={(v: Gender) => updateProfile("client", { gender: v })}>
-                  <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectTrigger className="border-[var(--color-muted-text)] focus:border-rose focus:ring-rose/30"><SelectValue placeholder="Select..." /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="female">Female</SelectItem>
                     <SelectItem value="male">Male</SelectItem>
@@ -149,6 +198,7 @@ export default function NewClientPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="client@example.com"
+                  className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30"
                 />
                 <p className="text-xs text-muted-foreground">Used to send 6-week updates.</p>
               </div>
@@ -160,76 +210,75 @@ export default function NewClientPage() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="07…"
+                  className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30"
                 />
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </HubCard>
 
-        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-          <CardHeader>
-            <CardTitle>Logistics</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-3">
-            <div className="space-y-2">
-              <Label>Training Location</Label>
-              <Select value={profile.logistics.training_location} onValueChange={(v: "studio" | "home" | "both") => updateProfile("logistics", { training_location: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="studio">Studio</SelectItem>
-                  <SelectItem value="home">Home</SelectItem>
-                  <SelectItem value="both">Both</SelectItem>
-                </SelectContent>
-              </Select>
+        <HubCard>
+          <HubCardHeader icon={<IconMapPin className="w-4 h-4" />} title="Logistics" subtitle="Where, how often and how long" color="slate" noBottomPadding />
+          <div className="px-5 pb-5 pt-4 space-y-4">
+            <SegmentedControl
+              legend="Training location"
+              name="training_location"
+              value={profile.logistics.training_location}
+              onChange={(v) => updateProfile("logistics", { training_location: v })}
+              options={[
+                { value: "studio", label: "Studio" },
+                { value: "home", label: "Home" },
+                { value: "both", label: "Both" },
+              ]}
+            />
+            <div className="grid gap-4 md:grid-cols-3">
+              <SegmentedControl
+                legend="Sessions / week"
+                name="sessions_per_week"
+                value={profile.logistics.sessions_per_week}
+                onChange={(v) => updateProfile("logistics", { sessions_per_week: v as 1 | 2 | 3 })}
+                options={[
+                  { value: 1, label: "1×" },
+                  { value: 2, label: "2×" },
+                  { value: 3, label: "3×" },
+                ]}
+              />
+              <div className="space-y-2">
+                <Label>Time Tier</Label>
+                <Select value={profile.logistics.time_tier} onValueChange={(v: "compact" | "standard" | "extended") => updateProfile("logistics", { time_tier: v })}>
+                  <SelectTrigger className="border-[var(--color-muted-text)] focus:border-rose focus:ring-rose/30"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="compact">Compact (~45m)</SelectItem>
+                    <SelectItem value="standard">Standard (~60m)</SelectItem>
+                    <SelectItem value="extended">Extended (~75-90m)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Package</Label>
+                <Select value={profile.logistics.package} onValueChange={(v: "12-week" | "24-week" | "ongoing") => updateProfile("logistics", { package: v })}>
+                  <SelectTrigger className="border-[var(--color-muted-text)] focus:border-rose focus:ring-rose/30"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="12-week">12-week</SelectItem>
+                    <SelectItem value="24-week">24-week</SelectItem>
+                    <SelectItem value="ongoing">Ongoing</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Sessions / Week</Label>
-              <Select value={String(profile.logistics.sessions_per_week)} onValueChange={(v) => updateProfile("logistics", { sessions_per_week: parseInt(v) as 1 | 2 | 3 })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">1x</SelectItem>
-                  <SelectItem value="2">2x</SelectItem>
-                  <SelectItem value="3">3x</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Time Tier</Label>
-              <Select value={profile.logistics.time_tier} onValueChange={(v: "compact" | "standard" | "extended") => updateProfile("logistics", { time_tier: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="compact">Compact (~45m)</SelectItem>
-                  <SelectItem value="standard">Standard (~60m)</SelectItem>
-                  <SelectItem value="extended">Extended (~75-90m)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Package</Label>
-              <Select value={profile.logistics.package} onValueChange={(v: "12-week" | "24-week" | "ongoing") => updateProfile("logistics", { package: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="12-week">12-week</SelectItem>
-                  <SelectItem value="24-week">24-week</SelectItem>
-                  <SelectItem value="ongoing">Ongoing</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </HubCard>
 
-        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-          <CardHeader>
-            <CardTitle>Health & Clearance</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <HubCard>
+          <HubCardHeader icon={<IconHeart className="w-4 h-4" />} title="Health and clearance" subtitle="What has to be adapted around, and what unblocks planning" color="rose" noBottomPadding />
+          <div className="px-5 pb-5 pt-4 space-y-4">
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
                 id="gp_clearance"
                 checked={profile.health.gp_clearance}
                 onChange={(e) => updateProfile("health", { gp_clearance: e.target.checked })}
-                className="h-4 w-4 rounded border-gray-300 accent-rose"
+                className="h-4 w-4 rounded border-[var(--color-muted-text)] accent-rose"
               />
               <Label htmlFor="gp_clearance">GP clearance obtained</Label>
             </div>
@@ -240,7 +289,7 @@ export default function NewClientPage() {
                   id="parq_trainer_override"
                   checked={profile.health.parq_trainer_override ?? false}
                   onChange={(e) => updateProfile("health", { parq_trainer_override: e.target.checked })}
-                  className="h-4 w-4 rounded border-gray-300 accent-rose"
+                  className="h-4 w-4 rounded border-[var(--color-muted-text)] accent-rose"
                 />
                 <Label htmlFor="parq_trainer_override">PAR-Q trainer override — completed on Microsoft Forms, not yet in system</Label>
               </div>
@@ -254,6 +303,7 @@ export default function NewClientPage() {
                   value={profile.health.parq_trainer_override_note ?? ""}
                   onChange={(e) => updateProfile("health", { parq_trainer_override_note: e.target.value })}
                   rows={2}
+                  className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30"
                 />
               )}
             </div>
@@ -269,11 +319,21 @@ export default function NewClientPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label>Contraindications</Label>
-                <Input value={arrayToString(profile.health.contraindications)} onChange={(e) => updateProfile("health", { contraindications: stringToArray(e.target.value) })} />
+                <TagMultiSelect
+                  category="contraindication"
+                  selected={profile.health.contraindications}
+                  onChange={(contraindications) => updateProfile("health", { contraindications })}
+                  placeholder="Select contraindications or add new..."
+                />
               </div>
               <div className="space-y-2">
                 <Label>Pain Points</Label>
-                <Input value={arrayToString(profile.health.pain_points)} onChange={(e) => updateProfile("health", { pain_points: stringToArray(e.target.value) })} />
+                <TagMultiSelect
+                  category="pain_point"
+                  selected={profile.health.pain_points}
+                  onChange={(pain_points) => updateProfile("health", { pain_points })}
+                  placeholder="Select pain points or add new..."
+                />
               </div>
             </div>
             <div className="space-y-2">
@@ -283,18 +343,16 @@ export default function NewClientPage() {
                 onChange={(injury_history) => updateProfile("health", { injury_history })}
               />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </HubCard>
 
-        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-          <CardHeader>
-            <CardTitle>Goals</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <HubCard>
+          <HubCardHeader icon={<IconTarget className="w-4 h-4" />} title="Goals" subtitle="What the client is working towards" color="teal" noBottomPadding />
+          <div className="px-5 pb-5 pt-4 space-y-4">
             <div className="space-y-2">
               <Label>Primary Goal</Label>
               <Select value={profile.goals.primary} onValueChange={(v: ClientProfile["goals"]["primary"]) => updateProfile("goals", { primary: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger className="border-[var(--color-muted-text)] focus:border-rose focus:ring-rose/30"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="strength">Strength</SelectItem>
                   <SelectItem value="mobility">Mobility</SelectItem>
@@ -314,50 +372,52 @@ export default function NewClientPage() {
                 placeholder="Select milestones or add new..."
               />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </HubCard>
 
-        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-          <CardHeader>
-            <CardTitle>Training Rules</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <HubCard>
+          <HubCardHeader icon={<IconClipboardList className="w-4 h-4" />} title="Training rules" subtitle="Applied systematically by the Plan Agent" color="navy" noBottomPadding />
+          <div className="px-5 pb-5 pt-4">
             <TrainingRulesEditor
               value={profile.programming_adaptations}
               onChange={(programming_adaptations) => setProfile((prev) => ({ ...prev, programming_adaptations }))}
             />
-          </CardContent>
-        </Card>
+          </div>
+        </HubCard>
 
-        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
-          <CardHeader>
-            <CardTitle>Notes</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <HubCard>
+          <HubCardHeader icon={<IconEdit3 className="w-4 h-4" />} title="Notes" subtitle="Prose the Plan Agent reads for context" color="slate" noBottomPadding />
+          <div className="px-5 pb-5 pt-4 space-y-4">
             <div className="space-y-2">
               <Label>Esther's Observations</Label>
-              <Textarea value={profile.notes.esther_observations} onChange={(e) => updateProfile("notes", { esther_observations: e.target.value })} rows={3} />
+              <Textarea value={profile.notes.esther_observations} onChange={(e) => updateProfile("notes", { esther_observations: e.target.value })} rows={3} className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30" />
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label>Motivation Notes</Label>
-                <Textarea value={profile.notes.motivation_notes} onChange={(e) => updateProfile("notes", { motivation_notes: e.target.value })} rows={2} />
+                <Textarea value={profile.notes.motivation_notes} onChange={(e) => updateProfile("notes", { motivation_notes: e.target.value })} rows={2} className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30" />
               </div>
               <div className="space-y-2">
                 <Label>Watch For</Label>
-                <Textarea value={profile.notes.watch_for} onChange={(e) => updateProfile("notes", { watch_for: e.target.value })} rows={2} />
+                <Textarea value={profile.notes.watch_for} onChange={(e) => updateProfile("notes", { watch_for: e.target.value })} rows={2} className="border-[var(--color-muted-text)] focus-visible:border-rose focus-visible:ring-rose/30" />
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </HubCard>
 
-        <div className="flex justify-end gap-3">
-          <Link href="/hub/clients">
-            <Button variant="outline" className="rounded-full border-border/60">Cancel</Button>
-          </Link>
-          <Button onClick={handleSave} disabled={saving} className="rounded-full gap-2 bg-rose hover:bg-rose/90 text-white">
-            {saving ? "Saving..." : "Save Client"}
-          </Button>
+        {/* Sticky save bar — mirrors the reference edit mockup */}
+        <div className="sticky bottom-0 z-15 flex items-center gap-3 mt-6 rounded-xl border border-[var(--hub-border)] bg-white/90 backdrop-blur px-5 py-3 shadow-[0_-1px_3px_rgba(16,24,40,0.05)]">
+          <p className="m-0 text-xs text-muted-foreground">
+            <span><b className="text-foreground font-semibold">Ready to create client.</b></span>
+          </p>
+          <div className="ml-auto flex gap-2">
+            <Link href="/hub/clients">
+              <Button variant="outline" className="rounded-lg border border-[var(--color-muted-text)]">Cancel</Button>
+            </Link>
+            <Button onClick={handleSave} disabled={saving} className="rounded-lg gap-2 bg-rose hover:bg-rose/90 text-white">
+              {saving ? "Saving..." : "Create Client"}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

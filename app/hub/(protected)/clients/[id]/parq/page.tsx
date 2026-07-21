@@ -1,9 +1,9 @@
 import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { HubCardHeader } from "@/components/hub/HubCardHeader";
+import { Button } from "@/components/ui/button";
+import { HubCard, HubCardHeader } from "@/components/hub";
 import { SendDocumentLink } from "@/components/hub/SendDocumentLink";
 import { IconChevronLeft, IconFileText, IconTriangleAlert, IconPencil } from "@/components/icons";
 import { parqSections } from "@/lib/parq-data";
@@ -49,12 +49,12 @@ function ParqDocument({ parq }: { parq: SignedPARQ }) {
     <div className="space-y-6 text-sm">
       {/* Personal details */}
       <div>
-        <div className="text-xs font-semibold uppercase tracking-wide text-teal mb-2">Personal details</div>
-        <div className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
+        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Personal details</div>
+        <div className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
           {details.map((f) => (
             <div key={f.key} className="flex flex-col">
               <span className="text-xs text-muted-foreground">{f.label}</span>
-              <span className="text-foreground">
+              <span className="text-sm text-foreground font-medium">
                 {f.key === "date_of_birth" ? formatDate(parq[f.key] as string) : (parq[f.key] as string)}
               </span>
             </div>
@@ -65,39 +65,41 @@ function ParqDocument({ parq }: { parq: SignedPARQ }) {
       {/* Questionnaire — every question + answer */}
       {parqSections.map((section) => (
         <div key={section.label}>
-          <div className="text-xs font-semibold uppercase tracking-wide text-teal mb-2">{section.label}</div>
-          <ul className="divide-y divide-[var(--hub-border)] rounded-lg border border-[var(--hub-border)]">
-            {section.questions.map((q) => {
-              const answer = parq[q.q as keyof SignedPARQ] as string;
-              const isYes = answer === "yes";
-              return (
-                <li key={q.q} className="flex items-start justify-between gap-3 px-3 py-2">
-                  <span className="text-foreground flex items-start gap-2">
-                    {isYes && <IconTriangleAlert className="h-3.5 w-3.5 text-amber-600 mt-0.5 shrink-0" />}
-                    {q.text}
-                  </span>
-                  <Badge
-                    variant={isYes ? "default" : "secondary"}
-                    className={`rounded-full text-xs shrink-0 ${isYes ? "bg-amber-500 hover:bg-amber-500 text-white" : ""}`}
-                  >
-                    {answer ? answer.toUpperCase() : "—"}
-                  </Badge>
-                </li>
-              );
-            })}
-          </ul>
+          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">{section.label}</div>
+          <div className="overflow-x-auto rounded-lg border border-[var(--hub-border)]">
+            <ul className="divide-y divide-[var(--hub-border)]">
+              {section.questions.map((q) => {
+                const answer = parq[q.q as keyof SignedPARQ] as string;
+                const isYes = answer === "yes";
+                return (
+                  <li key={q.q} className="flex items-start justify-between gap-3 px-3 py-1.5 bg-[var(--hub-canvas)]">
+                    <span className="text-sm text-foreground flex items-start gap-2">
+                      {isYes && <IconTriangleAlert className="h-3.5 w-3.5 text-amber-600 mt-0.5 shrink-0" />}
+                      {q.text}
+                    </span>
+                    <Badge
+                      variant={isYes ? "default" : "secondary"}
+                      className={`rounded-full text-xs shrink-0 ${isYes ? "bg-[var(--status-warning-bg)] hover:bg-[var(--status-warning-bg)] text-[var(--status-warning)] border-[var(--status-warning-border)]" : ""}`}
+                    >
+                      {answer ? answer.toUpperCase() : "—"}
+                    </Badge>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         </div>
       ))}
 
       {/* Free-text detail */}
       {freeText.length > 0 && (
         <div>
-          <div className="text-xs font-semibold uppercase tracking-wide text-teal mb-2">Details provided</div>
+          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Details provided</div>
           <div className="grid gap-3 sm:grid-cols-2">
             {freeText.map((f) => (
-              <div key={f.key} className="rounded-lg border border-[var(--hub-border)] p-3">
-                <span className="text-xs text-muted-foreground block mb-1">{f.label}</span>
-                <span className="text-foreground whitespace-pre-wrap">{parq[f.key] as string}</span>
+              <div key={f.key} className="rounded-lg border border-[var(--hub-border)] bg-[var(--hub-canvas)] p-3">
+                <span className="text-xs text-muted-foreground block mb-1.5">{f.label}</span>
+                <span className="text-sm text-foreground whitespace-pre-wrap">{parq[f.key] as string}</span>
               </div>
             ))}
           </div>
@@ -106,8 +108,8 @@ function ParqDocument({ parq }: { parq: SignedPARQ }) {
 
       {/* Declaration */}
       <div className="rounded-lg bg-[var(--hub-canvas)] border border-[var(--hub-border)] p-3">
-        <span className="text-xs text-muted-foreground block mb-1">Declaration</span>
-        <span className="text-foreground">
+        <span className="text-xs text-muted-foreground block mb-1.5">Declaration</span>
+        <span className="text-sm text-foreground">
           Signed{parq.client_name_print ? ` by ${parq.client_name_print}` : ""} on{" "}
           {formatDate(parq.signed_at ?? parq.created_at)}
         </span>
@@ -152,49 +154,56 @@ export default async function ParqHistoryPage({ params }: { params: { id: string
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center gap-4">
-        <Link href={`/hub/clients/${client.client_number}?tab=profile-compliance`} className="text-muted-foreground hover:text-foreground">
-          <IconChevronLeft className="h-5 w-5" />
+      <div>
+        <Link href={`/hub/clients/${client.client_number}?tab=compliance`} className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground rounded-md px-1 py-0.5 -ml-1 mb-3 transition-colors">
+          <IconChevronLeft className="h-3.5 w-3.5" />
+          Back to compliance
         </Link>
-        <div className="flex-1">
-          <h1 className="text-xl font-semibold tracking-tight">PAR-Q</h1>
-          <p className="text-muted-foreground">{client.name}</p>
-        </div>
-        {latest && (
-          <div className="flex items-center gap-2">
-            <SendDocumentLink path="/parq" clientNumber={client.client_number} label="Send PAR-Q update" existingId={latest.id} exp={parqLink?.exp} sig={parqLink?.sig} />
-            <Link
-              href={`/hub/clients/${client.client_number}/parq/${latest.id}/edit`}
-              className="inline-flex items-center gap-1 rounded-full border border-border/60 px-2.5 h-7 text-xs font-medium text-teal hover:bg-[var(--hub-hover)]"
-            >
-              <IconPencil className="h-3 w-3" />
-              Edit
-            </Link>
+        <div className="flex items-start gap-3.5">
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">PAR-Q</h1>
+            <p className="text-muted-foreground text-sm mt-1">{client.name}</p>
           </div>
-        )}
+          {latest && (
+            <div className="flex items-center gap-2 shrink-0">
+              <SendDocumentLink path="/parq" clientNumber={client.client_number} label="Send update" existingId={latest.id} exp={parqLink?.exp} sig={parqLink?.sig} />
+              <Link
+                href={`/hub/clients/${client.client_number}/parq/${latest.id}/edit`}
+                className="inline-flex items-center gap-1.5"
+              >
+                <Button variant="outline" className="border border-[var(--color-muted-text)] rounded-lg px-3.5 py-1.5 h-auto text-sm font-medium hover:bg-[var(--hub-hover)] gap-1.5">
+                  <IconPencil className="h-4 w-4" />
+                  Edit
+                </Button>
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
 
       {!latest ? (
-        <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
-          <CardContent className="py-8 text-center text-muted-foreground">No PAR-Q on file for this client.</CardContent>
-        </Card>
+        <HubCard>
+          <div className="py-8 text-center text-muted-foreground">No PAR-Q on file for this client.</div>
+        </HubCard>
       ) : (
         <>
-          <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
+          <HubCard>
             <HubCardHeader
               icon={<IconFileText className="w-4 h-4" />}
               title={`Submitted ${formatDate(latest.created_at)}${latest.version > 1 ? ` (v${latest.version})` : ""}`}
               color="teal"
+              noBottomPadding={false}
+              divider
             />
-            <CardContent className="pt-0">
+            <div className="pt-4">
               <ParqDocument parq={latest} />
-            </CardContent>
-          </Card>
+            </div>
+          </HubCard>
 
           {earlier.length > 0 && (
-            <Card className="bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)] shadow-sm">
-              <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Earlier submissions" color="slate" />
-              <CardContent className="pt-0 space-y-2">
+            <HubCard>
+              <HubCardHeader icon={<IconFileText className="w-4 h-4" />} title="Earlier submissions" color="slate" noBottomPadding={false} divider />
+              <div className="pt-4 space-y-2">
                 {[latest, ...earlier].slice(0, -1).map((newer, i) => {
                   const older = [latest, ...earlier][i + 1];
                   return (
@@ -214,8 +223,8 @@ export default async function ParqHistoryPage({ params }: { params: { id: string
                     </details>
                   );
                 })}
-              </CardContent>
-            </Card>
+              </div>
+            </HubCard>
           )}
         </>
       )}

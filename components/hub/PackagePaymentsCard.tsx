@@ -151,10 +151,10 @@ export function PackagePaymentsCard({ clientId, initial }: PackagePaymentsCardPr
               </Field>
             </div>
             <div className="flex justify-end gap-2 pt-1">
-              <Button variant="outline" size="sm" onClick={cancel} disabled={saving} className="rounded-full gap-1.5 border-border/60">
+              <Button variant="outline" size="sm" onClick={cancel} disabled={saving} className="rounded-lg gap-1.5 border-border/60">
                 <IconX className="h-3.5 w-3.5" /> Cancel
               </Button>
-              <Button size="sm" onClick={save} disabled={saving} className="rounded-full gap-1.5 bg-rose hover:bg-rose/90 text-white">
+              <Button size="sm" onClick={save} disabled={saving} className="rounded-lg gap-1.5 bg-rose hover:bg-rose/90 text-white">
                 <IconCheckCircle className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save"}
               </Button>
             </div>

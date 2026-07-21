@@ -1,20 +1,12 @@
 import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { IconCalendar, IconFileText, IconFileSignature } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
 import { KpiTile } from "@/components/hub/KpiTile";
 import { HubCardHeader } from "@/components/hub/HubCardHeader";
+import { StatusBadge } from "@/components/hub/StatusBadge";
 import { DOCUMENT_KIND_LABEL, type DocumentKind } from "@/lib/documents/types";
-
-const STATUS_VARIANT: Record<string, "default" | "secondary" | "outline"> = {
-  signed: "default",
-  sent: "secondary",
-  received: "secondary",
-  draft: "outline",
-  superseded: "outline",
-};
 
 function fmt(v: string | null) {
   if (!v) return "—";
@@ -108,11 +100,11 @@ export default async function AllDocumentsPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[var(--hub-border)] bg-[var(--hub-canvas)] text-xs text-muted-foreground">
-                    <th className="px-3 py-2 text-left font-medium">Client</th>
-                    <th className="px-3 py-2 text-left font-medium">Document</th>
-                    <th className="px-3 py-2 text-left font-medium">Status</th>
-                    <th className="px-3 py-2 text-left font-medium">Date</th>
-                    <th className="px-3 py-2 text-right font-medium">&nbsp;</th>
+                    <th className="px-3 py-1.5 text-left font-medium">Client</th>
+                    <th className="px-3 py-1.5 text-left font-medium">Document</th>
+                    <th className="px-3 py-1.5 text-left font-medium">Status</th>
+                    <th className="px-3 py-1.5 text-left font-medium">Date</th>
+                    <th className="px-3 py-1.5 text-right font-medium">&nbsp;</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -121,7 +113,7 @@ export default async function AllDocumentsPage() {
                       <td className="px-3 py-2 font-medium text-foreground">{r.clientName}</td>
                       <td className="px-3 py-2 text-foreground">{r.label}</td>
                       <td className="px-3 py-2">
-                        <Badge variant={STATUS_VARIANT[r.status] ?? "outline"} className="rounded-full text-xs capitalize">{r.status}</Badge>
+                        <StatusBadge status={r.status} />
                       </td>
                       <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">{fmt(r.date)}</td>
                       <td className="px-3 py-2 text-right whitespace-nowrap">

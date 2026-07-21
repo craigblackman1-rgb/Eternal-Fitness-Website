@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { HubCardHeader } from "@/components/hub/HubCardHeader";
+import { HubCard, HubCardHeader } from "@/components/hub";
 import { KpiTile } from "@/components/hub/KpiTile";
 import { StatusBadge } from "@/components/hub/StatusBadge";
 import {
@@ -125,14 +125,14 @@ export default async function BlockViewPage({
         </div>
         <div className="flex items-center gap-2">
           <Link href={`/hub/clients/${clientId}/blocks/${params.blockId}/print`}>
-            <Button variant="outline" className="rounded-full gap-1.5 border-border/60">
+            <Button variant="outline" className="rounded-lg gap-1.5 border-border/60">
               <IconPrinter className="h-4 w-4" />
               Print
             </Button>
           </Link>
           {block.status === "draft" && (
             <Link href={`/hub/clients/${clientId}/blocks/${params.blockId}/review`}>
-              <Button className="rounded-full bg-rose hover:bg-rose/90 text-white">Review & Approve</Button>
+              <Button className="rounded-lg bg-rose hover:bg-rose/90 text-white">Review & Approve</Button>
             </Link>
           )}
           <ExportSpreadsheetButton
@@ -186,12 +186,12 @@ export default async function BlockViewPage({
 
       {/* Block Note */}
       {block.block_note && (
-        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
+        <HubCard>
           <HubCardHeader icon={<IconFileText className="h-4 w-4" />} title="Block Note" color="slate" />
-          <CardContent>
+          <div className="pb-5">
             <p className="text-sm text-foreground">{block.block_note}</p>
-          </CardContent>
-        </Card>
+          </div>
+        </HubCard>
       )}
 
       {/* Sessions grouped by week */}

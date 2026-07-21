@@ -13,13 +13,15 @@ export default async function PlanAgentSettingsPage() {
     .order("sort_order", { ascending: true });
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold tracking-tight">Plan Agent Rules</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          The principles, checklists and safety rules the Plan Agent follows when building training
-          plans. Edit here — no deploy needed — the agent picks these up on the next conversation.
-        </p>
+    <div className="space-y-6">
+      <div className="flex items-end justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Plan Agent Rules</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            The principles, checklists and safety rules the Plan Agent follows when building training
+            plans. Edit here — no deploy needed — the agent picks these up on the next conversation.
+          </p>
+        </div>
       </div>
       <PlanAgentSettingsManager initialSettings={(settings ?? []) as Array<{
         key: string;
