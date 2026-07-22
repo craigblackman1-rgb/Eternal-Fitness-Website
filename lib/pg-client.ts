@@ -16,7 +16,7 @@ types.setTypeParser(1082, (v) => v); // date
 types.setTypeParser(1700, (v) => (v === null ? null : parseFloat(v))); // numeric
 
 let _pool: Pool | null = null;
-function pool(): Pool {
+export function getPool(): Pool {
   if (!_pool) {
     const cs = process.env.DATABASE_URL;
     _pool = new Pool({
@@ -196,7 +196,7 @@ class QueryBuilder implements PromiseLike<ListRes> {
         // count / head queries
         if (this._head || this._count) {
           const countSql = `SELECT count(*)::int AS count FROM ${q(this.table)}${whereSql}`;
-          const cres = await pool().query(countSql, params);
+          const cres = await getPool().query(countSql, params);
           const count = cres.rows[0]?.count ?? 0;
           if (this._head) return { data: null, error: null, count };
           // count + data: fall through to fetch data, keep count
@@ -208,7 +208,7 @@ class QueryBuilder implements PromiseLike<ListRes> {
           if (this._orderBy.length) s2 += " ORDER BY " + this._orderBy.map((o) => `${q(o.col)} ${o.asc ? "ASC" : "DESC"}`).join(", ");
           if (this._limit != null) s2 += ` LIMIT ${this._limit}`;
           if (this._offset != null) s2 += ` OFFSET ${this._offset}`;
-          const dres = await pool().query(s2, p2);
+          const dres = await getPool().query(s2, p2);
           return { data: dres.rows, error: null, count };
         }
         const { expr, innerConds } = this.buildSelectColumns(this._selectCols);
@@ -242,7 +242,7 @@ class QueryBuilder implements PromiseLike<ListRes> {
         if (this._returning) sql += ` RETURNING ${this.selectList(this._returningCols)}`;
       }
 
-      const res = await pool().query(sql, params);
+      const res = await getPool().query(sql, params);
       let data: any = res.rows;
       if (this.action !== "select" && !this._returning) data = null;
 
@@ -274,7 +274,7 @@ export function createPgClient(): PgClient {
         const keys = Object.keys(args);
         const params = keys.map((k) => args[k]);
         const argSql = keys.map((k, i) => `${q(k)} => $${i + 1}`).join(", ");
-        const res = await pool().query(`SELECT * FROM ${q(fn)}(${argSql})`, params);
+        const res = await getPool().query(`SELECT * FROM ${q(fn)}(${argSql})`, params);
         let data: any = res.rows;
         if (res.rows.length === 1 && Object.keys(res.rows[0]).length === 1) {
           data = res.rows[0][Object.keys(res.rows[0])[0]];

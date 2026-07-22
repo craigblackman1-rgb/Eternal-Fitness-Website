@@ -807,6 +807,16 @@ export function IconBrain({ className, style }: IconProps) {
   );
 }
 
+export function IconUpload({ className, style }: IconProps) {
+  return (
+    <svg {...base(className, style)}>
+      <path d="M16 22V6" />
+      <path d="M8 14l8-8 8 8" />
+      <path d="M4 24v2a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2v-2" />
+    </svg>
+  );
+}
+
 export function IconMove({ className, style }: IconProps) {
   return (
     <svg {...base(className, style)}>

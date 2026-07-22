@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { StatusBadge, TokenPill } from "@/components/hub/StatusBadge";
 import { DocumentRowActions } from "@/components/hub/DocumentRowActions";
-import { IconFileSignature, IconPlus } from "@/components/icons";
+import { DocumentHeaderActions } from "@/components/hub/DocumentHeaderActions";
+import { IconFileSignature, IconDownload } from "@/components/icons";
 import { DOCUMENT_KIND_LABEL, type DocumentKind } from "@/lib/documents/types";
 
 interface RegisterDocument {
@@ -14,15 +15,13 @@ interface RegisterDocument {
   updated_at?: string | null;
   client_name?: string | null;
   trainer_name?: string | null;
-  /** True once a real email backend dispatched the send — false means status
-   *  is "sent" but nothing actually went out (dry run / no backend configured). */
   emailed?: boolean | null;
+  source_type?: "generated" | "scan";
 }
 
 interface DocumentRegisterProps {
   clientNumber: number;
   documents?: RegisterDocument[];
-  /** Enables the inline Send/Resend action per row — omit only when the client's email isn't loaded here. */
   clientEmail?: string | null;
   clientName?: string | null;
 }
@@ -38,6 +37,7 @@ type Row = {
   label: string;
   status: string;
   emailed?: boolean | null;
+  sourceType: "generated" | "scan";
   date: string;
   version: number;
   updatedAt: string;
@@ -56,12 +56,13 @@ export function DocumentRegister({ clientNumber, documents = [], clientEmail, cl
       label: `${DOCUMENT_KIND_LABEL[d.kind as DocumentKind] ?? d.title}${d.version > 1 ? ` (v${d.version})` : ""}`,
       status: d.status,
       emailed: d.emailed,
+      sourceType: (d.source_type === "scan" ? "scan" : "generated") as "generated" | "scan",
       date: d.created_at,
       version: d.version ?? 1,
       updatedAt: d.updated_at || d.created_at,
       updatedBy: d.client_name || d.trainer_name || "—",
       href: `/hub/clients/${clientNumber}/documents/${d.id}`,
-      editHref: `/hub/clients/${clientNumber}/documents/${d.id}`,
+      editHref: d.source_type === "scan" ? undefined : `/hub/clients/${clientNumber}/documents/${d.id}`,
       icon: <IconFileSignature className="h-4 w-4 text-muted-foreground" />,
     })),
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -70,13 +71,7 @@ export function DocumentRegister({ clientNumber, documents = [], clientEmail, cl
     <div>
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs text-muted-foreground">Document register</span>
-        <Link
-          href={`/hub/clients/${clientNumber}/documents`}
-          className="inline-flex items-center gap-1 rounded-lg bg-rose px-2.5 h-7 text-xs font-medium text-white hover:bg-rose/90"
-        >
-          <IconPlus className="h-3 w-3" />
-          Create &amp; send
-        </Link>
+        <DocumentHeaderActions clientNumber={clientNumber} />
       </div>
 
       {rows.length === 0 ? (
@@ -105,7 +100,10 @@ export function DocumentRegister({ clientNumber, documents = [], clientEmail, cl
                   <td className="px-3 py-2">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <StatusBadge status={r.status} />
-                      {r.status === "sent" && r.emailed === false && (
+                      {r.sourceType === "scan" && (
+                        <TokenPill token="neutral" label="Scanned original" />
+                      )}
+                      {r.sourceType !== "scan" && r.status === "sent" && r.emailed === false && (
                         <TokenPill token="neutral" label="Not delivered" />
                       )}
                     </div>
@@ -115,13 +113,25 @@ export function DocumentRegister({ clientNumber, documents = [], clientEmail, cl
                   <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">{formatDate(r.updatedAt)}</td>
                   <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">{r.updatedBy}</td>
                   <td className="px-3 py-2 text-right whitespace-nowrap">
-                    <DocumentRowActions docId={r.id} status={r.status} hasEmail={hasEmail} clientName={clientName} />
+                    {r.sourceType === "scan" ? (
+                      <Link
+                        href={`/api/documents/${r.id}/file`}
+                        className="inline-flex items-center gap-1 text-xs font-medium text-teal hover:underline"
+                      >
+                        <IconDownload className="h-3 w-3" />
+                        Download original
+                      </Link>
+                    ) : (
+                      <DocumentRowActions docId={r.id} status={r.status} hasEmail={hasEmail} clientName={clientName} />
+                    )}
                   </td>
                   <td className="px-3 py-2 text-right whitespace-nowrap">
                     {r.editHref && (
                       <Link href={r.editHref} className="text-teal font-medium hover:underline mr-3">Open</Link>
                     )}
-                    <Link href={r.href} className="text-rose font-medium hover:underline">View</Link>
+                    {r.sourceType !== "scan" && (
+                      <Link href={r.href} className="text-rose font-medium hover:underline">View</Link>
+                    )}
                   </td>
                 </tr>
               ))}

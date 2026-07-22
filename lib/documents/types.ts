@@ -84,6 +84,10 @@ export interface ClientDocument {
   /** Whether the last send actually dispatched through a real email backend —
    *  vs. status merely being "sent" while no email backend was configured
    *  (dry run) or a real send failed. Null for rows sent before this existed. */
+  source_type?: "generated" | "scan";
+  source_file_name?: string | null;
+  source_file_mime?: string | null;
+  source_file_size?: number | null;
   emailed?: boolean | null;
   consent_choices?: Record<string, boolean> | null;
   /** Free-text/choice questionnaire answers — used by the "feedback" kind. Question id -> text answer, or { consents: {...} } for checkbox state. */
