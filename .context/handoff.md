@@ -1,5 +1,48 @@
 # Handoff
 
+## Session close — 2026-07-22 (later) — Lane K shipped, Lane J parked, session closed out
+
+Following on from Lane I (below): Craig approved building Lane K (portal auth rework) fully, then
+gave the explicit go-ahead to ship it, and asked to leave Lane J (conversion tool) as scoped-only.
+
+**Lane K — built, verified, shipped.** Built in an isolated worktree
+(`task/lane-k-portal-auth-password`). First OpenCode dispatch crashed mid-build (server error, exit 1)
+after writing the migration + `lib/portal-auth.ts` — both reviewed and correct, no work lost. A second
+dispatch also hit a transient server error before writing anything (safe retry). Third dispatch
+completed the rest cleanly: new `/api/portal/auth/{login,logout}` routes, `request-link`/`verify`
+repurposed for password-reset request/submit, staff-gated `/api/clients/[id]/portal-invite`, new
+`/portal/forgot-password`/`/portal/reset-password` pages, login page rewritten as email+password,
+middleware updated to allow the two public reset-flow paths, and an "Invite to portal" button on the
+client detail Profile tab. One real bug hit and fixed during the build: `useSearchParams()` needed a
+`Suspense` boundary on both new/changed portal pages or the static export failed. Independently
+re-verified (not self-report) before shipping: full `git diff` review of all 13 files, grepped for any
+leftover reference to the removed magic-link functions (zero hits), confirmed the existing logout form
+action is now backed by a real route. `tsc`/build clean.
+
+**Confirmed while building, not previously known**: no `portal_*` tables existed on production at
+all — the original 2026-07-20 magic-link migration was written but genuinely never run. The portal
+login had never worked against real data; Craig's "no email" report wasn't the SMTP dry-run issue or
+anti-enumeration, it was a missing-table failure. Clean slate, no legacy accounts to migrate.
+
+**Shipped**: rebased onto latest `origin/main`, fast-forward pushed (`d7bbfe9`), migration run against
+prod (verified: `portal_accounts`/`portal_sessions`/`portal_reset_tokens` all exist, `password_hash`
+column confirmed), Coolify deployment `za7fpkka74fo1ovdi2i8vhge` confirmed `finished`/healthy on first
+healthcheck attempt via Coolify MCP. Worktree cleaned up (force-removed — only a build-artifact diff
+remained — and branch deleted after confirming it was merged).
+
+**Not done**: no real client has been invited to the portal yet (that's still its own `[GATE]`), and
+the invite → email → login → reset flow hasn't been click-tested in a real logged-in browser session —
+worth doing before telling Esther it's ready to use.
+
+**Lane J** — left exactly as scoped in the prior entry below (recommendation: Option B, field
+extraction via vision-LLM, not OCR). Not built. Craig's explicit instruction: leave it parked, don't
+raise it again unless he does.
+
+Work Order, `state.md`, `loop-status.md` all updated to reflect Lane I/K both fully shipped and Lane J
+deliberately parked.
+
+---
+
 ## Session close — 2026-07-22 — Work Order extended: paper document storage, conversion-tool scoping, portal auth rework
 
 Craig had a paper Personal Training Agreement for Sarah (scanned PDF, no extractable text) he wants

@@ -13,11 +13,20 @@
   Agreement is the first real record (`client_documents` id `a74a1ef7-0c19-478c-b5e2-538a9304e102`,
   183,462 bytes, verified byte-for-byte). UI upload path itself not yet click-tested in a real browser
   session. See `handoff.md` for full detail.
-- **Lane J (paper→digital conversion tool) and Lane K (portal auth rework)** — scoped on
-  `.context/workorder-eternal-fitness-hub-consolidation-2026-07-20.md`, not yet built. Lane K closes a
-  real undocumented gap in `lib/portal-auth.ts`'s `ensurePortalAccount()`, which currently auto-creates
-  *and* auto-enables a portal account for any matching email with no staff step, despite its own doc
-  comment claiming staff-gating.
+- **Lane K — portal auth rework — DONE + DEPLOYED 2026-07-22.** Passwordless magic-link login replaced
+  with email+password; portal accounts are now created only via a staff "Invite to portal" button on
+  the client detail page (closes a real gap where `ensurePortalAccount()` used to auto-create *and*
+  auto-enable an account for any matching email with no staff step, despite its own doc comment claiming
+  staff-gating). Confirmed while building: **no `portal_*` tables existed on production at all** — the
+  original magic-link migration was written but never run, so the portal login had never worked against
+  real data. New tables (`portal_accounts`/`portal_sessions`/`portal_reset_tokens`) live, migration
+  verified, Coolify deployment confirmed healthy. Password hashing via Node's built-in `crypto.scryptSync`
+  (no new dependency), deliberately isolated from staff auth's `better-auth`. **Not done yet**: no client
+  has actually been invited, and the invite/login/reset UI flow hasn't been click-tested in a real
+  browser session.
+- **Lane J (paper→digital conversion tool) — scoped, deliberately parked** (Craig's call, 2026-07-22) —
+  recommendation on record (extract fields into `ClientProfile` via a vision-LLM call, not OCR — no OCR
+  tooling exists and the scan has no extractable text), not built. Not to be picked back up proactively.
 
 - **Flexible/four-week update AI drafting fixed, pushed, deployed** (2026-07-21, latest) — `generate`
   route only ever supported `six_week_update`; picking Flexible or 4-Week Update in the hub's
