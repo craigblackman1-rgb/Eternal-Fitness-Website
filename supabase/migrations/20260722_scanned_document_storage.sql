@@ -15,7 +15,11 @@ CREATE TABLE IF NOT EXISTS client_document_files (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-ALTER TABLE client_document_files ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Authenticated manage document files" ON client_document_files
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+-- RLS deliberately not enabled here: the existing client_documents table has
+-- had RLS ON with zero working policies since the Supabase-to-plain-Postgres
+-- migration (its "authenticated" role never carried over) — access control on
+-- every document-engine table is enforced at the app layer (staff session
+-- check in the API routes), not by Postgres RLS. Matching that real, working
+-- pattern rather than adding an RLS statement that would only fail the same
+-- way (confirmed live: CREATE POLICY ... TO authenticated errors with
+-- "role authenticated does not exist" on this database).
