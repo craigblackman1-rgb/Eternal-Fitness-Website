@@ -1,5 +1,64 @@
 # Handoff
 
+## Session close — 2026-07-22 — Work Order extended: paper document storage, conversion-tool scoping, portal auth rework
+
+Craig had a paper Personal Training Agreement for Sarah (scanned PDF, no extractable text) he wants
+stored against her hub record, plus a longer-term ask to convert paper documents into something the
+plan-generation agent can use. Separately, he tried the portal login and got no email, and clarified
+he wants a fundamentally different auth model: no self-serve request/signup surface — Esther adding a
+client should auto-generate and email a login, with self-service limited to a password reset.
+
+**No code changed this session** — planning/scoping only, folded as three new lanes onto the existing
+`.context/workorder-eternal-fitness-hub-consolidation-2026-07-20.md` (Craig's explicit instruction: one
+Work Order, not scattered notes):
+
+- **Lane I — Scanned/paper document storage.** Confirmed there is no file-upload/attachment capability
+  anywhere in the hub today — `client_documents` only stores structured JSONB `body`, not raw files.
+  Plan: add `source_type`/`source_file_url` columns, store the PDF on a Coolify persistent volume
+  served only through an authenticated hub API route, add a plain "Upload existing document" action.
+  Sarah's PDF is the first real case. All units `[AUTO]` to build, prod writes `[GATE]`.
+- **Lane J — Paper→digital conversion tool.** Scoping only. Two genuinely different outputs Craig could
+  want: OCR the scan into the document engine's HTML body (fidelity), or extract key fields straight
+  into `clients` profile columns (structured, agent-usable). Craig to pick before this lane gets build
+  units — they're not the same tool.
+- **Lane K — Portal auth rework.** Read `lib/portal-auth.ts` in full while scoping this: found a real,
+  previously undocumented gap — `ensurePortalAccount()` auto-creates *and* auto-enables a portal account
+  on any matching-email magic-link request, contradicting its own doc comment claiming staff-gating.
+  Craig's "no email" report is most likely the already-flagged, unconfirmed SMTP/SendGrid dry-run issue
+  (his email also isn't a `clients` row, so the request silently no-ops by design either way), not a new
+  bug. Plan: replace passwordless magic-link with password + reset; accounts only ever created by a new
+  staff "Invite to portal" action on the client detail page, never on first login attempt; self-service
+  limited to forgot-password. Full unit breakdown in the Work Order's Lane K.
+
+Full detail, MUST/GATE updates, and unit-level VERIFY criteria: see the Work Order file directly.
+Registry (`infrastructure/.context/active-workorders.md`) updated to match.
+
+**Later same session — Lane I built, pushed, migrated, and live.** Craig gave the go-ahead to build
+and ship (not just plan). Built in an isolated worktree (`task/lane-i-scanned-document-storage`, now
+merged and cleaned up per DO-SOP-010): migration adding `source_type`/`source_file_name`/`source_file_mime`/
+`source_file_size` to `client_documents` + a new `client_document_files` table (bytes stored directly in
+Postgres, not a Coolify volume — unnecessary infra for a single-digit-documents volume); staff-auth-only
+`POST /api/documents/upload` + `GET /api/documents/[id]/file`; `DocumentRegister.tsx` shows scanned rows
+with a "Scanned original" badge and a download link instead of send/resend. Independently re-verified
+before merging (`git diff` review, `tsc`/build clean, not just self-report) — caught and reverted an
+incidental `package-lock.json` churn from local `npm install` (this repo actually deploys via
+`pnpm --frozen-lockfile`, so npm's lockfile is dead weight here). **Real bug found and fixed live**: the
+migration's `CREATE POLICY ... TO authenticated` failed against prod (`role "authenticated" does not
+exist`) — turns out the *existing* `client_documents` table has had RLS enabled with zero working
+policies since the Supabase-to-plain-Postgres migration dropped that role; access control on every
+document-engine table is actually enforced at the app layer, not Postgres RLS. Fixed to match that real
+pattern instead of adding a second broken statement. Pushed (`dd93c2a` then RLS-fix `6bd17d2`), both
+Coolify deployments confirmed `finished`/healthy via Coolify MCP (not self-report). Migration run against
+prod — verified live, all 30 pre-existing `client_documents` rows unaffected. Sarah Tyler's scanned
+Personal Training Agreement uploaded via a one-off script (no live hub session to use the UI form this
+session) — `client_documents` id `a74a1ef7-0c19-478c-b5e2-538a9304e102`, 183,462 bytes, verified
+byte-for-byte against the source file. `client_signed_date` left unset (scan has no extractable text/date
+— `pdftoppm` isn't installed to OCR it); Craig can set it from the paper original. **Not yet done**: the
+UI upload path itself hasn't been click-tested in a real logged-in browser session — worth doing next
+time the hub is open. Lane I fully closed in the Work Order's DONE checklist.
+
+---
+
 ## Session close — 2026-07-21 (later) — flexible/four-week update draft generation fixed
 
 Craig reported "email updates are now not working at all" while trying to build a real update for

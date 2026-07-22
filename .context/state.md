@@ -1,6 +1,24 @@
 # Eternal Fitness Website — State
 
 ## Current
+- **Lane I — scanned/paper document storage — DONE + DEPLOYED 2026-07-22.** `client_documents` gained
+  `source_type`/`source_file_name`/`source_file_mime`/`source_file_size`; new `client_document_files`
+  table holds raw bytes directly in Postgres (no Coolify volume needed at this scale); staff-auth-only
+  `POST /api/documents/upload` + `GET /api/documents/[id]/file`; `DocumentRegister.tsx` shows scanned
+  rows with a "Scanned original" badge + download link instead of send/resend. Real bug found and fixed
+  live: a migration policy referencing Supabase's `authenticated` role failed against prod — that role
+  never carried over from the Supabase migration, and it turns out `client_documents` has had RLS
+  enabled with zero working policies the whole time; access control is actually enforced at the app
+  layer everywhere in the document engine, not Postgres RLS. Sarah Tyler's scanned Personal Training
+  Agreement is the first real record (`client_documents` id `a74a1ef7-0c19-478c-b5e2-538a9304e102`,
+  183,462 bytes, verified byte-for-byte). UI upload path itself not yet click-tested in a real browser
+  session. See `handoff.md` for full detail.
+- **Lane J (paper→digital conversion tool) and Lane K (portal auth rework)** — scoped on
+  `.context/workorder-eternal-fitness-hub-consolidation-2026-07-20.md`, not yet built. Lane K closes a
+  real undocumented gap in `lib/portal-auth.ts`'s `ensurePortalAccount()`, which currently auto-creates
+  *and* auto-enables a portal account for any matching email with no staff step, despite its own doc
+  comment claiming staff-gating.
+
 - **Flexible/four-week update AI drafting fixed, pushed, deployed** (2026-07-21, latest) — `generate`
   route only ever supported `six_week_update`; picking Flexible or 4-Week Update in the hub's
   "New Update" chat flow hit a hard 400 ("not implemented yet"). `generateUpdateDraft()`
