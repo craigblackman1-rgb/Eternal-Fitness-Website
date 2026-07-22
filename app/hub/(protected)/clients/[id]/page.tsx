@@ -19,6 +19,7 @@ import { DocumentRegister } from "@/components/hub/DocumentRegister";
 import { ClinicalComplianceCard } from "@/components/hub/ClinicalComplianceCard";
 import { PackagePaymentsCard } from "@/components/hub/PackagePaymentsCard";
 import { ClientUpdatesPanel } from "@/components/hub/ClientUpdatesPanel";
+import { InviteToPortalButton } from "./InviteToPortalButton";
 import type { SentUpdate } from "@/types";
 
 function YesNoPill({ yes }: { yes: boolean }) {
@@ -360,6 +361,20 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         <TabsContent value="profile" className="mt-6">
           <div className="grid gap-6 lg:grid-cols-12">
             <div className="lg:col-span-8 grid gap-6 sm:grid-cols-2 items-start">
+              <HubCard className="sm:col-span-2">
+                <HubCardHeader icon={<IconMail className="w-4 h-4" />} title="Client Portal" color="slate" noBottomPadding />
+                <div className="pb-5 flex items-center justify-between">
+                  <div className="text-sm text-muted-foreground">
+                    {client.email
+                      ? "Send a portal invite or reset this client's portal access."
+                      : "No email address on file — add one before inviting."}
+                  </div>
+                  <InviteToPortalButton
+                    clientNumber={client.client_number}
+                    hasEmail={!!client.email}
+                  />
+                </div>
+              </HubCard>
               {/* Health — spans both columns; carries the most content and matters most on a clinical record */}
               {p?.health && (
                 <HubCard className="sm:col-span-2">

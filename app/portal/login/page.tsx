@@ -1,57 +1,54 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import EternalFitnessLogo from "@/components/EternalFitnessLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { HubCard, HubCardHeader } from "@/components/hub";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { IconMail, IconCheckCircle, IconAlertTriangle } from "@/components/icons";
-
-type Status =
-  | { kind: "idle" }
-  | { kind: "sending" }
-  | { kind: "sent"; devLink?: string; dryRun?: boolean }
-  | { kind: "error"; message: string };
+import { HubCard } from "@/components/hub";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { IconAlertTriangle } from "@/components/icons";
 
 export default function PortalLoginPage() {
+  return (
+    <Suspense>
+      <PortalLoginForm />
+    </Suspense>
+  );
+}
+
+function PortalLoginForm() {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<Status>({ kind: "idle" });
-  const [emailError, setEmailError] = useState<string | null>(null);
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") ?? "/portal";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setEmailError(null);
+    setLoading(true);
+    setError(null);
 
-    // Client-side validation (server also validates; this is for immediate UX).
-    if (!email.trim()) {
-      setEmailError("Please enter your email address.");
-      return;
-    }
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) {
-      setEmailError("That doesn't look like a valid email address.");
-      return;
-    }
-
-    setStatus({ kind: "sending" });
     try {
-      const res = await fetch("/api/portal/auth/request-link", {
+      const res = await fetch("/api/portal/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ email: email.trim(), password }),
       });
       const data = await res.json();
       if (!res.ok) {
-        setStatus({ kind: "error", message: data.error ?? "Something went wrong. Please try again." });
+        setError(data.error ?? "Invalid email or password.");
+        setLoading(false);
         return;
       }
-      setStatus({ kind: "sent", devLink: data.devLink, dryRun: data.dryRun });
+      router.push(next);
     } catch {
-      setStatus({ kind: "error", message: "Network error. Please try again." });
+      setError("Network error. Please try again.");
+      setLoading(false);
     }
   };
 
@@ -82,76 +79,50 @@ export default function PortalLoginPage() {
 
         <div className="px-6 pb-8">
           <main id="portal-login-main">
-            {status.kind === "sent" ? (
-              <Alert className="border-[var(--status-success-border)] bg-[var(--status-success-bg)]">
-                <IconCheckCircle className="h-5 w-5 text-[var(--status-success)]" aria-hidden="true" />
-                <AlertTitle className="text-[var(--status-success)]">Check your email</AlertTitle>
-                <AlertDescription className="text-foreground">
-                  If an account exists for that address, we&rsquo;ve sent a sign-in link. The link
-                  expires in 15 minutes and can only be used once. Check your spam folder if it
-                  doesn&rsquo;t arrive.
-                </AlertDescription>
-              </Alert>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-                {status.kind === "error" && (
-                  <Alert variant="destructive">
-                    <IconAlertTriangle className="h-5 w-5" aria-hidden="true" />
-                    <AlertDescription>{status.message}</AlertDescription>
-                  </Alert>
-                )}
-
-                <div className="space-y-2">
-                  <Label htmlFor="portal-email">Email address</Label>
-                  <Input
-                    id="portal-email"
-                    type="email"
-                    autoComplete="email"
-                    inputMode="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    aria-invalid={emailError ? true : undefined}
-                    aria-describedby={emailError ? "portal-email-error" : undefined}
-                    className={emailError ? "border-[var(--status-danger)]" : undefined}
-                  />
-                  {emailError && (
-                    <p id="portal-email-error" className="text-sm text-[var(--status-danger)]">
-                      {emailError}
-                    </p>
-                  )}
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full min-h-11 rounded-full bg-rose hover:bg-rose/90 text-white text-base font-semibold"
-                  disabled={status.kind === "sending"}
-                >
-                  <IconMail className="h-4 w-4 mr-2" aria-hidden="true" />
-                  {status.kind === "sending" ? "Sending link..." : "Send me a sign-in link"}
-                </Button>
-              </form>
-            )}
-
-            {status.kind === "sent" && (
-              <div className="mt-4 flex flex-col gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full min-h-11 rounded-full"
-                  onClick={() => setStatus({ kind: "idle" })}
-                >
-                  Use a different email
-                </Button>
-                {status.dryRun && status.devLink && (
-                  <p className="text-xs text-muted-foreground">
-                    No email backend is configured, so the link was not sent. For review only:
-                    <br />
-                    <code className="break-all">{status.devLink}</code>
-                  </p>
-                )}
+            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+              {error && (
+                <Alert variant="destructive">
+                  <IconAlertTriangle className="h-5 w-5" aria-hidden="true" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="portal-email">Email address</Label>
+                <Input
+                  id="portal-email"
+                  type="email"
+                  autoComplete="email"
+                  inputMode="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
               </div>
-            )}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="portal-password">Password</Label>
+                  <Link href="/portal/forgot-password" className="text-xs text-rose hover:underline">
+                    Forgot password?
+                  </Link>
+                </div>
+                <Input
+                  id="portal-password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                className="w-full min-h-11 rounded-full bg-rose hover:bg-rose/90 text-white text-base font-semibold"
+                disabled={loading}
+              >
+                {loading ? "Signing in..." : "Sign in"}
+              </Button>
+            </form>
           </main>
         </div>
       </HubCard>

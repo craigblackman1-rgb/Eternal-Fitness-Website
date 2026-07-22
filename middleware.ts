@@ -24,7 +24,8 @@ export async function middleware(request: NextRequest) {
 
   // --- Client portal guard (ADDITIVE — does not touch staff rules) ---------
   // The portal uses its own cookie, isolated from the staff session.
-  if (pathname.startsWith("/portal") && pathname !== "/portal/login") {
+  const publicPortalPaths = ["/portal/login", "/portal/forgot-password", "/portal/reset-password"];
+  if (pathname.startsWith("/portal") && !publicPortalPaths.some((p) => pathname === p || pathname.startsWith(p + "?"))) {
     const hasPortalSession = !!request.cookies.get(PORTAL_COOKIE)?.value;
     if (!hasPortalSession) {
       const url = request.nextUrl.clone();
