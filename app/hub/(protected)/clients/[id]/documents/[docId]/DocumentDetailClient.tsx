@@ -173,6 +173,34 @@ export function DocumentDetailClient({ clientNumber, doc, clientName, clientEmai
         </CardContent>
       </Card>
 
+      {/* Consent choices — the client's actual ticked/unticked answers per option,
+          not just the overall document status. A box the client never touched
+          has no key in consent_choices at all, so it's treated as not granted. */}
+      {!!doc.body.consentGroups?.length && (
+        <Card className="shadow-sm bg-[var(--hub-card)] rounded-2xl border border-[var(--hub-border)]">
+          <CardHeader><CardTitle>Consent choices</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            {doc.client_signature ? (
+              doc.body.consentGroups.map((group) => (
+                <div key={group.id} className="space-y-1.5">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{group.legend}</p>
+                  {group.options.map((opt) => {
+                    const granted = !!doc.consent_choices?.[opt.key];
+                    return (
+                      <p key={opt.key} className="text-sm text-foreground">
+                        {granted ? "✓" : "✗"} {opt.label}
+                      </p>
+                    );
+                  })}
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">Awaiting client signature — consent choices aren&apos;t recorded until then.</p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Questionnaire responses — any kind built on the feedbackSections schema
           (feedback, parq) has no other place for Esther to read what the client
           answered, so this is generic on body shape, not hardcoded to one kind. */}

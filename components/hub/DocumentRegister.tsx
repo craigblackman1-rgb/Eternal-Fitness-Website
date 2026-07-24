@@ -17,6 +17,7 @@ interface RegisterDocument {
   trainer_name?: string | null;
   emailed?: boolean | null;
   source_type?: "generated" | "scan";
+  consent_choices?: Record<string, boolean> | null;
 }
 
 interface DocumentRegisterProps {
@@ -31,12 +32,26 @@ function formatDate(value: string | null) {
   return new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
+/**
+ * At-a-glance granted/total for the register row. A box the client never
+ * touched has no key in consent_choices, so it doesn't count as granted —
+ * this is a lower bound, not a full picture (see the document detail page
+ * for the actual per-option breakdown against the template's consent groups).
+ */
+function consentSummary(choices?: Record<string, boolean> | null): string | null {
+  if (!choices || Object.keys(choices).length === 0) return null;
+  const total = Object.keys(choices).length;
+  const granted = Object.values(choices).filter(Boolean).length;
+  return `${granted}/${total} consents`;
+}
+
 type Row = {
   key: string;
   id: string;
   label: string;
   status: string;
   emailed?: boolean | null;
+  consentSummary?: string | null;
   sourceType: "generated" | "scan";
   date: string;
   version: number;
@@ -56,6 +71,7 @@ export function DocumentRegister({ clientNumber, documents = [], clientEmail, cl
       label: `${DOCUMENT_KIND_LABEL[d.kind as DocumentKind] ?? d.title}${d.version > 1 ? ` (v${d.version})` : ""}`,
       status: d.status,
       emailed: d.emailed,
+      consentSummary: consentSummary(d.consent_choices),
       sourceType: (d.source_type === "scan" ? "scan" : "generated") as "generated" | "scan",
       date: d.created_at,
       version: d.version ?? 1,
@@ -105,6 +121,9 @@ export function DocumentRegister({ clientNumber, documents = [], clientEmail, cl
                       )}
                       {r.sourceType !== "scan" && r.status === "sent" && r.emailed === false && (
                         <TokenPill token="neutral" label="Not delivered" />
+                      )}
+                      {r.consentSummary && (
+                        <TokenPill token="neutral" label={r.consentSummary} />
                       )}
                     </div>
                   </td>
