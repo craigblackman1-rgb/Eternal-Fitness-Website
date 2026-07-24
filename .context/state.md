@@ -1,6 +1,17 @@
 # Eternal Fitness Website — State
 
 ## Current
+- **Consent choices surfaced in hub admin portal — DONE + PUSHED 2026-07-24, not click-tested.**
+  Craig couldn't see what clients had actually consented to from the hub. Investigated first: the data
+  (`client_documents.consent_choices`) was already captured correctly on sign — no schema change
+  needed. Fixed the read side only: document detail page now renders a per-option ✓/✗ breakdown against
+  the template's `consentGroups`; the client detail page's document register select now includes
+  `consent_choices`; each register row shows an "N/M consents" pill. Pushed straight to `main`
+  (`edaa0c4`) from an isolated worktree per DO-SOP-010. **Not done:** no `tsc`/build run (worktree had
+  no `node_modules`, `npm install` is gated and wasn't authorized this session) and no live click-through
+  on staging — both worth doing next session before calling this fully verified. Known limitation, not a
+  bug: a consent box the client never touched has no key in `consent_choices` at all, so it reads
+  identically to an active decline (✗) — flagged to Craig, not silently fixed.
 - **Lane I — scanned/paper document storage — DONE + DEPLOYED 2026-07-22.** `client_documents` gained
   `source_type`/`source_file_name`/`source_file_mime`/`source_file_size`; new `client_document_files`
   table holds raw bytes directly in Postgres (no Coolify volume needed at this scale); staff-auth-only

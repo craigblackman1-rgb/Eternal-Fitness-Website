@@ -1,5 +1,40 @@
 # Handoff
 
+## Session close — 2026-07-24 — consent choices surfaced in hub admin portal
+
+Craig reported: "Unsigned consent forms. We can't see what people have consented to in the admin
+portal." Investigated first rather than assuming new backend work was needed — it wasn't.
+
+**Root cause:** `client_documents.consent_choices` (JSONB) is already written correctly on sign
+(`app/api/documents/[id]/sign/route.ts`) — no schema/migration work required. The gap was entirely on
+the read side: two Supabase selects omitted the column, and the document detail page never rendered
+it even when present.
+
+**Fixed, committed (`edaa0c4`), pushed straight to `main`:**
+- `app/hub/(protected)/clients/[id]/documents/[docId]/DocumentDetailClient.tsx` — signed consent
+  documents now show a "Consent choices" card, one line per option (✓/✗) against the template's
+  `body.consentGroups`, cross-referenced with `doc.consent_choices`.
+- `app/hub/(protected)/clients/[id]/page.tsx` — added `consent_choices` to the document-register
+  select (was previously dropped before it reached the UI).
+- `components/hub/DocumentRegister.tsx` — each document row now shows an at-a-glance "N/M consents"
+  pill.
+
+**Caveat worth remembering:** a consent checkbox the client never touched has no key in
+`consent_choices` at all (not a stored `false`) — so the register pill and the detail-page ✗ both
+read "not granted" for both "actively declined" and "never interacted with." That's a lower bound,
+not proof of an explicit decline. If Esther ever needs to distinguish those two cases, that's new
+work, not something already captured.
+
+**Process note:** worked in an isolated git worktree (`fix/hub-consent-choices`, off fresh
+`origin/main`) per DO-SOP-010, fast-forward pushed, worktree/branch cleaned up afterward. Could not
+run a full `tsc`/build check — the worktree has no `node_modules` and `npm install` is a gated action
+this session didn't have standing authorization for; relied on careful manual review instead (existing
+types — `ConsentGroup`, `ClientDocument.consent_choices` — already covered every value used, no new
+imports needed). **Worth a real `tsc`/build run and a live click-through on staging next session**
+before treating this as fully verified, since it was never checked in a browser.
+
+---
+
 ## Session close — 2026-07-22 (later) — Lane K shipped, Lane J parked, session closed out
 
 Following on from Lane I (below): Craig approved building Lane K (portal auth rework) fully, then
