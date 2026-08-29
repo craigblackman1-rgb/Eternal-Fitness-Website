@@ -189,7 +189,6 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         );
       }
     }
-
     update.completed_at = completedDate;
     update.status = "completed";
   }

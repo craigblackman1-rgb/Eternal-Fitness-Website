@@ -180,6 +180,7 @@ export default async function SchedulePage() {
         unconfirmedBookings={unconfirmedBookings}
         plannedEntries={plannedEntries}
       />
+
     </div>
   );
 }
