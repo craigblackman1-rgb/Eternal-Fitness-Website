@@ -4,6 +4,7 @@ import { MAX_BLOCK_WEEKS, type Session, type Archetype, type Phase, type Exercis
 import { ensureUids } from "@/lib/exercise-ref";
 import { attachSupplementaryWork } from "@/lib/supplementary-attach";
 import { reStampSession, reStampBlockSessions } from "@/lib/programs/delivery";
+import { getLastUsedMap } from "@/lib/workout-last-used";
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -94,6 +95,31 @@ export async function GET(request: Request, { params }: { params: { id: string }
   // CR-EF-154 P3 — batch re-stamp all eligible sessions in this block
   if (clientId && data && data.length > 0) {
     const reStamped = await reStampBlockSessions(data as DBSession[], clientId);
+
+    // CR-EF-165 — enrich each session with a last_used_at date so pick-mode
+    // consumers (AssignWorkoutDialog, SessionRow, mobile picker) can display
+    // staleness without per-row queries.
+    const names = new Set<string>();
+    const tzMap = new Map<string, string | null>();
+    for (const s of reStamped) {
+      const label = (s.data as Session)?.focus_label?.trim();
+      if (label) {
+        names.add(label.toLowerCase());
+        const tzDate = (s.data as Session & { tz_last_used?: string })?.tz_last_used;
+        if (tzDate) tzMap.set(label.toLowerCase(), tzDate);
+      }
+    }
+    if (names.size > 0 && clientId) {
+      const lastUsed = await getLastUsedMap(clientId, [...names], tzMap);
+      for (const s of reStamped) {
+        const label = (s.data as Session)?.focus_label?.trim();
+        if (label) {
+          (s as DBSession & { last_used_at?: string | null }).last_used_at =
+            lastUsed.get(label.toLowerCase()) ?? null;
+        }
+      }
+    }
+
     return NextResponse.json(reStamped);
   }
 
