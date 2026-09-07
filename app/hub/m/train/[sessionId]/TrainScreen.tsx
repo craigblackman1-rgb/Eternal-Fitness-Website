@@ -140,6 +140,7 @@ export function TrainScreen({
   archetype,
   phase,
   week,
+  hasProgram,
   data,
   sessionLog,
   scheduledAt,
@@ -162,6 +163,7 @@ export function TrainScreen({
   archetype: string;
   phase: string;
   week: number;
+  hasProgram: boolean;
   data: Session | null;
   sessionLog: SessionLog | null;
   scheduledAt: string | null;
@@ -1295,7 +1297,7 @@ Cancel — record it as today`,
             <div className="top-meta">
               {sessionWorkoutName({ archetype, data, week, phase }, `Session ${sessionNumber}`)}
               {` · ${phase}`}
-              {scheduledAt ? ` · Wk ${new Date(scheduledAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : week != null ? ` · Plan wk ${week}` : ""}
+              {scheduledAt ? ` · ${new Date(scheduledAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : hasProgram && week != null ? ` · Wk ${week}` : ""}
             </div>
           </div>
           <span className={`top-status ${topStatusClass}`}>{topStatusLabel}</span>

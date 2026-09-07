@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect, type ReactNode } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import type { SessionStatus } from "@/types";
 import type { AggregatedExerciseNote } from "@/lib/exercise-notes";
@@ -11,6 +11,7 @@ import { DayAgenda, type AgendaSession } from "@/components/hub/DayAgenda";
 import { ClientNotesPane } from "./ClientNotesPane";
 import { ClientBookingPanel } from "@/components/hub/ClientBookingPanel";
 import { todayLocalISODate, shiftDay } from "@/lib/schedule-dates";
+import { toast } from "sonner";
 
 /* ── Exported view types (derived in page.tsx server component) ── */
 
@@ -88,6 +89,14 @@ export interface BlockView {
   done: number;
   total: number;
   pct: number;
+}
+
+export interface ProgrammeQueueView {
+  programName: string;
+  currentWeek: number;
+  totalWeeks: number;
+  nextSlotLabel: string | null;
+  slotLetters: string[];
 }
 
 /* ── Icons ── */
@@ -261,6 +270,7 @@ interface ClientModeViewProps {
   pinnedNote?: PinnedNoteView | null;
   earliestUnattached?: { scheduledAt: string } | null;
   exerciseTrendSummary?: ExerciseTrendSummary;
+  programmeQueue?: ProgrammeQueueView | null;
 }
 
 export function ClientModeView({
@@ -284,6 +294,7 @@ export function ClientModeView({
   pinnedNote = null,
   earliestUnattached = null,
   exerciseTrendSummary,
+  programmeQueue = null,
 }: ClientModeViewProps) {
   const [tab, setTab] = useState<TabKey>("overview");
 
@@ -362,6 +373,106 @@ export function ClientModeView({
   const allClosed = GROUP_ORDER.every((g) => !accOpen[g.key]);
 
   const switchToSessions = useCallback(() => setTab("sessions"), []);
+
+  /* ── CR-EF-166: session move/cancel sheet ── */
+  type MoveSheetTab = "move" | "cancel";
+  type CancelRoute = "charge" | "free" | "reschedule";
+  interface MoveSlot { fullDateTime: string; label: string; time: string; isFree: boolean; }
+
+  const [moveSessionOpen, setMoveSessionOpen] = useState(false);
+  const [moveSessionData, setMoveSessionData] = useState<{ id: string; name: string; scheduledAt: string; cancelReason: string | null } | null>(null);
+  const [moveTab, setMoveTab] = useState<MoveSheetTab>("move");
+  const [cancelRoute, setCancelRoute] = useState<CancelRoute>("free");
+  const [moveSlots, setMoveSlots] = useState<MoveSlot[]>([]);
+  const [moveSlotsLoading, setMoveSlotsLoading] = useState(false);
+  const [moveSelectedSlot, setMoveSelectedSlot] = useState<string | null>(null);
+  const [cancelReason, setCancelReason] = useState("Illness");
+  const [otherReason, setOtherReason] = useState("");
+  const [moveSaving, setMoveSaving] = useState(false);
+  const moveAbortRef = useRef<AbortController | null>(null);
+
+  const handleSessionAction = useCallback((session: { id: string; name: string; scheduledAt: string | null; cancelReason: string | null }) => {
+    setMoveSessionData({ id: session.id, name: session.name, scheduledAt: session.scheduledAt ?? "", cancelReason: session.cancelReason });
+    setMoveTab("move");
+    setCancelRoute("free");
+    setMoveSelectedSlot(null);
+    setCancelReason("Illness");
+    setOtherReason("");
+    setMoveSessionOpen(true);
+  }, []);
+
+  useEffect(() => {
+    if (!moveSessionOpen || moveTab !== "move" || !moveSessionData) return;
+    const controller = new AbortController();
+    moveAbortRef.current?.abort();
+    moveAbortRef.current = controller;
+    setMoveSlotsLoading(true);
+
+    fetch(`/api/availability/slots?from=${moveSessionData.scheduledAt.slice(0, 10)}&weeks=3`, { signal: controller.signal })
+      .then((r) => r.json())
+      .then((data) => {
+        const slots: MoveSlot[] = [];
+        const booked = new Set<string>();
+        for (const week of data.weeks ?? []) {
+          for (const day of week.days ?? []) {
+            if (day.state !== "open") continue;
+            for (const slot of day.slots ?? []) {
+              const iso = slot.startUtc;
+              const dt = new Date(iso);
+              const label = dt.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+              const time = slot.startLocal;
+              const key = `${day.date} ${time}`;
+              const isFree = !booked.has(key);
+              if (isFree) booked.add(key);
+              slots.push({ fullDateTime: iso, label, time, isFree });
+            }
+          }
+        }
+        setMoveSlots(slots);
+        const firstFree = slots.find((s) => s.isFree);
+        if (firstFree) setMoveSelectedSlot(firstFree.fullDateTime);
+      })
+      .catch(() => { if (!controller.signal.aborted) setMoveSlots([]); })
+      .finally(() => { if (!controller.signal.aborted) setMoveSlotsLoading(false); });
+
+    return () => { controller.abort(); };
+  }, [moveSessionOpen, moveTab, moveSessionData]);
+
+  const handleMoveConfirm = useCallback(async () => {
+    if (!moveSelectedSlot || !moveSessionData) return;
+    setMoveSaving(true);
+    try {
+      const res = await fetch(`/api/sessions/${moveSessionData.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scheduled_at: moveSelectedSlot }),
+      });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Failed to move session"); }
+      toast.success("Session moved");
+      setMoveSessionOpen(false);
+    } catch (err) { toast.error(err instanceof Error ? err.message : "Failed to move session"); }
+    finally { setMoveSaving(false); }
+  }, [moveSelectedSlot, moveSessionData]);
+
+  const handleCancelConfirm = useCallback(async () => {
+    if (!moveSessionData) return;
+    if (cancelRoute === "reschedule") { setMoveTab("move"); return; }
+    setMoveSaving(true);
+    try {
+      const reason = cancelReason === "Other" && otherReason ? otherReason : cancelReason;
+      const body: Record<string, unknown> = { cancelled_at: new Date().toISOString(), cancel_reason: reason };
+      if (cancelRoute === "free") body.charged_free = "free";
+      const res = await fetch(`/api/sessions/${moveSessionData.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Failed to cancel session"); }
+      toast.success(cancelRoute === "free" ? "Cancelled — free" : "Cancelled — charged to balance");
+      setMoveSessionOpen(false);
+    } catch (err) { toast.error(err instanceof Error ? err.message : "Failed to cancel session"); }
+    finally { setMoveSaving(false); }
+  }, [moveSessionData, cancelRoute, cancelReason, otherReason]);
 
   /* ── Sessions view: group by week ── */
   const { upcomingSessions, unscheduledSessions, pastSessions, upcomingCount, pastCount } = useMemo(() => {
@@ -615,6 +726,40 @@ export function ClientModeView({
             </div>
           </button>
 
+          {/* CR-EF-167: programme queue strip */}
+          {programmeQueue && (
+            <div className="panel">
+              <div className="panel-h">
+                <span className="panel-h-ic">{ICO.block}</span>
+                <span>
+                  <span className="panel-h-t">Programme queue</span>
+                  <span className="panel-h-s">{programmeQueue.programName} · {programmeQueue.slotLetters.length} slot{programmeQueue.slotLetters.length !== 1 ? "s" : ""} in rotation</span>
+                </span>
+              </div>
+              <div className="panel-b">
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)" }}>
+                    Week {programmeQueue.currentWeek} of {programmeQueue.totalWeeks}
+                  </span>
+                  {programmeQueue.nextSlotLabel && (
+                    <span style={{ fontSize: 11.5, color: "var(--muted)" }}>
+                      · next: {programmeQueue.nextSlotLabel}
+                    </span>
+                  )}
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {programmeQueue.slotLetters.map((letter, i) => (
+                    <span key={i} style={{
+                      width: 36, height: 30, borderRadius: "var(--r-control)", border: "1px solid var(--border)",
+                      background: "var(--card)", display: "grid", placeItems: "center",
+                      fontSize: 13, fontWeight: 800, color: "var(--ink)",
+                    }}>{letter}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="panel">
             <div className="panel-h">
               <span className="panel-h-ic">{ICO.pin}</span>
@@ -752,7 +897,9 @@ export function ClientModeView({
                   </div>
                   <div className="blist">
                     {wk.sessions.map((s) => (
-                      <SessionRow key={s.id} session={s} firstName={firstName} nextPool={s.name === "No workout assigned yet" ? nextPool : undefined} clientNumber={clientNumber} />
+                      <SessionRow key={s.id} session={s} firstName={firstName} nextPool={s.name === "No workout assigned yet" ? nextPool : undefined} clientNumber={clientNumber}
+                        onAction={s.status === "scheduled" && s.scheduledAt ? () => handleSessionAction({ id: s.id, name: s.name, scheduledAt: s.scheduledAt, cancelReason: s.cancelReason }) : undefined}
+                      />
                     ))}
                   </div>
                 </div>
@@ -953,13 +1100,150 @@ export function ClientModeView({
           </button>
         ))}
       </nav>
+
+      {/* CR-EF-166: session move/cancel bottom sheet */}
+      {moveSessionOpen && moveSessionData && (
+        <>
+          <div className="scrim" onClick={() => { if (!moveSaving) setMoveSessionOpen(false); }} />
+          <div className="sheet" role="dialog" aria-modal="true" aria-label="Move or cancel session">
+            <div className="grab"><i /></div>
+            <header className="sh-head">
+              <div className="sh-title">
+                <h1>{moveTab === "move" ? "Move session" : "Cancel session"}</h1>
+                <p>{moveSessionData.name} · {new Date(moveSessionData.scheduledAt).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}</p>
+              </div>
+              <button className="sh-close" onClick={() => { if (!moveSaving) setMoveSessionOpen(false); }} aria-label="Close">✕</button>
+            </header>
+
+            {/* Tab bar */}
+            <div className="modes">
+              <button className={`mode-btn${moveTab === "move" ? " on" : ""}`} onClick={() => setMoveTab("move")}>Move it</button>
+              <button className={`mode-btn${moveTab === "cancel" ? " on" : ""}`} onClick={() => setMoveTab("cancel")}>Cancel it</button>
+            </div>
+
+            <div style={{ flex: 1, overflowY: "auto", padding: 14, paddingBottom: 108 }}>
+              {/* ── Move tab ── */}
+              {moveTab === "move" && (
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--muted)", marginBottom: 8 }}>
+                    New date and time
+                  </div>
+                  {moveSlotsLoading ? (
+                    <p style={{ fontSize: 13, color: "var(--muted)" }}>Loading available slots…</p>
+                  ) : moveSlots.length === 0 ? (
+                    <p style={{ fontSize: 13, color: "var(--muted)" }}>No available slots found in the next 3 weeks.</p>
+                  ) : (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {moveSlots.map((slot) => {
+                        const isSel = slot.fullDateTime === moveSelectedSlot;
+                        return (
+                          <button key={slot.fullDateTime} onClick={() => setMoveSelectedSlot(slot.fullDateTime)}
+                            style={{
+                              border: `1px solid ${isSel ? "var(--rose)" : "var(--border)"}`,
+                              borderRadius: "var(--r-nested)",
+                              padding: "8px 12px",
+                              background: isSel ? "var(--s-primary-bg)" : "var(--card)",
+                              cursor: "pointer",
+                              fontFamily: "inherit",
+                              textAlign: "left",
+                              boxShadow: isSel ? "inset 0 0 0 1px var(--rose)" : "none",
+                            }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: isSel ? "var(--rose)" : "var(--ink)" }}>{slot.label}</div>
+                            <div style={{ fontSize: 11.5, color: isSel ? "var(--rose)" : "var(--muted)", marginTop: 2 }}>{slot.time}</div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {/* Programme unaffected reassurance */}
+                  <div style={{ marginTop: 12, padding: "10px 12px", borderRadius: "var(--r-nested)", background: "var(--s-success-bg)", border: "1px solid var(--s-success-bd)", fontSize: 13, fontWeight: 600, color: "var(--teal)" }}>
+                    Her programme is unaffected — <b>{moveSessionData.name}</b> still delivers at her next session. Moving this session does not touch the queue.
+                  </div>
+                </div>
+              )}
+
+              {/* ── Cancel tab ── */}
+              {moveTab === "cancel" && (
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--muted)", marginBottom: 8 }}>
+                    How should this cancellation be handled?
+                  </div>
+                  {/* Three-way route cards */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
+                    {([
+                      { route: "charge" as const, title: "Charge to balance", desc: "Uses one session. Remaining drops by 1." },
+                      { route: "free" as const, title: "Free cancellation", desc: "Doesn't use a session. No change." },
+                      { route: "reschedule" as const, title: "Reschedule", desc: "Move to a new date. No change." },
+                    ]).map((opt) => (
+                      <button key={opt.route} onClick={() => setCancelRoute(opt.route)}
+                        style={{
+                          border: `1px solid ${cancelRoute === opt.route ? "var(--rose)" : "var(--border)"}`,
+                          borderRadius: "var(--r-nested)",
+                          padding: "10px 8px",
+                          background: cancelRoute === opt.route ? "var(--s-primary-bg)" : "var(--card)",
+                          cursor: "pointer",
+                          fontFamily: "inherit",
+                          textAlign: "center",
+                          boxShadow: cancelRoute === opt.route ? "inset 0 0 0 1px var(--rose)" : "none",
+                        }}>
+                        <div style={{ fontSize: 12, fontWeight: 800, color: cancelRoute === opt.route ? "var(--rose)" : "var(--ink)" }}>{opt.title}</div>
+                        <div style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 2 }}>{opt.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                  {/* Consequence preview */}
+                  <div style={{ padding: "10px 12px", borderRadius: "var(--r-nested)", background: "var(--s-success-bg)", border: "1px solid var(--s-success-bd)", fontSize: 13, fontWeight: 600, color: "var(--teal)", marginBottom: 12 }}>
+                    {cancelRoute === "charge"
+                      ? `${potView.remaining ?? "?"} remaining → ${Math.max(0, (potView.remaining ?? 1) - 1)} remaining`
+                      : cancelRoute === "free"
+                        ? `${potView.remaining ?? "?"} remaining → ${potView.remaining ?? "?"} remaining (no change)`
+                        : `${potView.remaining ?? "?"} remaining → ${potView.remaining ?? "?"} remaining (date changes only)`}
+                  </div>
+                  {/* Reason */}
+                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--muted)", marginBottom: 6 }}>
+                    Reason
+                  </div>
+                  <select value={cancelReason} onChange={(e) => setCancelReason(e.target.value)}
+                    style={{ width: "100%", height: 40, border: "1px solid var(--field-border)", borderRadius: "var(--r-nested)", padding: "0 10px", fontFamily: "inherit", fontSize: 14, color: "var(--ink)", background: "var(--card)" }}>
+                    {["Illness", "Client request", "Esther unavailable", "Other"].map((r) => (
+                      <option key={r} value={r}>{r}</option>
+                    ))}
+                  </select>
+                  {cancelReason === "Other" && (
+                    <input type="text" value={otherReason} onChange={(e) => setOtherReason(e.target.value)} placeholder="Specify reason"
+                      style={{ width: "100%", height: 40, border: "1px solid var(--field-border)", borderRadius: "var(--r-nested)", padding: "0 10px", fontFamily: "inherit", fontSize: 14, color: "var(--ink)", background: "var(--card)", marginTop: 8 }} />
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: "10px 14px", borderTop: "1px solid var(--border)", background: "var(--card)" }}>
+              <button onClick={() => setMoveSessionOpen(false)} disabled={moveSaving}
+                style={{ height: 44, padding: "0 14px", borderRadius: "var(--r-nested)", border: "1px solid var(--border)", background: "var(--card)", color: "var(--muted)", fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer", opacity: moveSaving ? 0.5 : 1 }}>
+                Back
+              </button>
+              <button onClick={moveTab === "move" ? handleMoveConfirm : handleCancelConfirm}
+                disabled={moveSaving || (moveTab === "move" && !moveSelectedSlot)}
+                style={{
+                  height: 44, padding: "0 16px", borderRadius: "var(--r-nested)", border: "0",
+                  background: moveTab === "move" ? "var(--rose)" : "var(--s-danger)",
+                  color: "var(--color-white)", fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer",
+                  opacity: moveSaving || (moveTab === "move" && !moveSelectedSlot) ? 0.5 : 1,
+                }}>
+                {moveSaving ? "Saving…" : moveTab === "move" ? "Move session" : cancelRoute === "reschedule" ? "Reschedule" : "Cancel session"}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 }
 
 /* ── Session row sub-component ── */
 
-function SessionRow({ session: s, firstName, nextPool, clientNumber }: { session: SessionView; firstName: string; nextPool?: PoolWorkoutView; clientNumber: number }) {
+function SessionRow({ session: s, firstName, nextPool, clientNumber, onAction }: { session: SessionView; firstName: string; nextPool?: PoolWorkoutView; clientNumber: number; onAction?: () => void }) {
   const positionLabel = s.position != null && s.total != null ? `Session ${s.position} of ${s.total}` : null;
   const isCompleted = s.status === "completed";
   const isCancelled = s.status === "cancelled";
@@ -1005,6 +1289,13 @@ function SessionRow({ session: s, firstName, nextPool, clientNumber }: { session
         <div className="srow-d">{s.dayOfMonth ?? "—"}</div>
         {s.dayOfWeek && <div className="srow-dow">{s.dayOfWeek}</div>}
         {s.time && <div className="srow-time">{s.time}</div>}
+        {onAction && (
+          <button className="srow-action" onClick={(e) => { e.stopPropagation(); onAction(); }} aria-label="Move or cancel session">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              <circle cx="12" cy="5" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" />
+            </svg>
+          </button>
+        )}
       </div>
       <div className="srow-body">
         {s.name === "No workout assigned yet" ? (
