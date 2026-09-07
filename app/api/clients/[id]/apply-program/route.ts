@@ -39,7 +39,7 @@ export async function POST(
   // Load programme including client_id
   const { data: program, error: progErr } = await supabase
     .from("programs")
-    .select("id, client_id, name, notes")
+    .select("id, client_id, name, notes, weeks")
     .eq("id", program_id)
     .single();
 
