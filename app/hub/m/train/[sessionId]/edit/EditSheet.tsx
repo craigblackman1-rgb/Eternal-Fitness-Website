@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { Session, Exercise, SessionVersion, DeliveryMode, ExerciseMedia } from "@/types";
+import type { Band } from "@/lib/bands";
+import { isBandEquipment } from "@/lib/units";
 import { computeGroups, nextGroupLabel, normalizeGroups, checkSupersetSetCounts } from "@/lib/exercise-groups";
 import { formatPrescription } from "@/lib/prescription";
 import { sessionWorkoutName } from "@/lib/session-display";
@@ -140,6 +142,16 @@ export function EditSheet({
   const [tmplQuery, setTmplQuery] = useState("");
   const [tmplArch, setTmplArch] = useState("All");
 
+  // CR-EF-014: active bands for the colour picker
+  const [bands, setBands] = useState<Band[]>([]);
+
+  useEffect(() => {
+    fetch("/api/bands")
+      .then((r) => r.json())
+      .then((data: Band[]) => setBands(data))
+      .catch(() => {});
+  }, []);
+
   // Pack expand/pick
   const [openPack, setOpenPack] = useState<string | null>(null);
   const [packPicked, setPackPicked] = useState<Record<string, boolean>>({});
@@ -267,7 +279,7 @@ export function EditSheet({
   );
 
   const updateField = useCallback(
-    (sectionKey: string, idx: number, field: "sets" | "reps" | "tempo" | "rest" | "load" | "coaching_cue", value: string) => {
+    (sectionKey: string, idx: number, field: "sets" | "reps" | "tempo" | "rest" | "load" | "coaching_cue" | "band_colour", value: string) => {
       setSections((prev) => {
         const next = deepClone(prev);
         const arr = next[sectionKey as keyof SessionVersion] as Exercise[];
@@ -276,7 +288,7 @@ export function EditSheet({
         if (field === "sets") {
           arr[idx] = { ...target, sets: Number(value) || 0 };
         } else {
-          arr[idx] = { ...target, [field]: value };
+          arr[idx] = { ...target, [field]: value || undefined };
         }
         return next;
       });
@@ -1267,6 +1279,48 @@ export function EditSheet({
                             placeholder="Add equipment tag, press Enter"
                           />
                         </div>
+                        {isBandEquipment(ex.equipment || []) && bands.length > 0 && (
+                          <div className="re-field">
+                            <span className="re-field-l">Band colour</span>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 4 }}>
+                              {bands.map((b) => {
+                                const on = (ex.band_colour ?? "").toLowerCase() === b.colour.toLowerCase();
+                                return (
+                                  <button
+                                    key={b.id}
+                                    type="button"
+                                    onClick={() => updateField(sk, idx, "band_colour", on ? "" : b.colour)}
+                                    style={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      gap: 5,
+                                      padding: "4px 8px",
+                                      borderRadius: 8,
+                                      border: on ? "1.5px solid var(--rose, #c1839f)" : "1px solid var(--border, #e5e7eb)",
+                                      background: on ? "rgba(193,131,159,.08)" : "var(--card, #fff)",
+                                      fontSize: 12,
+                                      fontWeight: 600,
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        width: 10,
+                                        height: 10,
+                                        borderRadius: "50%",
+                                        background: b.colour_hex,
+                                        border: "1px solid rgba(0,0,0,.15)",
+                                        flexShrink: 0,
+                                      }}
+                                    />
+                                    {b.colour}
+                                    {on && <span style={{ color: "var(--rose, #c1839f)", fontSize: 11 }}>✓</span>}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
                         <div className="re-field">
                           <span className="re-field-l">Video URL</span>
                           <div className="re-media">
