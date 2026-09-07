@@ -9,6 +9,7 @@ import { SessionChooser } from "./SessionChooser";
 import { SessionMoveDialog } from "./SessionMoveDialog";
 import { ShiftScheduleDialog } from "./ShiftScheduleDialog";
 import { sessionWorkoutName } from "@/lib/session-display";
+import { blockNameOrSpan } from "@/lib/block-name";
 import { SupplementaryWorkoutsCard } from "@/components/hub/SupplementaryWorkoutsCard";
 import { ensureUids } from "@/lib/exercise-ref";
 import type { DBBlock, DBSession, SessionVersion, BlockStatus } from "@/types";
@@ -884,7 +885,7 @@ export function TrainingDrawer({
                   className="flex items-center gap-3 py-[9px] px-3 border-b border-[var(--hub-border)] last:border-b-0 no-underline hover:bg-[var(--hub-hover)] transition-colors rounded-nested"
                 >
                   <span className="flex-1 min-w-0 text-[13.5px] text-[var(--color-ink)]">
-                    <span className="font-semibold">{b.title?.trim() || `Block ${b.block_number}`}</span>
+                    <span className="font-semibold">{blockNameOrSpan(b, b.scheduled_start ? [{ scheduled_at: b.scheduled_start }] : [])}</span>
                     <small className="text-xs font-normal text-[var(--color-body)] ml-2">
                       {b.scheduled_start
                         ? fmtShortDate(b.scheduled_start)

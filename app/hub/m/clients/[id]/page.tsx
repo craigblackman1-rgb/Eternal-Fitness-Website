@@ -6,6 +6,7 @@ import { computeComplianceFlags } from "@/lib/compliance";
 import { buildMedicalFlags, type ClientFlag } from "@/lib/mobile-client-flags";
 import { deriveSessionStatus } from "@/lib/session-status";
 import { deriveBlockStatus } from "@/lib/block-status";
+import { blockNameOrSpan } from "@/lib/block-name";
 import { sessionWorkoutName } from "@/lib/session-display";
 import { deriveChronologicalPositions } from "@/lib/session-chronological-order";
 import { deriveSessionPot } from "@/lib/session-pot";
@@ -293,9 +294,8 @@ export default async function MobileClientModePage({ params }: { params: { id: s
     ? {
         id: currentBlock.id,
         number: currentBlock.block_number,
-        // CR-EF-153 — prefer Esther's own block name over the free-text block_note.
-        focus: currentBlock.title?.trim()
-          || (currentBlock.block_note && currentBlock.block_note !== "Auto-created when adding a workout." ? currentBlock.block_note : null),
+        // CR-EF-153 — descriptive name via shared helper (title → date span → fallback).
+        focus: blockNameOrSpan(currentBlock, currentBlockSessions),
         done: blockDone,
         total: blockTotal,
         pct: blockPct,

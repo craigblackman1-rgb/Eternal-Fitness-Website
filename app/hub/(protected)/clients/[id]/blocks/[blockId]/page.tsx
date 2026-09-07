@@ -8,7 +8,7 @@ import { deriveSessionStatus } from "@/lib/session-status";
 import { deriveSessionPot } from "@/lib/session-pot";
 import { deriveBlockStatus } from "@/lib/block-status";
 import { deriveChronologicalPositions } from "@/lib/session-chronological-order";
-import { blockDisplayName } from "@/lib/block-name";
+import { blockDisplayName, blockNameOrSpan } from "@/lib/block-name";
 import { getClientProgramState } from "@/lib/programs/queue";
 import { getLastUsedMap } from "@/lib/workout-last-used";
 import type { Weekday } from "@/lib/scheduling";
@@ -240,10 +240,11 @@ export default async function BlockViewPage({
       sessionCount: counts?.total ?? 0,
       completedCount: counts?.completed ?? 0,
       dateRange: startLabel && endLabel ? (startLabel === endLabel ? startLabel : `${startLabel} – ${endLabel}`) : "not scheduled",
-      // CR-EF-153 — title if Esther set one, else the ordinal (the row
-      // already shows the precise dateRange above, so no need for a second,
-      // less precise month-span here).
-      displayName: b.title?.trim() || `Block ${b.block_number}`,
+      // CR-EF-153 — descriptive name via shared helper (title → date span → fallback).
+      displayName: blockNameOrSpan(
+        b,
+        counts?.dates.start ? [{ scheduled_at: counts.dates.start }, ...(counts.dates.end && counts.dates.end !== counts.dates.start ? [{ scheduled_at: counts.dates.end }] : [])] : [],
+      ),
     };
   });
 
