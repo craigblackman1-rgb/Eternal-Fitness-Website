@@ -508,6 +508,15 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
     ? [`Block ${latestBlock.block_number}`]
     : [];
 
+  // CR-EF-151 — draft invoice for this client (so the CTA can link to it)
+  const { data: draftInvoiceRows } = await supabase
+    .from("invoices")
+    .select("id, invoice_number")
+    .eq("client_id", client.id)
+    .eq("status", "draft")
+    .limit(1);
+  const draftInvoice = draftInvoiceRows?.[0] ?? null;
+
   // Missing band set: when a block has group_type === "band" but no band set on the client
   const missingBandSet = latestBlock?.group_type === "band" && !(client as any).band_set;
 
@@ -583,6 +592,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       undatedSessionCount={undatedSessionCount}
       blockSessionCountMismatch={blockSessionCountMismatch}
       unpaidBlocks={unpaidBlocks}
+      draftInvoice={draftInvoice}
       outstandingActions={manualActions}
       autoOutstanding={flags.autoOutstanding}
       effectiveStatus={flags.effectiveStatus}

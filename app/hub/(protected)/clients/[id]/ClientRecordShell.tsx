@@ -35,6 +35,7 @@ interface ClientRecordShellProps {
   undatedSessionCount: number;
   blockSessionCountMismatch: boolean;
   unpaidBlocks: string[];
+  draftInvoice: { id: string; invoice_number: string | null } | null;
   outstandingActions: string[];
   autoOutstanding: string[];
   effectiveStatus: string;
@@ -124,6 +125,7 @@ export function ClientRecordShell({
   undatedSessionCount,
   blockSessionCountMismatch,
   unpaidBlocks,
+  draftInvoice,
   outstandingActions,
   autoOutstanding,
   effectiveStatus,
@@ -215,6 +217,7 @@ export function ClientRecordShell({
     undatedSessionCount,
     blockSessionCountMismatch,
     unpaidBlocks,
+    draftInvoice,
     missingBandSet,
     outstandingActions,
     autoOutstanding,

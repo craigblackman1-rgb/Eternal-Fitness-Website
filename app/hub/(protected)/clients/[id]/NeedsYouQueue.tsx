@@ -27,6 +27,7 @@ export interface NeedsYouInput {
   undatedSessionCount: number;
   blockSessionCountMismatch: boolean;
   unpaidBlocks: string[];
+  draftInvoice?: { id: string; invoice_number: string | null } | null;
   missingBandSet: boolean;
   outstandingActions: string[];
   autoOutstanding: string[];
@@ -73,6 +74,7 @@ export function buildNeedsYouItems(input: NeedsYouInput): QueueItem[] {
     undatedSessionCount,
     blockSessionCountMismatch,
     unpaidBlocks,
+    draftInvoice,
     missingBandSet,
     outstandingActions,
     autoOutstanding,
@@ -213,8 +215,8 @@ export function buildNeedsYouItems(input: NeedsYouInput): QueueItem[] {
       dot: "due",
       headline: `${unpaidBlocks[0]} is unpaid`,
       subline: unpaidBlocks.length > 1 ? `${unpaidBlocks.length - 1} more unpaid` : undefined,
-      actionLabel: "Raise invoice",
-      actionHref: "/hub/cashflow/invoices",
+      actionLabel: draftInvoice ? "Continue draft invoice" : "Raise invoice",
+      actionHref: draftInvoice ? `/hub/cashflow/invoices/${draftInvoice.id}` : "/hub/cashflow/invoices",
     });
   }
 
