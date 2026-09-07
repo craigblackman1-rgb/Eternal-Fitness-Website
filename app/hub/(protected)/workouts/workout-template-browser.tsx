@@ -181,6 +181,7 @@ export function WorkoutTemplateBrowser({
         actions={
           <>
             <Link href="/hub/exercises" className="text-sm font-medium text-teal hover:underline mr-2">Exercise library</Link>
+            <Link href="/hub/programs" className="text-sm font-medium text-teal hover:underline mr-2">Programmes</Link>
             <div ref={splitRef} className="relative inline-flex">
             <Link
               href="/hub/workouts/new"

@@ -6,6 +6,7 @@ import {
   HubCard,
   HubCardHeader,
   HubPageHeader,
+  HubQuickActions,
   KpiTile,
   Toolbar,
   toolbarSelectClasses,
@@ -144,6 +145,14 @@ export function TemplatesLibrary({ templates, clients }: { templates: DocumentTe
 
   return (
     <div className="space-y-6">
+      <HubQuickActions
+        variant="bar"
+        actions={[
+          { href: "/hub/documents", label: "All client documents", icon: <IconFileText className="w-4 h-4" /> },
+          { href: "/hub/resources", label: "Portal resources", icon: <IconClipboardList className="w-4 h-4" /> },
+          { href: "/hub/reports/updates", label: "Email updates history", icon: <IconSend className="w-4 h-4" /> },
+        ]}
+      />
       <HubPageHeader
         title="Document templates"
         subtitle="Every blank template used to create client documents. Edit the wording here — changes apply to documents created from now on."

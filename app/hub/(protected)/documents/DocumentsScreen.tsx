@@ -215,6 +215,9 @@ export function DocumentsScreen({
 
   return (
     <div className="w-full max-w-[1680px] mx-auto">
+      <Link href="/hub/document-templates" className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-3">
+        ← Document templates
+      </Link>
       <div className="flex items-baseline gap-2.5 flex-wrap mb-3.5">
         <h1 className="m-0 text-[25px] font-bold tracking-tight text-[var(--color-ink)]">Documents</h1>
         <span className="text-[13px] text-[var(--color-body)]">

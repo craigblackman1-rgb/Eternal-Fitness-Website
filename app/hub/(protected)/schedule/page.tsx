@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase-server";
 import { HubPageHeader, HubQuickActions } from "@/components/hub";
-import { IconUserPlus, IconFileText, IconUsers } from "@/components/icons";
+import { IconUserPlus, IconFileText, IconUsers, IconCalendar } from "@/components/icons";
 import { sessionDurationMinutes } from "@/lib/scheduling";
 import { deriveSessionStatus } from "@/lib/session-status";
 import { sessionWorkoutName } from "@/lib/session-display";
@@ -168,6 +168,7 @@ export default async function SchedulePage() {
           { href: "/hub/clients/new", label: "New client", icon: <IconUserPlus className="w-4 h-4" />, primary: true },
           { href: "/hub/exercises", label: "Browse exercise library", icon: <IconFileText className="w-4 h-4" /> },
           { href: "/hub/clients", label: "View all clients", icon: <IconUsers className="w-4 h-4" /> },
+          { href: "/hub/schedule/availability", label: "Manage availability", icon: <IconCalendar className="w-4 h-4" /> },
         ]}
       />
       <HubPageHeader
