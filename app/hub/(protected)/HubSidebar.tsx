@@ -13,19 +13,51 @@ import {
   IconFileSignature,
   IconLayoutDashboard,
   IconLogOut,
+  IconMail,
   IconPencil,
   IconUsers,
 } from "@/components/icons";
 
-const navItems: { href: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { href: "/hub", label: "Today", icon: IconLayoutDashboard },
-  { href: "/hub/schedule", label: "Schedule", icon: IconCalendar },
-  { href: "/hub/clients", label: "Clients", icon: IconUsers },
-  { href: "/hub/workouts", label: "Library", icon: IconDumbbell },
-  { href: "/hub/document-templates", label: "Documents", icon: IconFileSignature },
-  { href: "/hub/compliance", label: "Compliance", icon: IconClipboardList },
-  { href: "/hub/cashflow", label: "Finance", icon: IconBarChart3 },
-  { href: "/hub/settings", label: "Settings", icon: IconPencil },
+type NavItem = {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+};
+
+type NavGroup = {
+  group?: string;
+  items: NavItem[];
+};
+
+const navStructure: NavGroup[] = [
+  {
+    items: [
+      { href: "/hub", label: "Today", icon: IconLayoutDashboard },
+      { href: "/hub/schedule", label: "Schedule", icon: IconCalendar },
+      { href: "/hub/clients", label: "Clients", icon: IconUsers },
+    ],
+  },
+  {
+    group: "Training",
+    items: [
+      { href: "/hub/programs", label: "Programmes", icon: IconDumbbell },
+      { href: "/hub/workouts", label: "Library", icon: IconDumbbell },
+    ],
+  },
+  {
+    group: "Admin",
+    items: [
+      { href: "/hub/document-templates", label: "Documents", icon: IconFileSignature },
+      { href: "/hub/reports/updates", label: "Email updates", icon: IconMail },
+      { href: "/hub/compliance", label: "Compliance", icon: IconClipboardList },
+    ],
+  },
+  {
+    group: "Business",
+    items: [
+      { href: "/hub/cashflow", label: "Finance", icon: IconBarChart3 },
+    ],
+  },
 ];
 
 export function HubSidebarNav({ onNavigate }: { onNavigate?: () => void }) {
@@ -46,30 +78,59 @@ export function HubSidebarNav({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive =
-            pathname === item.href || (item.href !== "/hub" && pathname.startsWith(item.href + "/"));
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onNavigate}
-              className={cn(
-                "relative flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-100",
-                isActive
-                  ? "bg-[var(--hub-sidebar-active)] text-white"
-                  : "text-white/55 hover:text-white hover:bg-[var(--hub-sidebar-hover)]",
-              )}
-            >
-              {isActive && (
-                <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-pill bg-rose" />
-              )}
-              <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-rose" : "text-white/45")} />
-              {item.label}
-            </Link>
-          );
-        })}
+        {navStructure.map((group, gi) => (
+          <div key={gi} className={gi > 0 ? "mt-3" : undefined}>
+            {group.group && (
+              <p className="px-3 pt-1 pb-1 text-[10px] font-semibold tracking-widest uppercase text-white/30">
+                {group.group}
+              </p>
+            )}
+            {group.items.map((item) => {
+              const Icon = item.icon;
+              const isActive =
+                pathname === item.href || (item.href !== "/hub" && pathname.startsWith(item.href + "/"));
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={onNavigate}
+                  className={cn(
+                    "relative flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-100",
+                    isActive
+                      ? "bg-[var(--hub-sidebar-active)] text-white"
+                      : "text-white/55 hover:text-white hover:bg-[var(--hub-sidebar-hover)]",
+                  )}
+                >
+                  {isActive && (
+                    <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-pill bg-rose" />
+                  )}
+                  <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-rose" : "text-white/45")} />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
+        <div className="my-2 border-t border-white/[0.07]" />
+        <Link
+          href="/hub/settings"
+          onClick={onNavigate}
+          className={cn(
+            "relative flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-100",
+            pathname === "/hub/settings" || pathname.startsWith("/hub/settings/")
+              ? "bg-[var(--hub-sidebar-active)] text-white"
+              : "text-white/55 hover:text-white hover:bg-[var(--hub-sidebar-hover)]",
+          )}
+        >
+          {(pathname === "/hub/settings" || pathname.startsWith("/hub/settings/")) && (
+            <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-pill bg-rose" />
+          )}
+          <IconPencil className={cn(
+            "h-4 w-4 shrink-0",
+            pathname === "/hub/settings" || pathname.startsWith("/hub/settings/") ? "text-rose" : "text-white/45",
+          )} />
+          Settings
+        </Link>
       </nav>
 
       <div className="px-3 py-3 border-t border-white/[0.07]">
