@@ -163,6 +163,9 @@ const nextConfig = {
       { source: "/hub/cashflow/tax", destination: "/hub/cashflow", permanent: false },
       { source: "/hub/cashflow/reconciliation", destination: "/hub/cashflow/transactions", permanent: false },
 
+      // --- Training-blocks retired (CR-EF-141): replaced by draft-block filter on /hub/clients ---
+      { source: "/hub/training-blocks", destination: "/hub/clients?filter=draft-block", permanent: false },
+
       // --- Content re-gated 2026-08-17: only Blind & Partially Sighted was
       // ever cleared for launch under the 2026-08-10 specialisms restructure;
       // Cancer Rehabilitation, Strength/Balance & Falls and the Blog were live
