@@ -139,6 +139,7 @@ export default async function TrainSessionPage({ params }: { params: { sessionId
       archetype={sessionRow.archetype}
       phase={sessionRow.phase}
       week={sessionRow.week}
+      hasProgram={!!sessionRow.program_id}
       data={sessionData}
       sessionLog={sessionLog}
       scheduledAt={scheduledAtISO}
