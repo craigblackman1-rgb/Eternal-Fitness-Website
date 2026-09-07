@@ -533,12 +533,10 @@ export function WorkoutLog({
     (notes: Record<string, string>) => {
       if (notesDebounceRef.current) clearTimeout(notesDebounceRef.current);
       notesDebounceRef.current = setTimeout(() => {
-        const d = dataRef.current;
-        if (!d) return;
         fetch(`/api/sessions/${sessionId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ data: { ...d, exercise_notes: notes } }),
+          body: JSON.stringify({ data_merge: { exercise_notes: notes } }),
         }).catch(() => {});
       }, 800);
     },
@@ -953,13 +951,11 @@ export function WorkoutLog({
 
   // ── Complete session ─────────────────────────────────────────────
   const handleComplete = async (offDay?: { mode: "today" | "booked"; scheduledAt: string }) => {
+    if (completing) return; // idempotent: ignore double-tap while in flight
     setCompleting(true);
     const d = dataRef.current;
     if (!d) return;
     const updatedLog: SessionLog = {
-      // Logging a session from paper: "booked" records the completion on the day
-      // it was actually delivered. The server has always supported off_day_mode,
-      // but no caller ever sent it, so every back-dated log was stamped as today.
       completed_at:
         offDay?.mode === "booked" ? offDay.scheduledAt : new Date().toISOString(),
       started_at: sessionLogRef.current?.started_at ?? null,
@@ -967,13 +963,12 @@ export function WorkoutLog({
       fatigue,
       notes: sessionNotes,
     };
-    const body: Record<string, unknown> = {
-      data: {
-        ...d,
-        session_log: updatedLog,
-        exercise_notes: savedNotesRef.current,
-      },
+    // BUG-EF-132: send only the fields this action owns via data_merge.
+    const mergePatch: Record<string, unknown> = {
+      session_log: updatedLog,
+      exercise_notes: savedNotesRef.current,
     };
+    const body: Record<string, unknown> = { data_merge: mergePatch };
     if (offDay) {
       body.confirm_off_day = true;
       body.off_day_mode = offDay.mode;
@@ -996,8 +991,6 @@ export function WorkoutLog({
         if (!window.confirm(`This session is booked for ${scheduledDate}, not today. Complete it anyway?`)) {
           return;
         }
-        // Which day did it actually happen? Stamping a paper session with today's
-        // date is what makes progress history and "last logged" read wrong.
         const onBookedDay = window.confirm(
           `Did it happen on ${scheduledDate}?
 
@@ -1008,6 +1001,12 @@ Cancel — record it as today`,
           mode: onBookedDay ? "booked" : "today",
           scheduledAt: err.scheduledAt,
         });
+      }
+      // BUG-EF-132: idempotent — if already completed, treat as success
+      if (res.status === 403 && err?.error?.includes("read-only")) {
+        setShowComplete(false);
+        toast.success(`Session ${sessionNumber} marked complete.`);
+        return;
       }
       toast.error(err?.error || "Failed to mark session complete");
       return;

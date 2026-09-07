@@ -530,7 +530,7 @@ export function EditSheet({
         const res = await fetch(`/api/sessions/${sessionId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ data: updatedData }),
+          body: JSON.stringify({ data_merge: { versions: updatedData.versions } }),
         });
         if (!res.ok) {
           const msg = await res.json().then((b) => b?.error).catch(() => null);

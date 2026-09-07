@@ -60,6 +60,21 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     }
   }
 
+  // BUG-EF-132 — targeted merge: client sends only the keys it owns (e.g.
+  // session_log, exercise_notes) and the server merges them into the existing
+  // data column. Prevents the stale-data-clobber problem where a client loads
+  // data at mount and PATCHes the whole blob back later, reverting any
+  // server-side change made in between.
+  if (body.data_merge && typeof body.data_merge === "object" && !Array.isArray(body.data_merge)) {
+    const { data: currentRow } = await supabase
+      .from("sessions")
+      .select("data")
+      .eq("id", params.id)
+      .maybeSingle();
+    const currentData = ((currentRow?.data ?? {}) as Record<string, unknown>);
+    update.data = { ...currentData, ...body.data_merge };
+  }
+
   if (Object.keys(update).length === 0) {
     return NextResponse.json({ error: "No updatable fields provided" }, { status: 400 });
   }
