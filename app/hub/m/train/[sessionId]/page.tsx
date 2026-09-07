@@ -9,6 +9,7 @@ import { backfillExerciseMedia } from "@/lib/exercise-media";
 import { ensureUids } from "@/lib/exercise-ref";
 import { getPool } from "@/lib/pg-client";
 import { toIsoTimestamp } from "@/lib/pg-timestamp";
+import { reStampSession } from "@/lib/programs/delivery";
 import { TrainScreen } from "./TrainScreen";
 
 export default async function TrainSessionPage({ params }: { params: { sessionId: string } }) {
@@ -80,7 +81,25 @@ export default async function TrainSessionPage({ params }: { params: { sessionId
   }
 
   const blockNumber = block?.block_number ?? null;
-  const sessionRow = session as DBSession;
+
+  // CR-EF-154 P3 — lazy re-stamp at serve time: resolve the program queue and
+  // update this session's stamped content if it disagrees with the queue.
+  let sessionRow = session as DBSession;
+  if (block) {
+    const { data: blockSessionsData } = await supabase
+      .from("sessions")
+      .select("*")
+      .eq("block_id", session.block_id)
+      .order("session_number", { ascending: true });
+
+    if (blockSessionsData) {
+      sessionRow = await reStampSession(
+        sessionRow,
+        blockSessionsData as DBSession[],
+      );
+    }
+  }
+
   // Normalise to strict ISO-8601 (offset-preserving) so WebKit (iOS Safari)
   // doesn't render "Invalid Date" — see lib/pg-timestamp.ts.
   const scheduledAtISO = toIsoTimestamp(sessionRow.scheduled_at ?? null);
