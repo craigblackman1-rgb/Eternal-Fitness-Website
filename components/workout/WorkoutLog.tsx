@@ -24,6 +24,7 @@ import {
   remove,
   type PendingSetLogEntry,
 } from "@/lib/hub/offline-set-log-queue";
+import { stableSetOpId } from "@/lib/set-log-id";
 import { ExerciseHistoryDrawer } from "./ExerciseHistoryDrawer";
 
 // ── Helpers ──────────────────────────────────────────────────────
@@ -589,7 +590,7 @@ export function WorkoutLog({
     const durationVal = fieldValues.duration.trim() === "" ? null : Number(fieldValues.duration);
     const bandColourVal = fieldValues.bandColour.trim() === "" ? null : fieldValues.bandColour;
 
-    const clientOpId = reuseClientOpId ?? crypto.randomUUID();
+    const clientOpId = reuseClientOpId ?? await stableSetOpId(sessionId, exerciseRef, setNumber);
 
     const method = existing ? "PATCH" : "POST";
     const body = existing

@@ -60,6 +60,9 @@ function resolveLoggedAt(
 // Idempotent create keyed on client_op_id. On replay of the same client_op_id the
 // INSERT becomes a no-op (partial unique index, see 20260813_set_logs_idempotency.sql)
 // and the already-existing row is returned instead — same shape as a fresh insert.
+// BUG-EF-129: also dedupes on (session_id, exercise_ref, set_number) via the
+// unique index added by 20260907_set_logs_dedupe_guard.sql. If the INSERT
+// conflicts on either constraint, the existing row is returned.
 async function insertSetLogIdempotent(
   sessionId: string,
   row: {
@@ -101,11 +104,23 @@ async function insertSetLogIdempotent(
   );
   if (inserted.rows.length) return inserted.rows[0];
 
+  // Primary conflict (client_op_id) was a no-op — check for an existing row
+  // via the deterministic key first, then via the three-column safety-net.
   const existing = await pool.query(
     `SELECT * FROM set_logs WHERE client_op_id = $1 LIMIT 1`,
     [clientOpId],
   );
-  return existing.rows[0];
+  if (existing.rows.length) return existing.rows[0];
+
+  // Three-column safety-net: a different client_op_id targeted the same
+  // physical set. Treat the existing row as canonical.
+  const dup = await pool.query(
+    `SELECT * FROM set_logs
+      WHERE session_id = $1 AND exercise_ref = $2 AND set_number = $3
+      LIMIT 1`,
+    [sessionId, row.exercise_ref, row.set_number],
+  );
+  return dup.rows[0];
 }
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
@@ -189,9 +204,43 @@ export async function POST(request: Request, { params }: { params: { id: string 
   if (client_op_id) {
     data = await insertSetLogIdempotent(params.id, row, client_op_id);
   } else {
-    const res = await supabase.from("set_logs").insert(row).select().single();
-    if (res.error) return NextResponse.json({ error: res.error.message }, { status: 500 });
-    data = res.data;
+    // BUG-EF-129: no client_op_id — use three-column upsert so the unique
+    // index on (session_id, exercise_ref, set_number) catches duplicates
+    // instead of throwing a constraint error.
+    const pool = getPool();
+    const res = await pool.query(
+      `INSERT INTO set_logs
+         (session_id, exercise_ref, set_number, reps, weight_kg, duration_seconds,
+          completed, is_warmup, band_colour, logged_by, logged_at, notes)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'trainer', $10, $11)
+       ON CONFLICT (session_id, exercise_ref, set_number) DO NOTHING
+       RETURNING *`,
+      [
+        params.id,
+        row.exercise_ref,
+        row.set_number,
+        row.reps,
+        row.weight_kg,
+        row.duration_seconds,
+        row.completed,
+        row.is_warmup,
+        row.band_colour,
+        row.logged_at,
+        row.notes,
+      ],
+    );
+    if (res.rows.length) {
+      data = res.rows[0];
+    } else {
+      // Conflict on three-column key — read the existing row.
+      const existing = await pool.query(
+        `SELECT * FROM set_logs
+          WHERE session_id = $1 AND exercise_ref = $2 AND set_number = $3
+          LIMIT 1`,
+        [params.id, row.exercise_ref, row.set_number],
+      );
+      data = existing.rows[0];
+    }
   }
   await markSessionInProgress(params.id);
 

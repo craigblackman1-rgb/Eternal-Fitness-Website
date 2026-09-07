@@ -14,6 +14,7 @@ import { sessionDurationMinutes } from "@/lib/scheduling";
 import { defaultUnitForEquipment, isBandEquipment, toKg, fromKg } from "@/lib/units";
 import { sessionWorkoutName } from "@/lib/session-display";
 import { enqueue, getAllPending, remove, type PendingSetLogEntry } from "@/lib/hub/offline-set-log-queue";
+import { stableSetOpId } from "@/lib/set-log-id";
 
 /** Round a converted weight to 1 decimal and trim trailing .0 for display. */
 function displayWeight(kg: number, unit: "kg" | "lb"): string {
@@ -503,11 +504,11 @@ export function TrainScreen({
     const weightVal = fieldValues.weight.trim() === "" ? null : toKg(Number(fieldValues.weight), displayUnit);
     const durationVal = fieldValues.duration.trim() === "" ? null : Number(fieldValues.duration);
 
-    // Idempotency key minted once per logical write and reused across retries
-    // (CR-EF-029). The live POST carries it so a retried create dedupes at the
-    // DB; if the write instead falls back to the offline queue, the SAME key is
-    // replayed, so a committed-but-unacked POST can't become a duplicate row.
-    const clientOpId = reuseClientOpId ?? crypto.randomUUID();
+    // BUG-EF-129: deterministic idempotency key derived from the logical
+    // identity of this set (session + exercise + set number). This ensures
+    // re-taps and re-renders always send the same client_op_id, so the
+    // server's ON CONFLICT (client_op_id) dedup catches duplicates.
+    const clientOpId = reuseClientOpId ?? await stableSetOpId(sessionId, exerciseRef, setNumber);
 
     const method = existing ? "PATCH" : "POST";
     const body = existing
