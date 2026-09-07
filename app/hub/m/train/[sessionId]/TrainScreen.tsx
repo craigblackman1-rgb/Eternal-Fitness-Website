@@ -11,10 +11,10 @@ import { computeGroups, nextGroupLabel, checkSupersetSetCounts } from "@/lib/exe
 import { isTimeBased, parsePrescribedSeconds, parsePrescribedReps, parseRestSeconds, formatPrescription } from "@/lib/prescription";
 import { parseLoad, prescribedWeight } from "@/lib/load-helpers";
 import { sessionDurationMinutes } from "@/lib/scheduling";
-import { defaultUnitForEquipment, isBandEquipment, toKg, fromKg } from "@/lib/units";
+import { defaultUnitForEquipment, isBandEquipment, fromKg } from "@/lib/units";
 import { sessionWorkoutName } from "@/lib/session-display";
-import { enqueue, getAllPending, remove, type PendingSetLogEntry } from "@/lib/hub/offline-set-log-queue";
-import { stableSetOpId } from "@/lib/set-log-id";
+import { type PendingSetLogEntry } from "@/lib/hub/offline-set-log-queue";
+import { saveSetLog, drainSetLogQueue, type SaveSetLogResult } from "@/lib/workout/save-set-log";
 
 /** Round a converted weight to 1 decimal and trim trailing .0 for display. */
 function displayWeight(kg: number, unit: "kg" | "lb"): string {
@@ -49,13 +49,6 @@ interface SetState {
   prefillDuration?: string;
   prefillBandColour?: string;
 }
-
-/** Three-way outcome of a set-log save: saved to server, parked for later, or a
- *  genuine server-side failure (which must NOT be queued). */
-type SaveSetLogResult =
-  | { kind: "saved"; log: SetLog & { is_new_pb?: boolean } }
-  | { kind: "queued"; clientOpId: string }
-  | { kind: "failed"; message?: string | null };
 
 interface PbInfo {
   weight_kg: number | null;
@@ -531,82 +524,6 @@ export function TrainScreen({
   }, [restTimers, playRestAlert]);
 
   // ── Set-log API ────────────────────────────────────────────────
-  const saveSetLog = async (
-    exerciseRef: string,
-    setNumber: number,
-    fieldValues: { reps: string; weight: string; duration: string },
-    completed: boolean,
-    isWarmup: boolean,
-    displayUnit: "kg" | "lb",
-    reuseClientOpId?: string,
-  ): Promise<SaveSetLogResult> => {
-    const key = `${exerciseRef}::${setNumber}`;
-    const existing = setLogsMap[key];
-    const repsVal = fieldValues.reps.trim() === "" ? null : Number(fieldValues.reps);
-    const weightVal = fieldValues.weight.trim() === "" ? null : toKg(Number(fieldValues.weight), displayUnit);
-    const durationVal = fieldValues.duration.trim() === "" ? null : Number(fieldValues.duration);
-
-    // BUG-EF-129: deterministic idempotency key derived from the logical
-    // identity of this set (session + exercise + set number). This ensures
-    // re-taps and re-renders always send the same client_op_id, so the
-    // server's ON CONFLICT (client_op_id) dedup catches duplicates.
-    const clientOpId = reuseClientOpId ?? await stableSetOpId(sessionId, exerciseRef, setNumber);
-
-    const method = existing ? "PATCH" : "POST";
-    const body = existing
-      ? { id: existing.id, reps: repsVal, weight_kg: weightVal, duration_seconds: durationVal, completed, is_warmup: isWarmup }
-      : { exercise_ref: exerciseRef, set_number: setNumber, reps: repsVal, weight_kg: weightVal, duration_seconds: durationVal, completed, is_warmup: isWarmup, client_op_id: clientOpId };
-
-    const enqueueOffline = async (): Promise<SaveSetLogResult> => {
-      try {
-        await enqueue({
-          client_op_id: clientOpId,
-          sessionId,
-          exerciseRef,
-          setNumber,
-          method,
-          body,
-          capturedAt: new Date().toISOString(),
-          queuedAt: new Date().toISOString(),
-        });
-      } catch {
-        // Couldn't even park it locally (e.g. IndexedDB unavailable) — surface a
-        // real failure rather than silently dropping the tap.
-        return { kind: "failed" };
-      }
-      return { kind: "queued", clientOpId };
-    };
-
-    // Offline shortcut — don't even attempt a fetch if the browser already knows
-    // the connection is down.
-    if (typeof navigator !== "undefined" && !navigator.onLine) {
-      return enqueueOffline();
-    }
-
-    let res: Response;
-    try {
-      res = await fetch(`/api/sessions/${sessionId}/set-logs`, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-    } catch {
-      // fetch() itself threw — network failure, not a server rejection. Queue it.
-      return enqueueOffline();
-    }
-
-    if (!res.ok) {
-      // The request DID reach the server and was rejected — a real server failure,
-      // not an offline scenario. Never queue these.
-      const message = await res.json().then((b) => b?.error).catch(() => null);
-      return { kind: "failed", message };
-    }
-
-    const saved: SetLog & { is_new_pb?: boolean } = await res.json();
-    setLogsMap[key] = saved;
-    return { kind: "saved", log: saved };
-  };
-
   const handleSetDone = async (uid: string, setIdx: number) => {
     const state = exStates[uid];
     if (!state) return;
@@ -637,7 +554,7 @@ export function TrainScreen({
       }
     }
 
-    const result = await saveSetLog(ref, setNumber, { reps, weight, duration }, newStatus === "done", set.isWarmup, state.displayUnit, set.clientOpId);
+    const result = await saveSetLog(sessionId, ref, setNumber, { reps, weight, duration }, newStatus === "done", set.isWarmup, state.displayUnit, setLogsMap, set.clientOpId);
     if (result.kind === "failed") {
       toast.error(result.message || "Failed to save set");
       return;
@@ -692,7 +609,7 @@ export function TrainScreen({
     const weight = timeBased ? "" : (set.weight || "");
     const duration = timeBased ? (set.duration || "") : "";
 
-    const result = await saveSetLog(ref, setNumber, { reps, weight, duration }, false, set.isWarmup, state.displayUnit, set.clientOpId);
+    const result = await saveSetLog(sessionId, ref, setNumber, { reps, weight, duration }, false, set.isWarmup, state.displayUnit, setLogsMap, set.clientOpId);
     if (result.kind === "failed") {
       toast.error(result.message || "Failed to save set");
       return;
@@ -1121,49 +1038,17 @@ Cancel — record it as today`,
   );
 
   const drainQueue = useCallback(async () => {
-    const pending = await getAllPending();
-    if (pending.length === 0) return;
+    const result = await drainSetLogQueue(markSetSynced);
 
-    let synced = 0;
-    let newPbs = 0;
-    let authError = false;
-
-    for (const entry of pending) {
-      try {
-        const res = await fetch(`/api/sessions/${entry.sessionId}/set-logs`, {
-          method: entry.method,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...entry.body,
-            client_op_id: entry.client_op_id,
-            logged_at: entry.capturedAt,
-          }),
-        });
-        if (res.status === 401) {
-          authError = true;
-          break;
-        }
-        if (!res.ok) break;
-        const data: SetLog & { is_new_pb?: boolean } = await res.json();
-        await remove(entry.client_op_id);
-        markSetSynced(entry, data);
-        synced += 1;
-        if (data.is_new_pb) newPbs += 1;
-      } catch {
-        break;
-      }
-    }
-
-    if (authError) {
-      const remaining = (await getAllPending()).length;
-      setSyncNotice(`Sign in to sync ${remaining} logged ${remaining === 1 ? "set" : "sets"}`);
+    if (result.authError) {
+      setSyncNotice(`Sign in to sync ${result.remainingPending} logged ${result.remainingPending === 1 ? "set" : "sets"}`);
       return;
     }
 
-    if (synced > 0) {
+    if (result.synced > 0) {
       setSyncNotice(null);
       toast.success(
-        `${synced} ${synced === 1 ? "set" : "sets"} synced${newPbs > 0 ? ` — ${newPbs} new PB` : ""}`,
+        `${result.synced} ${result.synced === 1 ? "set" : "sets"} synced${result.newPbs > 0 ? ` — ${result.newPbs} new PB` : ""}`,
       );
     }
   }, [markSetSynced]);

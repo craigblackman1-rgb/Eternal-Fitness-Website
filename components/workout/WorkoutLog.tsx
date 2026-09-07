@@ -16,15 +16,12 @@ import {
   estimateSectionSeconds,
   formatDurationEstimate,
 } from "@/lib/prescription";
-import { defaultUnitForEquipment, isBandEquipment, toKg, fromKg } from "@/lib/units";
+import { defaultUnitForEquipment, isBandEquipment, fromKg } from "@/lib/units";
 import { parseLoad, loadText, prescribedWeight } from "@/lib/load-helpers";
 import {
-  enqueue,
-  getAllPending,
-  remove,
   type PendingSetLogEntry,
 } from "@/lib/hub/offline-set-log-queue";
-import { stableSetOpId } from "@/lib/set-log-id";
+import { saveSetLog, drainSetLogQueue, type SaveSetLogResult } from "@/lib/workout/save-set-log";
 import { ExerciseHistoryDrawer } from "./ExerciseHistoryDrawer";
 
 // ── Helpers ──────────────────────────────────────────────────────
@@ -112,11 +109,6 @@ interface RestTimer {
   elapsed: number;
   seconds: number;
 }
-
-type SaveSetLogResult =
-  | { kind: "saved"; log: SetLog & { is_new_pb?: boolean } }
-  | { kind: "queued"; clientOpId: string }
-  | { kind: "failed"; message?: string | null };
 
 function exerciseRefKey(version: string, section: SectionKey, index: number, name: string): string {
   return `${version}:${section}:${index}:${name}`;
@@ -574,72 +566,6 @@ export function WorkoutLog({
   }, [sessionTimer.running, restTimers]);
 
   // ── Set-log API (offline queue, idempotent) ──────────────────────
-  const saveSetLog = async (
-    exerciseRef: string,
-    setNumber: number,
-    fieldValues: { reps: string; weight: string; duration: string; bandColour: string },
-    completed: boolean,
-    isWarmup: boolean,
-    displayUnit: "kg" | "lb",
-    reuseClientOpId?: string,
-  ): Promise<SaveSetLogResult> => {
-    const key = `${exerciseRef}::${setNumber}`;
-    const existing = setLogsMap[key];
-    const repsVal = fieldValues.reps.trim() === "" ? null : Number(fieldValues.reps);
-    const weightVal = fieldValues.weight.trim() === "" ? null : toKg(Number(fieldValues.weight), displayUnit);
-    const durationVal = fieldValues.duration.trim() === "" ? null : Number(fieldValues.duration);
-    const bandColourVal = fieldValues.bandColour.trim() === "" ? null : fieldValues.bandColour;
-
-    const clientOpId = reuseClientOpId ?? await stableSetOpId(sessionId, exerciseRef, setNumber);
-
-    const method = existing ? "PATCH" : "POST";
-    const body = existing
-      ? { id: existing.id, reps: repsVal, weight_kg: weightVal, duration_seconds: durationVal, band_colour: bandColourVal, completed, is_warmup: isWarmup }
-      : { exercise_ref: exerciseRef, set_number: setNumber, reps: repsVal, weight_kg: weightVal, duration_seconds: durationVal, band_colour: bandColourVal, completed, is_warmup: isWarmup, client_op_id: clientOpId };
-
-    const enqueueOffline = async (): Promise<SaveSetLogResult> => {
-      try {
-        await enqueue({
-          client_op_id: clientOpId,
-          sessionId,
-          exerciseRef,
-          setNumber,
-          method,
-          body,
-          capturedAt: new Date().toISOString(),
-          queuedAt: new Date().toISOString(),
-        });
-      } catch {
-        return { kind: "failed" };
-      }
-      return { kind: "queued", clientOpId };
-    };
-
-    if (typeof navigator !== "undefined" && !navigator.onLine) {
-      return enqueueOffline();
-    }
-
-    let res: Response;
-    try {
-      res = await fetch(`/api/sessions/${sessionId}/set-logs`, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-    } catch {
-      return enqueueOffline();
-    }
-
-    if (!res.ok) {
-      const message = await res.json().then((b) => b?.error).catch(() => null);
-      return { kind: "failed", message };
-    }
-
-    const saved: SetLog & { is_new_pb?: boolean } = await res.json();
-    setLogsMap[key] = saved;
-    return { kind: "saved", log: saved };
-  };
-
   const handleSetDone = async (ref: string, setIdx: number, exercise: Exercise) => {
     const state = exStates[ref];
     if (!state) return;
@@ -671,7 +597,7 @@ export function WorkoutLog({
       }
     }
 
-    const result = await saveSetLog(ref, setNumber, { reps, weight, duration, bandColour }, newStatus === "done", set.isWarmup, state.displayUnit, set.clientOpId);
+    const result = await saveSetLog(sessionId, ref, setNumber, { reps, weight, duration, bandColour }, newStatus === "done", set.isWarmup, state.displayUnit, setLogsMap, set.clientOpId);
     if (result.kind === "failed") {
       toast.error(result.message || "Failed to save set");
       return;
@@ -729,7 +655,7 @@ export function WorkoutLog({
     const duration = timeBased ? (set.duration || "") : "";
     const bandColour = set.bandColour;
 
-    const result = await saveSetLog(ref, setNumber, { reps, weight, duration, bandColour }, false, set.isWarmup, state.displayUnit, set.clientOpId);
+    const result = await saveSetLog(sessionId, ref, setNumber, { reps, weight, duration, bandColour }, false, set.isWarmup, state.displayUnit, setLogsMap, set.clientOpId);
     if (result.kind === "failed") {
       toast.error(result.message || "Failed to save set");
       return;
@@ -887,48 +813,17 @@ export function WorkoutLog({
   );
 
   const drainQueue = useCallback(async () => {
-    const pending = await getAllPending();
-    if (pending.length === 0) return;
+    const result = await drainSetLogQueue(markSetSynced);
 
-    let synced = 0;
-    let newPbs = 0;
-    let authError = false;
-
-    for (const entry of pending) {
-      try {
-        const res = await fetch(`/api/sessions/${entry.sessionId}/set-logs`, {
-          method: entry.method,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...entry.body,
-            client_op_id: entry.client_op_id,
-            logged_at: entry.capturedAt,
-          }),
-        });
-        if (res.status === 401) {
-          authError = true;
-          break;
-        }
-        if (!res.ok) break;
-        const data: SetLog & { is_new_pb?: boolean } = await res.json();
-        await remove(entry.client_op_id);
-        markSetSynced(entry, data);
-        synced += 1;
-        if (data.is_new_pb) newPbs += 1;
-      } catch {
-        break;
-      }
-    }
-
-    if (authError) {
-      const remaining = (await getAllPending()).length;
+    if (result.authError) {
+      const remaining = result.remainingPending;
       setSyncNotice(`Sign in to sync ${remaining} logged ${remaining === 1 ? "set" : "sets"}`);
       return;
     }
 
-    if (synced > 0) {
+    if (result.synced > 0) {
       setSyncNotice(null);
-      toast.success(`${synced} ${synced === 1 ? "set" : "sets"} synced${newPbs > 0 ? ` — ${newPbs} new PB` : ""}`);
+      toast.success(`${result.synced} ${result.synced === 1 ? "set" : "sets"} synced${result.newPbs > 0 ? ` — ${result.newPbs} new PB` : ""}`);
     }
   }, [markSetSynced]);
 
