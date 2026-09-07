@@ -7,6 +7,8 @@ import { deleteEvent } from "@/lib/graph-client";
 import { getSessionStatus } from "@/lib/session-transitions";
 import { londonDayKey } from "@/lib/schedule-dates";
 import { computeRollForwardPlan } from "@/lib/workout-roll-forward";
+import { reStampSession } from "@/lib/programs/delivery";
+import type { DBSession } from "@/types";
 
 // Fields a staff PATCH is allowed to update on a session. `data` carries the
 // prescription + session_log (existing behaviour, from an earlier lane). The
@@ -24,6 +26,20 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 
   const { data, error } = await supabase.from("sessions").select("*").eq("id", params.id).single();
   if (error || !data) return NextResponse.json({ error: "Session not found" }, { status: 404 });
+
+  // CR-EF-154 P3 — re-stamp if the session belongs to a program queue
+  const sessionRow = data as DBSession;
+  if (sessionRow.block_id && sessionRow.program_id) {
+    const { data: blockSessions } = await supabase
+      .from("sessions")
+      .select("*")
+      .eq("block_id", sessionRow.block_id)
+      .order("session_number", { ascending: true });
+    if (blockSessions) {
+      const reStamped = await reStampSession(sessionRow, blockSessions as DBSession[]);
+      return NextResponse.json(reStamped);
+    }
+  }
 
   return NextResponse.json(data);
 }
