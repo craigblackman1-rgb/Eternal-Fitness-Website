@@ -59,17 +59,21 @@ export async function getClientProgramState(
 
   if (slotsErr || !slots) return null;
 
-  // 4. Count completed sessions with this program (exclude sub-sessions)
-  const { count, error: countErr } = await supabase
+  // 4. Count completed sessions (exclude sub-sessions).
+  //    Exclude repeat sessions (data->>'program_repeat' = 'true'): they
+  //    consume a paid slot but do NOT advance the programme queue.
+  const { data: completedRows, error: countErr } = await supabase
     .from('sessions')
-    .select('id', { count: 'exact', head: true })
+    .select('id, data')
     .eq('program_id', programId)
     .eq('status', 'completed')
     .is('parent_session_id', null);
 
   if (countErr) return null;
 
-  const completedCount = count ?? 0;
+  const completedCount = (completedRows ?? []).filter(
+    (r: { data?: Record<string, unknown> }) => r.data?.program_repeat !== 'true',
+  ).length;
   const slotCount = slots.length;
   const queue = resolveQueue(program as DBProgram, slots as DBProgramSlot[], completedCount);
 
