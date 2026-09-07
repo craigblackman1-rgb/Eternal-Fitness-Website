@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, type ReactNode } from "react";
+import { useState, useCallback, useMemo, useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import type { SessionStatus } from "@/types";
 import type { AggregatedExerciseNote } from "@/lib/exercise-notes";
@@ -283,6 +283,79 @@ export function ClientModeView({
 }: ClientModeViewProps) {
   const [tab, setTab] = useState<TabKey>("overview");
 
+  /* ── Accordion state for Medical & compliance (CR-EF-164) ── */
+  const accStorageKey = `ef-medcomp-acc:${clientId}`;
+  const [accOpen, setAccOpen] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(accStorageKey) || "{}");
+      if (saved && typeof saved === "object") setAccOpen(saved);
+    } catch { /* ignore */ }
+  }, [accStorageKey]);
+
+  const toggleAcc = useCallback((key: string) => {
+    setAccOpen((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      try { localStorage.setItem(accStorageKey, JSON.stringify(next)); } catch { /* ignore */ }
+      return next;
+    });
+  }, [accStorageKey]);
+
+  const toggleAllAcc = useCallback(() => {
+    setAccOpen((prev) => {
+      const anyClosed = GROUP_ORDER.some((g) => !prev[g.key]);
+      const next: Record<string, boolean> = {};
+      for (const g of GROUP_ORDER) next[g.key] = anyClosed;
+      try { localStorage.setItem(accStorageKey, JSON.stringify(next)); } catch { /* ignore */ }
+      return next;
+    });
+  }, [accStorageKey]);
+
+  /* ── Group flags by accordion section ── */
+  const contraindications = flags.filter((f) => f.group === "contraindications");
+
+  type AccGroup = { key: string; title: string; family: "clinical" | "compliance"; groups: import("@/lib/mobile-client-flags").FlagGroup[] };
+  const GROUP_ORDER: AccGroup[] = [
+    { key: "conditions", title: "Conditions", family: "clinical", groups: ["conditions"] },
+    { key: "medications", title: "Medications", family: "clinical", groups: ["medications"] },
+    { key: "pain", title: "Pain points & watch-for", family: "clinical", groups: ["pain", "watch_for"] },
+    { key: "mods", title: "Exercise modifications", family: "clinical", groups: ["exercise_modifications"] },
+    { key: "compliance", title: "Paperwork & clearance", family: "compliance", groups: ["compliance"] },
+  ];
+
+  const groupItems = useMemo(() => {
+    const map = new Map<string, ClientFlag[]>();
+    for (const g of GROUP_ORDER) {
+      const items = flags.filter((f) => g.groups.includes(f.group));
+      map.set(g.key, items);
+    }
+    return map;
+  }, [flags]);
+
+  const visibleGroups = useMemo(
+    () => GROUP_ORDER.filter((g) => (groupItems.get(g.key)?.length ?? 0) > 0),
+    [groupItems],
+  );
+
+  const clinicalGroups = visibleGroups.filter((g) => g.family === "clinical");
+  const complianceGroups = visibleGroups.filter((g) => g.family === "compliance");
+
+  const worstTone = (items: ClientFlag[]): "danger" | "warning" | "ok" | "none" => {
+    if (items.length === 0) return "none";
+    if (items.some((f) => f.tone === "danger")) return "danger";
+    if (items.some((f) => f.tone === "warning")) return "warning";
+    return "ok";
+  };
+
+  const groupCount = visibleGroups.length;
+  const totalGroupItems = visibleGroups.reduce((sum, g) => sum + (groupItems.get(g.key)?.length ?? 0), 0);
+  const contraCount = contraindications.length;
+  const panelSubtitle = `${contraCount} contraindication${contraCount !== 1 ? "s" : ""} · ${totalGroupItems} item${totalGroupItems !== 1 ? "s" : ""} across ${groupCount} group${groupCount !== 1 ? "s" : ""}`;
+
+  const allOpen = GROUP_ORDER.every((g) => accOpen[g.key]);
+  const allClosed = GROUP_ORDER.every((g) => !accOpen[g.key]);
+
   const switchToSessions = useCallback(() => setTab("sessions"), []);
 
   /* ── Sessions view: group by week ── */
@@ -365,23 +438,104 @@ export function ClientModeView({
               </span>
               <span>
                 <span className="panel-h-t">Medical &amp; compliance</span>
-                <span className="panel-h-s">
-                  {activeFlagCount > 0
-                    ? `${activeFlagCount} active flag${activeFlagCount !== 1 ? "s" : ""}`
-                    : "Nothing recorded"}
-                </span>
+                <span className="panel-h-s">{panelSubtitle}</span>
+              </span>
+              <span className="panel-h-x">
+                <button className="expand-all" onClick={toggleAllAcc}>
+                  {allOpen ? "Collapse all" : "Expand all"}
+                </button>
               </span>
             </div>
             <div className="panel-b">
-              {flags.map((f, i) => (
-                <div key={i} className={`flagcard ${f.tone}`}>
-                  <span className="flag-ic">{flagIcon(f.tone)}</span>
-                  <div>
-                    <b>{f.title}</b>
-                    {f.detail}
-                  </div>
+              {/* Pinned contraindications — never collapsed */}
+              {contraCount > 0 && (
+                <>
+                  <div className="pinned-lbl">⚠ Contraindications — always visible</div>
+                  {contraindications.map((f, i) => (
+                    <div key={i} className={`flagcard ${f.tone}`}>
+                      <span className="flag-ic">{flagIcon(f.tone)}</span>
+                      <div>
+                        <b>{f.title}</b>
+                        {f.detail}
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+
+              {/* Clinical family */}
+              {clinicalGroups.length > 0 && (
+                <>
+                  <div className="fam-lbl">Clinical</div>
+                  {clinicalGroups.map((g) => {
+                    const items = groupItems.get(g.key) ?? [];
+                    const tone = worstTone(items);
+                    const isOpen = !!accOpen[g.key];
+                    return (
+                      <div key={g.key} className="acc" data-open={isOpen ? "true" : "false"}>
+                        <button className="acc-h" aria-expanded={isOpen} onClick={() => toggleAcc(g.key)}>
+                          <span className={`acc-dot dot-${tone}`} />
+                          <span className="acc-t">{g.title}</span>
+                          <span className="acc-count">{items.length}</span>
+                          <span className="acc-ch">▾</span>
+                        </button>
+                        <div className="acc-b">
+                          {items.map((f, i) => (
+                            <div key={i} className={`flagcard ${f.tone}`}>
+                              <span className="flag-ic">{flagIcon(f.tone)}</span>
+                              <div>
+                                <b>{f.title}</b>
+                                {f.detail}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </>
+              )}
+
+              {/* Compliance family */}
+              {complianceGroups.length > 0 && (
+                <>
+                  <div className="fam-lbl">Compliance</div>
+                  {complianceGroups.map((g) => {
+                    const items = groupItems.get(g.key) ?? [];
+                    const tone = worstTone(items);
+                    const isOpen = !!accOpen[g.key];
+                    return (
+                      <div key={g.key} className="acc" data-open={isOpen ? "true" : "false"}>
+                        <button className="acc-h" aria-expanded={isOpen} onClick={() => toggleAcc(g.key)}>
+                          <span className={`acc-dot dot-${tone}`} />
+                          <span className="acc-t">{g.title}</span>
+                          <span className="acc-count">{items.length}</span>
+                          <span className="acc-ch">▾</span>
+                        </button>
+                        <div className="acc-b">
+                          {items.map((f, i) => (
+                            <div key={i} className={`flagcard ${f.tone}`}>
+                              <span className="flag-ic">{flagIcon(f.tone)}</span>
+                              <div>
+                                <b>{f.title}</b>
+                                {f.detail}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </>
+              )}
+
+              {/* Empty state */}
+              {contraCount === 0 && visibleGroups.length === 0 && (
+                <div className="pin-empty">
+                  Nothing recorded to flag.
                 </div>
-              ))}
+              )}
+
               {/* CR-EF-113: dual action — Train primary, Session record one tap away */}
               {trainTargetId && (
                 <div className="actbar">

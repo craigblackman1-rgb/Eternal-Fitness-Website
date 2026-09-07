@@ -139,17 +139,17 @@ export default async function MobileClientModePage({ params }: { params: { id: s
 
   const flags: ClientFlag[] = [];
   if (compliance.effectiveStatus === "do_not_train") {
-    flags.push({ tone: "danger", title: "Do not train", detail: "Outstanding paperwork must be resolved before any further sessions." });
+    flags.push({ tone: "danger", title: "Do not train", detail: "Outstanding paperwork must be resolved before any further sessions.", group: "compliance" });
   } else if (compliance.effectiveStatus === "pending_medical") {
-    flags.push({ tone: "danger", title: "Pending medical clearance", detail: "Do not train until clearance is confirmed." });
+    flags.push({ tone: "danger", title: "Pending medical clearance", detail: "Do not train until clearance is confirmed.", group: "compliance" });
   }
   for (const action of compliance.autoOutstanding) {
-    flags.push({ tone: "warning", title: "Compliance", detail: action });
+    flags.push({ tone: "warning", title: "Compliance", detail: action, group: "compliance" });
   }
   flags.push(...buildMedicalFlags({ profile: row.profile, exercise_modifications: row.exercise_modifications }));
 
   if (flags.length === 0) {
-    flags.push({ tone: "ok", title: "No active medical flags", detail: "Nothing recorded to flag." });
+    flags.push({ tone: "ok", title: "No active medical flags", detail: "Nothing recorded to flag.", group: "compliance" });
   }
 
   const activeFlagCount = flags.filter((f) => f.tone !== "ok").length;

@@ -14,10 +14,20 @@ import type { ClientProfile } from "@/types";
 
 export type FlagTone = "danger" | "warning" | "ok";
 
+export type FlagGroup =
+  | "contraindications"
+  | "conditions"
+  | "medications"
+  | "pain"
+  | "watch_for"
+  | "exercise_modifications"
+  | "compliance";
+
 export interface ClientFlag {
   tone: FlagTone;
   title: string;
   detail: string;
+  group: FlagGroup;
 }
 
 /**
@@ -44,10 +54,10 @@ export function buildMedicalFlags(client: {
   const flags: ClientFlag[] = [];
 
   for (const c of p?.health?.contraindications ?? []) {
-    flags.push({ tone: "danger", title: "Contraindication", detail: c });
+    flags.push({ tone: "danger", title: "Contraindication", detail: c, group: "contraindications" });
   }
   for (const c of p?.health?.conditions ?? []) {
-    flags.push({ tone: "warning", title: "Condition", detail: c });
+    flags.push({ tone: "warning", title: "Condition", detail: c, group: "conditions" });
   }
   // Read both the legacy free-text field and the current structured array.
   // Deduplicate by medication name so a client with entries in both fields
@@ -57,24 +67,24 @@ export function buildMedicalFlags(client: {
     const key = m.toLowerCase().trim();
     if (key && !seenMeds.has(key)) {
       seenMeds.add(key);
-      flags.push({ tone: "warning", title: "Medication", detail: m });
+      flags.push({ tone: "warning", title: "Medication", detail: m, group: "medications" });
     }
   }
   for (const m of p?.health?.medications ?? []) {
     const key = m.name.toLowerCase().trim();
     if (key && !seenMeds.has(key)) {
       seenMeds.add(key);
-      flags.push({ tone: "warning", title: "Medication", detail: m.name });
+      flags.push({ tone: "warning", title: "Medication", detail: m.name, group: "medications" });
     }
   }
   for (const pp of p?.health?.pain_points ?? []) {
-    flags.push({ tone: "warning", title: "Pain point", detail: pp });
+    flags.push({ tone: "warning", title: "Pain point", detail: pp, group: "pain" });
   }
   if (p?.notes?.watch_for) {
-    flags.push({ tone: "warning", title: "Watch for", detail: p.notes.watch_for });
+    flags.push({ tone: "warning", title: "Watch for", detail: p.notes.watch_for, group: "watch_for" });
   }
   if (client.exercise_modifications) {
-    flags.push({ tone: "warning", title: "Exercise modifications", detail: client.exercise_modifications });
+    flags.push({ tone: "warning", title: "Exercise modifications", detail: client.exercise_modifications, group: "exercise_modifications" });
   }
 
   return flags;
