@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CancelSessionDialog } from "@/components/hub/CancelSessionDialog";
+import { SessionMoveDialog } from "../../SessionMoveDialog";
 import { SessionRow } from "./SessionRow";
 import { SubSessionRow } from "./SubSessionRow";
 import { SessionChooser } from "../../SessionChooser";
@@ -123,6 +124,7 @@ export function SessionList({
   const [chooserSessionId, setChooserSessionId] = useState<string | null>(null);
   const [chooserBusy, setChooserBusy] = useState(false);
   const [cancelSession, setCancelSession] = useState<DBSession | null>(null);
+  const [moveSession, setMoveSession] = useState<DBSession | null>(null);
   const [suppParentId, setSuppParentId] = useState<string | null>(null);
   const [suppName, setSuppName] = useState("");
   const [savingSupp, setSavingSupp] = useState(false);
@@ -282,6 +284,7 @@ export function SessionList({
                   : null
               }
               onAssignWorkout={setChooserSessionId}
+              onReschedule={(id) => { const full = byId.get(id); if (full) setMoveSession(full); }}
               onCancel={(id) => { const full = byId.get(id); if (full) setCancelSession(full); }}
               onAddSupplementary={(id) => { setSuppParentId(id); setSuppName(""); }}
               canCancel={status !== "completed" && status !== "cancelled"}
@@ -366,6 +369,17 @@ export function SessionList({
           sessionsPurchased={sessionsPurchased}
           allSessions={allSessions}
           childCount={allSessions.filter((s) => s.parent_session_id === cancelSession.id).length}
+        />
+      )}
+
+      {moveSession && (
+        <SessionMoveDialog
+          session={moveSession}
+          clientNumber={clientNumber}
+          clientName={clientName}
+          preferredTime={null}
+          sessionsRemaining={sessionsRemaining}
+          onClose={() => setMoveSession(null)}
         />
       )}
     </>

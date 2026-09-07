@@ -2,16 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { SessionStatusPill } from "@/components/hub/SessionStatusPill";
 import type { SessionStatus, SetLog } from "@/types";
-import {
-  isoToLocalDate,
-  isoToLocalTime,
-  localPartsToISO,
-  todayLocalISODate,
-} from "@/lib/schedule-dates";
 import { buildSessionSetEvidence, type ExerciseSetEvidence } from "@/lib/session-sets";
 
 interface SessionRowProps {
@@ -34,6 +26,7 @@ interface SessionRowProps {
   /** CR-EF-165 — ISO date string of the last time this workout was used by this client. */
   lastUsedAt?: string | null;
   onAssignWorkout: (sessionId: string) => void;
+  onReschedule?: (sessionId: string) => void;
   onCancel?: (sessionId: string) => void;
   onAddSupplementary?: (sessionId: string) => void;
   canCancel?: boolean;
@@ -65,16 +58,11 @@ export function SessionRow({
   pbCount,
   lastUsedAt = null,
   onAssignWorkout,
+  onReschedule,
   onCancel,
   onAddSupplementary,
   canCancel,
 }: SessionRowProps) {
-  const router = useRouter();
-  const [rescheduling, setRescheduling] = useState(false);
-  const [reschedDate, setReschedDate] = useState("");
-  const [reschedTime, setReschedTime] = useState("10:00");
-  const [pushAlong, setPushAlong] = useState(false);
-  const [saving, setSaving] = useState(false);
 
   // Evidence expansion state
   const [evidenceOpen, setEvidenceOpen] = useState(false);
@@ -107,40 +95,6 @@ export function SessionRow({
     }
   };
 
-  const startReschedule = () => {
-    if (scheduledAt) {
-      setReschedDate(isoToLocalDate(scheduledAt));
-      setReschedTime(isoToLocalTime(scheduledAt));
-    } else {
-      setReschedDate(todayLocalISODate());
-      setReschedTime("10:00");
-    }
-    setRescheduling(true);
-  };
-
-  const saveReschedule = async () => {
-    if (!reschedDate || !reschedTime) {
-      toast.error("Set a date and time");
-      return;
-    }
-    setSaving(true);
-    const res = await fetch(`/api/sessions/${sessionId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ scheduled_at: localPartsToISO(reschedDate, reschedTime), push_along: pushAlong }),
-    });
-    setSaving(false);
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      toast.error(err.error || "Failed to reschedule");
-      return;
-    }
-    toast.success("Session rescheduled");
-    setRescheduling(false);
-    router.refresh();
-  };
-
-  // Date divergence: "Booked Mon 25 · Written up Thu 28"
   const dateDivergence = scheduledAt && completedAt
     ? fmtShort(scheduledAt) !== fmtShort(completedAt)
       ? `Booked ${fmtShort(scheduledAt)} · Written up ${fmtShort(completedAt)}`
@@ -232,7 +186,7 @@ export function SessionRow({
                 )}
                 <button
                   type="button"
-                  onClick={startReschedule}
+                  onClick={() => onReschedule?.(sessionId)}
                   className="inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground transition-colors"
                 >
                   Schedule
@@ -259,7 +213,7 @@ export function SessionRow({
                 )}
                 <button
                   type="button"
-                  onClick={startReschedule}
+                  onClick={() => onReschedule?.(sessionId)}
                   className="inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground transition-colors"
                 >
                   Reschedule
@@ -376,48 +330,6 @@ export function SessionRow({
         </div>
       )}
 
-      {/* Rescheduling UI */}
-      {rescheduling && (
-        <div className="flex flex-wrap items-center gap-2 px-4 pb-3">
-          <span className="text-xs text-muted-foreground">Move to</span>
-          <input
-            type="date"
-            value={reschedDate}
-            onChange={(e) => setReschedDate(e.target.value)}
-            className="h-8 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] px-2 text-xs text-foreground focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30"
-          />
-          <input
-            type="time"
-            value={reschedTime}
-            onChange={(e) => setReschedTime(e.target.value)}
-            className="h-8 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] px-2 text-xs text-foreground focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30"
-          />
-          <label className="inline-flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={pushAlong}
-              onChange={(e) => setPushAlong(e.target.checked)}
-              className="h-3.5 w-3.5 accent-rose"
-            />
-            Roll workouts forward to later sessions
-          </label>
-          <button
-            type="button"
-            onClick={saveReschedule}
-            disabled={saving}
-            className="inline-flex h-8 items-center rounded-lg bg-rose px-3 text-xs font-semibold text-white hover:bg-rose/90 disabled:opacity-50"
-          >
-            {saving ? "Saving..." : "Save"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setRescheduling(false)}
-            className="inline-flex h-8 items-center rounded-lg px-2.5 text-xs font-semibold text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
-          >
-            Cancel
-          </button>
-        </div>
-      )}
     </div>
   );
 }
