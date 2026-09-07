@@ -1682,7 +1682,10 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, client
                     <tr key={i}>
                       <td>{row!.name}</td>
                       <td className="n">{row!.lastValue}</td>
-                      <td className="n">{row!.bestValue}</td>
+                      <td className="n">
+                        {row!.bestValue}
+                        {row!.isBest && <span className="pb ml-1.5">PB</span>}
+                      </td>
                       <td>
                         <span className={`trend ${row!.trendDir}`}>
                           {row!.trendDir === "up" ? "\u2191" : row!.trendDir === "down" ? "\u2193" : "\u2192"}
