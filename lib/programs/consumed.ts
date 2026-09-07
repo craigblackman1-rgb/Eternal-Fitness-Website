@@ -16,7 +16,7 @@ import { isRepeat } from "./resolve";
  * queue — they advance the pointer.
  *
  * Accepts either:
- *  - `clientId` — fetches all block IDs for that client first, or
+ *  - `clientId` — fetches active block IDs for that client, or
  *  - `blockIds` — counts across exactly those blocks.
  *
  * Predicates (aligned with delivery.ts):
@@ -40,7 +40,8 @@ export async function countProgramConsumed(opts: {
     const { data: blocks } = await supabase
       .from("blocks")
       .select("id")
-      .eq("client_id", opts.clientId);
+      .eq("client_id", opts.clientId)
+      .eq("status", "active");
     blockIds = (blocks ?? []).map((b: { id: string }) => b.id);
     if (blockIds.length === 0) return 0;
   }

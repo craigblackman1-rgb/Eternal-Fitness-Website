@@ -60,7 +60,7 @@ export async function getClientProgramState(
 
   if (slotsErr || !slots) return null;
 
-  // 4. Count completed sessions across ALL client blocks (exclude sub-sessions
+  // 4. Count completed sessions across active client blocks (exclude sub-sessions
   //    and repeats). No program_id filter — sessions completed before the
   //    delivery resolver existed may not carry one.
   const completedCount = await countProgramConsumed({ clientId });
