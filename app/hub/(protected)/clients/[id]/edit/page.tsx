@@ -102,6 +102,18 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
   const [ecPhone, setEcPhone] = useState("");
   const [activeSection, setActiveSection] = useState<SectionId>("about");
 
+  // Hash navigation on load — scroll to the anchored section after data loads
+  useEffect(() => {
+    if (loading) return;
+    const hash = window.location.hash;
+    if (hash) {
+      const el = document.querySelector(hash);
+      if (el) {
+        setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
+      }
+    }
+  }, [loading]);
+
   // IntersectionObserver for pill tracking
   useEffect(() => {
     const sections = SECTION_IDS.map((id) => document.getElementById(`sec-${id}`)).filter(Boolean) as HTMLElement[];
