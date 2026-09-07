@@ -276,13 +276,50 @@ export function TrainScreen({
     for (const sec of SECTION_DEFS) {
       Object.assign(all, initExStates(sections[sec.key] || [], sec.key));
     }
+    // BUG-EF-135 — restore draft field values from localStorage. Only pending
+    // sets get restored; completed/skipped sets already have server-side data.
+    try {
+      const raw = localStorage.getItem(`ef-session-draft:${sessionId}`);
+      if (raw) {
+        const draft = JSON.parse(raw) as { sets?: Record<string, { reps?: string; weight?: string; duration?: string }>; summary?: { rpe?: number | null; fatigue?: string | null; sessionNotes?: string } };
+        if (draft.sets) {
+          for (const uid of Object.keys(all)) {
+            const savedSetDraft = draft.sets[uid];
+            if (!savedSetDraft) continue;
+            const st = all[uid];
+            if (!st) continue;
+            for (let i = 0; i < st.sets.length; i++) {
+              const s = st.sets[i];
+              if (s.status !== "pending") continue;
+              const sd = savedSetDraft;
+              if (sd.reps !== undefined) s.reps = sd.reps;
+              if (sd.weight !== undefined) s.weight = sd.weight;
+              if (sd.duration !== undefined) s.duration = sd.duration;
+            }
+          }
+        }
+        if (draft.summary) {
+          if (draft.summary.rpe != null && sessionLog?.rpe == null) rpeRef.current = draft.summary.rpe;
+          if (draft.summary.fatigue != null && sessionLog?.fatigue == null) fatigueRef.current = draft.summary.fatigue as SessionLog["fatigue"];
+          if (draft.summary.sessionNotes && !sessionLog?.notes) sessionNotesRef.current = draft.summary.sessionNotes;
+        }
+      }
+    } catch { /* fine — render with nothing stored */ }
     return all;
   });
 
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
-  const [rpe, setRpe] = useState<number | null>(sessionLog?.rpe ?? null);
-  const [fatigue, setFatigue] = useState<SessionLog["fatigue"]>(sessionLog?.fatigue ?? null);
-  const [sessionNotes, setSessionNotes] = useState(sessionLog?.notes ?? "");
+
+  // BUG-EF-135 — refs that the draft restore in the exStates initializer reads
+  // before the corresponding useState hooks run (useState initializers are
+  // closures that capture these refs).
+  const rpeRef = useRef<number | null>(sessionLog?.rpe ?? null);
+  const fatigueRef = useRef<SessionLog["fatigue"]>(sessionLog?.fatigue ?? null);
+  const sessionNotesRef = useRef(sessionLog?.notes ?? "");
+
+  const [rpe, setRpe] = useState<number | null>(() => rpeRef.current);
+  const [fatigue, setFatigue] = useState<SessionLog["fatigue"]>(() => fatigueRef.current);
+  const [sessionNotes, setSessionNotes] = useState(() => sessionNotesRef.current);
   const [showComplete, setShowComplete] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [restTimers, setRestTimers] = useState<Record<string, RestTimer>>({});
@@ -959,6 +996,7 @@ Cancel — record it as today`,
       // BUG-EF-132: idempotent — if already completed, treat as success
       if (res.status === 403 && err?.error?.includes("read-only")) {
         setShowComplete(false);
+        try { localStorage.removeItem(`ef-session-draft:${sessionId}`); } catch { /* ignore */ }
         toast.success(`Session ${sessionNumber} marked complete.`);
         return;
       }
@@ -968,6 +1006,8 @@ Cancel — record it as today`,
     dataRef.current = { ...d, session_log: updatedLog, exercise_notes: savedNotesRef.current };
     sessionLogRef.current = updatedLog;
     setShowComplete(false);
+    // BUG-EF-135 — clear the localStorage draft on successful completion.
+    try { localStorage.removeItem(`ef-session-draft:${sessionId}`); } catch { /* ignore */ }
     toast.success(`Session ${sessionNumber} marked complete.`);
   };
 
@@ -996,6 +1036,45 @@ Cancel — record it as today`,
 
   const findExerciseRef = useCallback((uid: string) => uidToRefMap.get(uid) ?? null, [uidToRefMap]);
   const findExerciseByUid = useCallback((uid: string) => uidToExMap.get(uid) ?? null, [uidToExMap]);
+
+  // ── BUG-EF-135: Deploy tolerance ────────────────────────────────
+  // If a chunk-load failure (stale JS after a deploy) fires during an active
+  // session, reload the same URL rather than dumping the trainer to the root.
+  // Guarded by sessionStorage so the reload itself doesn't loop.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const alreadyReloaded = sessionStorage.getItem("ef-chunk-reload");
+    if (alreadyReloaded) return;
+
+    function isChunkError(e: Event | PromiseRejectionEvent): boolean {
+      const msg = e instanceof PromiseRejectionEvent
+        ? (e.reason?.message ?? String(e.reason))
+        : e instanceof ErrorEvent
+          ? (e.message ?? "")
+          : "";
+      return /chunk|loading chunk|dynamic import|import\(\)|script.*error/i.test(msg);
+    }
+
+    function handler(e: Event | PromiseRejectionEvent) {
+      if (!isChunkError(e)) return;
+      try { sessionStorage.setItem("ef-chunk-reload", "1"); } catch { /* ignore */ }
+      location.replace(location.href);
+    }
+
+    window.addEventListener("error", handler);
+    window.addEventListener("unhandledrejection", handler);
+    return () => {
+      window.removeEventListener("error", handler);
+      window.removeEventListener("unhandledrejection", handler);
+    };
+  }, []);
+
+  // BUG-EF-135 — clear the chunk-reload flag after the page has fully loaded,
+  // so the *next* chunk error (e.g. from a second deploy) can trigger a reload.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try { sessionStorage.removeItem("ef-chunk-reload"); } catch { /* ignore */ }
+  }, []);
 
   // ── Offline queue replay ───────────────────────────────────────
   // Reconciles one replayed write back into the in-memory set state: queued →
@@ -1108,6 +1187,64 @@ Cancel — record it as today`,
   useEffect(() => {
     void drainQueue();
   }, [drainQueue]);
+
+  // ── BUG-EF-135: Draft persistence ───────────────────────────────
+  // Saves un-submitted field state (pending set values + session summary)
+  // to localStorage keyed by session id, debounced at 500 ms. Only pending
+  // sets are captured — completed/skipped sets already have server-side data.
+  const draftSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const draftSessionIdRef = useRef(sessionId);
+  const draftExStatesRef = useRef(exStates);
+  const draftRpeRef = useRef(rpe);
+  const draftFatigueRef = useRef(fatigue);
+  const draftSessionNotesRef = useRef(sessionNotes);
+  draftExStatesRef.current = exStates;
+  draftRpeRef.current = rpe;
+  draftFatigueRef.current = fatigue;
+  draftSessionNotesRef.current = sessionNotes;
+
+  useEffect(() => {
+    return () => {
+      if (draftSaveTimerRef.current) clearTimeout(draftSaveTimerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (draftSaveTimerRef.current) clearTimeout(draftSaveTimerRef.current);
+    draftSaveTimerRef.current = setTimeout(() => {
+      try {
+        const setsDraft: Record<string, { reps?: string; weight?: string; duration?: string }> = {};
+        const st = draftExStatesRef.current;
+        for (const uid of Object.keys(st)) {
+          const exSets = st[uid].sets;
+          const pending = exSets.filter((s) => s.status === "pending");
+          if (pending.length === 0) continue;
+          // Use the first pending set's values (all pending sets for this exercise
+          // share the same prefill — the draft captures the current field values).
+          const first = pending[0];
+          setsDraft[uid] = {
+            ...(first.reps !== "" ? { reps: first.reps } : {}),
+            ...(first.weight !== "" ? { weight: first.weight } : {}),
+            ...(first.duration !== "" ? { duration: first.duration } : {}),
+          };
+        }
+        const summaryDraft = {
+          ...(draftRpeRef.current != null ? { rpe: draftRpeRef.current } : {}),
+          ...(draftFatigueRef.current != null ? { fatigue: draftFatigueRef.current } : {}),
+          ...(draftSessionNotesRef.current ? { sessionNotes: draftSessionNotesRef.current } : {}),
+        };
+        const draft = {
+          ...(Object.keys(setsDraft).length > 0 ? { sets: setsDraft } : {}),
+          ...(Object.keys(summaryDraft).length > 0 ? { summary: summaryDraft } : {}),
+        };
+        if (Object.keys(draft).length > 0) {
+          localStorage.setItem(`ef-session-draft:${draftSessionIdRef.current}`, JSON.stringify(draft));
+        } else {
+          localStorage.removeItem(`ef-session-draft:${draftSessionIdRef.current}`);
+        }
+      } catch { /* storage full or unavailable — skip silently */ }
+    }, 500);
+  });
 
   // ── Exercise-complete check ─────────────────────────────────────
   const exComplete = useCallback(

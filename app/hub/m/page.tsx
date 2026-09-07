@@ -96,5 +96,12 @@ export default async function TodayPage() {
     .select("id", { count: "exact", head: true })
     .eq("status", "open");
 
-  return <TodayScreen entries={entries} tasks={tasks} openBookingCount={openBookingCount ?? 0} currentUserName={user?.name ?? null} />;
+  // BUG-EF-135 — find the first in-progress session so the Today screen can
+  // show a "Resume session" banner. Scan all entries — started but not
+  // completed means in-progress regardless of scheduled date.
+  const inProgressEntry = entries.find(
+    (e) => e.sessionLogStartedAt && !e.sessionLogCompletedAt,
+  ) ?? null;
+
+  return <TodayScreen entries={entries} tasks={tasks} openBookingCount={openBookingCount ?? 0} currentUserName={user?.name ?? null} resumeSession={inProgressEntry} />;
 }

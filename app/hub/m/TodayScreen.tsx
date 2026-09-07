@@ -176,9 +176,11 @@ interface TodayScreenProps {
   tasks: Task[];
   openBookingCount: number;
   currentUserName: string | null;
+  /** BUG-EF-135 — the first in-progress session for today, if any. */
+  resumeSession: TodayEntry | null;
 }
 
-export function TodayScreen({ entries, tasks, openBookingCount, currentUserName }: TodayScreenProps) {
+export function TodayScreen({ entries, tasks, openBookingCount, currentUserName, resumeSession }: TodayScreenProps) {
   const router = useRouter();
   const [day, setDay] = useState<string>(todayISO());
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -286,6 +288,22 @@ export function TodayScreen({ entries, tasks, openBookingCount, currentUserName 
       </header>
 
       <main className="mcontent">
+        {/* BUG-EF-135 — Resume session banner */}
+        {resumeSession && (
+          <Link
+            className="alert a-info"
+            href={`/hub/m/train/${resumeSession.id}`}
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <span className="alert-ic">{ICO.live}</span>
+            <div>
+              <b>Resume session</b>
+              {resumeSession.clientName} — {resumeSession.displayName} is in progress.
+            </div>
+            <span className="schev">{ICO.chev}</span>
+          </Link>
+        )}
+
         {clashCount > 0 && (
           <div className="alert a-warning">
             <span className="alert-ic">{ICO.warn}</span>
