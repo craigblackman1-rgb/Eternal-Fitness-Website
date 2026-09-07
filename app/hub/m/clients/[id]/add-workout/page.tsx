@@ -5,6 +5,9 @@ import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import type { Session, SessionVersion, WorkoutTemplate } from "@/types";
+import type { QueueState } from "@/lib/programs/types";
+import { resolveSlotForWeek } from "@/lib/programs/resolve";
+import { slotToSessionVersion } from "@/lib/programs/slot-render";
 import { blockDisplayName } from "@/lib/block-name";
 
 const ICO = {
@@ -91,9 +94,12 @@ interface PreviewData {
   name: string;
   exercises: { name: string; prescription: string }[];
   equipment: string[];
-  source: "template" | "block";
+  source: "template" | "block" | "programme";
   sourceId?: string;
   week?: number;
+  /** BUG-EF-133 — programme metadata, set when source is "programme". */
+  programSlotId?: string;
+  programArchetype?: string;
 }
 
 function initialsFor(name: string): string {
@@ -171,6 +177,8 @@ export default function AddWorkoutPage() {
   const [preview, setPreview] = useState<PreviewData | null>(null);
   const [targetDay, setTargetDay] = useState(toLocalISODate(new Date()));
   const [busy, setBusy] = useState(false);
+  /** BUG-EF-133 — programme state for clients with an active programme. */
+  const [programState, setProgramState] = useState<QueueState | null>(null);
 
   useEffect(() => {
     if (!clientNumber) return;
@@ -220,8 +228,24 @@ export default function AddWorkoutPage() {
           });
         }
         setBlockWorkouts(out);
-        const maxWeek = rows.reduce((m, r) => Math.max(m, r.data.week ?? 1), 1);
-        setWeek(maxWeek);
+
+        // BUG-EF-133 — for programme clients, use the resolver's currentWeek
+        // instead of guessing from existing session data.
+        if (client.active_program_id) {
+          const psRes = await fetch(`/api/clients/${clientNumber}/program-state`);
+          if (psRes.ok) {
+            const ps = (await psRes.json()) as QueueState;
+            setProgramState(ps);
+            setWeek(ps.currentWeek);
+          } else {
+            // Fallback to the old guess if program-state is unavailable
+            const maxWeek = rows.reduce((m, r) => Math.max(m, r.data.week ?? 1), 1);
+            setWeek(maxWeek);
+          }
+        } else {
+          const maxWeek = rows.reduce((m, r) => Math.max(m, r.data.week ?? 1), 1);
+          setWeek(maxWeek);
+        }
       })
       .catch(() => {});
   }, [clientNumber]);
@@ -272,6 +296,28 @@ export default function AddWorkoutPage() {
     setStep("preview");
   }
 
+  /** BUG-EF-133 — resolve the next programme slot for the current week and
+   *  show a preview. Content comes from the resolver, not a template/block. */
+  function previewFromProgramme() {
+    if (!programState?.nextSlot) return;
+    const slot = programState.nextSlot;
+    const resolved = resolveSlotForWeek(slot.data, programState.currentWeek);
+    const version = slotToSessionVersion(resolved);
+    const exercises = collectPreview(version);
+    const archetype = String.fromCharCode(64 + slot.position); // 1→'A', 2→'B', ...
+    setPreview({
+      name: slot.label?.trim() || `Workout ${archetype}`,
+      exercises,
+      equipment: collectEquipment(version),
+      source: "programme",
+      sourceId: slot.id,
+      week: programState.currentWeek,
+      programSlotId: slot.id,
+      programArchetype: archetype,
+    });
+    setStep("preview");
+  }
+
   async function createScratch() {
     if (!block) return;
     setBusy(true);
@@ -285,7 +331,13 @@ export default function AddWorkoutPage() {
       const res = await fetch(`/api/blocks/${block.id}/sessions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ week, focus_label: name, scheduled_at: new Date(`${targetDay}T09:00:00`).toISOString() }),
+        body: JSON.stringify({
+          week,
+          focus_label: name,
+          scheduled_at: new Date(`${targetDay}T09:00:00`).toISOString(),
+          // BUG-EF-133 — stamp programme fields on scratch sessions for programme clients.
+          ...(programState?.program ? { program_id: programState.program.id } : {}),
+        }),
       });
       const body = await res.json().catch(() => null) as { id?: string; error?: string } | null;
       if (!res.ok) throw new Error(body?.error || "Blank session failed");
@@ -307,14 +359,45 @@ export default function AddWorkoutPage() {
         const body = await res.json().catch(() => null) as { id?: string; error?: string } | null;
         if (!res.ok) throw new Error(body?.error || "Clone failed");
         createdId = body!.id;
+        // BUG-EF-133 — for programme clients, stamp programme fields on cloned sessions.
+        if (programState?.program) {
+          await fetch(`/api/sessions/${createdId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              program_id: programState.program.id,
+              week,
+            }),
+          });
+        }
       } else if (preview.source === "template" && preview.sourceId) {
         const res = await fetch(`/api/blocks/${block.id}/sessions`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ template_id: preview.sourceId, week }),
+          body: JSON.stringify({
+            template_id: preview.sourceId,
+            week,
+            // BUG-EF-133 — stamp programme fields when creating from template.
+            ...(programState?.program ? { program_id: programState.program.id } : {}),
+          }),
         });
         const body = await res.json().catch(() => null) as { id?: string; error?: string } | null;
         if (!res.ok) throw new Error(body?.error || "Template add failed");
+        createdId = body!.id;
+      } else if (preview.source === "programme" && preview.programSlotId) {
+        // BUG-EF-133 — programme source: create session with resolver content.
+        const res = await fetch(`/api/blocks/${block.id}/sessions`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            program_id: programState?.program?.id,
+            program_slot_id: preview.programSlotId,
+            week: preview.week ?? week,
+            archetype: preview.programArchetype,
+          }),
+        });
+        const body = await res.json().catch(() => null) as { id?: string; error?: string } | null;
+        if (!res.ok) throw new Error(body?.error || "Programme add failed");
         createdId = body!.id;
       }
 
@@ -383,6 +466,20 @@ export default function AddWorkoutPage() {
             <p className="step-sub" style={{ margin: "0 0 14px", color: "var(--muted)" }}>
               Pick where the workout comes from. You&apos;ll review it before it&apos;s added.
             </p>
+
+            {programState?.nextSlot && !programState.exhausted && (
+              <button className="src" onClick={previewFromProgramme}>
+                <span className="src-ic">{ICO.dumbbell}</span>
+                <span>
+                  <span className="src-t">From the programme</span>
+                  <span className="src-d">
+                    Next: {programState.nextSlot.label?.trim() || `Workout ${String.fromCharCode(64 + programState.nextSlot.position)}`}
+                    {" · "}Week {programState.currentWeek} of {programState.program.weeks}
+                  </span>
+                </span>
+                <span className="src-chev">{ICO.chev}</span>
+              </button>
+            )}
 
             <button className="src" onClick={() => setStep("template")}>
               <span className="src-ic">{ICO.tmpl}</span>

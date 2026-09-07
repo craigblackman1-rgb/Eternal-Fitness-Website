@@ -4,6 +4,7 @@ import { MAX_BLOCK_WEEKS, type Session, type Archetype, type Phase, type Exercis
 import { ensureUids } from "@/lib/exercise-ref";
 import { attachSupplementaryWork } from "@/lib/supplementary-attach";
 import { reStampSession, reStampBlockSessions } from "@/lib/programs/delivery";
+import { resolveSlotForWeek } from "@/lib/programs/resolve";
 import { getLastUsedMap } from "@/lib/workout-last-used";
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
@@ -132,13 +133,17 @@ export async function POST(request: Request, { params }: { params: { id: string 
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json();
-  const { template_id, week, archetype, focus_label, scheduled_at, parent_session_id } = body as {
+  const { template_id, week, archetype, focus_label, scheduled_at, parent_session_id, program_id, program_slot_id } = body as {
     template_id?: string;
     week?: number;
     archetype?: string;
     focus_label?: string;
     scheduled_at?: string;
     parent_session_id?: string;
+    /** BUG-EF-133 — programme pointer. Non-null when this session is assigned from a programme queue. */
+    program_id?: string;
+    /** BUG-EF-133 — specific slot within the programme this session was assigned from. */
+    program_slot_id?: string;
   };
 
   const { data: block, error: blockError } = await supabase
@@ -243,6 +248,59 @@ export async function POST(request: Request, { params }: { params: { id: string 
       .from("workout_templates")
       .update({ usage_count: (template.usage_count ?? 0) + 1, updated_at: new Date().toISOString() })
       .eq("id", template_id);
+  } else if (program_slot_id) {
+    // BUG-EF-133 — programme slot path: load the slot, resolve for the
+    // current week, and build session content from the programme data.
+    const { data: slot, error: slotError } = await supabase
+      .from("program_slots")
+      .select("*")
+      .eq("id", program_slot_id)
+      .single();
+    if (slotError || !slot) return NextResponse.json({ error: "Programme slot not found" }, { status: 404 });
+
+    const slotData = slot.data as import("@/lib/programs/types").SlotData;
+    const resolved = resolveSlotForWeek(slotData, resolvedWeek!);
+    const { slotToSessionVersion } = await import("@/lib/programs/slot-render");
+    const versions = {
+      studio: slotToSessionVersion(resolved),
+      home: slotToSessionVersion(resolved),
+    };
+
+    resolvedArchetype = archetype && ["A", "B", "C"].includes(archetype)
+      ? archetype
+      : String.fromCharCode(64 + slot.position); // 1→'A', 2→'B', ...
+
+    const slotLabel = slot.label?.trim() || `Workout ${slot.position}`;
+
+    sessionData = {
+      session_id: crypto.randomUUID(),
+      block_id: params.id,
+      client_id: block.client_id,
+      session_number: sessionNumber,
+      archetype: resolvedArchetype as Archetype,
+      week: resolvedWeek,
+      phase: resolvedPhase as Phase,
+      focus_label: slotLabel,
+      time_tier: "standard",
+      versions,
+      coaching_notes: `Added from programme.`,
+      client_intro: "",
+    };
+
+    // BUG-EF-111 — regenerate exercise uids so this session never shares uids.
+    const sectionKeys = ["warm_up", "main_block", "cooldown"] as const;
+    for (const v of Object.keys(sessionData.versions)) {
+      const ver = sessionData.versions[v as keyof typeof sessionData.versions];
+      for (const sk of sectionKeys) {
+        (ver as unknown as Record<string, unknown>)[sk] = ensureUids((ver as unknown as Record<string, unknown>)[sk] as { uid?: string }[], { forceNew: true });
+      }
+    }
+
+    // BUG-EF-133 — stamp programme metadata on the session data blob too
+    // (the insert payload already carries program_id/program_slot_id at
+    // the row level, but the data blob is what the delivery resolver reads).
+    (sessionData as unknown as Record<string, unknown>).program_id = program_id;
+    (sessionData as unknown as Record<string, unknown>).program_slot_id = program_slot_id;
   } else {
     // Content-free session: either a pure booking (no name yet — a session's
     // identity is its date+time, a workout is content attached separately)
@@ -276,6 +334,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
     week: resolvedWeek,
     phase: resolvedPhase,
     data: sessionData,
+    // BUG-EF-133 — stamp programme fields so mobile-created sessions advance the queue.
+    ...(program_id ? { program_id } : {}),
+    ...(program_slot_id ? { program_slot_id } : {}),
   };
   // CR-EF-101 — sub-sessions inherit parent's scheduled_at and cannot be
   // independently scheduled. When parent_session_id is provided, fetch the

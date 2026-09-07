@@ -8,6 +8,7 @@ import {
   todayLocalISODate,
   shiftDay,
 } from "@/lib/schedule-dates";
+import type { QueueState } from "@/lib/programs/types";
 
 interface ClientOption {
   id: string;
@@ -107,6 +108,8 @@ export default function BookSessionPage() {
   const [booking, setBooking] = useState<OutlookBookingRow | null>(null);
   const [loadingBooking, setLoadingBooking] = useState(isBookingConfirm);
   const [bookingGone, setBookingGone] = useState<string | null>(null);
+  /** BUG-EF-133 — programme state for the selected client, if they have an active programme. */
+  const [programState, setProgramState] = useState<QueueState | null>(null);
 
   const isTrainerScope = scope === "trainer";
   const selectedClient = useMemo(
@@ -195,6 +198,27 @@ export default function BookSessionPage() {
       .finally(() => setLoadingBlocks(false));
   }, [selectedClientId]);
 
+  // BUG-EF-133 — load programme state for the selected client so we can
+  // stamp programme fields when creating sessions for programme clients.
+  useEffect(() => {
+    if (!selectedClientId) {
+      setProgramState(null);
+      return;
+    }
+    // The selectedClientId is a UUID (client.id), not client_number.
+    // The program-state route accepts client_number, so we need to look
+    // up the client_number from the clients list.
+    const client = clients.find((c) => c.id === selectedClientId);
+    if (!client?.client_number) {
+      setProgramState(null);
+      return;
+    }
+    fetch(`/api/clients/${client.client_number}/program-state`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((ps) => setProgramState(ps))
+      .catch(() => setProgramState(null));
+  }, [selectedClientId, clients]);
+
   const canSubmit = isBookingConfirm
     ? !!(selectedClientId && selectedBlockId && booking && !submitting)
     : !!(selectedClientId && selectedBlockId && date && time && !submitting);
@@ -246,10 +270,20 @@ export default function BookSessionPage() {
       const [h, min] = time.split(":").map(Number);
       const scheduledAt = new Date(y, mo - 1, d, h, min, 0, 0).toISOString();
 
+      // BUG-EF-133 — stamp programme fields when booking for a programme client.
+      const programmePayload = programState?.program && programState.nextSlot
+        ? {
+            program_id: programState.program.id,
+            program_slot_id: programState.nextSlot.id,
+            week: programState.currentWeek,
+            archetype: String.fromCharCode(64 + programState.nextSlot.position),
+          }
+        : {};
+
       const res = await fetch(`/api/blocks/${selectedBlockId}/sessions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scheduled_at: scheduledAt }),
+        body: JSON.stringify({ scheduled_at: scheduledAt, ...programmePayload }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
