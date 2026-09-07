@@ -1,6 +1,7 @@
 "use client";
 
 import type { DBProgramSlot, SlotData } from "@/lib/programs/types";
+import { slotLetter } from "@/lib/programs/resolve";
 
 /* ── ProgramQueueMap — renders the program queue as a cell grid.
    Each cell represents one slot-position in the queue, colour-coded:
@@ -29,23 +30,6 @@ interface ProgramQueueMapProps {
   /** Scheduled sessions keyed by queue position for day labels */
   scheduledByPosition?: Record<number, { scheduledAt: string | null }>;
   onCellClick?: (position: number) => void;
-}
-
-/** Short display label for a queue cell: "Workout A" → "A", "Workout 1 — ..." → "W1", "B1" → "B1". */
-function slotLetter(slot: DBProgramSlot): string {
-  const label = slot.label?.trim();
-  if (label) {
-    // Strip leading generic prefix ("Workout ", "Warm-up ") to expose the real identifier
-    const stripped = label.replace(/^(?:Workout|Warm[\s-]*up)\s+/i, "");
-    const match = stripped.match(/^([A-Za-z0-9]+)/);
-    if (match) {
-      // Prepend "W" if we stripped a "Workout" prefix so "W1" reads as "Workout 1"
-      const prefix = /^workout\s/i.test(label) ? "W" : "";
-      return prefix + match[1];
-    }
-    return stripped.slice(0, 3);
-  }
-  return String.fromCharCode(64 + slot.position);
 }
 
 function fmtDayShort(iso: string | null): string {

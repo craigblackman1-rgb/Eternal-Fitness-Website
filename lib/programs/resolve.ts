@@ -78,6 +78,25 @@ export function resolveSlotForWeek(slotData: SlotData, week: number): SlotData {
   };
 }
 
+/**
+ * Short display label for a programme slot: "Workout A" → "A",
+ * "Workout 1 — ..." → "W1", position 3 fallback → "C".
+ * Client-safe pure function extracted from ProgramQueueMap.tsx (CR-EF-167).
+ */
+export function slotLetter(slot: DBProgramSlot): string {
+  const label = slot.label?.trim();
+  if (label) {
+    const stripped = label.replace(/^(?:Workout|Warm[\s-]*up)\s+/i, "");
+    const match = stripped.match(/^([A-Za-z0-9]+)/);
+    if (match) {
+      const prefix = /^workout\s/i.test(label) ? "W" : "";
+      return prefix + match[1];
+    }
+    return stripped.slice(0, 3);
+  }
+  return String.fromCharCode(64 + slot.position);
+}
+
 function applyWeekBands(exercise: ProgramExercise, week: number): ProgramExercise {
   if (!exercise.week_bands || exercise.week_bands.length === 0) {
     return exercise;

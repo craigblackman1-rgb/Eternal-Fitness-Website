@@ -11,6 +11,7 @@ import { deriveChronologicalPositions } from "@/lib/session-chronological-order"
 import { deriveSessionPot } from "@/lib/session-pot";
 import { toIsoTimestamp } from "@/lib/pg-timestamp";
 import { aggregateExerciseNotes, type AggregatedExerciseNote } from "@/lib/exercise-notes";
+import { getClientProgramState, slotLetter } from "@/lib/programs/queue";
 import { ClientModeView } from "./ClientModeView";
 import type {
   BlockView,
@@ -20,6 +21,7 @@ import type {
   PoolWorkoutView,
   SessionPotView,
   PinnedNoteView,
+  ProgrammeQueueView,
 } from "./ClientModeView";
 
 const ICO = {
@@ -52,6 +54,7 @@ interface ClientRow {
   gp_letter_status: string;
   annual_review_due_date: string | null;
   exercise_modifications: string | null;
+  active_program_id: string | null;
 }
 
 interface SessionRow {
@@ -98,7 +101,7 @@ export default async function MobileClientModePage({ params }: { params: { id: s
 
   const { data: client } = await supabase
     .from("clients")
-    .select("id, name, client_number, email, phone, profile, compliance_status, gp_letter_status, annual_review_due_date, exercise_modifications, sessions_purchased")
+    .select("id, name, client_number, email, phone, profile, compliance_status, gp_letter_status, annual_review_due_date, exercise_modifications, sessions_purchased, active_program_id")
     .eq("client_number", clientNumber)
     .single();
 
@@ -403,6 +406,28 @@ export default async function MobileClientModePage({ params }: { params: { id: s
     .filter((s) => s.scheduled_at && !s.cancelled_at && sessionWorkoutName(s) === "No workout assigned yet")
     .sort((a, b) => new Date(a.scheduled_at as string).getTime() - new Date(b.scheduled_at as string).getTime())[0] ?? null;
 
+  /* ── CR-EF-167: programme queue state ── */
+  const programState = row.active_program_id ? await getClientProgramState(row.id) : null;
+
+  // When a programme exists, derive pool letters from programme slots
+  // instead of the insertion-order A-C fallback.
+  if (programState && programState.slots.length > 0) {
+    for (let i = 0; i < poolWorkouts.length; i++) {
+      const slotIdx = i % programState.slots.length;
+      poolWorkouts[i].letter = slotLetter(programState.slots[slotIdx]);
+    }
+  }
+
+  const programmeQueue = programState
+    ? {
+        programName: programState.program.name,
+        currentWeek: programState.currentWeek,
+        totalWeeks: programState.program.weeks,
+        nextSlotLabel: programState.nextSlot ? slotLetter(programState.nextSlot) : null,
+        slotLetters: programState.slots.map((s) => slotLetter(s)),
+      }
+    : null;
+
   return (
     <>
       <header className="mtop">
@@ -452,6 +477,7 @@ export default async function MobileClientModePage({ params }: { params: { id: s
         pinnedNoteRefs={pinnedNoteRefs}
         pinnedNote={pinnedNote}
         earliestUnattached={earliestUnattached ? { scheduledAt: earliestUnattached.scheduled_at as string } : null}
+        programmeQueue={programmeQueue}
       />
     </>
   );

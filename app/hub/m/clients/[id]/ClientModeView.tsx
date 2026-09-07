@@ -89,6 +89,14 @@ export interface BlockView {
   pct: number;
 }
 
+export interface ProgrammeQueueView {
+  programName: string;
+  currentWeek: number;
+  totalWeeks: number;
+  nextSlotLabel: string | null;
+  slotLetters: string[];
+}
+
 /* ── Icons ── */
 
 const ICO = {
@@ -259,6 +267,7 @@ interface ClientModeViewProps {
   pinnedNoteRefs?: PinnedNoteRef[];
   pinnedNote?: PinnedNoteView | null;
   earliestUnattached?: { scheduledAt: string } | null;
+  programmeQueue?: ProgrammeQueueView | null;
 }
 
 export function ClientModeView({
@@ -281,6 +290,7 @@ export function ClientModeView({
   pinnedNoteRefs = [],
   pinnedNote = null,
   earliestUnattached = null,
+  programmeQueue = null,
 }: ClientModeViewProps) {
   const [tab, setTab] = useState<TabKey>("overview");
 
@@ -694,6 +704,40 @@ export function ClientModeView({
               )}
             </div>
           </button>
+
+          {/* CR-EF-167: programme queue strip */}
+          {programmeQueue && (
+            <div className="panel">
+              <div className="panel-h">
+                <span className="panel-h-ic">{ICO.block}</span>
+                <span>
+                  <span className="panel-h-t">Programme queue</span>
+                  <span className="panel-h-s">{programmeQueue.programName} · {programmeQueue.slotLetters.length} slot{programmeQueue.slotLetters.length !== 1 ? "s" : ""} in rotation</span>
+                </span>
+              </div>
+              <div className="panel-b">
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)" }}>
+                    Week {programmeQueue.currentWeek} of {programmeQueue.totalWeeks}
+                  </span>
+                  {programmeQueue.nextSlotLabel && (
+                    <span style={{ fontSize: 11.5, color: "var(--muted)" }}>
+                      · next: {programmeQueue.nextSlotLabel}
+                    </span>
+                  )}
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {programmeQueue.slotLetters.map((letter, i) => (
+                    <span key={i} style={{
+                      width: 36, height: 30, borderRadius: "var(--r-control)", border: "1px solid var(--border)",
+                      background: "var(--card)", display: "grid", placeItems: "center",
+                      fontSize: 13, fontWeight: 800, color: "var(--ink)",
+                    }}>{letter}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="panel">
             <div className="panel-h">

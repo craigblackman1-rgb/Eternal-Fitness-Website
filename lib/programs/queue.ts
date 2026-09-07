@@ -6,7 +6,7 @@
  * so they can be safely imported by client components without pulling in pg.
  */
 
-export { resolveQueue, resolveSlotForWeek } from './resolve';
+export { resolveQueue, resolveSlotForWeek, slotLetter } from './resolve';
 export type { QueueResult } from './resolve';
 
 import { supabase } from '@/lib/supabase';
