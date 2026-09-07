@@ -158,6 +158,11 @@ const nextConfig = {
       { source: "/hub/templates/:path*", destination: "/hub/document-templates/:path*", permanent: false },
       { source: "/hub/tracker", destination: "/hub/compliance", permanent: false },
 
+      // --- Finance fold-in (CR-EF-141): forecast, tax, reconciliation merged into parent pages ---
+      { source: "/hub/cashflow/forecast", destination: "/hub/cashflow", permanent: false },
+      { source: "/hub/cashflow/tax", destination: "/hub/cashflow", permanent: false },
+      { source: "/hub/cashflow/reconciliation", destination: "/hub/cashflow/transactions", permanent: false },
+
       // --- Content re-gated 2026-08-17: only Blind & Partially Sighted was
       // ever cleared for launch under the 2026-08-10 specialisms restructure;
       // Cancer Rehabilitation, Strength/Balance & Falls and the Blog were live
