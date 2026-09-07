@@ -97,6 +97,8 @@ export interface ProgrammeQueueView {
   totalWeeks: number;
   nextSlotLabel: string | null;
   slotLetters: string[];
+  nextSessionIndex: number | null;
+  totalSessions: number;
 }
 
 /* ── Icons ── */
@@ -744,6 +746,7 @@ export function ClientModeView({
                   {programmeQueue.nextSlotLabel && (
                     <span style={{ fontSize: 11.5, color: "var(--muted)" }}>
                       · next: {programmeQueue.nextSlotLabel}
+                      {programmeQueue.nextSessionIndex != null && ` · session ${programmeQueue.nextSessionIndex} of ${programmeQueue.totalSessions}`}
                     </span>
                   )}
                 </div>

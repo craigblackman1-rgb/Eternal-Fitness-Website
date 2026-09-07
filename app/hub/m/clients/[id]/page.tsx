@@ -475,6 +475,8 @@ export default async function MobileClientModePage({ params }: { params: { id: s
         totalWeeks: programState.program.weeks,
         nextSlotLabel: programState.nextSlot ? slotLetter(programState.nextSlot) : null,
         slotLetters: programState.slots.map((s) => slotLetter(s)),
+        nextSessionIndex: programState.exhausted ? null : programState.completedCount + 1,
+        totalSessions: programState.totalSlots,
       }
     : null;
 

@@ -622,6 +622,9 @@ export function TrainingDrawer({
                               return label.length > 16 ? label.slice(0, 16) + "\u2026" : label;
                             })()}
                           </span>
+                          <span className="text-[10px] leading-tight text-[var(--color-muted)]">
+                            Session {cell.queueIndex} of {totalQueueSlots}
+                          </span>
                         </button>
                       );
                     })}
