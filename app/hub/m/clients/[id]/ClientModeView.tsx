@@ -759,6 +759,9 @@ export function ClientModeView({
                     }}>{letter}</span>
                   ))}
                 </div>
+                <p style={{ fontSize: 11, color: "var(--muted)", margin: "8px 0 0" }}>
+                  Weeks advance when sessions are completed — not by the calendar.
+                </p>
               </div>
             </div>
           )}

@@ -439,11 +439,13 @@ export function TrainingDrawer({
   // ── Week-grouped queue map data ──
   const weeks: Array<{
     label: string;
+    dateRange: string | null;
     cells: Array<{
       queueIndex: number;
       slotLabel: string;
       fullLabel: string;
       dayLabel: string;
+      scheduledAt: string | null;
       state: "done" | "flag" | "next" | "plain" | "beyond";
       ariaLabel: string;
     }>;
@@ -483,6 +485,7 @@ export function TrainingDrawer({
           slotLabel,
           fullLabel,
           dayLabel,
+          scheduledAt: scheduled?.scheduledAt ?? null,
           state,
           ariaLabel: `${dayLabel ? `${dayLabel}, ` : ""}${fullLabel}${
             state === "next" ? ", next session" : ""
@@ -491,8 +494,18 @@ export function TrainingDrawer({
           }`,
         });
       }
+      const dates = weekCells
+        .filter((c) => c.scheduledAt)
+        .map((c) => c.scheduledAt!)
+        .sort();
+      const dateRange = dates.length > 0
+        ? dates.length === 1
+          ? fmtShortDate(dates[0])
+          : `${fmtShortDate(dates[0])} – ${fmtShortDate(dates[dates.length - 1])}`
+        : null;
       weeks.push({
         label: `Week ${w + 1}`,
+        dateRange,
         cells: weekCells,
       });
     }
@@ -561,6 +574,9 @@ export function TrainingDrawer({
                 <div key={wi} className={`flex items-center gap-3 py-1.5 ${wi > 0 ? "border-t border-[var(--hub-border)]" : ""}`}>
                   <span className="w-[88px] shrink-0 text-[11.5px] font-bold text-[var(--color-muted)]">
                     {week.label}
+                    {week.dateRange && (
+                      <span className="block text-[10px] font-normal normal-case tracking-normal">{week.dateRange}</span>
+                    )}
                   </span>
                   <div className="flex gap-1.5">
                     {week.cells.map((cell) => {
@@ -654,6 +670,11 @@ export function TrainingDrawer({
                   </span>
                 )}
               </div>
+
+              {/* Week-advance legend */}
+              <p className="text-[11px] text-[var(--color-muted)] mt-2 m-0">
+                Weeks advance when sessions are completed — not by the calendar.
+              </p>
             </div>
 
             {/* Beyond-paid note */}
