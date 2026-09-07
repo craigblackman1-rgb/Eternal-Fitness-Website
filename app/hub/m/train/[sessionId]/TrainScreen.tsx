@@ -332,35 +332,10 @@ export function TrainScreen({
     return { total, done, started, doneExCount, pct: total ? Math.round((done / total) * 100) : 0 };
   }, [allSets]);
 
-  // ── Bug fix #3: write started_at on first mount ────────────────
-  const startedRef = useRef(false);
-  useEffect(() => {
-    if (startedRef.current) return;
-    if (sessionLogRef.current?.started_at) return;
-    startedRef.current = true;
-    const d = dataRef.current;
-    if (!d) return;
-    const updatedLog: SessionLog = {
-      completed_at: sessionLogRef.current?.completed_at ?? null,
-      rpe: sessionLogRef.current?.rpe ?? null,
-      fatigue: sessionLogRef.current?.fatigue ?? null,
-      notes: sessionLogRef.current?.notes ?? "",
-      started_at: new Date().toISOString(),
-    };
-    fetch(`/api/sessions/${sessionId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ data: { ...d, session_log: updatedLog } }),
-    })
-      .then((res) => {
-        if (!res.ok) {
-          res.json().then((b) => b?.error).catch(() => null).then((msg) => {
-            console.error("Failed to write started_at:", msg);
-          });
-        }
-      })
-      .catch(() => {});
-  }, [sessionId]);
+  // NOTE (BUG-EF-131): removed mount-time started_at write. The only correct
+  // path to mark a session in-progress is markSessionInProgress() in the
+  // set-logs POST route — called after the first set is actually logged, not
+  // when the screen is opened.
 
   // ── Debounced exercise notes save (bug fix #1) ─────────────────
   const persistExerciseNotes = useCallback(
