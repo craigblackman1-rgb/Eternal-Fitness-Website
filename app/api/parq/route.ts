@@ -6,6 +6,7 @@ import { getEmailSender } from "@/lib/email";
 import { diffParq } from "@/lib/parq-diff";
 import { mintParqLinkParams, verifyParqLink } from "@/lib/parq-link";
 import { parseMedicationsText, mergeMedications } from "@/lib/medications-from-parq";
+import { extractEmergencyContactFromParq, mergeEmergencyContact, type EmergencyContact } from "@/lib/emergency-contact-from-parq";
 import type { SignedPARQ } from "@/types";
 
 const COACH_EMAIL = "esther.fair@eternal-fitness.co.uk";
@@ -277,6 +278,36 @@ export async function POST(request: Request) {
       }
     } catch (medsErr) {
       console.error("[parq:medications]", medsErr);
+    }
+  }
+
+  // CR-EF-148: mirror the document-engine path — extract emergency contact
+  // from PAR-Q fields and merge into client profile.
+  if (result) {
+    try {
+      const clientIdForEc = result.client_id || clientId || null;
+      if (clientIdForEc) {
+        const incoming = extractEmergencyContactFromParq(result as Record<string, unknown>);
+        if (incoming) {
+          const { data: clientRow } = await (id ? createAdminClient() : supabase)
+            .from("clients")
+            .select("profile")
+            .eq("id", clientIdForEc)
+            .maybeSingle();
+
+          if (clientRow) {
+            const profile = (clientRow.profile as Record<string, unknown>) || {};
+            const existing = (profile.emergency_contact as EmergencyContact) || null;
+            profile.emergency_contact = mergeEmergencyContact(existing, incoming);
+            await (id ? createAdminClient() : supabase)
+              .from("clients")
+              .update({ profile })
+              .eq("id", clientIdForEc);
+          }
+        }
+      }
+    } catch (ecErr) {
+      console.error("[parq:emergency-contact]", ecErr);
     }
   }
 

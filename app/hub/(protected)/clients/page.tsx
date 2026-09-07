@@ -17,7 +17,7 @@ import { ClientsScreen, type ClientRow, type QueueItem } from "./ClientsScreen";
 
 const QUIET_DAYS = 7;
 
-export default async function ClientsPage() {
+export default async function ClientsPage({ searchParams }: { searchParams?: { filter?: string } }) {
   const supabase = createClient();
   const pool = getPool();
 
@@ -280,6 +280,8 @@ export default async function ClientsPage() {
       rows={rows}
       queue={queue}
       settledNames={settled.map((r) => r.name)}
+      draftBlockClientIds={new Set(drafts.map((d) => d.number))}
+      activeFilter={searchParams?.filter ?? null}
     />
   );
 }

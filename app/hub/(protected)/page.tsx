@@ -142,7 +142,7 @@ export default async function HubTodayPage() {
       id: "drafts", dot: "warn",
       headline: `${draftRows.length} block${draftRows.length === 1 ? "" : "s"} still in draft`,
       subline: `${names(draftRows)}. None can run until you approve it.`,
-      actionLabel: "Review", href: `/hub/clients/${(draftRows as any[])[0].client_number}`,
+      actionLabel: "Review", href: "/hub/clients?filter=draft-block",
     });
   if (quietRows.length)
     alerts.push({

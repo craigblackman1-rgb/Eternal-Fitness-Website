@@ -4,9 +4,10 @@ import { notFound } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge, TokenPill } from "@/components/hub/StatusBadge";
-import { IconChevronLeft, IconChevronRight, IconFileText, IconCalendar } from "@/components/icons";
+import { IconChevronLeft, IconChevronRight, IconFileText, IconCalendar, IconFileSignature } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
 import { NewDocumentButton } from "./NewDocumentButton";
+import { CopyParqEditLink } from "./CopyParqEditLink";
 import { DOCUMENT_KIND_LABEL, type ClientDocument } from "@/lib/documents/types";
 import { uploadKind, uploadKindLabel, formatBytes } from "@/lib/documents/upload-kind";
 import { OpenUploadButton } from "@/components/hub/OpenUploadButton";
@@ -33,10 +34,18 @@ export default async function ClientDocumentsPage({ params }: { params: { id: st
     .eq("client_id", client.id)
     .order("created_at", { ascending: false });
 
+  // Legacy signed agreements — read-only reference rows with PAR-Q edit link
+  const { data: legacyAgreements } = await supabase
+    .from("signed_agreements")
+    .select("id, client_name, signed_at, parq_completed, medical_clearance")
+    .eq("client_id", client.id)
+    .order("signed_at", { ascending: false });
+
   const documents = (docs || []) as ClientDocument[];
   const uploads = documents.filter((d) => d.source_type === "scan");
   const generated = documents.filter((d) => d.source_type !== "scan");
-  const isEmpty = documents.length === 0;
+  const agreements = (legacyAgreements ?? []) as { id: string; client_name: string; signed_at: string; parq_completed: string; medical_clearance: string }[];
+  const isEmpty = documents.length === 0 && agreements.length === 0;
 
   return (
     <div className="space-y-6">
@@ -161,6 +170,46 @@ export default async function ClientDocumentsPage({ params }: { params: { id: st
               ))}
             </div>
           </div>
+
+          {/* Legacy signed agreements — pre-migration records */}
+          {agreements.length > 0 && (
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground mb-2">
+                Legacy agreements
+              </p>
+              <div className="space-y-3">
+                {agreements.map((a) => (
+                  <Card key={a.id} className="shadow-sm bg-[var(--hub-card)] rounded-surface border border-[var(--hub-border)]">
+                    <CardContent className="flex items-center justify-between p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-pill bg-[var(--hub-hover)] text-muted-foreground flex items-center justify-center shrink-0">
+                          <IconFileSignature className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">Signed Agreement</p>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
+                            <span className="flex items-center gap-1">
+                              <IconCalendar className="h-3 w-3" />
+                              {formatDate(a.signed_at)}
+                            </span>
+                            {a.parq_completed === "yes" && (
+                              <TokenPill token="success" label="PAR-Q filed" />
+                            )}
+                            {a.medical_clearance === "yes" && (
+                              <TokenPill token="success" label="Clearance filed" />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <CopyParqEditLink clientName={client.name} />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

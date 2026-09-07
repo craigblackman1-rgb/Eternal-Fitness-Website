@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { IconUserPlus } from "@/components/icons";
 import { formatFrequencyShort, type Frequency } from "@/types";
 
@@ -70,23 +71,49 @@ export function ClientsScreen({
   rows,
   queue,
   settledNames,
+  draftBlockClientIds,
+  activeFilter,
 }: {
   rows: ClientRow[];
   queue: QueueItem[];
   settledNames: string[];
+  draftBlockClientIds?: Set<number>;
+  activeFilter?: string | null;
 }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
   const [showArchived, setShowArchived] = useState(false);
+  const [filter, setFilter] = useState<string | null>(activeFilter ?? null);
+
+  // Sync URL filter param on mount
+  useEffect(() => {
+    if (activeFilter) setFilter(activeFilter);
+  }, [activeFilter]);
+
+  const setFilterParam = (value: string | null) => {
+    setFilter(value);
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set("filter", value);
+    } else {
+      params.delete("filter");
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   const archivedCount = rows.filter((r) => r.archived).length;
+  const draftCount = draftBlockClientIds?.size ?? 0;
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();
     return rows.filter((r) => {
       if (r.archived && !showArchived) return false;
       if (q && !r.name.toLowerCase().includes(q)) return false;
+      if (filter === "draft-block" && draftBlockClientIds && !draftBlockClientIds.has(r.clientNumber)) return false;
       return true;
     });
-  }, [rows, search, showArchived]);
+  }, [rows, search, showArchived, filter, draftBlockClientIds]);
 
   const needCount = queue.length;
 
@@ -104,6 +131,24 @@ export function ClientsScreen({
           {rows.filter((r) => !r.archived).length} on the books
         </span>
       </div>
+
+      {/* ── Filter chips ── */}
+      {draftCount > 0 && (
+        <div className="flex gap-1.5 mb-3.5">
+          <button
+            type="button"
+            onClick={() => setFilterParam(filter === "draft-block" ? null : "draft-block")}
+            className={`inline-flex items-center gap-1.5 rounded-pill border px-3 py-1 text-[12px] font-semibold transition-colors ${
+              filter === "draft-block"
+                ? "bg-[var(--status-warning-bg)] text-[var(--status-warning-text)] border-[var(--status-warning-border)]"
+                : "bg-white text-[var(--color-muted)] border-[var(--hub-border)] hover:border-[var(--color-ink)]/30"
+            }`}
+          >
+            <span className={`w-[6px] h-[6px] rounded-pill ${filter === "draft-block" ? "bg-[var(--status-warning)]" : "bg-[var(--color-muted)]/40"}`} />
+            {draftCount} block{draftCount === 1 ? "" : "s"} waiting for approval
+          </button>
+        </div>
+      )}
 
       {/* ── Needs you today ── */}
       <div className="bg-white border border-[var(--hub-border)] rounded-surface shadow-[0_1px_2px_rgba(16,24,40,.04),0_1px_3px_rgba(16,24,40,.07)] overflow-hidden mb-3.5">

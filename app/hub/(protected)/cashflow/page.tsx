@@ -6,6 +6,10 @@ import {
   type MatchTransaction,
   type MatchInvoice,
 } from "@/lib/cashflow-matching";
+import { computeForecast } from "@/lib/cashflow-forecast";
+import { currentTaxYear, getTaxYearBounds } from "@/lib/cashflow-tax";
+import { ForecastSection } from "./ForecastSection";
+import { TaxSection } from "./TaxSection";
 
 /* ── S9 Finance overview (design-systems v3/13-finance.html) ──────────────
    Replaces the old four-KPI-tile + tax/forecast-card dashboard. The reality
@@ -101,21 +105,34 @@ export default async function CashflowOverviewPage() {
   const now = new Date();
   const today = now.toISOString().slice(0, 10);
 
-  const [clientsRes, invoicesRes, unmatchedTxnRes, dismissedRes, invoiceCountRes] = await Promise.all([
-    supabase
-      .from("clients")
-      .select(
-        "id, name, client_number, client_status, block_expiry_date, sessions_remaining, sessions_purchased, client_rate, session_duration",
-      )
-      .eq("client_status", "active"),
-    supabase
-      .from("invoices")
-      .select("id, invoice_number, status, total, issue_date, due_date, updated_at, created_at, clients(name, client_number, display_code)")
-      .order("updated_at", { ascending: false }),
-    supabase.from("bank_transactions").select("*").is("matched_invoice_id", null),
-    supabase.from("dismissed_matches").select("bank_transaction_id, invoice_id"),
-    supabase.from("invoices").select("id", { count: "exact", head: true }),
-  ]);
+  const taxYear = currentTaxYear();
+  const taxBounds = getTaxYearBounds(taxYear);
+
+  const [clientsRes, invoicesRes, unmatchedTxnRes, dismissedRes, invoiceCountRes, forecast, taxCalcRes] =
+    await Promise.all([
+      supabase
+        .from("clients")
+        .select(
+          "id, name, client_number, client_status, block_expiry_date, sessions_remaining, sessions_purchased, client_rate, session_duration",
+        )
+        .eq("client_status", "active"),
+      supabase
+        .from("invoices")
+        .select("id, invoice_number, status, total, issue_date, due_date, updated_at, created_at, clients(name, client_number, display_code)")
+        .order("updated_at", { ascending: false }),
+      supabase.from("bank_transactions").select("*").is("matched_invoice_id", null),
+      supabase.from("dismissed_matches").select("bank_transaction_id, invoice_id"),
+      supabase.from("invoices").select("id", { count: "exact", head: true }),
+      computeForecast(),
+      supabase
+        .from("tax_calculations")
+        .select("total_tax_due, taxable_profit")
+        .eq("tax_year", taxYear)
+        .eq("period_type", "annual")
+        .order("calculated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ]);
 
   const clients = (clientsRes.data ?? []) as ClientRow[];
   const allInvoices = (invoicesRes.data ?? []) as InvoiceRow[];
@@ -398,30 +415,26 @@ export default async function CashflowOverviewPage() {
         )}
       </div>
 
+      {/* ── Forecast (merged from /cashflow/forecast) ── */}
+      <ForecastSection forecast={forecast} />
+
+      {/* ── Tax estimate (merged from /cashflow/tax) ── */}
+      <TaxSection
+        taxYear={taxYear}
+        taxBounds={taxBounds}
+        calculation={taxCalcRes.data as { total_tax_due: number; taxable_profit: number } | null}
+      />
+
       {/* ── Elsewhere in Finance ──
-           Reconciliation, Bank transactions, Tax and Forecast are real,
-           built tools — cut from the dashboard framing above, not from the
-           hub. Plain links, not metrics, each carrying the one sentence
-           that says what the tool is for. */}
+           Reconciliation is now a tab on Bank transactions.
+           Tax and Forecast are inlined above. */}
       <div className="flex items-center gap-1.5 flex-wrap py-2.5 px-3 bg-white border border-[var(--hub-border)] rounded-nested shadow-[0_1px_2px_rgba(16,24,40,.04),0_1px_3px_rgba(16,24,40,.07)]">
         <span className="text-[10.5px] font-bold uppercase tracking-wider text-[var(--color-muted)] pr-1">
           Elsewhere
         </span>
-        <Link href="/hub/cashflow/reconciliation" className="flex flex-col px-2.5 py-1.5 rounded-control hover:bg-[var(--hub-hover)] no-underline">
-          <b className="text-[12.5px] font-semibold text-[var(--color-ink)]">Reconciliation</b>
-          <span className="text-[11.5px] text-[var(--color-muted)]">Match bank lines to invoices by hand</span>
-        </Link>
         <Link href="/hub/cashflow/transactions" className="flex flex-col px-2.5 py-1.5 rounded-control hover:bg-[var(--hub-hover)] no-underline">
-          <b className="text-[12.5px] font-semibold text-[var(--color-ink)]">Bank transactions</b>
-          <span className="text-[11.5px] text-[var(--color-muted)]">The imported statement, unmatched and matched</span>
-        </Link>
-        <Link href="/hub/cashflow/tax" className="flex flex-col px-2.5 py-1.5 rounded-control hover:bg-[var(--hub-hover)] no-underline">
-          <b className="text-[12.5px] font-semibold text-[var(--color-ink)]">Tax</b>
-          <span className="text-[11.5px] text-[var(--color-muted)]">An estimate, not advice — depends on categorised transactions</span>
-        </Link>
-        <Link href="/hub/cashflow/forecast" className="flex flex-col px-2.5 py-1.5 rounded-control hover:bg-[var(--hub-hover)] no-underline">
-          <b className="text-[12.5px] font-semibold text-[var(--color-ink)]">Forecast</b>
-          <span className="text-[11.5px] text-[var(--color-muted)]">Projected balance from a manually entered starting point</span>
+          <b className="text-[12.5px] font-semibold text-[var(--color-ink)]">Bank transactions &amp; reconciliation</b>
+          <span className="text-[11.5px] text-[var(--color-muted)]">Import statements, categorise lines, match to invoices</span>
         </Link>
       </div>
     </div>
