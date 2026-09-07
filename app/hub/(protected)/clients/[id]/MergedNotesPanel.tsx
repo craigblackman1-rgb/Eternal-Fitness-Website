@@ -109,11 +109,13 @@ function esc(t: unknown): string {
     .replace(/"/g, "&quot;");
 }
 
-function monthKey(iso: string): string {
+function monthKey(iso: string | undefined | null): string {
+  if (!iso || iso.length < 7) return "__undated";
   return iso.slice(0, 7);
 }
 
-function monthLabel(iso: string): string {
+function monthLabel(iso: string | undefined | null): string {
+  if (!iso || iso.length < 7) return "Undated";
   const p = iso.split("-");
   return new Date(+p[0], +p[1] - 1, 1).toLocaleDateString("en-GB", {
     month: "long",

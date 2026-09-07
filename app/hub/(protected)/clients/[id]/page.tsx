@@ -151,6 +151,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         sessionName: sessName,
         sessionPos: s.session_number != null ? `Session ${s.session_number}` : "",
         sessionDate:
+          (s.scheduled_at as string | null | undefined) ??
           (s.data?.scheduled_at as string | null) ??
           log.completed_at ??
           s.created_at ??
