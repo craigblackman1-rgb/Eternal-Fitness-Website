@@ -16,23 +16,15 @@ import {
   estimateSectionSeconds,
   formatDurationEstimate,
 } from "@/lib/prescription";
-import { defaultUnitForEquipment, isBandEquipment, fromKg } from "@/lib/units";
+import { defaultUnitForEquipment, isBandEquipment } from "@/lib/units";
 import { parseLoad, loadText, prescribedWeight } from "@/lib/load-helpers";
 import {
   type PendingSetLogEntry,
 } from "@/lib/hub/offline-set-log-queue";
 import { saveSetLog, drainSetLogQueue, type SaveSetLogResult } from "@/lib/workout/save-set-log";
 import { completeSession } from "@/lib/workout/complete-session";
+import { displayWeight, exerciseRefKey, mmss, type SectionKey } from "@/lib/workout/helpers";
 import { ExerciseHistoryDrawer } from "./ExerciseHistoryDrawer";
-
-// ── Helpers ──────────────────────────────────────────────────────
-
-function displayWeight(kg: number, unit: "kg" | "lb"): string {
-  const v = Math.round(fromKg(kg, unit) * 10) / 10;
-  return String(v);
-}
-
-type SectionKey = "warm_up" | "main_block" | "cooldown";
 
 const SECTION_DEFS: { key: SectionKey; label: string; color: "teal" | "rose" | "navy" }[] = [
   { key: "warm_up", label: "Warm-up", color: "teal" },
@@ -109,16 +101,6 @@ interface RestTimer {
   mode: "countdown" | "stopwatch";
   elapsed: number;
   seconds: number;
-}
-
-function exerciseRefKey(version: string, section: SectionKey, index: number, name: string): string {
-  return `${version}:${section}:${index}:${name}`;
-}
-
-function mmss(total: number): string {
-  const m = Math.floor(Math.abs(total) / 60);
-  const s = Math.abs(total) % 60;
-  return (total < 0 ? "+" : "") + m + ":" + String(s).padStart(2, "0");
 }
 
 // ── Icons ────────────────────────────────────────────────────────

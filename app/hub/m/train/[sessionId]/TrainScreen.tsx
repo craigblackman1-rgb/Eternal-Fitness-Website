@@ -11,25 +11,12 @@ import { computeGroups, nextGroupLabel, checkSupersetSetCounts } from "@/lib/exe
 import { isTimeBased, parsePrescribedSeconds, parsePrescribedReps, parseRestSeconds, formatPrescription } from "@/lib/prescription";
 import { parseLoad, prescribedWeight } from "@/lib/load-helpers";
 import { sessionDurationMinutes } from "@/lib/scheduling";
-import { defaultUnitForEquipment, isBandEquipment, fromKg } from "@/lib/units";
+import { defaultUnitForEquipment, isBandEquipment } from "@/lib/units";
 import { sessionWorkoutName } from "@/lib/session-display";
 import { type PendingSetLogEntry } from "@/lib/hub/offline-set-log-queue";
 import { saveSetLog, drainSetLogQueue, type SaveSetLogResult } from "@/lib/workout/save-set-log";
 import { completeSession } from "@/lib/workout/complete-session";
-
-/** Round a converted weight to 1 decimal and trim trailing .0 for display. */
-function displayWeight(kg: number, unit: "kg" | "lb"): string {
-  const v = Math.round(fromKg(kg, unit) * 10) / 10;
-  return String(v);
-}
-
-type SectionKey = "warm_up" | "main_block" | "cooldown";
-
-const SECTION_DEFS: { key: SectionKey; label: string; color: "teal" | "rose" | "navy" }[] = [
-  { key: "warm_up", label: "Warm-up", color: "teal" },
-  { key: "main_block", label: "Main Block", color: "rose" },
-  { key: "cooldown", label: "Cooldown", color: "navy" },
-];
+import { displayWeight, exerciseRefKey, mmss, type SectionKey, SECTION_DEFS } from "@/lib/workout/helpers";
 
 interface SetState {
   status: "pending" | "done" | "skipped";
@@ -87,19 +74,9 @@ interface RestTimer {
 
 // ── Helpers ──────────────────────────────────────────────────────
 
-function exerciseRefKey(version: string, section: SectionKey, index: number, name: string): string {
-  return `${version}:${section}:${index}:${name}`;
-}
-
 function leadNum(s: string): number | null {
   const m = /^(\d+)/.exec(String(s).trim());
   return m ? parseInt(m[1], 10) : null;
-}
-
-function mmss(total: number): string {
-  const m = Math.floor(Math.abs(total) / 60);
-  const s = Math.abs(total) % 60;
-  return (total < 0 ? "+" : "") + m + ":" + String(s).padStart(2, "0");
 }
 
 // ── Icons (inline SVG, matching mockup) ─────────────────────────
