@@ -1,13 +1,22 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
-import { MAX_BLOCK_WEEKS, type Session, type Archetype, type Phase, type Exercise } from "@/types";
+import { MAX_BLOCK_WEEKS, type Session, type Archetype, type Phase, type Exercise, type DBSession } from "@/types";
 import { ensureUids } from "@/lib/exercise-ref";
 import { attachSupplementaryWork } from "@/lib/supplementary-attach";
+import { reStampSession, reStampBlockSessions } from "@/lib/programs/delivery";
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // CR-EF-154 P3 — need client_id for re-stamp eligibility check
+  const { data: blockRow } = await supabase
+    .from("blocks")
+    .select("client_id")
+    .eq("id", params.id)
+    .single();
+  const clientId = (blockRow as { client_id: string } | null)?.client_id ?? null;
 
   const { searchParams } = new URL(request.url);
   const countOnly = searchParams.get("count") === "true";
@@ -41,6 +50,19 @@ export async function GET(request: Request, { params }: { params: { id: string }
       .eq("id", sessionId)
       .single();
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+    // CR-EF-154 P3 — re-stamp individual session
+    if (clientId && data) {
+      const { data: allSessions } = await supabase
+        .from("sessions")
+        .select("*")
+        .eq("block_id", params.id)
+        .order("session_number", { ascending: true });
+      if (allSessions) {
+        const reStamped = await reStampSession(data as DBSession, allSessions as DBSession[]);
+        return NextResponse.json(reStamped);
+      }
+    }
     return NextResponse.json(data);
   }
 
@@ -50,11 +72,31 @@ export async function GET(request: Request, { params }: { params: { id: string }
       .is("parent_session_id", null)
       .single();
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+    // CR-EF-154 P3 — re-stamp individual session
+    if (clientId && data) {
+      const { data: allSessions } = await supabase
+        .from("sessions")
+        .select("*")
+        .eq("block_id", params.id)
+        .order("session_number", { ascending: true });
+      if (allSessions) {
+        const reStamped = await reStampSession(data as DBSession, allSessions as DBSession[]);
+        return NextResponse.json(reStamped);
+      }
+    }
     return NextResponse.json(data);
   }
 
   const { data, error } = await baseQuery;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // CR-EF-154 P3 — batch re-stamp all eligible sessions in this block
+  if (clientId && data && data.length > 0) {
+    const reStamped = await reStampBlockSessions(data as DBSession[], clientId);
+    return NextResponse.json(reStamped);
+  }
+
   return NextResponse.json(data);
 }
 
