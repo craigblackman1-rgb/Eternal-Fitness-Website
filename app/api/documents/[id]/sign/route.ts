@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { DOCUMENT_KIND_LABEL, isFullySigned } from "@/lib/documents/types";
 import { getEmailSender } from "@/lib/email";
 import { parseMedicationsText, mergeMedications } from "@/lib/medications-from-parq";
+import { extractEmergencyContactFromParq, mergeEmergencyContact, type EmergencyContact } from "@/lib/emergency-contact-from-parq";
 
 const SITE_ORIGIN = process.env.NEXT_PUBLIC_SITE_URL || "https://eternal-fitness.co.uk";
 
@@ -169,6 +170,40 @@ export async function POST(request: Request, { params }: { params: { id: string 
       }
     } catch (medsErr) {
       console.error("[documents/sign:medications]", medsErr);
+    }
+  }
+
+  // CR-EF-148: when a client signs a PAR-Q, extract emergency contact fields
+  // and merge into the client profile. A failure here must never fail the sign
+  // request — the document is already saved.
+  if (role === "client" && update.status === "signed" && doc.kind === "parq") {
+    try {
+      const answers =
+        feedback_responses && typeof feedback_responses === "object"
+          ? (feedback_responses as Record<string, unknown>).answers
+          : (doc.feedback_responses as Record<string, unknown> | null)?.answers;
+
+      const parqData = answers && typeof answers === "object"
+        ? { feedback_responses: { answers } }
+        : {};
+
+      const incoming = extractEmergencyContactFromParq(parqData);
+      if (incoming) {
+        const { data: clientRow } = await admin
+          .from("clients")
+          .select("profile")
+          .eq("id", doc.client_id)
+          .maybeSingle();
+
+        if (clientRow) {
+          const profile = (clientRow.profile as Record<string, unknown>) || {};
+          const existing = (profile.emergency_contact as EmergencyContact) || null;
+          profile.emergency_contact = mergeEmergencyContact(existing, incoming);
+          await admin.from("clients").update({ profile }).eq("id", doc.client_id);
+        }
+      }
+    } catch (ecErr) {
+      console.error("[documents/sign:emergency-contact]", ecErr);
     }
   }
 
