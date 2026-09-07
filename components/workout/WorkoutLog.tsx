@@ -22,6 +22,7 @@ import {
   type PendingSetLogEntry,
 } from "@/lib/hub/offline-set-log-queue";
 import { saveSetLog, drainSetLogQueue, type SaveSetLogResult } from "@/lib/workout/save-set-log";
+import { completeSession } from "@/lib/workout/complete-session";
 import { ExerciseHistoryDrawer } from "./ExerciseHistoryDrawer";
 
 // ── Helpers ──────────────────────────────────────────────────────
@@ -851,64 +852,48 @@ export function WorkoutLog({
     setCompleting(true);
     const d = dataRef.current;
     if (!d) return;
-    const updatedLog: SessionLog = {
-      completed_at:
-        offDay?.mode === "booked" ? offDay.scheduledAt : new Date().toISOString(),
-      started_at: sessionLogRef.current?.started_at ?? null,
+
+    const result = await completeSession(sessionId, {
       rpe,
       fatigue,
       notes: sessionNotes,
-    };
-    // BUG-EF-132: send only the fields this action owns via data_merge.
-    const mergePatch: Record<string, unknown> = {
-      session_log: updatedLog,
-      exercise_notes: savedNotesRef.current,
-    };
-    const body: Record<string, unknown> = { data_merge: mergePatch };
-    if (offDay) {
-      body.confirm_off_day = true;
-      body.off_day_mode = offDay.mode;
-    }
-    const res = await fetch(`/api/sessions/${sessionId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      startedAt: sessionLogRef.current?.started_at ?? null,
+      exerciseNotes: savedNotesRef.current,
+      offDay,
     });
-    setCompleting(false);
-    if (!res.ok) {
-      const err = await res.json().catch(() => null);
-      if (res.status === 409 && err?.code === "off_day_completion") {
-        const scheduledDate = new Date(err.scheduledAt).toLocaleDateString("en-GB", {
-          timeZone: "Europe/London",
-          weekday: "long",
-          day: "numeric",
-          month: "long",
-        });
-        if (!window.confirm(`This session is booked for ${scheduledDate}, not today. Complete it anyway?`)) {
-          return;
-        }
-        const onBookedDay = window.confirm(
-          `Did it happen on ${scheduledDate}?
 
-OK — record it on ${scheduledDate} (logging from paper)
-Cancel — record it as today`,
-        );
-        return handleComplete({
-          mode: onBookedDay ? "booked" : "today",
-          scheduledAt: err.scheduledAt,
-        });
-      }
-      // BUG-EF-132: idempotent — if already completed, treat as success
-      if (res.status === 403 && err?.error?.includes("read-only")) {
-        setShowComplete(false);
-        toast.success(`Session ${sessionNumber} marked complete.`);
+    setCompleting(false);
+
+    if (result.kind === "off_day") {
+      if (!window.confirm(`This session is booked for ${result.scheduledDateLabel}, not today. Complete it anyway?`)) {
         return;
       }
-      toast.error(err?.error || "Failed to mark session complete");
+      const onBookedDay = window.confirm(
+        `Did it happen on ${result.scheduledDateLabel}?
+
+OK — record it on ${result.scheduledDateLabel} (logging from paper)
+Cancel — record it as today`,
+      );
+      return handleComplete({
+        mode: onBookedDay ? "booked" : "today",
+        scheduledAt: result.scheduledAt,
+      });
+    }
+
+    if (result.kind === "already_completed") {
+      setShowComplete(false);
+      toast.success(`Session ${sessionNumber} marked complete.`);
       return;
     }
+
+    if (result.kind === "error") {
+      toast.error(result.message);
+      return;
+    }
+
+    // success
     setShowComplete(false);
-    onSessionLogChange(updatedLog);
+    onSessionLogChange(result.updatedLog);
     toast.success(`Session ${sessionNumber} marked complete.`);
   };
 
