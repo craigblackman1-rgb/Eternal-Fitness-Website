@@ -29,6 +29,7 @@ interface ClientRecordShellProps {
   blockSessionCounts: Record<number, number>;
   blockCompletedCounts: Record<number, number>;
   blockDateRangeLabel: string;
+  nextSession: DBSession | null;
   trainerizeHistory: TrainerizeHistoryData;
   pendingTaskCount: number;
   draftBlockCount: number;
@@ -119,6 +120,7 @@ export function ClientRecordShell({
   blockSessionCounts,
   blockCompletedCounts,
   blockDateRangeLabel,
+  nextSession,
   trainerizeHistory,
   pendingTaskCount,
   draftBlockCount,
@@ -303,6 +305,7 @@ export function ClientRecordShell({
           flaggedSessionIds={flaggedSessionIds}
           activeProgramId={activeProgramId}
           clientId={client.id}
+          serverNextSession={nextSession}
         />
       </div>
 

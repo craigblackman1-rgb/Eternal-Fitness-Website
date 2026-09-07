@@ -39,6 +39,8 @@ interface TrainingSummaryProps {
   flaggedSessionIds: Set<string>;
   activeProgramId: string | null;
   clientId: string;
+  /** BUG-EF-138 — server-computed next session to avoid hydration mismatch. */
+  serverNextSession?: DBSession | null;
 }
 
 export function TrainingSummary({
@@ -58,6 +60,7 @@ export function TrainingSummary({
   flaggedSessionIds,
   activeProgramId,
   clientId,
+  serverNextSession,
 }: TrainingSummaryProps) {
   const { openDrawer, openWorkoutDrawer } = useDrawerManager();
 
@@ -80,8 +83,9 @@ export function TrainingSummary({
   const programWeeks = programState?.program?.weeks ?? 1;
   const programName = programState?.program?.name ?? "";
 
-  // Next session from block sessions
-  const nextSession = (() => {
+  // BUG-EF-138 — use the server-computed next session to avoid hydration
+  // mismatch from Date.now() diverging between server render and client hydrate.
+  const nextSession = serverNextSession ?? (() => {
     if (!latestBlock) return null;
     const now = Date.now();
     return blockSessions

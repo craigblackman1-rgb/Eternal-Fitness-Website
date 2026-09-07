@@ -586,6 +586,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       blockSessionCounts={blockSessionCounts}
       blockCompletedCounts={blockCompletedCounts}
       blockDateRangeLabel={latestBlockDateRangeLabel}
+      nextSession={nextSession ? (nextSession as DBSession) : null}
       trainerizeHistory={trainerizeHistory}
       pendingTaskCount={pendingTaskCount}
       draftBlockCount={draftBlockCount}
