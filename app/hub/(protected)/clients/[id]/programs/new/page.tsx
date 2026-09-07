@@ -174,10 +174,7 @@ export default async function PlanNewProgrammePage({
           <div className="sec-body">
             <div className="pn-choice">
               {/* 1. Plan Agent */}
-              <Link
-                href={`/hub/clients/${client.client_number}/plan-agent`}
-                className="pn-choice-card"
-              >
+              <div className="pn-choice-card">
                 <div className="pn-choice-icon rose">
                   <svg
                     width="20"
@@ -206,17 +203,17 @@ export default async function PlanNewProgrammePage({
                   have shifted since the last block.
                 </p>
                 <div className="pn-choice-actions">
-                  <span className="btn btn-primary btn-sm">
+                  <Link
+                    href={`/hub/clients/${client.client_number}/plan-agent`}
+                    className="btn btn-primary btn-sm"
+                  >
                     Open Plan Agent
-                  </span>
+                  </Link>
                 </div>
-              </Link>
+              </div>
 
               {/* 2. Programme template */}
-              <Link
-                href={`/hub/programs?client=${client.client_number}`}
-                className="pn-choice-card"
-              >
+              <div className="pn-choice-card">
                 <div className="pn-choice-icon teal">
                   <svg
                     width="20"
@@ -245,24 +242,23 @@ export default async function PlanNewProgrammePage({
                   you&apos;re reusing something that worked.
                 </p>
                 <div className="pn-choice-actions">
-                  <span className="btn btn-outline btn-sm">
+                  <Link
+                    href={`/hub/programs?client=${client.client_number}`}
+                    className="btn btn-outline btn-sm"
+                  >
                     Browse programmes
-                  </span>
+                  </Link>
                   <Link
                     href="/hub/programs/import"
                     className="btn btn-outline btn-sm"
-                    onClick={(e) => e.stopPropagation()}
                   >
                     Import a plan
                   </Link>
                 </div>
-              </Link>
+              </div>
 
               {/* 3. Hand-build */}
-              <Link
-                href={`/hub/clients/${client.client_number}/add-workout`}
-                className="pn-choice-card"
-              >
+              <div className="pn-choice-card">
                 <div className="pn-choice-icon amber">
                   <svg
                     width="20"
@@ -289,11 +285,14 @@ export default async function PlanNewProgrammePage({
                   shape.
                 </p>
                 <div className="pn-choice-actions">
-                  <span className="btn btn-outline btn-sm">
+                  <Link
+                    href={`/hub/clients/${client.client_number}/add-workout`}
+                    className="btn btn-outline btn-sm"
+                  >
                     Build workouts
-                  </span>
+                  </Link>
                 </div>
-              </Link>
+              </div>
             </div>
           </div>
         </div>
