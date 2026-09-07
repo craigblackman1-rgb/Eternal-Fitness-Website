@@ -9,6 +9,7 @@ import { isBandEquipment } from "@/lib/units";
 import { computeGroups, nextGroupLabel, normalizeGroups, checkSupersetSetCounts } from "@/lib/exercise-groups";
 import { formatPrescription } from "@/lib/prescription";
 import { sessionWorkoutName } from "@/lib/session-display";
+import { saveSessionVersions, buildVersionsMergeBody } from "@/lib/workout/save-versions";
 import type { ExerciseEntry } from "@/app/hub/(protected)/exercises/page";
 
 // ── Types ─────────────────────────────────────────────────────────
@@ -534,23 +535,10 @@ export function EditSheet({
     }
 
     if (hasChanges && data) {
-      const updatedData = {
-        ...data,
-        versions: { ...data.versions, [version]: sections },
-      };
-      try {
-        const res = await fetch(`/api/sessions/${sessionId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ data_merge: { versions: updatedData.versions } }),
-        });
-        if (!res.ok) {
-          const msg = await res.json().then((b) => b?.error).catch(() => null);
-          toast.error(msg || "Couldn't save changes");
-          return;
-        }
-      } catch {
-        toast.error("Couldn't save changes — check your connection and try again.");
+      const body = buildVersionsMergeBody(data, version, sections);
+      const result = await saveSessionVersions(sessionId, body);
+      if (result.kind === "error") {
+        toast.error(result.message);
         return;
       }
     }

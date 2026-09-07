@@ -18,6 +18,7 @@ import type { DBSession, SessionLog, SessionVersion, SetLog, Exercise } from "@/
 import type { Band } from "@/lib/bands";
 import type { LastSessionPrefill, PbMetadata } from "@/lib/last-session-data";
 import { SessionEditor } from "./SessionEditor";
+import { saveSessionVersions, buildVersionsFullBody } from "@/lib/workout/save-versions";
 import { AddWorkoutDialog } from "../../AddWorkoutDialog";
 import { WorkoutLog } from "@/components/workout/WorkoutLog";
 import { estimateSessionSeconds, formatDurationEstimate } from "@/lib/prescription";
@@ -256,23 +257,16 @@ export default function SessionViewPage({
    *  SessionEditor's "Save changes". Only the version being edited is touched. */
   const saveSessionEdit = async (version: "studio" | "home", updated: SessionVersion): Promise<boolean> => {
     if (!session) return false;
+    const body = buildVersionsFullBody(session.data, version, updated);
+    const result = await saveSessionVersions(session.id, body);
+    if (result.kind === "error") {
+      toast.error(result.message);
+      return false;
+    }
     const updatedData = {
       ...session.data,
       versions: { ...session.data.versions, [version]: updated },
     };
-    const res = await fetch(`/api/sessions/${session.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ data: updatedData }),
-    });
-    if (!res.ok) {
-      // Surface the server's actual reason (e.g. "session is completed and
-      // read-only") instead of a generic failure toast that hides why the
-      // save was rejected — this masked the completed-session guard entirely.
-      const message = await res.json().then((b) => b?.error).catch(() => null);
-      toast.error(message || "Failed to save session");
-      return false;
-    }
     setSession({ ...session, data: updatedData });
     setMode("log");
     toast.success("Session saved");
