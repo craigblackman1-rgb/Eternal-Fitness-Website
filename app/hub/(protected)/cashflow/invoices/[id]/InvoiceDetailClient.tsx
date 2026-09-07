@@ -92,16 +92,16 @@ export function InvoiceDetailClient({ invoice, lineItems, deliveryHistory }: Inv
             </Button>
             {isDraft ? (
               <>
-                <Button
-                  variant="outline"
-                  className="rounded-lg gap-1.5"
-                  disabled
-                  title="Invoice editing is not yet available — use the API to update draft invoices"
-                  aria-label="Edit invoice (not yet available)"
-                >
-                  <IconEdit3 className="h-4 w-4" />
-                  Edit
-                </Button>
+                <Link href={`/hub/cashflow/invoices/${invoice.id}/edit`}>
+                  <Button
+                    variant="outline"
+                    className="rounded-lg gap-1.5"
+                    aria-label="Edit invoice"
+                  >
+                    <IconEdit3 className="h-4 w-4" />
+                    Edit
+                  </Button>
+                </Link>
                 <Button
                   variant="outline"
                   className="rounded-lg gap-1.5"
