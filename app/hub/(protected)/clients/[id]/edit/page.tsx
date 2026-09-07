@@ -551,7 +551,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    Which band set this client uses for banded exercises. PBs compare by actual tension (kg),
+                    Which band set this client uses for banded exercises. PBs compare by actual tension (lb),
                     so a client switching sets won&apos;t lose their history.
                   </p>
                 </div>

@@ -293,7 +293,7 @@ export function BandManager({ initialBandSets, initialBands, initialSelectedSetI
           />
         </div>
         <div className="flex flex-col gap-[5px]">
-          <Label className="text-xs font-semibold text-foreground" htmlFor="bandKg">Tension (kg)</Label>
+          <Label className="text-xs font-semibold text-foreground" htmlFor="bandKg">Tension (lb)</Label>
           <Input
             id="bandKg"
             type="number"
@@ -412,7 +412,7 @@ export function BandManager({ initialBandSets, initialBands, initialSelectedSetI
                               step="0.1"
                               value={editTensionKg}
                               onChange={(e) => setEditTensionKg(e.target.value)}
-                              placeholder="kg"
+                              placeholder="lb"
                               className="h-7 rounded-lg border-[var(--hub-field-border)] bg-[var(--hub-card)] focus:border-rose focus:ring-rose/30 font-[inherit] text-xs"
                             />
                           </div>
@@ -477,7 +477,7 @@ export function BandManager({ initialBandSets, initialBands, initialSelectedSetI
                           <div className="flex flex-col">
                             <span className="text-[var(--color-body)]">{item.tension_label}</span>
                             {item.tension_kg != null && (
-                              <span className="text-xs text-muted-foreground">{item.tension_kg} kg</span>
+                              <span className="text-xs text-muted-foreground">{item.tension_kg} lb</span>
                             )}
                           </div>
                         </td>
