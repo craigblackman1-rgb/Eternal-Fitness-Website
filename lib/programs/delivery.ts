@@ -38,6 +38,9 @@ function sectionGroupLabel(section: ProgramSection): string | undefined {
   return undefined;
 }
 
+/** program_repeat can be stored as boolean true or string "true" depending on source. */
+const isRepeat = (v: unknown) => v === true || v === "true";
+
 /**
  * Convert ProgramExercise → Exercise, filling required fields with empty
  * defaults. Preserves exercise_name, sets, reps, load, group_label.
@@ -208,7 +211,7 @@ export async function reStampSession(
     .is("parent_session_id", null);
 
   const completed = (completedRows ?? []).filter(
-    (r: { data?: Record<string, unknown> }) => r.data?.program_repeat !== "true",
+    (r: { data?: Record<string, unknown> }) => !isRepeat(r.data?.program_repeat),
   ).length;
 
   // 5. Rank this session among upcoming booked sessions.
@@ -389,7 +392,7 @@ export async function reStampBlockSessions(
     .is("parent_session_id", null);
 
   const completed = (completedRows ?? []).filter(
-    (r: { data?: Record<string, unknown> }) => r.data?.program_repeat !== "true",
+    (r: { data?: Record<string, unknown> }) => !isRepeat(r.data?.program_repeat),
   ).length;
 
   // 6. Rank all upcoming sessions — scheduled sessions do NOT carry

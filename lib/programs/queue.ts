@@ -17,6 +17,9 @@ import type {
 } from './types';
 import { resolveQueue } from './resolve';
 
+/** program_repeat can be stored as boolean true or string "true" depending on source. */
+const isRepeat = (v: unknown) => v === true || v === 'true';
+
 // ─────────────────────────────────────────────────────────────────────
 // DB-backed: getClientProgramState
 // ─────────────────────────────────────────────────────────────────────
@@ -72,7 +75,7 @@ export async function getClientProgramState(
   if (countErr) return null;
 
   const completedCount = (completedRows ?? []).filter(
-    (r: { data?: Record<string, unknown> }) => r.data?.program_repeat !== 'true',
+    (r: { data?: Record<string, unknown> }) => !isRepeat(r.data?.program_repeat),
   ).length;
   const slotCount = slots.length;
   const queue = resolveQueue(program as DBProgram, slots as DBProgramSlot[], completedCount);
