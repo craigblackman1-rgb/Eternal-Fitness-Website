@@ -12,22 +12,15 @@
 import { supabase } from "@/lib/supabase";
 import { ensureUids } from "@/lib/exercise-ref";
 import { backfillExerciseMedia } from "@/lib/exercise-media";
-import { resolveQueue, resolveSlotForWeek } from "./resolve";
+import { resolveSlotForWeek } from "./resolve";
 import type {
   DBProgram,
   DBProgramSlot,
   SlotData,
   ProgramExercise,
   ProgramSection,
-  QueueState,
 } from "./types";
 import type { DBSession, Session, SessionVersion, Exercise, DeliveryMode } from "@/types";
-
-// ─────────────────────────────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────────────────────────────
-
-type PgClient = { from: (table: string) => ReturnType<typeof import("@/lib/pg-client").createPgClient>["from"] };
 
 // ─────────────────────────────────────────────────────────────────────
 // Helpers
@@ -126,7 +119,9 @@ function slotToSessionVersion(
  */
 function isEligible(session: DBSession, hasActiveProgram: boolean): boolean {
   if (!hasActiveProgram) return false;
-  if (!session.program_id) return false;
+  // NOTE: do NOT gate on session.program_id — in production, scheduled sessions
+  // do not carry program_id (it's stamped at completion). The caller already
+  // verified the client has an active programme.
   if (session.completed_at) return false;
   if (session.cancelled_at) return false;
   if (session.status === "completed" || session.status === "cancelled" || session.status === "in_progress") return false;
@@ -199,21 +194,25 @@ export async function reStampSession(
 
   const slotCount = slots.length;
 
-  // 4. Count completed sessions
+  // 4. Count completed sessions — match TrainingDrawer/queue-display logic:
+  //    ALL completed non-supplementary sessions, regardless of program_id.
+  //    (Scheduled sessions don't carry program_id; completed ones usually do,
+  //    but the count must match the UI's "completed" filter exactly.)
   const { count: completedCount } = await supabase
     .from("sessions")
     .select("id", { count: "exact", head: true })
-    .eq("program_id", programId)
-    .eq("status", "completed")
+    .eq("block_id", session.block_id)
+    .not("completed_at", "is", null)
     .is("parent_session_id", null);
 
   const completed = completedCount ?? 0;
 
-  // 5. Rank this session among upcoming booked sessions
+  // 5. Rank this session among upcoming booked sessions.
+  //    Scheduled sessions do NOT carry program_id in production — filter by
+  //    scheduling state only (scoped to the block, which belongs to this client).
   const upcomingSessions = blockSessions
     .filter(
       (s) =>
-        s.program_id === programId &&
         s.scheduled_at &&
         !s.completed_at &&
         !s.cancelled_at &&
@@ -234,23 +233,26 @@ export async function reStampSession(
     (program as DBProgram).weeks,
   );
 
-  // 6. Check if stamp is stale
-  const currentPosition = session.program_slot_id
+  // 6. Derive the expected rotation slot and archetype from the resolved position
+  const rotationIndex = ((expectedPosition - 1) % slotCount) + 1;
+  const expectedArchetype = String.fromCharCode(64 + rotationIndex); // 1→'A', 2→'B', ...
+
+  // 7. Check if stamp is stale — compare like with like:
+  //    current rotation slot vs expected rotation slot, week vs week, archetype vs archetype
+  const currentRotationIndex = session.program_slot_id
     ? (slots as DBProgramSlot[]).find((sl) => sl.id === session.program_slot_id)
         ?.position
     : null;
-  const currentWeek = session.week;
 
   if (
-    currentPosition === expectedPosition &&
-    currentWeek === expectedWeek &&
-    session.archetype !== null
+    currentRotationIndex === rotationIndex &&
+    session.week === expectedWeek &&
+    session.archetype === expectedArchetype
   ) {
     return session; // stamp is current
   }
 
-  // 7. Resolve the slot for the expected position
-  const rotationIndex = ((expectedPosition - 1) % slotCount) + 1;
+  // 8. Resolve the slot for the expected position
   const slot = (slots as DBProgramSlot[]).find(
     (sl) => sl.position === rotationIndex,
   );
@@ -258,10 +260,10 @@ export async function reStampSession(
 
   const resolved = resolveSlotForWeek(slot.data, expectedWeek);
 
-  // 8. Fetch exercise history from most recent stamped session of same archetype
-  const exerciseMetaByName = await fetchExerciseMeta(clientId, session.archetype);
+  // 9. Fetch exercise history from most recent stamped session of same archetype
+  const exerciseMetaByName = await fetchExerciseMeta(clientId, expectedArchetype);
 
-  // 9. Build session data from slot
+  // 10. Build session data from slot
   const versions: Session["versions"] = {
     studio: slotToSessionVersion(resolved, exerciseMetaByName),
     home: slotToSessionVersion(resolved, exerciseMetaByName),
@@ -285,12 +287,12 @@ export async function reStampSession(
     newData.exercise_notes = (session.data as Session).exercise_notes;
   }
 
-  // 10. Write the update
+  // 11. Write the update
   const { data: updated } = await supabase
     .from("sessions")
     .update({
       data: newData,
-      archetype: session.archetype, // preserve existing archetype
+      archetype: expectedArchetype,
       week: expectedWeek,
       program_id: programId,
       program_slot_id: slot.id,
@@ -371,21 +373,22 @@ export async function reStampBlockSessions(
   const slotCount = slots.length;
   const programWeeks = (program as DBProgram).weeks;
 
-  // 5. Count completed sessions (once)
+  // 5. Count completed sessions — match TrainingDrawer/queue-display logic:
+  //    ALL completed non-supplementary sessions, regardless of program_id.
   const { count: completedCount } = await supabase
     .from("sessions")
     .select("id", { count: "exact", head: true })
-    .eq("program_id", activeProgramId)
-    .eq("status", "completed")
+    .eq("block_id", sessions[0]?.block_id ?? "")
+    .not("completed_at", "is", null)
     .is("parent_session_id", null);
 
   const completed = completedCount ?? 0;
 
-  // 6. Rank all upcoming sessions
+  // 6. Rank all upcoming sessions — scheduled sessions do NOT carry
+  //    program_id in production; filter by scheduling state only.
   const upcomingSessions = sessions
     .filter(
       (s) =>
-        s.program_id === activeProgramId &&
         s.scheduled_at &&
         !s.completed_at &&
         !s.cancelled_at &&
@@ -413,20 +416,25 @@ export async function reStampBlockSessions(
       programWeeks,
     );
 
-    const currentPosition = session.program_slot_id
+    // Derive the expected rotation slot and archetype from the resolved position
+    const rotationIndex = ((expectedPosition - 1) % slotCount) + 1;
+    const expectedArchetype = String.fromCharCode(64 + rotationIndex); // 1→'A', 2→'B', ...
+
+    // Check if stamp is stale — compare like with like:
+    // current rotation slot vs expected rotation slot, week vs week, archetype vs archetype
+    const currentRotationIndex = session.program_slot_id
       ? (slots as DBProgramSlot[]).find((sl) => sl.id === session.program_slot_id)
           ?.position
       : null;
 
     if (
-      currentPosition === expectedPosition &&
+      currentRotationIndex === rotationIndex &&
       session.week === expectedWeek &&
-      session.archetype !== null
+      session.archetype === expectedArchetype
     ) {
       continue; // stamp is current
     }
 
-    const rotationIndex = ((expectedPosition - 1) % slotCount) + 1;
     const slot = (slots as DBProgramSlot[]).find(
       (sl) => sl.position === rotationIndex,
     );
@@ -434,15 +442,14 @@ export async function reStampBlockSessions(
 
     const resolved = resolveSlotForWeek(slot.data, expectedWeek);
 
-    // Lazy-load exercise meta per archetype
-    const archKey = session.archetype ?? "";
-    if (!exerciseMetaCache.has(archKey)) {
+    // Lazy-load exercise meta per derived archetype
+    if (!exerciseMetaCache.has(expectedArchetype)) {
       exerciseMetaCache.set(
-        archKey,
-        await fetchExerciseMeta(clientId, session.archetype),
+        expectedArchetype,
+        await fetchExerciseMeta(clientId, expectedArchetype),
       );
     }
-    const exerciseMeta = exerciseMetaCache.get(archKey)!;
+    const exerciseMeta = exerciseMetaCache.get(expectedArchetype)!;
 
     const versionKey: "studio" | "home" =
       deliveryMode === "home_training" ? "home" : "studio";
@@ -483,7 +490,7 @@ export async function reStampBlockSessions(
       .from("sessions")
       .update({
         data: newData,
-        archetype: session.archetype,
+        archetype: expectedArchetype,
         week: expectedWeek,
         program_id: activeProgramId,
         program_slot_id: slot.id,

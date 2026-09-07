@@ -27,9 +27,12 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   const { data, error } = await supabase.from("sessions").select("*").eq("id", params.id).single();
   if (error || !data) return NextResponse.json({ error: "Session not found" }, { status: 404 });
 
-  // CR-EF-154 P3 — re-stamp if the session belongs to a program queue
+  // CR-EF-154 P3 — re-stamp if the session belongs to a block with an
+  // active programme. Gate on block_id only — scheduled sessions do NOT
+  // carry program_id in production (it's stamped at completion).
+  // reStampSession verifies the client's active_program_id internally.
   const sessionRow = data as DBSession;
-  if (sessionRow.block_id && sessionRow.program_id) {
+  if (sessionRow.block_id) {
     const { data: blockSessions } = await supabase
       .from("sessions")
       .select("*")
