@@ -7,7 +7,7 @@ export default async function TrainTabPage() {
 
   const { data: sessionRows } = await supabase
     .from("sessions")
-    .select("id, data, scheduled_at, cancelled_at")
+    .select("id, data, scheduled_at, cancelled_at, status, completed_at")
     .not("scheduled_at", "is", null)
     .is("cancelled_at", null)
     .is("parent_session_id", null);
@@ -18,6 +18,8 @@ export default async function TrainTabPage() {
       session_log?: { started_at?: string | null; completed_at?: string | null } | null;
     } | null;
     scheduled_at: string;
+    status?: string | null;
+    completed_at?: string | null;
   }[];
 
   // Normalise to strict ISO-8601 (offset-preserving) so WebKit (iOS Safari)
@@ -38,7 +40,9 @@ export default async function TrainTabPage() {
     .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime());
 
   const inProgress = todaySessions.find(
-    (s) => s.data?.session_log?.started_at && !s.data?.session_log?.completed_at,
+    (s) =>
+      s.status === "in_progress" ||
+      (!s.status && s.data?.session_log?.started_at && !s.data?.session_log?.completed_at),
   );
   const nextUpcoming = todaySessions.find((s) => !s.data?.session_log?.completed_at);
 

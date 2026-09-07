@@ -30,7 +30,10 @@ export function SubSessionRow({ subSession, clientId, blockId }: SubSessionRowPr
 
   // Derive logged state from session-level signals (set_logs not available here).
   const hasSessionLog = !!subSession.data?.session_log?.completed_at;
-  const hasStarted = !!subSession.data?.session_log?.started_at;
+  const hasStarted =
+    subSession.status === "in_progress" ||
+    !!subSession.started_at ||
+    !!subSession.data?.session_log?.started_at;
 
   let stateLabel: string;
   let stateClass: string;
