@@ -155,6 +155,7 @@ export function TrainScreen({
   bands,
   initialSessionNote,
   initialSessionNoteId,
+  subSessions = [],
 }: {
   sessionId: string;
   sessionNumber: number;
@@ -185,6 +186,8 @@ export function TrainScreen({
   /** BUG-EF-107 — id of the latest client_notes row, so re-saving can update
    *  instead of insert. */
   initialSessionNoteId?: string | null;
+  /** CR-EF-169 — child sub-sessions (supplementary work) attached to this session */
+  subSessions?: { id: string; name: string; exerciseCount: number }[];
 }) {
   const version = deliveryMode === "home_training" ? "home" : "studio";
   const sections = data?.versions?.[version] ?? { warm_up: [], main_block: [], cooldown: [] };
@@ -1514,6 +1517,42 @@ Cancel — record it as today`,
           Group as superset
         </button>
       </div>
+
+      {/* ── CR-EF-169: Supplementary sub-sessions ────────────────── */}
+      {subSessions && subSessions.length > 0 && (
+        <div className="sub-sessions" style={{ padding: "16px 16px 0" }}>
+          <div className="sub-sessions-header" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, padding: "10px 12px", background: "var(--rose-bg, rgba(193,131,159,.08))", borderRadius: 10, border: "1px solid var(--rose-border, rgba(193,131,159,.2))" }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--rose, #c1839f)" }}>Also in this session</span>
+            <span style={{ fontSize: 11, color: "var(--muted, #6b7280)" }}>+{subSessions.length} supplementary</span>
+          </div>
+          {subSessions.map((sub) => (
+            <Link
+              key={sub.id}
+              href={`/hub/m/train/${sub.id}`}
+              className="sub-session-row"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "10px 12px",
+                marginBottom: 6,
+                background: "var(--card, #fff)",
+                border: "1px solid var(--border, #e5e7eb)",
+                borderRadius: 10,
+                textDecoration: "none",
+                color: "inherit",
+              }}
+            >
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--rose, #c1839f)", flexShrink: 0 }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sub.name}</div>
+                <div style={{ fontSize: 11, color: "var(--muted, #6b7280)" }}>{sub.exerciseCount} exercise{sub.exerciseCount !== 1 ? "s" : ""}</div>
+              </div>
+              <span style={{ fontSize: 11, color: "var(--teal, #14b8a6)", fontWeight: 600 }}>Open →</span>
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* ── Bottom action bar ─────────────────────────────────────── */}
       <div className="action-bar">

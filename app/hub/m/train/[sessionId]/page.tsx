@@ -10,7 +10,14 @@ import { ensureUids } from "@/lib/exercise-ref";
 import { getPool } from "@/lib/pg-client";
 import { toIsoTimestamp } from "@/lib/pg-timestamp";
 import { reStampSession } from "@/lib/programs/delivery";
+import { sessionWorkoutName } from "@/lib/session-display";
 import { TrainScreen } from "./TrainScreen";
+
+type SubSessionSummary = {
+  id: string;
+  name: string;
+  exerciseCount: number;
+};
 
 export default async function TrainSessionPage({ params }: { params: { sessionId: string } }) {
   const supabase = createClient();
@@ -107,6 +114,27 @@ export default async function TrainSessionPage({ params }: { params: { sessionId
   const sessionLog = sessionData?.session_log ?? null;
   const deliveryMode: DeliveryMode = client?.delivery_mode ?? "studio_1to1";
 
+  // CR-EF-169 — fetch child sub-sessions for the supplementary work section
+  const subSessions: SubSessionSummary[] = [];
+  {
+    const { data: childSessions } = await supabase
+      .from("sessions")
+      .select("id, data")
+      .eq("parent_session_id", params.sessionId);
+    for (const child of childSessions ?? []) {
+      const version = deliveryMode === "home_training" ? "home" : "studio";
+      const ver = child.data?.versions?.[version] ?? child.data?.versions?.studio;
+      const exerciseCount = ver
+        ? (ver.warm_up?.length ?? 0) + (ver.main_block?.length ?? 0) + (ver.cooldown?.length ?? 0)
+        : 0;
+      subSessions.push({
+        id: child.id,
+        name: sessionWorkoutName(child as any, "Supplementary work"),
+        exerciseCount,
+      });
+    }
+  }
+
   // Resolve exercise thumbnails/video links by name from the exercises library
   // before rendering — AI-generated sessions never embed media, so backfill the
   // version TrainScreen will actually render (home vs studio).
@@ -154,6 +182,7 @@ export default async function TrainSessionPage({ params }: { params: { sessionId
       bands={bands}
       initialSessionNote={sessionClientNote}
       initialSessionNoteId={sessionClientNoteId}
+      subSessions={subSessions}
     />
   );
 }

@@ -217,6 +217,17 @@ export default async function MobileClientModePage({ params }: { params: { id: s
   const exerciseTrends = buildExerciseTrends(combinedSetLogs, trendSessionMeta);
   const exerciseTrendSummary = buildExerciseTrendSummary(exerciseTrends);
 
+  // CR-EF-169 — count sub-sessions per parent for the "+N supplementary" marker
+  const subSessionCountByParent = new Map<string, number>();
+  for (const s of sessions) {
+    if (s.parent_session_id) {
+      subSessionCountByParent.set(
+        s.parent_session_id,
+        (subSessionCountByParent.get(s.parent_session_id) ?? 0) + 1,
+      );
+    }
+  }
+
   const exerciseNotes: AggregatedExerciseNote[] = aggregateExerciseNotes(sessions as any);
 
   // CR-EF-098 — session-level notes for the merged notes pane
@@ -373,6 +384,7 @@ export default async function MobileClientModePage({ params }: { params: { id: s
       time: scheduledDate ? scheduledDate.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : null,
       chargedFree: s.charged_free ?? null,
       cancelReason: s.cancel_reason ?? null,
+      subSessionCount: subSessionCountByParent.get(s.id) ?? 0,
     };
   });
 

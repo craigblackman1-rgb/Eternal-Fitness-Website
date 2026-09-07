@@ -48,6 +48,7 @@ export interface SessionView {
   time: string | null;
   chargedFree: "charged" | "free" | null;
   cancelReason: string | null;
+  subSessionCount: number;
 }
 
 export interface PoolWorkoutView {
@@ -1026,6 +1027,11 @@ function SessionRow({ session: s, firstName, nextPool, clientNumber }: { session
             <span className="next-hint">
               {ICO.arrowRight}
               Up next: {nextPool.name}
+            </span>
+          )}
+          {s.subSessionCount > 0 && (
+            <span className="cost-flag" style={{ color: "var(--rose, #c1839f)", background: "rgba(193,131,159,.1)", border: "1px solid rgba(193,131,159,.2)" }}>
+              +{s.subSessionCount} supplementary
             </span>
           )}
         </div>
