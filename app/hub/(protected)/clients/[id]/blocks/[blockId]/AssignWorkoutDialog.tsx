@@ -36,6 +36,8 @@ interface BlockSession {
     };
   };
   scheduled_at: string | null;
+  /** CR-EF-165 — ISO date of last use for this workout name. */
+  last_used_at?: string | null;
 }
 
 interface AssignWorkoutDialogProps {
@@ -307,6 +309,11 @@ export function AssignWorkoutDialog({
                       <p className="text-sm font-semibold text-foreground truncate">{label}</p>
                       <p className="text-xs text-muted-foreground">
                         {s.archetype ? `${s.archetype} · ` : ""}{formatDate(s.scheduled_at)}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {s.last_used_at
+                          ? `Last used ${new Date(s.last_used_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
+                          : "Never used"}
                       </p>
                     </div>
                     {isAssigningThis && <span className="text-xs text-muted-foreground shrink-0">Copying...</span>}

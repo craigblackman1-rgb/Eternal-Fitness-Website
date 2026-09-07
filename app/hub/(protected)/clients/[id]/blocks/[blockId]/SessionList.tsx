@@ -58,6 +58,8 @@ interface SessionListProps {
   sessionsRemaining?: number | null;
   setCountsBySession?: Record<string, number>;
   pbCountsBySession?: Record<string, number>;
+  /** CR-EF-165 — last-used dates keyed by normalised focus_label. */
+  lastUsedMap?: Map<string, string | null>;
 }
 
 function sessionStatus(s: SessionItem): SessionStatus {
@@ -115,6 +117,7 @@ export function SessionList({
   sessionsRemaining = null,
   setCountsBySession = {},
   pbCountsBySession = {},
+  lastUsedMap = new Map(),
 }: SessionListProps) {
   const router = useRouter();
   const [chooserSessionId, setChooserSessionId] = useState<string | null>(null);
@@ -273,6 +276,11 @@ export function SessionList({
               isEmpty={sessionHasNoExercises(session.data)}
               setCount={setCountsBySession[session.id] ?? null}
               pbCount={pbCountsBySession[session.id] ?? null}
+              lastUsedAt={
+                session.data?.focus_label
+                  ? (lastUsedMap.get(session.data.focus_label.trim().toLowerCase()) ?? null)
+                  : null
+              }
               onAssignWorkout={setChooserSessionId}
               onCancel={(id) => { const full = byId.get(id); if (full) setCancelSession(full); }}
               onAddSupplementary={(id) => { setSuppParentId(id); setSuppName(""); }}

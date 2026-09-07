@@ -31,6 +31,8 @@ interface SessionRowProps {
   isEmpty: boolean;
   setCount?: number | null;
   pbCount?: number | null;
+  /** CR-EF-165 — ISO date string of the last time this workout was used by this client. */
+  lastUsedAt?: string | null;
   onAssignWorkout: (sessionId: string) => void;
   onCancel?: (sessionId: string) => void;
   onAddSupplementary?: (sessionId: string) => void;
@@ -61,6 +63,7 @@ export function SessionRow({
   isEmpty,
   setCount,
   pbCount,
+  lastUsedAt = null,
   onAssignWorkout,
   onCancel,
   onAddSupplementary,
@@ -166,6 +169,13 @@ export function SessionRow({
             {chronologicalPosition && (
               <span className="text-[11px] text-muted-foreground">
                 Session {chronologicalPosition.position} of {chronologicalPosition.total}
+              </span>
+            )}
+            {status !== "completed" && status !== "cancelled" && !isEmpty && (
+              <span className="text-[11px] text-muted-foreground">
+                {lastUsedAt
+                  ? `Last used ${new Date(lastUsedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
+                  : "Never used"}
               </span>
             )}
           </div>

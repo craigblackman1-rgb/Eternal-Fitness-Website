@@ -125,6 +125,8 @@ interface BlockOverviewClientProps {
   sessionsRemaining: number | null;
   setCountsBySession?: Record<string, number>;
   pbCountsBySession?: Record<string, number>;
+  /** CR-EF-165 — last-used dates keyed by normalised focus_label. */
+  lastUsedMap?: Map<string, string | null>;
 }
 
 function sessionStatus(s: DisplaySession): SessionStatus {
@@ -169,6 +171,7 @@ export function BlockOverviewClient({
   sessionsRemaining,
   setCountsBySession,
   pbCountsBySession,
+  lastUsedMap = new Map(),
 }: BlockOverviewClientProps) {
   const router = useRouter();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -471,6 +474,7 @@ export function BlockOverviewClient({
                     sessionsRemaining={sessionsRemaining}
                     setCountsBySession={setCountsBySession}
                     pbCountsBySession={pbCountsBySession}
+                    lastUsedMap={lastUsedMap}
                   />
                 </div>
               </details>

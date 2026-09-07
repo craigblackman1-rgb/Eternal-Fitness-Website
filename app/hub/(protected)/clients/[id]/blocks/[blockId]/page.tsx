@@ -10,6 +10,7 @@ import { deriveBlockStatus } from "@/lib/block-status";
 import { deriveChronologicalPositions } from "@/lib/session-chronological-order";
 import { blockDisplayName } from "@/lib/block-name";
 import { getClientProgramState } from "@/lib/programs/queue";
+import { getLastUsedMap } from "@/lib/workout-last-used";
 import type { Weekday } from "@/lib/scheduling";
 import type { Session, SessionStatus, DBSession, BlockStatus } from "@/types";
 
@@ -260,6 +261,24 @@ export default async function BlockViewPage({
     ? await getClientProgramState(String(clientId))
     : null;
 
+  // CR-EF-165 — batch-compute last-used dates for every workout in this block.
+  const lastUsedMap = (() => {
+    const names = new Set<string>();
+    const tzMap = new Map<string, string | null>();
+    for (const s of sessions) {
+      const label = (s.data as Session)?.focus_label?.trim();
+      if (label) {
+        names.add(label.toLowerCase());
+        const tzDate = (s.data as Session & { tz_last_used?: string })?.tz_last_used;
+        if (tzDate) tzMap.set(label.toLowerCase(), tzDate);
+      }
+    }
+    return client?.id && names.size > 0
+      ? getLastUsedMap(client.id, [...names], tzMap)
+      : Promise.resolve(new Map<string, string | null>());
+  })();
+  const resolvedLastUsed = await lastUsedMap;
+
   return (
     <div className="space-y-4 pb-24">
       <div className="flex items-center gap-4">
@@ -305,6 +324,7 @@ export default async function BlockViewPage({
         sessionsRemaining={client?.sessions_remaining ?? null}
         setCountsBySession={setCountsBySession}
         pbCountsBySession={pbCountsBySession}
+        lastUsedMap={resolvedLastUsed}
       />
     </div>
   );

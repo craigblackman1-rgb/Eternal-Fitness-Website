@@ -75,6 +75,8 @@ interface BlockWorkout {
   name: string;
   emphasis: string;
   total: number;
+  /** CR-EF-165 — ISO date of last use for this workout name. */
+  lastUsedAt: string | null;
 }
 
 interface SessionRow {
@@ -214,6 +216,7 @@ export default function AddWorkoutPage() {
             name: list[0].data.focus_label?.trim() || `Workout ${a}`,
             emphasis: list[0].data.focus_label?.trim() || "Session",
             total: list.length,
+            lastUsedAt: (list[0] as SessionRow & { last_used_at?: string | null }).last_used_at ?? null,
           });
         }
         setBlockWorkouts(out);
@@ -473,6 +476,11 @@ export default function AddWorkoutPage() {
                     <span className="witem-t">{w.name}</span>
                     <span className="witem-m">
                       {w.emphasis} · {w.total} in block
+                    </span>
+                    <span className="witem-m" style={{ fontSize: 11 }}>
+                      {w.lastUsedAt
+                        ? `Last used ${new Date(w.lastUsedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
+                        : "Never used"}
                     </span>
                   </span>
                   <span className="witem-chev">{ICO.chev}</span>
