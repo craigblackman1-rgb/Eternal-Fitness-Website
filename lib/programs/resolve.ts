@@ -17,6 +17,9 @@ import type {
   ProgramExercise,
 } from './types';
 
+/** program_repeat can be stored as boolean true or string "true" depending on source. */
+export const isRepeat = (v: unknown) => v === true || v === 'true';
+
 // ─────────────────────────────────────────────────────────────────────
 // Pure: resolveQueue
 // ─────────────────────────────────────────────────────────────────────

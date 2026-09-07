@@ -13,6 +13,7 @@ import { SupplementaryWorkoutsCard } from "@/components/hub/SupplementaryWorkout
 import { ensureUids } from "@/lib/exercise-ref";
 import type { DBBlock, DBSession, SessionVersion, BlockStatus } from "@/types";
 import type { DBProgramSlot, QueueState } from "@/lib/programs/types";
+import { isRepeat } from "@/lib/programs/resolve";
 import type {
   TrainerizeHistoryData,
   TrainerizePerformedWorkoutSummary,
@@ -246,19 +247,32 @@ export function TrainingDrawer({
     .filter((s) => s.completed_at && !s.parent_session_id)
     .sort((a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime());
 
-  // Completed program-consuming sessions (ascending by completed_at) for queue position dates
+  // Completed program-consuming sessions (ascending by completed_at) for queue position dates.
+  // Exclude repeat sessions (program_repeat) — they consume a paid slot but do NOT
+  // advance the programme queue. Must match queue.ts's completedCount predicate.
   const completedAscending = blockSessions
-    .filter((s) => s.completed_at && !s.cancelled_at && !s.parent_session_id)
+    .filter((s) => s.completed_at && !s.cancelled_at && !s.parent_session_id && !isRepeat((s.data as unknown as Record<string, unknown>)?.program_repeat))
     .sort((a, b) => new Date(a.completed_at!).getTime() - new Date(b.completed_at!).getTime());
   for (let i = 0; i < completedAscending.length && i < completedCount; i++) {
     const s = completedAscending[i];
     scheduledByPosition[i + 1] = { scheduledAt: s.scheduled_at ?? s.completed_at };
   }
-  // Upcoming scheduled sessions fill positions after completedCount
+  // Upcoming scheduled sessions fill positions after completedCount.
+  // Prefer program_slot_id + week when stamped (more accurate than ordinal
+  // after cancellations/reschedules); fall back to ordinal for unstamped rows.
   for (let i = 0; i < scheduledSessions.length; i++) {
+    const s = scheduledSessions[i];
+    const slot = s.program_slot_id ? slots.find((sl) => sl.id === s.program_slot_id) : null;
+    if (slot && s.week) {
+      const pos = (s.week - 1) * slotCount + slot.position;
+      if (pos > 0 && pos <= totalQueueSlots) {
+        scheduledByPosition[pos] = { scheduledAt: s.scheduled_at };
+        continue;
+      }
+    }
     const pos = completedCount + i + 1;
     if (pos > totalQueueSlots) break;
-    scheduledByPosition[pos] = { scheduledAt: scheduledSessions[i].scheduled_at };
+    scheduledByPosition[pos] = { scheduledAt: s.scheduled_at };
   }
 
   // Block title lookup — for session history tags

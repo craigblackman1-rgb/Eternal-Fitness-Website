@@ -14,19 +14,13 @@ import { ensureUids } from "@/lib/exercise-ref";
 import { backfillExerciseMedia } from "@/lib/exercise-media";
 import { resolveSlotForWeek } from "./resolve";
 import { slotToSessionVersion } from "./slot-render";
+import { isRepeat } from "./resolve";
 import type {
   DBProgram,
   DBProgramSlot,
   SlotData,
 } from "./types";
 import type { DBSession, Session, SessionVersion, Exercise, DeliveryMode } from "@/types";
-
-// ─────────────────────────────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────────────────────────────
-
-/** program_repeat can be stored as boolean true or string "true" depending on source. */
-const isRepeat = (v: unknown) => v === true || v === "true";
 
 // ─────────────────────────────────────────────────────────────────────
 // Single-session re-stamp

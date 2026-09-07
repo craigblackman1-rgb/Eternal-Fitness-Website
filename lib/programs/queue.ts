@@ -15,10 +15,7 @@ import type {
   DBProgramSlot,
   QueueState,
 } from './types';
-import { resolveQueue } from './resolve';
-
-/** program_repeat can be stored as boolean true or string "true" depending on source. */
-const isRepeat = (v: unknown) => v === true || v === 'true';
+import { resolveQueue, isRepeat } from './resolve';
 
 // ─────────────────────────────────────────────────────────────────────
 // DB-backed: getClientProgramState
