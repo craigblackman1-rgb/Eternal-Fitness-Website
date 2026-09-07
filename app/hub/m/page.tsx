@@ -15,6 +15,8 @@ export interface TodayEntry {
   blockNumber: number | null;
   scheduledAt: string;
   durationMinutes: number;
+  status: string | null;
+  completedAt: string | null;
   sessionLogCompletedAt: string | null;
   sessionLogStartedAt: string | null;
   focusLabel: string;
@@ -27,7 +29,7 @@ export default async function TodayPage() {
 
   const { data: sessionRows } = await supabase
     .from("sessions")
-    .select("id, block_id, session_number, archetype, data, scheduled_at, cancelled_at")
+    .select("id, block_id, session_number, archetype, data, scheduled_at, cancelled_at, status, completed_at")
     .not("scheduled_at", "is", null)
     .is("cancelled_at", null)
     .is("parent_session_id", null)
@@ -40,6 +42,8 @@ export default async function TodayPage() {
   archetype: string | null;
     data: Session | null;
     scheduled_at: string | null;
+    status: string | null;
+    completed_at: string | null;
   }> = sessionRows ?? [];
 
   const blockIds = [...new Set(sessions.map((s) => s.block_id).filter(Boolean))];
@@ -74,6 +78,8 @@ export default async function TodayPage() {
         blockNumber: block?.block_number ?? null,
         scheduledAt: s.scheduled_at ? new Date(s.scheduled_at).toISOString() : (s.scheduled_at as string),
         durationMinutes: sessionDurationMinutes(timeTier),
+        status: s.status,
+        completedAt: s.completed_at,
         sessionLogCompletedAt: sessionLog?.completed_at ?? null,
         sessionLogStartedAt: sessionLog?.started_at ?? null,
         focusLabel: s.data?.focus_label ?? "",
@@ -97,10 +103,12 @@ export default async function TodayPage() {
     .eq("status", "open");
 
   // BUG-EF-135 — find the first in-progress session so the Today screen can
-  // show a "Resume session" banner. Scan all entries — started but not
-  // completed means in-progress regardless of scheduled date.
+  // show a "Resume session" banner. Primary signal: status column ('in_progress').
+  // Legacy fallback: old rows where session_log.started_at was set but not completed.
   const inProgressEntry = entries.find(
-    (e) => e.sessionLogStartedAt && !e.sessionLogCompletedAt,
+    (e) =>
+      e.status === "in_progress" ||
+      (e.sessionLogStartedAt && !e.sessionLogCompletedAt && !e.completedAt),
   ) ?? null;
 
   return <TodayScreen entries={entries} tasks={tasks} openBookingCount={openBookingCount ?? 0} currentUserName={user?.name ?? null} resumeSession={inProgressEntry} />;
