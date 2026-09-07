@@ -511,7 +511,17 @@ export function TrainingDrawer({
         programState
           ? `${programState.program.name} · ${totalSessions != null ? `${remaining} of ${totalSessions} paid sessions remaining` : "Ongoing"}`
           : latestBlock
-            ? `Block ${latestBlock.block_number} · ${blockSessionCounts[latestBlock.block_number] ?? blockSessions.length} sessions`
+            ? (
+              <span>
+                <Link
+                  href={`/hub/clients/${clientNumber}/blocks/${latestBlock.id}`}
+                  className="text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:underline underline-offset-2"
+                >
+                  Block {latestBlock.block_number}
+                </Link>
+                {" "}&middot; {blockSessionCounts[latestBlock.block_number] ?? blockSessions.length} sessions
+              </span>
+            )
             : allBlocks.length > 0 ? `${allBlocks.length} blocks` : "No training yet"
       }
       width="lg"
@@ -825,6 +835,53 @@ export function TrainingDrawer({
             <p className="miss mt-2 mb-0">
               Both apply to every slot. Either one that bites the next session is named on it.
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ BLOCKS ═══ */}
+      {allBlocks.length > 0 && (
+        <div className="fcard">
+          <div className="fcard-h">
+            <span>Blocks</span>
+            <span className="sub ml-2.5 normal-case tracking-normal font-medium text-[12px] text-[var(--color-body)]">
+              {allBlocks.length} total
+            </span>
+          </div>
+          <div className="fcard-b" style={{ padding: 0 }}>
+            {allBlocks.map((b) => {
+              const isLatest = latestBlock?.id === b.id;
+              const sessionCount = blockSessionCounts[b.block_number] ?? 0;
+              const status = derivedStatusByBlock?.get(b.id);
+              return (
+                <Link
+                  key={b.id}
+                  href={`/hub/clients/${clientNumber}/blocks/${b.id}`}
+                  className="flex items-center gap-3 py-[9px] px-3 border-b border-[var(--hub-border)] last:border-b-0 no-underline hover:bg-[var(--hub-hover)] transition-colors rounded-nested"
+                >
+                  <span className="flex-1 min-w-0 text-[13.5px] text-[var(--color-ink)]">
+                    <span className="font-semibold">{b.title?.trim() || `Block ${b.block_number}`}</span>
+                    <small className="text-xs font-normal text-[var(--color-body)] ml-2">
+                      {b.scheduled_start
+                        ? fmtShortDate(b.scheduled_start)
+                        : "Not scheduled"}
+                      {" · "}
+                      {sessionCount} session{sessionCount !== 1 ? "s" : ""}
+                    </small>
+                  </span>
+                  {isLatest && (
+                    <span className="shrink-0 inline-flex items-center h-[20px] px-2 rounded-pill text-[11px] font-semibold bg-[var(--status-primary-bg)] text-[var(--status-primary-text)] border border-[var(--status-primary-border)]">
+                      Current
+                    </span>
+                  )}
+                  {status && (
+                    <span className="shrink-0 inline-flex items-center h-[20px] px-2 rounded-pill text-[11px] font-semibold bg-[var(--hub-hover)] text-[var(--color-muted)] border border-[var(--hub-border)]">
+                      {status}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}
