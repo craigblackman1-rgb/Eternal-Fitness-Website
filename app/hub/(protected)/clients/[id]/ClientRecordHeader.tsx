@@ -190,6 +190,14 @@ export function ClientRecordHeader({
               <IconPencil className="w-4 h-4" /> Edit Client
             </Button>
           </Link>
+          {/* BUG-EF-126 — direct route to the active block page */}
+          {activeBlockId && (
+            <Link href={`/hub/clients/${client.client_number}/blocks/${activeBlockId}`}>
+              <Button variant="outline" className="bg-white border-[var(--hub-field-border)] hover:bg-[var(--hub-hover)] text-foreground rounded-control px-3.5 py-1.5 h-auto text-sm font-semibold gap-1.5">
+                Current block
+              </Button>
+            </Link>
+          )}
           {/* The review flow existed with no link anywhere in the app. */}
           <Link href={`/hub/clients/${client.client_number}/review`}>
             <Button variant="outline" className="bg-white border-[var(--hub-field-border)] hover:bg-[var(--hub-hover)] text-foreground rounded-control px-3.5 py-1.5 h-auto text-sm font-semibold gap-1.5">

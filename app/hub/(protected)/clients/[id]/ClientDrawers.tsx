@@ -1122,6 +1122,14 @@ function ArrangementDrawer({ client, latestBlock, bandSetName, missingBandSet, s
               </div>
             ))}
           </div>
+          <div className="fcard-b" style={{ borderTop: "1px solid var(--hub-border)" }}>
+            <Link
+              href={`/hub/clients/${client.client_number}/edit#sec-logistics`}
+              className="inline-flex items-center justify-center rounded-control border border-[var(--hub-field-border)] bg-white px-2.5 py-1 min-h-[30px] text-xs font-semibold text-foreground no-underline hover:bg-[var(--hub-hover)] transition-colors"
+            >
+              Edit this in Edit client
+            </Link>
+          </div>
         </div>
       )}
 

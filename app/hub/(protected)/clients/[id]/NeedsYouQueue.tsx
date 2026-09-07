@@ -139,7 +139,7 @@ export function buildNeedsYouItems(input: NeedsYouInput): QueueItem[] {
       dot: "warn",
       headline: `${pendingTaskCount} open task${pendingTaskCount === 1 ? "" : "s"}`,
       actionLabel: "Open tasks",
-      actionDrawerId: "dw-comms",
+      actionHref: `/hub/clients/${clientNumber}/edit#sec-compliance`,
     });
   }
 
@@ -175,7 +175,7 @@ export function buildNeedsYouItems(input: NeedsYouInput): QueueItem[] {
       headline: "Session counts disagree",
       subline: "The typed count doesn't match what's been completed",
       actionLabel: "Check",
-      actionDrawerId: "dw-arrangement",
+      actionHref: `/hub/clients/${clientNumber}/edit#sec-logistics`,
     });
   }
 
@@ -225,7 +225,7 @@ export function buildNeedsYouItems(input: NeedsYouInput): QueueItem[] {
       dot: "muted",
       headline: "No band set chosen",
       actionLabel: "Choose one",
-      actionDrawerId: "dw-arrangement",
+      actionHref: `/hub/clients/${clientNumber}/edit#sec-logistics`,
     });
   }
 
@@ -264,7 +264,7 @@ export function buildNeedsYouItems(input: NeedsYouInput): QueueItem[] {
       headline: `The package has no ${missingLabel} set`,
       subline: "It is named, but nothing can be invoiced or chased against it.",
       actionLabel: "Set it up",
-      actionDrawerId: "dw-arrangement",
+      actionHref: `/hub/clients/${clientNumber}/edit#sec-logistics`,
     });
   }
 

@@ -154,7 +154,7 @@ export function DrawerManager({ children }: { children: React.ReactNode }) {
 interface DrawerShellProps {
   id: string;
   title: string;
-  subtitle?: string;
+  subtitle?: React.ReactNode;
   width?: "sm" | "md" | "lg";
   children: React.ReactNode;
 }
