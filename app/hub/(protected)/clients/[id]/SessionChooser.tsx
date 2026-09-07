@@ -190,7 +190,7 @@ export function SessionChooser({
             Workout {slotLetter(nextSlot)} — slot {slotPosition} of {totalSlots}
           </p>
           <p className="text-[13px] text-[var(--color-muted)] m-0">
-            {nextSlot.data?.sections?.length ?? 0} section{((nextSlot.data?.sections?.length ?? 0) === 1) ? "" : "s"} · Week {currentWeek} of {programWeeks}
+            {nextSlot.data?.sections?.length ?? 0} section{((nextSlot.data?.sections?.length ?? 0) === 1) ? "" : "s"} · Round {currentWeek} of {programWeeks}
           </p>
         </div>
       )}

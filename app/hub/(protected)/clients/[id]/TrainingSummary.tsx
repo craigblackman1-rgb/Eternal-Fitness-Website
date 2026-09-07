@@ -217,7 +217,7 @@ export function TrainingSummary({
               <div className="flex items-baseline gap-2.5 py-[7px] px-3 border-b border-[var(--hub-border)] border-t-[3px] border-t-[var(--status-success)] bg-[var(--status-success-bg)]">
                 <span className="text-[10.5px] font-extrabold uppercase tracking-[.08em] text-[var(--status-success-text)]">Program</span>
                 <span className="ml-auto text-xs font-semibold text-[var(--color-body)] tabular-nums">
-                  Week {currentWeek} of {programWeeks}
+                  Round {currentWeek} of {programWeeks}
                 </span>
               </div>
               <div className="flex-1 py-2 px-3">

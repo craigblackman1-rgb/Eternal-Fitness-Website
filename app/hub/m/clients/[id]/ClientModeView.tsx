@@ -741,7 +741,7 @@ export function ClientModeView({
               <div className="panel-b">
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                   <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)" }}>
-                    Week {programmeQueue.currentWeek} of {programmeQueue.totalWeeks}
+                    Round {programmeQueue.currentWeek} of {programmeQueue.totalWeeks}
                   </span>
                   {programmeQueue.nextSlotLabel && (
                     <span style={{ fontSize: 11.5, color: "var(--muted)" }}>
@@ -760,7 +760,7 @@ export function ClientModeView({
                   ))}
                 </div>
                 <p style={{ fontSize: 11, color: "var(--muted)", margin: "8px 0 0" }}>
-                  Weeks advance when sessions are completed — not by the calendar.
+                  Rounds advance when sessions are completed — not by the calendar.
                 </p>
               </div>
             </div>

@@ -505,7 +505,7 @@ export function TrainingDrawer({
           : `${fmtShortDate(dates[0])} – ${fmtShortDate(dates[dates.length - 1])}`
         : null;
       weeks.push({
-        label: `Week ${w + 1}`,
+        label: `Round ${w + 1}`,
         dateRange,
         cells: weekCells,
       });
@@ -672,9 +672,9 @@ export function TrainingDrawer({
                 )}
               </div>
 
-              {/* Week-advance legend */}
+              {/* Round-advance legend */}
               <p className="text-[11px] text-[var(--color-muted)] mt-2 m-0">
-                Weeks advance when sessions are completed — not by the calendar.
+                Rounds advance when sessions are completed — not by the calendar.
               </p>
             </div>
 

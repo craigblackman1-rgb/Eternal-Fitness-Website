@@ -474,7 +474,7 @@ export default function AddWorkoutPage() {
                   <span className="src-t">From the programme</span>
                   <span className="src-d">
                     Next: {programState.nextSlot.label?.trim() || `Workout ${String.fromCharCode(64 + programState.nextSlot.position)}`}
-                    {" · "}Week {programState.currentWeek} of {programState.program.weeks}
+                    {" · "}Round {programState.currentWeek} of {programState.program.weeks}
                   </span>
                 </span>
                 <span className="src-chev">{ICO.chev}</span>
