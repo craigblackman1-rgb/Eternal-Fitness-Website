@@ -40,12 +40,15 @@ function sessionDisplayName(s: Session & { data?: Record<string, unknown> }): st
   );
 }
 
-function sessionDate(s: Session & { data?: Record<string, unknown> }): string {
+function sessionDate(
+  s: Session & { data?: Record<string, unknown>; scheduled_at?: string | null; id?: string },
+): string {
   const data = s.data as Record<string, unknown> | undefined;
   return (
+    (s.scheduled_at as string | null | undefined) ??
     (data?.scheduled_at as string | null) ??
     (data?.session_log as Record<string, unknown> | null)?.completed_at as string | null ??
-    s.session_id
+    ""
   );
 }
 
@@ -78,7 +81,7 @@ function uidToNameMap(session: Session & { data?: Record<string, unknown> }): Ma
  * @returns Array of AggregatedExerciseNote, sorted newest-first by session date.
  */
 export function aggregateExerciseNotes(
-  sessions: (Session & { data?: Record<string, unknown>; id?: string })[],
+  sessions: (Session & { data?: Record<string, unknown>; id?: string; scheduled_at?: string | null })[],
 ): AggregatedExerciseNote[] {
   const result: AggregatedExerciseNote[] = [];
 
