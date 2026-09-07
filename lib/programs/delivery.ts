@@ -14,7 +14,7 @@ import { ensureUids } from "@/lib/exercise-ref";
 import { backfillExerciseMedia } from "@/lib/exercise-media";
 import { resolveSlotForWeek } from "./resolve";
 import { slotToSessionVersion } from "./slot-render";
-import { isRepeat } from "./resolve";
+import { countProgramConsumed } from "./consumed";
 import type {
   DBProgram,
   DBProgramSlot,
@@ -114,16 +114,7 @@ export async function reStampSession(
   //    but the count must match the UI's "completed" filter exactly.)
   //    Exclude repeat sessions (data->>'program_repeat' = 'true'): they
   //    consume a paid slot but do NOT advance the programme queue.
-  const { data: completedRows } = await supabase
-    .from("sessions")
-    .select("id, data")
-    .eq("block_id", session.block_id)
-    .not("completed_at", "is", null)
-    .is("parent_session_id", null);
-
-  const completed = (completedRows ?? []).filter(
-    (r: { data?: Record<string, unknown> }) => !isRepeat(r.data?.program_repeat),
-  ).length;
+  const completed = await countProgramConsumed({ blockIds: [session.block_id] });
 
   // 5. Rank this session among upcoming booked sessions.
   //    Scheduled sessions do NOT carry program_id in production — filter by
@@ -295,16 +286,9 @@ export async function reStampBlockSessions(
   //    ALL completed non-supplementary sessions, regardless of program_id.
   //    Exclude repeat sessions (data->>'program_repeat' = 'true'): they
   //    consume a paid slot but do NOT advance the programme queue.
-  const { data: completedRows } = await supabase
-    .from("sessions")
-    .select("id, data")
-    .eq("block_id", sessions[0]?.block_id ?? "")
-    .not("completed_at", "is", null)
-    .is("parent_session_id", null);
-
-  const completed = (completedRows ?? []).filter(
-    (r: { data?: Record<string, unknown> }) => !isRepeat(r.data?.program_repeat),
-  ).length;
+  const completed = await countProgramConsumed({
+    blockIds: [sessions[0]?.block_id ?? ""],
+  });
 
   // 6. Rank all upcoming sessions — scheduled sessions do NOT carry
   //    program_id in production; filter by scheduling state only.

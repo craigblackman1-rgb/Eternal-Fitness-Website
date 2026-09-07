@@ -15,7 +15,8 @@ import type {
   DBProgramSlot,
   QueueState,
 } from './types';
-import { resolveQueue, isRepeat } from './resolve';
+import { resolveQueue } from './resolve';
+import { countProgramConsumed } from './consumed';
 
 // ─────────────────────────────────────────────────────────────────────
 // DB-backed: getClientProgramState
@@ -59,21 +60,10 @@ export async function getClientProgramState(
 
   if (slotsErr || !slots) return null;
 
-  // 4. Count completed sessions (exclude sub-sessions).
-  //    Exclude repeat sessions (data->>'program_repeat' = 'true'): they
-  //    consume a paid slot but do NOT advance the programme queue.
-  const { data: completedRows, error: countErr } = await supabase
-    .from('sessions')
-    .select('id, data')
-    .eq('program_id', programId)
-    .eq('status', 'completed')
-    .is('parent_session_id', null);
-
-  if (countErr) return null;
-
-  const completedCount = (completedRows ?? []).filter(
-    (r: { data?: Record<string, unknown> }) => !isRepeat(r.data?.program_repeat),
-  ).length;
+  // 4. Count completed sessions across ALL client blocks (exclude sub-sessions
+  //    and repeats). No program_id filter — sessions completed before the
+  //    delivery resolver existed may not carry one.
+  const completedCount = await countProgramConsumed({ clientId });
   const slotCount = slots.length;
   const queue = resolveQueue(program as DBProgram, slots as DBProgramSlot[], completedCount);
 
