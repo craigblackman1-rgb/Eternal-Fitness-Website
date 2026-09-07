@@ -129,11 +129,11 @@ export function ProgramsListClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ program_id: programId }),
       });
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || "Failed to apply program");
+        throw new Error(data.error || "Failed to apply program");
       }
-      toast.success("Program applied");
+      toast.success(data.cloned ? "Program applied (copied to client)" : "Program applied");
       router.push(`/hub/clients/${clientContext.client_number}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
