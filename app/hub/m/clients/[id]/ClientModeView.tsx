@@ -331,7 +331,8 @@ export function ClientModeView({
   const groupItems = useMemo(() => {
     const map = new Map<string, ClientFlag[]>();
     for (const g of GROUP_ORDER) {
-      const items = flags.filter((f) => g.groups.includes(f.group));
+      // BUG-EF-136: exclude placeholder flags from group contents
+      const items = flags.filter((f) => g.groups.includes(f.group) && !f.placeholder);
       map.set(g.key, items);
     }
     return map;

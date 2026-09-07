@@ -28,6 +28,9 @@ export interface ClientFlag {
   title: string;
   detail: string;
   group: FlagGroup;
+  /** True when this flag is a "nothing recorded" placeholder — excluded from
+   *  accordion group item counts and hidden when it is the only content. */
+  placeholder?: boolean;
 }
 
 /**

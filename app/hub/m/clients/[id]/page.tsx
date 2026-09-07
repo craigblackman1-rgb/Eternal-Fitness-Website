@@ -151,7 +151,7 @@ export default async function MobileClientModePage({ params }: { params: { id: s
   flags.push(...buildMedicalFlags({ profile: row.profile, exercise_modifications: row.exercise_modifications }));
 
   if (flags.length === 0) {
-    flags.push({ tone: "ok", title: "No active medical flags", detail: "Nothing recorded to flag.", group: "compliance" });
+    flags.push({ tone: "ok", title: "No active medical flags", detail: "Nothing recorded to flag.", group: "compliance", placeholder: true });
   }
 
   const activeFlagCount = flags.filter((f) => f.tone !== "ok").length;
