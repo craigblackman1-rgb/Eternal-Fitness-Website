@@ -6,6 +6,7 @@ import type { SessionStatus } from "@/types";
 import type { AggregatedExerciseNote } from "@/lib/exercise-notes";
 import type { SessionNoteData, PinnedNoteRef } from "@/types";
 import type { ClientFlag } from "@/lib/mobile-client-flags";
+import type { ExerciseTrendSummary } from "@/lib/progress";
 import { DayAgenda, type AgendaSession } from "@/components/hub/DayAgenda";
 import { ClientNotesPane } from "./ClientNotesPane";
 import { ClientBookingPanel } from "@/components/hub/ClientBookingPanel";
@@ -258,6 +259,7 @@ interface ClientModeViewProps {
   pinnedNoteRefs?: PinnedNoteRef[];
   pinnedNote?: PinnedNoteView | null;
   earliestUnattached?: { scheduledAt: string } | null;
+  exerciseTrendSummary?: ExerciseTrendSummary;
 }
 
 export function ClientModeView({
@@ -280,6 +282,7 @@ export function ClientModeView({
   pinnedNoteRefs = [],
   pinnedNote = null,
   earliestUnattached = null,
+  exerciseTrendSummary,
 }: ClientModeViewProps) {
   const [tab, setTab] = useState<TabKey>("overview");
 
@@ -549,6 +552,22 @@ export function ClientModeView({
               )}
             </div>
           </div>
+
+          {/* CR-EF-168: Personal-best summary tile */}
+          {exerciseTrendSummary && exerciseTrendSummary.totalExercisesLogged > 0 && (
+            <div className="panel panel-tap" style={{ cursor: "default" }}>
+              <div className="panel-h">
+                <span className="panel-h-ic teal">{ICO.hist}</span>
+                <span>
+                  <span className="panel-h-t">Progress summary</span>
+                  <span className="panel-h-s">
+                    {exerciseTrendSummary.personalBests} personal best{exerciseTrendSummary.personalBests !== 1 ? "s" : ""}
+                    {exerciseTrendSummary.heaviestLift ? ` · heaviest ${exerciseTrendSummary.heaviestLift}` : ""}
+                  </span>
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* CR-EF-113: openable sessions summary — the specific complaint fix */}
           <button className="panel panel-tap" onClick={switchToSessions} aria-label="Open Sessions">

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import { computeUpdateDue } from "@/lib/updates-due";
-import { buildExerciseTrends, isGoneQuiet, HOME_TRAINING_QUIET_DAYS, type TrendSessionMeta } from "@/lib/progress";
+import { buildExerciseTrends, buildExerciseTrendSummary, isGoneQuiet, HOME_TRAINING_QUIET_DAYS, type TrendSessionMeta } from "@/lib/progress";
 import { getLastClientLogAt } from "@/lib/progress-db";
 import { computeComplianceFlags } from "@/lib/compliance";
 import { lookupStatus } from "@/lib/hubStatus";
@@ -539,43 +539,10 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   })();
 
   // Exercise trend summary for the duo panel
-  const exerciseTrendSummary = (() => {
-    if (!exerciseTrends || exerciseTrends.length === 0) {
-      return { totalExercisesLogged: 0, personalBests: 0, heaviestLift: null, belowBestCount: 0, recentNotes: null };
-    }
-    let totalLogged = 0;
-    let personalBests = 0;
-    let heaviestWeight = 0;
-    let heaviestLabel = null;
-    let belowBestCount = 0;
-
-    for (const trend of exerciseTrends) {
-      totalLogged += trend.points?.length ?? 0;
-      // Count personal bests: exercises where the last point's topWeightKg equals
-      // the max across all points (simple heuristic for now)
-      if (trend.points && trend.points.length >= 2) {
-        const maxWeight = Math.max(...trend.points.map((p) => p.topWeightKg ?? 0));
-        const lastWeight = trend.points[trend.points.length - 1].topWeightKg ?? 0;
-        if (maxWeight > 0 && lastWeight === maxWeight) personalBests++;
-        if (lastWeight < maxWeight && lastWeight > 0) belowBestCount++;
-      }
-      // Check for heaviest lift
-      for (const point of trend.points ?? []) {
-        if (point.topWeightKg != null && point.topWeightKg > heaviestWeight) {
-          heaviestWeight = point.topWeightKg;
-          heaviestLabel = `${point.topWeightKg}kg`;
-        }
-      }
-    }
-
-    return {
-      totalExercisesLogged: totalLogged,
-      personalBests,
-      heaviestLift: heaviestLabel,
-      belowBestCount,
-      recentNotes: latestSessionLog?.notes ?? null,
-    };
-  })();
+  const exerciseTrendSummary = {
+    ...buildExerciseTrendSummary(exerciseTrends),
+    recentNotes: latestSessionLog?.notes ?? null,
+  };
 
   // Has all docs signed
   const hasAllDocsSigned = flags.effectiveStatus === "clear"

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { ClientProfile, DBClient, DBSession, SignedAgreement, SignedPARQ, SessionNoteData, PinnedNoteRef } from "@/types";
+import type { ClientProfile, DBClient, DBSession, SignedAgreement, SignedPARQ, SessionNoteData, PinnedNoteRef, SetLog } from "@/types";
 import { computeComplianceFlags } from "@/lib/compliance";
 import { buildMedicalFlags, type ClientFlag } from "@/lib/mobile-client-flags";
 import { deriveSessionStatus } from "@/lib/session-status";
@@ -11,6 +11,8 @@ import { deriveChronologicalPositions } from "@/lib/session-chronological-order"
 import { deriveSessionPot } from "@/lib/session-pot";
 import { toIsoTimestamp } from "@/lib/pg-timestamp";
 import { aggregateExerciseNotes, type AggregatedExerciseNote } from "@/lib/exercise-notes";
+import { buildExerciseTrends, buildExerciseTrendSummary, type TrendSessionMeta } from "@/lib/progress";
+import { trainerizeResultsToSetLogs } from "@/lib/trainerize-adapter";
 import { ClientModeView } from "./ClientModeView";
 import type {
   BlockView,
@@ -178,6 +180,42 @@ export default async function MobileClientModePage({ params }: { params: { id: s
     const log = s.data?.session_log;
     if (log?.completed_at) log.completed_at = toIsoTimestamp(log.completed_at) as string;
   }
+
+  // ── CR-EF-168: exercise trend summary (shared with desktop) ──
+  const sessionIds = sessions.map((s) => s.id);
+  const { data: setLogsData } = sessionIds.length > 0
+    ? await supabase
+        .from("set_logs")
+        .select("*")
+        .in("session_id", sessionIds)
+        .order("logged_at", { ascending: true })
+    : { data: [] as SetLog[] };
+  const trendSessionMeta: Record<string, TrendSessionMeta> = {};
+  for (const s of sessions) {
+    trendSessionMeta[s.id] = {
+      blockNumber: blocks.find((b) => b.id === s.block_id)?.block_number ?? null,
+      sessionNumber: s.session_number ?? null,
+    };
+  }
+  // Trainerize historical results (same sources as the desktop page)
+  const { data: trainerizeWorkouts } = await supabase
+    .from("trainerize_workouts")
+    .select("id")
+    .eq("client_id", row.id);
+  const tWorkoutIds = (trainerizeWorkouts ?? []).map((w: any) => w.id);
+  const { data: trainerizeResults } = tWorkoutIds.length > 0
+    ? await supabase
+        .from("trainerize_workout_results")
+        .select("id, trainerize_daily_workout_id, workout_name, performed_date, rpe, trainerize_daily_exercise_id, exercise_name, set_number, reps, weight, duration_seconds")
+        .eq("client_id", row.id)
+        .order("performed_date", { ascending: false })
+    : { data: [] as any[] };
+  const combinedSetLogs: SetLog[] = [
+    ...((setLogsData ?? []) as SetLog[]),
+    ...trainerizeResultsToSetLogs((trainerizeResults ?? []) as any),
+  ];
+  const exerciseTrends = buildExerciseTrends(combinedSetLogs, trendSessionMeta);
+  const exerciseTrendSummary = buildExerciseTrendSummary(exerciseTrends);
 
   const exerciseNotes: AggregatedExerciseNote[] = aggregateExerciseNotes(sessions as any);
 
@@ -452,6 +490,7 @@ export default async function MobileClientModePage({ params }: { params: { id: s
         pinnedNoteRefs={pinnedNoteRefs}
         pinnedNote={pinnedNote}
         earliestUnattached={earliestUnattached ? { scheduledAt: earliestUnattached.scheduled_at as string } : null}
+        exerciseTrendSummary={exerciseTrendSummary}
       />
     </>
   );

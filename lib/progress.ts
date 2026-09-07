@@ -191,3 +191,50 @@ export function buildExerciseTrends(
   trends.sort((a, b) => a.exerciseName.localeCompare(b.exerciseName));
   return trends;
 }
+
+export interface ExerciseTrendSummary {
+  totalExercisesLogged: number;
+  personalBests: number;
+  heaviestLift: string | null;
+  belowBestCount: number;
+}
+
+/**
+ * Compact summary from exercise trends: PB count, heaviest lift, below-best
+ * count. Shared by desktop client detail and mobile client overview.
+ */
+export function buildExerciseTrendSummary(
+  trends: ExerciseTrend[],
+): ExerciseTrendSummary {
+  if (!trends || trends.length === 0) {
+    return { totalExercisesLogged: 0, personalBests: 0, heaviestLift: null, belowBestCount: 0 };
+  }
+  let totalLogged = 0;
+  let personalBests = 0;
+  let heaviestWeight = 0;
+  let heaviestLabel: string | null = null;
+  let belowBestCount = 0;
+
+  for (const trend of trends) {
+    totalLogged += trend.points?.length ?? 0;
+    if (trend.points && trend.points.length >= 2) {
+      const maxWeight = Math.max(...trend.points.map((p) => p.topWeightKg ?? 0));
+      const lastWeight = trend.points[trend.points.length - 1].topWeightKg ?? 0;
+      if (maxWeight > 0 && lastWeight === maxWeight) personalBests++;
+      if (lastWeight < maxWeight && lastWeight > 0) belowBestCount++;
+    }
+    for (const point of trend.points ?? []) {
+      if (point.topWeightKg != null && point.topWeightKg > heaviestWeight) {
+        heaviestWeight = point.topWeightKg;
+        heaviestLabel = `${point.topWeightKg}kg`;
+      }
+    }
+  }
+
+  return {
+    totalExercisesLogged: totalLogged,
+    personalBests,
+    heaviestLift: heaviestLabel,
+    belowBestCount,
+  };
+}
