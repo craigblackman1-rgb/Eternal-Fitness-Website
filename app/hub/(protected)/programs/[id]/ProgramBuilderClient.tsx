@@ -774,6 +774,7 @@ export function ProgramBuilderClient({
   const [saving, setSaving] = useState(false);
   const [programStatus, setProgramStatus] = useState(program.status);
   const [actionBusy, setActionBusy] = useState<string | null>(null);
+  const [assignedClient, setAssignedClient] = useState(program.clients ?? null);
 
   const statusCfg = statusConfig[programStatus] ?? statusConfig.active;
   const slotCount = slots.length;
@@ -820,6 +821,29 @@ export function ProgramBuilderClient({
       if (!res.ok) throw new Error((data?.error as string) || "Request failed");
       setProgramStatus(newStatus);
       toast.success(newStatus === "archived" ? "Program archived" : "Program restored");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setActionBusy(null);
+    }
+  };
+
+  const handleUnassign = async () => {
+    if (!assignedClient) return;
+    if (!confirm(`Unassign from ${assignedClient.name}? The programme stays in the library.`)) return;
+    setActionBusy("unassign");
+    try {
+      const res = await fetch(`/api/programs/${program.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ client_id: null }),
+      });
+      const text = await res.text();
+      let data: Record<string, unknown> | null = null;
+      try { data = JSON.parse(text); } catch { /* non-JSON response */ }
+      if (!res.ok) throw new Error((data?.error as string) || "Request failed");
+      setAssignedClient(null);
+      toast.success(`Unassigned from ${assignedClient.name}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -934,8 +958,8 @@ export function ProgramBuilderClient({
           </span>
         }
         subtitle={
-          program.clients
-            ? `Assigned to ${program.clients.name} · ${slotCount} slot${slotCount !== 1 ? "s" : ""} in rotation · ${totalSessions} sessions`
+          assignedClient
+            ? `Assigned to ${assignedClient.name} · ${slotCount} slot${slotCount !== 1 ? "s" : ""} in rotation · ${totalSessions} sessions`
             : `Library programme · ${slotCount} slot${slotCount !== 1 ? "s" : ""} in rotation · ${totalSessions} sessions`
         }
         actions={
@@ -943,6 +967,17 @@ export function ProgramBuilderClient({
             <Button variant="outline" size="sm" onClick={handleSave} disabled={saving}>
               {saving ? "Saving…" : "Save program"}
             </Button>
+            {assignedClient && (
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={actionBusy !== null}
+                className="h-7 px-2 text-xs"
+                onClick={handleUnassign}
+              >
+                Unassign
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="sm"
@@ -952,11 +987,11 @@ export function ProgramBuilderClient({
             >
               {programStatus === "archived" ? "Unarchive" : "Archive"}
             </Button>
-            <div title={program.clients ? "Unassign from client before deleting" : undefined}>
+            <div title={assignedClient ? "Unassign from client before deleting" : undefined}>
               <Button
                 variant="ghost"
                 size="sm"
-                disabled={actionBusy !== null || !!program.clients}
+                disabled={actionBusy !== null || !!assignedClient}
                 className="h-7 px-2 text-xs text-destructive hover:text-destructive"
                 onClick={handleDelete}
               >

@@ -42,11 +42,19 @@ export function ProgramsListClient({
   const [applyingId, setApplyingId] = useState<string | null>(null);
   const [showArchived, setShowArchived] = useState(false);
   const [actionBusy, setActionBusy] = useState<string | null>(null);
+  // When ?client= is present, user is picking a programme — default to All
+  // so the apply flow shows something useful. Otherwise default to Assigned.
+  const [filter, setFilter] = useState<"assigned" | "library" | "all">(
+    clientContext ? "all" : "assigned",
+  );
 
   const archivedCount = programs.filter((p) => p.status === "archived").length;
-  const visiblePrograms = showArchived
-    ? programs
-    : programs.filter((p) => p.status !== "archived");
+  const assignedCount = programs.filter((p) => p.clients !== null && p.status !== "archived").length;
+  const libraryCount = programs.filter((p) => p.clients === null && p.status !== "archived").length;
+
+  let visiblePrograms = showArchived ? programs : programs.filter((p) => p.status !== "archived");
+  if (filter === "assigned") visiblePrograms = visiblePrograms.filter((p) => p.clients !== null);
+  else if (filter === "library") visiblePrograms = visiblePrograms.filter((p) => p.clients === null);
 
   const handleArchive = async (program: ProgramRow) => {
     const newStatus = program.status === "archived" ? "active" : "archived";
@@ -313,6 +321,27 @@ export function ProgramsListClient({
         }
       />
 
+      <div className="inline-flex gap-0.5 rounded-nested border border-[var(--hub-border)] bg-[var(--hub-card)] p-[3px] shadow-sm">
+        {(["assigned", "library", "all"] as const).map((key) => {
+          const label = key === "assigned" ? "Assigned" : key === "library" ? "Library" : "All";
+          const count = key === "assigned" ? assignedCount : key === "library" ? libraryCount : programs.length - (showArchived ? 0 : archivedCount);
+          return (
+            <button
+              key={key}
+              onClick={() => setFilter(key)}
+              className={`rounded-[7px] px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                filter === key
+                  ? "bg-[var(--hub-sidebar-active)] font-semibold text-foreground"
+                  : "bg-transparent text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
+              }`}
+            >
+              {label}
+              <span className="ml-1.5 tabular-nums text-xs opacity-60">{count}</span>
+            </button>
+          );
+        })}
+      </div>
+
       <HubTable
         data={visiblePrograms}
         columns={columns}
@@ -323,14 +352,26 @@ export function ProgramsListClient({
         emptyState={
           <EmptyState
             icon={<IconTarget className="h-8 w-8" />}
-            title={showArchived ? "No archived programs" : "No programs yet"}
+            title={
+              filter === "assigned"
+                ? "No assigned programmes"
+                : filter === "library"
+                  ? "No library programmes"
+                  : showArchived
+                    ? "No archived programs"
+                    : "No programs yet"
+            }
             description={
-              showArchived
-                ? "All programs are active."
-                : "Create a reusable training programme or import one from pasted text."
+              filter === "assigned"
+                ? "No programmes are currently assigned to a client."
+                : filter === "library"
+                  ? "All programmes are assigned to a client."
+                  : showArchived
+                    ? "All programs are active."
+                    : "Create a reusable training programme or import one from pasted text."
             }
             cta={
-              showArchived
+              filter === "assigned" || filter === "library" || showArchived
                 ? undefined
                 : {
                     label: "New program",

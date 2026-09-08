@@ -50,7 +50,27 @@ export async function PATCH(
 
   const { id } = params;
   const body = await request.json();
-  const { name, weeks, notes, status, slots } = body;
+  const { name, weeks, notes, status, slots, client_id } = body;
+
+  // Handle unassign: client_id explicitly set to null
+  if (client_id === null) {
+    // Clear client_id on the programme
+    const { error: unassignErr } = await supabase
+      .from("programs")
+      .update({ client_id: null, updated_at: new Date().toISOString() })
+      .eq("id", id);
+    if (unassignErr) {
+      return NextResponse.json({ error: unassignErr.message }, { status: 500 });
+    }
+
+    // Clear active_program_id on any client pointing at this programme
+    await supabase
+      .from("clients")
+      .update({ active_program_id: null })
+      .eq("active_program_id", id);
+
+    return NextResponse.json({ ok: true });
+  }
 
   // Update program fields
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
