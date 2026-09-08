@@ -11,8 +11,8 @@ import Link from "next/link";
    the surface, so their removal is the design, not an omission.
 
    CR-EF-185: two-column full-width layout per hub-today-v2.html mockup.
-   Left column: booked sessions + outstanding tasks.
-   Right column: alerts. */
+   Left column: booked sessions.
+   Right column: outstanding tasks + alerts stacked. */
 
 export interface TodaySession {
   time: string;
@@ -79,7 +79,7 @@ export function TodayScreen({
       {/* ── Two-column split ── */}
       <div className="hub-split">
 
-        {/* ── Left column: Booked today + Outstanding tasks ── */}
+        {/* ── Left column: Booked today ── */}
         <div>
           {/* ── 1 · Booked today ── */}
           <Section
@@ -100,8 +100,8 @@ export function TodayScreen({
                     {s.time}
                   </span>
                   <span className="flex-1 min-w-0 text-[13.5px] text-[var(--color-ink)]">
-                    <b className="font-semibold">{s.clientName}</b>
-                    {s.focus && <span className="text-[var(--color-muted)]"> · {s.focus}</span>}
+                    <span className="sess-n block font-semibold">{s.clientName}</span>
+                    {s.focus && <span className="sess-s block text-xs text-[var(--color-muted)] mt-px">{s.focus}</span>}
                   </span>
                   <Link
                     href={`/hub/clients/${s.clientNumber}`}
@@ -116,7 +116,10 @@ export function TodayScreen({
               )}
             </div>
           </Section>
+        </div>
 
+        {/* ── Right column: Outstanding tasks + Alerts ── */}
+        <div>
           {/* ── 2 · Outstanding tasks ──
                A linked tile, not a list. The full task list lives at /hub/tasks;
                Today shows the count and one click to get there. */}
@@ -147,10 +150,7 @@ export function TodayScreen({
               )}
             </div>
           </Section>
-        </div>
 
-        {/* ── Right column: Alerts ── */}
-        <div>
           {/* ── 3 · Alerts ──
                Every alert links to the surface that answers it. The same
                pattern as the arow on the client record: dot · headline · action.
