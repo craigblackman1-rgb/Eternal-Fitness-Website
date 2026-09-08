@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { DrawerShell, useDrawerManager } from "./DrawerManager";
@@ -125,6 +125,44 @@ export function TrainingDrawer({
   // ── Dialog state ──
   const [chooserSessionId, setChooserSessionId] = useState<string | null>(null);
   const [chooserBusy, setChooserBusy] = useState(false);
+
+  // ── Available programmes for Section 3 ──
+  const [otherProgrammes, setOtherProgrammes] = useState<{ id: string; name: string; weeks: number; slot_count?: number }[]>([]);
+  const [applyingProgramId, setApplyingProgramId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/programs")
+      .then((r) => r.json())
+      .then((rows: { id: string; name: string; weeks: number; client_id: string | null; status: string; clients?: { client_number: string | null } | null }[]) => {
+        if (cancelled) return;
+        const currentId = programState?.program?.id;
+        const filtered = rows
+          .filter((p) => p.status !== "archived" && p.id !== currentId)
+          .filter((p) => !p.clients || p.clients?.client_number === String(clientNumber));
+        setOtherProgrammes(filtered.map((p) => ({ id: p.id, name: p.name, weeks: p.weeks })));
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [programState?.program?.id, clientNumber]);
+
+  async function handleApplyProgramme(programId: string) {
+    setApplyingProgramId(programId);
+    try {
+      const res = await fetch(`/api/clients/${clientId}/apply-program`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ program_id: programId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Failed to apply programme");
+      toast.success(data.cloned ? "Programme applied (copied to client)" : "Programme applied");
+      router.push(`/hub/clients/${clientNumber}`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+      setApplyingProgramId(null);
+    }
+  }
 
   // ── Paid-pot computation ──
   const isOngoing = !sessionsPurchased || packageType === "ongoing";
@@ -525,7 +563,7 @@ export function TrainingDrawer({
             <span className="sub">
               {programmeName} · {slotCount}× per week · {totalQueueSlots} positions, {completedCount} reached
             </span>
-            <button type="button" className="btn-link">
+            <button type="button" className="btn-link" disabled aria-disabled="true" title="Coming soon" style={{ opacity: 0.5, cursor: "not-allowed" }}>
               Reorder
             </button>
           </div>
@@ -600,14 +638,20 @@ export function TrainingDrawer({
               </button>
               <button
                 type="button"
-                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] px-3 py-1.5 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
+                disabled
+                aria-disabled="true"
+                title="Coming soon"
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] px-3 py-1.5 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-not-allowed opacity-50 transition-colors"
               >
                 Move one later
               </button>
               <span className="flex-1" />
               <button
                 type="button"
-                className="inline-flex items-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1.5 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
+                disabled
+                aria-disabled="true"
+                title="Coming soon"
+                className="inline-flex items-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1.5 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-not-allowed opacity-50 transition-colors"
               >
                 Manage the pot
               </button>
@@ -646,6 +690,24 @@ export function TrainingDrawer({
               </span>
             </div>
           )}
+          {otherProgrammes.length > 0 && otherProgrammes.map((p) => (
+            <div className="pick" key={p.id}>
+              <span className="pick-m">
+                <span className="pick-t">{p.name}</span>
+                <span className="pick-s">{p.weeks} weeks</span>
+              </span>
+              <span className="pick-a">
+                <button
+                  type="button"
+                  disabled={applyingProgramId === p.id}
+                  onClick={() => handleApplyProgramme(p.id)}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--color-rose)] text-white px-3 py-1 min-h-[28px] font-[inherit] text-[11.5px] font-semibold cursor-pointer hover:bg-[var(--color-rose)]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {applyingProgramId === p.id ? "Applying…" : "Apply"}
+                </button>
+              </span>
+            </div>
+          ))}
           <div className="flex gap-2 mt-3">
             <button
               type="button"
@@ -664,10 +726,10 @@ export function TrainingDrawer({
             </button>
             <button
               type="button"
-              onClick={() => router.push("/hub/workouts")}
+              onClick={() => router.push(`/hub/clients/${clientNumber}/programs/new`)}
               className="inline-flex items-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1.5 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
             >
-              Workout library
+              Open the builder
             </button>
           </div>
           <p className="miss mt-2.5">
