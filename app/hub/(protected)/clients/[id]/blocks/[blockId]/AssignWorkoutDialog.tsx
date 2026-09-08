@@ -312,7 +312,7 @@ export function AssignWorkoutDialog({
                       </p>
                       <p className="text-[11px] text-muted-foreground">
                         {s.last_used_at
-                          ? `Last used ${new Date(s.last_used_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
+                          ? `Last used ${new Date(s.last_used_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`
                           : "Never used"}
                       </p>
                     </div>

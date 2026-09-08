@@ -128,7 +128,7 @@ export function SessionRow({
             {status !== "completed" && status !== "cancelled" && !isEmpty && (
               <span className="text-[11px] text-muted-foreground">
                 {lastUsedAt
-                  ? `Last used ${new Date(lastUsedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
+                  ? `Last used ${new Date(lastUsedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`
                   : "Never used"}
               </span>
             )}
