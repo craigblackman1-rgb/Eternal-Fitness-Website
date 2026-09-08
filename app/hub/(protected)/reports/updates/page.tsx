@@ -76,9 +76,6 @@ export default async function UpdatesReportPage() {
 
   return (
     <div className="space-y-6">
-      <Link href="/hub/document-templates" className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-        ← Document templates
-      </Link>
       <HubPageHeader
         title="Email updates"
         subtitle="6-week progress emails sent to clients and, with consent, their referrers."

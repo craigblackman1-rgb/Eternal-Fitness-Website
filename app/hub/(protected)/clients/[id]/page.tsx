@@ -13,6 +13,7 @@ import { getClientProgramState } from "@/lib/programs/queue";
 import { sessionWorkoutName } from "@/lib/session-display";
 import type { SessionNoteData, PinnedNoteRef, DBSession, SetLog } from "@/types";
 import { ClientRecordShell } from "./ClientRecordShell";
+import { CrumbNameProvider } from "../../CrumbNameContext";
 import type { TrainerizeHistoryData } from "@/components/hub";
 
 export default async function ClientDetailPage({ params }: { params: { id: string } }) {
@@ -580,6 +581,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   }
 
   return (
+    <CrumbNameProvider name={client.name}>
     <ClientRecordShell
       client={client}
       blocks={blocks ?? []}
@@ -658,5 +660,6 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       baselineUsed={baselineUsed}
       hubUsedCount={hubUsedCount}
     />
+    </CrumbNameProvider>
   );
 }

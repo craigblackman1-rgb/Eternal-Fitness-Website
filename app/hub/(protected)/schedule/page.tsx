@@ -172,7 +172,7 @@ export default async function SchedulePage() {
         ]}
       />
       <HubPageHeader
-        title="Studio schedule"
+        title="Schedule"
         subtitle="The single source of truth for what is happening when. Every session carries a first-class state and real timestamps, so a booking can no longer read Completed on a date it was never delivered."
       />
       <ScheduleShell

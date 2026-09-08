@@ -176,7 +176,7 @@ export function WorkoutTemplateBrowser({
   return (
     <div className="space-y-5">
       <HubPageHeader
-        title="Templates"
+        title="Workouts"
         subtitle="Saved workout templates — reusable sessions you can assign to any client."
         actions={
           <>

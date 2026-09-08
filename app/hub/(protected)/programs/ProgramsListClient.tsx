@@ -321,7 +321,7 @@ export function ProgramsListClient({
       )}
 
       <HubPageHeader
-        title="Programs"
+        title="Programmes"
         subtitle="Reusable training programmes with weekly progression"
         actions={
           <>
@@ -338,7 +338,7 @@ export function ProgramsListClient({
               disabled={creating}
             >
               <IconPlus className="h-3.5 w-3.5" />
-              {creating ? "Creating…" : "New program"}
+              {creating ? "Creating…" : "New programme"}
             </Button>
           </>
         }

@@ -198,7 +198,7 @@ export function ExerciseBrowser({
     <div className="space-y-5">
       {/* ── Page header ── */}
       <HubPageHeader
-        title="Exercise library"
+        title="Exercises"
         subtitle={
           <>
             {exercises.length} exercises &middot; {filtered.length} match
