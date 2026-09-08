@@ -2,7 +2,7 @@
 
 import { useDrawerManager } from "./DrawerManager";
 import { deriveSessionPot } from "@/lib/session-pot";
-import { sessionWorkoutName } from "@/lib/session-display";
+import { sessionWorkoutName, isOutlookPlaceholder } from "@/lib/session-display";
 import type { DBBlock, DBSession } from "@/types";
 import type { QueueState } from "@/lib/programs/types";
 
@@ -112,24 +112,42 @@ export function TrainingSection({
       }))
     : null;
 
-  // Fallback: derive queue from block sessions (undated)
+  // Fallback: derive queue from block sessions (undated).
+  // Rule: queue = ordered list of WORKOUTS only. Exclude:
+  //   - sub-sessions (parent_session_id set)
+  //   - cancelled sessions (cancelled_at set) — neither queued nor completed
+  //   - Outlook placeholders / empty bookings — calendar objects, not workouts
   const queueFromBlock = !queueFromProgram && latestBlock
-    ? blockSessions
-        .filter((s) => !s.parent_session_id)
-        .sort((a, b) => (a.session_number ?? 0) - (b.session_number ?? 0))
-        .map((s, i) => ({
-          position: i + 1,
-          label: sessionWorkoutName(s) || `Workout ${i + 1}`,
-          subtitle: s.completed_at
-            ? `Completed ${fmtDateShort(s.completed_at)}`
-            : s.scheduled_at
-              ? `Scheduled ${fmtDateShort(s.scheduled_at)}`
-              : undefined,
-          isCompleted: !!s.completed_at,
-          isNext: !s.completed_at && !blockSessions.slice(0, i).some((ss) => !ss.completed_at),
-          sessionId: s.id,
-          scheduledAt: s.scheduled_at,
-        }))
+    ? (() => {
+        const workouts = blockSessions
+          .filter(
+            (s) =>
+              !s.parent_session_id &&
+              !s.cancelled_at &&
+              !isOutlookPlaceholder(s),
+          )
+          .sort((a, b) => (a.session_number ?? 0) - (b.session_number ?? 0));
+
+        let completedSeen = 0;
+        const firstPendingIdx = workouts.findIndex((w) => !w.completed_at);
+        return workouts.map((s) => {
+          const isCompleted = !!s.completed_at;
+          if (isCompleted) completedSeen++;
+          return {
+            position: isCompleted ? completedSeen : completedSeen + 1,
+            label: sessionWorkoutName(s) || `Workout`,
+            subtitle: s.completed_at
+              ? `Completed ${fmtDateShort(s.completed_at)}`
+              : s.scheduled_at
+                ? `Scheduled ${fmtDateShort(s.scheduled_at)}`
+                : undefined,
+            isCompleted,
+            isNext: !isCompleted && workouts.indexOf(s) === firstPendingIdx,
+            sessionId: s.id,
+            scheduledAt: s.scheduled_at,
+          };
+        });
+      })()
     : null;
 
   const queue = queueFromProgram ?? queueFromBlock ?? [];

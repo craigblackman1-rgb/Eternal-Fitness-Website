@@ -15,7 +15,7 @@ const OUTLOOK_BOOKING_PREFIX = "Outlook booking — ";
  * Structural signature: focus_label starts with "Outlook booking — ",
  * archetype/week/phase are all null, and all exercise arrays are empty.
  */
-function isOutlookPlaceholder(session: {
+export function isOutlookPlaceholder(session: {
   archetype?: string | null;
   week?: number | null;
   phase?: string | null;
