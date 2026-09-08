@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import { useDrawerManager } from "./DrawerManager";
 import { deriveSessionPot } from "@/lib/session-pot";
 import { sessionWorkoutName, isOutlookPlaceholder, isTrainerizeImported } from "@/lib/session-display";
@@ -238,6 +239,25 @@ export function TrainingSection({
   const isLow = !isOngoing && remaining <= 2 && remaining > 0;
   const isEmpty = !isOngoing && remaining === 0;
 
+  // ── Supplementary count (for the opener button) ──
+  const [supplementaryCount, setSupplementaryCount] = useState(0);
+  const fetchSupplementaryCount = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/clients/${clientNumber}/supplementary-workouts`);
+      if (res.ok) {
+        const data = await res.json();
+        const rows = data.rows ?? [];
+        const total = rows.reduce(
+          (sum: number, r: { attached_and_logged: number; attached_not_logged: number }) =>
+            sum + r.attached_and_logged + r.attached_not_logged,
+          0,
+        );
+        setSupplementaryCount(total);
+      }
+    } catch { /* ignore */ }
+  }, [clientNumber]);
+  useEffect(() => { fetchSupplementaryCount(); }, [fetchSupplementaryCount]);
+
   return (
     <div className="bg-white border border-[var(--hub-border)] rounded-surface shadow-sm overflow-hidden">
       {/* ── Section header ── */}
@@ -408,16 +428,24 @@ export function TrainingSection({
           <p className="m-0 text-xs text-[var(--color-body)]">
             In order. One is used up each time a session is completed.
           </p>
-          {queue.length > 0 && (
-            <span className="ml-auto flex gap-1.5">
+          <span className="ml-auto flex gap-1.5">
+            {supplementaryCount > 0 && (
+              <button
+                onClick={(e) => openDrawer("dw-supplementary", e.currentTarget)}
+                className="text-xs font-semibold text-[var(--color-muted-text)] hover:text-ink bg-transparent border-0 p-0 cursor-pointer font-[inherit]"
+              >
+                Supplementary · {supplementaryCount}
+              </button>
+            )}
+            {queue.length > 0 && (
               <button
                 onClick={(e) => openDrawer("dw-training", e.currentTarget)}
                 className="text-xs font-semibold text-[var(--color-muted-text)] hover:text-ink bg-transparent border-0 p-0 cursor-pointer font-[inherit]"
               >
                 See all {queue.length}
               </button>
-            </span>
-          )}
+            )}
+          </span>
         </div>
 
         {queue.length === 0 ? (
