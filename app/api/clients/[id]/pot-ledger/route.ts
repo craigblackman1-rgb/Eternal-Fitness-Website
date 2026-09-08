@@ -29,7 +29,7 @@ export async function GET(
   // Fetch client — include pot_baseline_used for the pre-hub opening balance
   const { data: client, error: clientError } = await supabase
     .from("clients")
-    .select("id, created_at, sessions_purchased, sessions_remaining, block_expiry_date, block_expiry_extensions, pot_baseline_used, pot_baseline_note, pot_baseline_at")
+    .select("id, start_date, created_at, sessions_purchased, sessions_remaining, block_expiry_date, block_expiry_extensions, pot_baseline_used, pot_baseline_note, pot_baseline_at")
     .eq("client_number", parseInt(params.id))
     .single();
   if (clientError || !client) {
@@ -103,11 +103,12 @@ export async function GET(
   }
 
   // ── Build all events without remaining ────────────────────────────
-  // Package start date: prefer clients.created_at (the real pot creation
-  // timestamp); fall back to earliest session scheduled_at.
+  // Package start date: prefer clients.start_date (the date the client's
+  // training account began), then clients.created_at (row insertion time),
+  // then earliest session scheduled_at.
   const firstSession = (sessions ?? [])[0];
   let packageStartDate: string | null =
-    (client as any).created_at ?? firstSession?.scheduled_at ?? null;
+    (client as any).start_date ?? (client as any).created_at ?? firstSession?.scheduled_at ?? null;
 
   // If packageStartDate is in the future relative to the earliest real
   // activity (completed session, charged cancel), pull it back.
@@ -160,15 +161,15 @@ export async function GET(
     });
   }
 
-  // Session events (only those on or after package start)
+  // Session events — every session belongs to this client's blocks and
+  // therefore necessarily belongs to this package.  The old predate filter
+  // (scheduled_at < packageStartDate) caused a bootstrapping bug: the
+  // pull-back derives packageStartDate from activity dates (completed_at /
+  // cancelled_at), which are stamped later than scheduled_at, then drops
+  // the very sessions that anchor the corrected date — under-counting vs
+  // the summary counters.  Since all fetched sessions belong to this
+  // client, no filter is needed.
   for (const s of sessions ?? []) {
-    if (
-      packageStartDate &&
-      s.scheduled_at &&
-      new Date(s.scheduled_at).getTime() < new Date(packageStartDate).getTime()
-    ) {
-      continue; // skip sessions that predate the package
-    }
     if (s.status === "completed" && s.completed_at) {
       events.push({
         date: s.completed_at,
