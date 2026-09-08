@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect, useRef, type ReactNode } from "react";
+import { useState, useCallback, useMemo, useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import type { SessionStatus } from "@/types";
 import type { AggregatedExerciseNote } from "@/lib/exercise-notes";
@@ -9,9 +9,7 @@ import type { ClientFlag } from "@/lib/mobile-client-flags";
 import type { ExerciseTrendSummary } from "@/lib/progress";
 import { DayAgenda, type AgendaSession } from "@/components/hub/DayAgenda";
 import { ClientNotesPane } from "./ClientNotesPane";
-import { ClientBookingPanel } from "@/components/hub/ClientBookingPanel";
 import { todayLocalISODate, shiftDay } from "@/lib/schedule-dates";
-import { toast } from "sonner";
 
 /* ── Exported view types (derived in page.tsx server component) ── */
 
@@ -219,37 +217,9 @@ function flagIcon(tone: ClientFlag["tone"]) {
   return ICO.warn;
 }
 
-/* ── Helper: group sessions into Monday–Sunday weeks ── */
-
-function mondayOfWeek(date: Date): Date {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = (day + 6) % 7;
-  d.setDate(d.getDate() - diff);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-function weekKey(date: Date): string {
-  const m = mondayOfWeek(date);
-  return m.toISOString().slice(0, 10);
-}
-
-function weekLabel(monday: Date): string {
-  const sunday = new Date(monday);
-  sunday.setDate(sunday.getDate() + 6);
-  const fmt = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-  return `Week of ${fmt(monday)}`;
-}
-
-function formatShortDate(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-}
-
 /* ── Component ── */
 
-type TabKey = "overview" | "sessions" | "pool" | "calendar" | "notes";
+type TabKey = "training" | "calendar" | "notes";
 
 interface ClientModeViewProps {
   clientId: string;
@@ -298,7 +268,7 @@ export function ClientModeView({
   exerciseTrendSummary,
   programmeQueue = null,
 }: ClientModeViewProps) {
-  const [tab, setTab] = useState<TabKey>("overview");
+  const [tab, setTab] = useState<TabKey>("training");
 
   /* ── Accordion state for Medical & compliance (CR-EF-164) ── */
   const accStorageKey = `ef-medcomp-acc:${clientId}`;
@@ -374,172 +344,11 @@ export function ClientModeView({
   const allOpen = GROUP_ORDER.every((g) => accOpen[g.key]);
   const allClosed = GROUP_ORDER.every((g) => !accOpen[g.key]);
 
-  const switchToSessions = useCallback(() => setTab("sessions"), []);
-
-  /* ── CR-EF-166: session move/cancel sheet ── */
-  type MoveSheetTab = "move" | "cancel";
-  type CancelRoute = "charge" | "free" | "reschedule";
-  interface MoveSlot { fullDateTime: string; label: string; time: string; isFree: boolean; }
-
-  const [moveSessionOpen, setMoveSessionOpen] = useState(false);
-  const [moveSessionData, setMoveSessionData] = useState<{ id: string; name: string; scheduledAt: string; cancelReason: string | null } | null>(null);
-  const [moveTab, setMoveTab] = useState<MoveSheetTab>("move");
-  const [cancelRoute, setCancelRoute] = useState<CancelRoute>("free");
-  const [moveSlots, setMoveSlots] = useState<MoveSlot[]>([]);
-  const [moveSlotsLoading, setMoveSlotsLoading] = useState(false);
-  const [moveSelectedSlot, setMoveSelectedSlot] = useState<string | null>(null);
-  const [cancelReason, setCancelReason] = useState("Illness");
-  const [otherReason, setOtherReason] = useState("");
-  const [moveSaving, setMoveSaving] = useState(false);
-  const moveAbortRef = useRef<AbortController | null>(null);
-
-  const handleSessionAction = useCallback((session: { id: string; name: string; scheduledAt: string | null; cancelReason: string | null }) => {
-    setMoveSessionData({ id: session.id, name: session.name, scheduledAt: session.scheduledAt ?? "", cancelReason: session.cancelReason });
-    setMoveTab("move");
-    setCancelRoute("free");
-    setMoveSelectedSlot(null);
-    setCancelReason("Illness");
-    setOtherReason("");
-    setMoveSessionOpen(true);
-  }, []);
-
-  useEffect(() => {
-    if (!moveSessionOpen || moveTab !== "move" || !moveSessionData) return;
-    const controller = new AbortController();
-    moveAbortRef.current?.abort();
-    moveAbortRef.current = controller;
-    setMoveSlotsLoading(true);
-
-    fetch(`/api/availability/slots?from=${moveSessionData.scheduledAt.slice(0, 10)}&weeks=3`, { signal: controller.signal })
-      .then((r) => r.json())
-      .then((data) => {
-        const slots: MoveSlot[] = [];
-        const booked = new Set<string>();
-        for (const week of data.weeks ?? []) {
-          for (const day of week.days ?? []) {
-            if (day.state !== "open") continue;
-            for (const slot of day.slots ?? []) {
-              const iso = slot.startUtc;
-              const dt = new Date(iso);
-              const label = dt.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
-              const time = slot.startLocal;
-              const key = `${day.date} ${time}`;
-              const isFree = !booked.has(key);
-              if (isFree) booked.add(key);
-              slots.push({ fullDateTime: iso, label, time, isFree });
-            }
-          }
-        }
-        setMoveSlots(slots);
-        const firstFree = slots.find((s) => s.isFree);
-        if (firstFree) setMoveSelectedSlot(firstFree.fullDateTime);
-      })
-      .catch(() => { if (!controller.signal.aborted) setMoveSlots([]); })
-      .finally(() => { if (!controller.signal.aborted) setMoveSlotsLoading(false); });
-
-    return () => { controller.abort(); };
-  }, [moveSessionOpen, moveTab, moveSessionData]);
-
-  const handleMoveConfirm = useCallback(async () => {
-    if (!moveSelectedSlot || !moveSessionData) return;
-    setMoveSaving(true);
-    try {
-      const res = await fetch(`/api/sessions/${moveSessionData.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scheduled_at: moveSelectedSlot }),
-      });
-      if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Failed to move session"); }
-      toast.success("Session moved");
-      setMoveSessionOpen(false);
-    } catch (err) { toast.error(err instanceof Error ? err.message : "Failed to move session"); }
-    finally { setMoveSaving(false); }
-  }, [moveSelectedSlot, moveSessionData]);
-
-  const handleCancelConfirm = useCallback(async () => {
-    if (!moveSessionData) return;
-    if (cancelRoute === "reschedule") { setMoveTab("move"); return; }
-    setMoveSaving(true);
-    try {
-      const reason = cancelReason === "Other" && otherReason ? otherReason : cancelReason;
-      const body: Record<string, unknown> = { cancelled_at: new Date().toISOString(), cancel_reason: reason };
-      if (cancelRoute === "free") body.charged_free = "free";
-      const res = await fetch(`/api/sessions/${moveSessionData.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Failed to cancel session"); }
-      toast.success(cancelRoute === "free" ? "Cancelled — free" : "Cancelled — charged to balance");
-      setMoveSessionOpen(false);
-    } catch (err) { toast.error(err instanceof Error ? err.message : "Failed to cancel session"); }
-    finally { setMoveSaving(false); }
-  }, [moveSessionData, cancelRoute, cancelReason, otherReason]);
-
-  /* ── Sessions view: group by week ── */
-  const { upcomingSessions, unscheduledSessions, pastSessions, upcomingCount, pastCount } = useMemo(() => {
-    const now = new Date();
-    const upcoming: SessionView[] = [];
-    const unscheduled: SessionView[] = [];
-    const past: SessionView[] = [];
-
-    for (const s of sessionsView) {
-      if (!s.scheduledAt) {
-        unscheduled.push(s);
-      } else if (new Date(s.scheduledAt).getTime() >= now.getTime() || s.isToday) {
-        upcoming.push(s);
-      } else {
-        past.push(s);
-      }
-    }
-
-    return {
-      upcomingSessions: upcoming,
-      unscheduledSessions: unscheduled,
-      pastSessions: past,
-      upcomingCount: upcoming.length,
-      pastCount: past.length,
-    };
-  }, [sessionsView]);
-
-  /* ── Sessions view: group by week ── */
-  const upcomingWeeks = useMemo(() => {
-    const map = new Map<string, { monday: Date; sessions: SessionView[] }>();
-    for (const s of upcomingSessions) {
-      if (!s.scheduledAt) continue;
-      const d = new Date(s.scheduledAt);
-      const key = weekKey(d);
-      if (!map.has(key)) {
-        map.set(key, { monday: mondayOfWeek(d), sessions: [] });
-      }
-      map.get(key)!.sessions.push(s);
-    }
-    return Array.from(map.values()).sort((a, b) => a.monday.getTime() - b.monday.getTime());
-  }, [upcomingSessions]);
-
-  const pastWeeks = useMemo(() => {
-    const map = new Map<string, { monday: Date; sessions: SessionView[] }>();
-    for (const s of pastSessions) {
-      if (!s.scheduledAt) continue;
-      const d = new Date(s.scheduledAt);
-      const key = weekKey(d);
-      if (!map.has(key)) {
-        map.set(key, { monday: mondayOfWeek(d), sessions: [] });
-      }
-      map.get(key)!.sessions.push(s);
-    }
-    return Array.from(map.values()).sort((a, b) => b.monday.getTime() - a.monday.getTime());
-  }, [pastSessions]);
-
   /* ── Pool view ── */
   const nextPool = poolWorkouts.find((w) => w.status === "next");
-  const poolUsed = poolWorkouts.filter((w) => w.status === "used").length;
-  const poolAssigned = poolWorkouts.filter((w) => w.status === "assigned").length;
 
   const tabs: { key: TabKey; label: string; icon: ReactNode; badge?: number }[] = [
-    { key: "overview", label: "Overview", icon: ICO.overview },
-    { key: "sessions", label: "Sessions", icon: ICO.sessions },
-    { key: "pool", label: "Pool", icon: ICO.pool, badge: unusedPoolCount },
+    { key: "training", label: "Training", icon: ICO.pool },
     { key: "calendar", label: "Calendar", icon: ICO.calendarTab },
     { key: "notes", label: "Notes", icon: ICO.notes },
   ];
@@ -547,264 +356,225 @@ export function ClientModeView({
   return (
     <>
       <main className="mcontent">
-        {/* ══════════════ OVERVIEW ══════════════ */}
-        <section className={`pane${tab === "overview" ? " on" : ""}`}>
+        {/* ══════════════ TRAINING ══════════════ */}
+        <section className={`pane${tab === "training" ? " on" : ""}`}>
+          {/* ── §POT — sessions left (the hero) ── */}
           <div className="panel">
             <div className="panel-h">
-              <span className={`panel-h-ic ${activeFlagCount > 0 ? "danger" : "teal"}`}>
-                {activeFlagCount > 0 ? ICO.med : ICO.okLg}
+              <span className="panel-h-ic ic-rose">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
               </span>
-              <span>
-                <span className="panel-h-t">Medical &amp; compliance</span>
-                <span className="panel-h-s">{panelSubtitle}</span>
-              </span>
-              <span className="panel-h-x">
-                <button className="expand-all" onClick={toggleAllAcc}>
-                  {allOpen ? "Collapse all" : "Expand all"}
-                </button>
-              </span>
+              <span className="panel-h-t">Sessions left</span>
             </div>
             <div className="panel-b">
-              {/* Pinned contraindications — never collapsed */}
-              {contraCount > 0 && (
-                <>
-                  <div className="pinned-lbl">⚠ Contraindications — always visible</div>
-                  {contraindications.map((f, i) => (
-                    <div key={i} className={`flagcard ${f.tone}`}>
-                      <span className="flag-ic">{flagIcon(f.tone)}</span>
-                      <div>
-                        <b>{f.title}</b>
-                        {f.detail}
-                      </div>
-                    </div>
-                  ))}
-                </>
-              )}
-
-              {/* Clinical family */}
-              {clinicalGroups.length > 0 && (
-                <>
-                  <div className="fam-lbl">Clinical</div>
-                  {clinicalGroups.map((g) => {
-                    const items = groupItems.get(g.key) ?? [];
-                    const tone = worstTone(items);
-                    const isOpen = !!accOpen[g.key];
-                    return (
-                      <div key={g.key} className="acc" data-open={isOpen ? "true" : "false"}>
-                        <button className="acc-h" aria-expanded={isOpen} onClick={() => toggleAcc(g.key)}>
-                          <span className={`acc-dot dot-${tone}`} />
-                          <span className="acc-t">{g.title}</span>
-                          <span className="acc-count">{items.length}</span>
-                          <span className="acc-ch">▾</span>
-                        </button>
-                        <div className="acc-b">
-                          {items.map((f, i) => (
-                            <div key={i} className={`flagcard ${f.tone}`}>
-                              <span className="flag-ic">{flagIcon(f.tone)}</span>
-                              <div>
-                                <b>{f.title}</b>
-                                {f.detail}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </>
-              )}
-
-              {/* Compliance family */}
-              {complianceGroups.length > 0 && (
-                <>
-                  <div className="fam-lbl">Compliance</div>
-                  {complianceGroups.map((g) => {
-                    const items = groupItems.get(g.key) ?? [];
-                    const tone = worstTone(items);
-                    const isOpen = !!accOpen[g.key];
-                    return (
-                      <div key={g.key} className="acc" data-open={isOpen ? "true" : "false"}>
-                        <button className="acc-h" aria-expanded={isOpen} onClick={() => toggleAcc(g.key)}>
-                          <span className={`acc-dot dot-${tone}`} />
-                          <span className="acc-t">{g.title}</span>
-                          <span className="acc-count">{items.length}</span>
-                          <span className="acc-ch">▾</span>
-                        </button>
-                        <div className="acc-b">
-                          {items.map((f, i) => (
-                            <div key={i} className={`flagcard ${f.tone}`}>
-                              <span className="flag-ic">{flagIcon(f.tone)}</span>
-                              <div>
-                                <b>{f.title}</b>
-                                {f.detail}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </>
-              )}
-
-              {/* Empty state */}
-              {contraCount === 0 && visibleGroups.length === 0 && (
-                <div className="pin-empty">
-                  Nothing recorded to flag.
+              <div className={`pot-hero${(potView.remaining ?? 99) <= 2 ? " low" : ""}`}>
+                <span className="pot-hero-fig">{potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining ?? "?"}</span>
+                <span className="pot-hero-label">left</span>
+                <span className="pot-hero-of">
+                  {potView.used} of {potView.purchasedIsEstimate ? potView.estimatedPurchase : potView.purchased ?? "?"} used
+                </span>
+              </div>
+              {potView.purchased != null && (
+                <div className="pot-hero-bar">
+                  <i style={{ width: `${Math.min(((potView.purchased - (potView.remaining ?? 0)) / potView.purchased) * 100, 100)}%` }} />
                 </div>
               )}
-
-              {/* CR-EF-113: dual action — Train primary, Session record one tap away */}
-              {trainTargetId && (
-                <div className="actbar">
-                  <Link className="btn btn-primary" href={`/hub/m/train/${trainTargetId}`}>
-                    Train {firstName}
-                  </Link>
-                  <button className="btn btn-outline" onClick={switchToSessions}>
-                    Session record
-                  </button>
+              <p className="pot-hero-s">Only a completed workout takes one. Reschedules and cancellations don&apos;t, and nothing expires.</p>
+              {potView.unreviewedCancellations > 0 && (
+                <div className="mpot-note">
+                  {potView.unreviewedCancellations} cancellation{potView.unreviewedCancellations === 1 ? "" : "s"} not counted — needs review
                 </div>
               )}
             </div>
           </div>
 
-          {/* CR-EF-168: Personal-best summary tile */}
-          {exerciseTrendSummary && exerciseTrendSummary.totalExercisesLogged > 0 && (
-            <div className="panel panel-tap" style={{ cursor: "default" }}>
+          {/* ── §NEXT WORKOUT — what she is doing next ── */}
+          {nextPool && (
+            <div className="panel">
               <div className="panel-h">
-                <span className="panel-h-ic teal">{ICO.hist}</span>
-                <span>
-                  <span className="panel-h-t">Progress summary</span>
-                  <span className="panel-h-s">
-                    {exerciseTrendSummary.personalBests} personal best{exerciseTrendSummary.personalBests !== 1 ? "s" : ""}
-                    {exerciseTrendSummary.heaviestLift ? ` · heaviest ${exerciseTrendSummary.heaviestLift}` : ""}
-                  </span>
+                <span className="panel-h-ic teal">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </span>
+                <span className="panel-h-t">Next workout</span>
+              </div>
+              <div className="panel-b">
+                <div className="nw">
+                  <span className="nw-p">{nextPool.letter}</span>
+                  <span className="nw-m">
+                    <span className="nw-t">{nextPool.name}</span>
+                    <span className="nw-s">
+                      {nextPool.assignedDate
+                        ? `Assigned · ${new Date(nextPool.assignedDate).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}`
+                        : "Not yet assigned"}
+                    </span>
+                  </span>
+                </div>
+                <div className="actbar-m">
+                  <Link className="btn btn-outline" href={trainTargetId ? `/hub/m/train/${trainTargetId}` : "#"}>
+                    See workout
+                  </Link>
+                  <Link className="btn btn-primary" href={trainTargetId ? `/hub/m/train/${trainTargetId}` : "#"}>
+                    Start session
+                  </Link>
+                </div>
               </div>
             </div>
           )}
 
-          {/* CR-EF-113: openable sessions summary — the specific complaint fix */}
-          <button className="panel panel-tap" onClick={switchToSessions} aria-label="Open Sessions">
-            <div className="panel-h">
-              <span className="panel-h-ic navy">{ICO.calendar}</span>
-              <span>
-                <span className="panel-h-t">Sessions</span>
-                <span className="panel-h-s">
-                  {block
-                    ? potView.purchasedIsEstimate
-                      ? `${potView.used} of ${potView.estimatedPurchase} used (est.) · ${potView.estimatedRemaining} remaining (est.)`
-                      : potView.purchased != null
-                        ? `${potView.used} of ${potView.purchased} used · ${potView.remaining} remaining`
-                        : `${potView.used} used · purchased not recorded`
-                    : "No active programme"}
-                </span>
-              </span>
-              <span className="panel-chev">{ICO.chev}</span>
-            </div>
-            <div className="panel-b">
-              {block?.focus && (
-                <div className="kv" style={{ paddingTop: 0 }}>
-                  <span className="kv-k">Focus</span>
-                  <span className="kv-v">{block.focus}</span>
-                </div>
-              )}
-              {block && (
-                <>
-                  <div className="blockbar">
-                    <i style={{ width: `${block.pct}%` }} />
+          {/* ── §QUEUE — after that ── */}
+          {(() => {
+            const queued = poolWorkouts.filter((w) => w.status === "unused" || w.status === "next").slice(0, 3);
+            const totalQueued = poolWorkouts.filter((w) => w.status === "unused" || w.status === "next").length;
+            if (queued.length === 0 && !nextPool) {
+              /* ── §NOPLAN — the honest empty state ── */
+              return (
+                <div className="panel">
+                  <div className="panel-h">
+                    <span className="panel-h-ic teal">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
+                    <span className="panel-h-t">Next workout</span>
                   </div>
-                  <div className="blockmeta">
-                    <span>Tap to see which sessions, and what&apos;s attached</span>
-                    <span>{potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining ?? "?"}{potView.purchasedIsEstimate ? " (est.)" : ""} left</span>
+                  <div className="panel-b">
+                    <div className="noplan-m">
+                      <p className="noplan-m-t">No workouts assigned yet</p>
+                      <p className="noplan-m-s">Nothing is queued for {firstName}, so nothing is shown here.</p>
+                      <Link className="btn btn-outline" href={`/hub/clients/${clientNumber}`} style={{ width: "100%" }}>
+                        Build queue on desktop
+                      </Link>
+                    </div>
+                    {(potView.remaining ?? 0) > 0 && (
+                      <div className="mrecon-m">
+                        <span><b>{totalQueued} queued · {potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining ?? "?"} session{(potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining) !== 1 ? "s" : ""} left.</b> {totalQueued === 0 ? "Nothing queued." : ""}</span>
+                      </div>
+                    )}
                   </div>
-                </>
-              )}
-              {!block && (
-                <div style={{ fontSize: 13, color: "var(--muted)" }}>
-                  Nothing has been planned for {firstName} yet — this isn&apos;t the same as being up to date.
+                  <div className="panel-f" style={{ borderTop: "1px solid var(--border)", padding: "10px 14px", background: "var(--hover)", fontSize: 12, color: "var(--muted)" }}>
+                    Building a queue is a desk job — the phone says so rather than offering a version that doesn&apos;t work one-handed.
+                  </div>
                 </div>
-              )}
-            </div>
-          </button>
+              );
+            }
+            return (
+              <div className="panel">
+                <div className="panel-h">
+                  <span className="panel-h-ic navy">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+                  </span>
+                  <span className="panel-h-t">After that</span>
+                </div>
+                <div className="panel-b" style={{ paddingTop: 2, paddingBottom: 2 }}>
+                  {queued.map((w) => (
+                    <button key={w.id} className="qrow-m" type="button">
+                      <span className="qrow-m-p">{w.letter}</span>
+                      <span className="qrow-m-w">{w.name}</span>
+                      <span className="qrow-m-c">{ICO.chev}</span>
+                    </button>
+                  ))}
+                  {totalQueued > 3 && (
+                    <button className="qmore" type="button">
+                      See all {totalQueued} in the queue ›
+                    </button>
+                  )}
+                </div>
+                <div className="panel-f" style={{ borderTop: "1px solid var(--border)", padding: "10px 14px", background: "var(--hover)", fontSize: 12, color: "var(--muted)" }}>
+                  {totalQueued} queued · {potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining ?? "?"} session{(potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining) !== 1 ? "s" : ""} left. The plan and the pot agree.
+                </div>
+              </div>
+            );
+          })()}
 
-          {/* CR-EF-167: programme queue strip */}
-          {programmeQueue && (
+          {/* ── §BOOKED IN — the only dates in the model ── */}
+          {calendarSessions.filter((s) => s.status === "scheduled").length > 0 && (
             <div className="panel">
               <div className="panel-h">
-                <span className="panel-h-ic">{ICO.block}</span>
+                <span className="panel-h-ic navy">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                </span>
+                <span className="panel-h-t">Booked in</span>
+                <Link className="btn-link" href="/hub/m/calendar" style={{ marginLeft: "auto", fontSize: 12, fontWeight: 700, color: "var(--rose)" }}>
+                  Calendar ›
+                </Link>
+              </div>
+              <div className="panel-b" style={{ paddingTop: 2, paddingBottom: 4 }}>
+                {calendarSessions
+                  .filter((s) => s.status === "scheduled")
+                  .slice(0, 2)
+                  .map((s) => {
+                    const d = new Date(s.scheduledAt);
+                    return (
+                      <div key={s.id} className="brow-m">
+                        <span className="bdate-m">
+                          <b>{d.getDate()}</b>
+                          <span>{d.toLocaleDateString("en-GB", { weekday: "short" })}</span>
+                        </span>
+                        <span className="bmeta-m">
+                          <b>{d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}{d.toDateString() === new Date().toDateString() ? " today" : ""}</b>
+                          Will use {s.name}
+                        </span>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
+
+          {/* ── §SO FAR ── */}
+          <div className="panel">
+            <div className="panel-h">
+              <span className="panel-h-t" style={{ marginLeft: 2 }}>So far</span>
+            </div>
+            <div className="panel-b">
+              <div className="stats-m">
+                <span>Done<b>{potView.completed}</b></span>
+                <span>Pots<b>{potView.purchased != null ? Math.ceil(potView.used / (potView.purchased || 1)) : "—"}</b></span>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Medical & compliance (collapsed into a compact card) ── */}
+          {activeFlagCount > 0 && (
+            <div className="panel">
+              <div className="panel-h">
+                <span className={`panel-h-ic ${activeFlagCount > 0 ? "danger" : "teal"}`}>
+                  {activeFlagCount > 0 ? ICO.med : ICO.okLg}
+                </span>
                 <span>
-                  <span className="panel-h-t">Programme queue</span>
-                  <span className="panel-h-s">{programmeQueue.programName} · {programmeQueue.slotLetters.length} slot{programmeQueue.slotLetters.length !== 1 ? "s" : ""} in rotation</span>
+                  <span className="panel-h-t">Medical &amp; compliance</span>
+                  <span className="panel-h-s">{activeFlagCount} flag{activeFlagCount !== 1 ? "s" : ""} active</span>
                 </span>
               </div>
               <div className="panel-b">
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)" }}>
-                    Round {programmeQueue.currentWeek} of {programmeQueue.totalWeeks}
-                  </span>
-                  {programmeQueue.nextSlotLabel && (
-                    <span style={{ fontSize: 11.5, color: "var(--muted)" }}>
-                      · next: {programmeQueue.nextSlotLabel}
-                      {programmeQueue.nextSessionIndex != null && ` · session ${programmeQueue.nextSessionIndex} of ${programmeQueue.totalSessions}`}
-                    </span>
-                  )}
-                </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {programmeQueue.slotLetters.map((letter, i) => (
-                    <span key={i} style={{
-                      width: 36, height: 30, borderRadius: "var(--r-control)", border: "1px solid var(--border)",
-                      background: "var(--card)", display: "grid", placeItems: "center",
-                      fontSize: 13, fontWeight: 800, color: "var(--ink)",
-                    }}>{letter}</span>
-                  ))}
-                </div>
-                <p style={{ fontSize: 11, color: "var(--muted)", margin: "8px 0 0" }}>
-                  Rounds advance when sessions are completed — not by the calendar.
-                </p>
+                {flags.filter((f) => f.tone !== "ok").slice(0, 3).map((f, i) => (
+                  <div key={i} className={`flagcard ${f.tone}`}>
+                    <span className="flag-ic">{flagIcon(f.tone)}</span>
+                    <div>
+                      <b>{f.title}</b>
+                      {f.detail}
+                    </div>
+                  </div>
+                ))}
+                {flags.filter((f) => f.tone !== "ok").length > 3 && (
+                  <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 8 }}>
+                    +{flags.filter((f) => f.tone !== "ok").length - 3} more flag{flags.filter((f) => f.tone !== "ok").length - 3 !== 1 ? "s" : ""}
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          <div className="panel">
-            <div className="panel-h">
-              <span className="panel-h-ic">{ICO.pin}</span>
-              <span>
-                <span className="panel-h-t">Pinned note</span>
-                <span className="panel-h-s">The note surfaced here</span>
-              </span>
-            </div>
-            <div className="panel-b">
-              {pinnedNote ? (
-                <div className="flagcard ok">
-                  <span className="flag-ic">{ICO.pin}</span>
-                  <div>
-                    <b>{pinnedNote.text.slice(0, 60)}{pinnedNote.text.length > 60 ? "…" : ""}</b>
-                    <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 2 }}>
-                      Added on {new Date(pinnedNote.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                      {pinnedNote.author ? ` · ${pinnedNote.author}` : ""} · pinned
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="pin-empty">
-                  No pinned note yet — pin a note from the Notes tab to surface it here.
-                </div>
-              )}
-            </div>
-          </div>
-
+          {/* ── Recent sessions ── */}
           {recent.length > 0 && (
             <div className="panel">
               <div className="panel-h">
                 <span className="panel-h-ic teal">{ICO.hist}</span>
                 <span>
                   <span className="panel-h-t">Recent sessions</span>
-                  <span className="panel-h-s">Tap to read a past log — read-only</span>
+                  <span className="panel-h-s">Tap to read a past log</span>
                 </span>
               </div>
               <div className="panel-b" style={{ paddingTop: 2, paddingBottom: 4 }}>
-                {recent.map((h) => (
+                {recent.slice(0, 3).map((h) => (
                   <Link key={h.id} className="hrow" href={`/hub/m/train/${h.id}`}>
                     <span className="hdate">
                       <b>{h.day ?? "—"}</b>
@@ -826,225 +596,6 @@ export function ClientModeView({
             Documents, PAR-Q editing, cashflow, email updates and invoicing still live on the desktop
             hub. Client mode is for session-shaped work — training, booking, notes and review.{" "}
             <Link href={`/hub/clients/${clientNumber}`}>Open the full record on desktop</Link>.
-          </div>
-        </section>
-
-        {/* ══════════════ SESSIONS ══════════════ */}
-        <section className={`pane${tab === "sessions" ? " on" : ""}`}>
-          {/* Pot strip */}
-          <div className="mpot">
-            <div className="mpot-row">
-              <span className="mpot-n">{potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining ?? "?"}</span>
-              <span className="mpot-l">left</span>
-              <span className="mpot-side">
-                <b>{potView.used}</b> used{potView.purchasedIsEstimate ? <> of <b>{potView.estimatedPurchase}</b> (est.)</> : potView.purchased != null ? <> of <b>{potView.purchased}</b></> : null}
-                <br />
-                {potView.bookedAhead} booked ahead
-              </span>
-            </div>
-            {potView.purchased != null ? (
-              <div className="mbar">
-                {potView.completed > 0 && (
-                  <span className="mseg done" style={{ width: `${(potView.completed / potView.purchased) * 100}%` }} />
-                )}
-                {potView.chargedCancellations > 0 && (
-                  <span className="mseg charged" style={{ width: `${(potView.chargedCancellations / potView.purchased) * 100}%` }} />
-                )}
-                {potView.bookedAhead > 0 && (
-                  <span className="mseg booked" style={{ width: `${(potView.bookedAhead / potView.purchased) * 100}%` }} />
-                )}
-                {(() => {
-                  const notBooked = Math.max((potView.remaining ?? 0) - potView.bookedAhead, 0);
-                  return notBooked > 0 ? (
-                    <span
-                      className="mseg free"
-                      style={{
-                        width: `${(notBooked / potView.purchased) * 100}%`,
-                      }}
-                    />
-                  ) : null;
-                })()}
-              </div>
-            ) : null}
-            <div className="mpot-legend">
-              <span className="mleg">
-                <i style={{ background: "var(--teal)" }} />Completed <b>{potView.completed}</b>
-              </span>
-              {potView.chargedCancellations > 0 && (
-                <span className="mleg">
-                  <i style={{ background: "var(--s-danger)" }} />Charged <b>{potView.chargedCancellations}</b>
-                </span>
-              )}
-              <span className="mleg">
-                <i style={{ background: "var(--rose)" }} />Booked <b>{potView.bookedAhead}</b>
-              </span>
-              <span className="mleg">
-                <i style={{ background: "var(--hover)" }} />Not booked <b>{Math.max((potView.remaining ?? 0) - potView.bookedAhead, 0)}</b>
-              </span>
-            </div>
-            {potView.unreviewedCancellations > 0 && (
-              <div className="mpot-note">
-                {potView.unreviewedCancellations} cancellation{potView.unreviewedCancellations === 1 ? "" : "s"} not counted above — needs review
-              </div>
-            )}
-          </div>
-
-          {/* Upcoming */}
-          {upcomingSessions.length > 0 && (
-            <>
-              <div className="sec-lbl">
-                <h2>Upcoming</h2>
-                <span className="cnt">{upcomingCount} session{upcomingCount !== 1 ? "s" : ""}</span>
-              </div>
-              {upcomingWeeks.map((wk) => (
-                <div key={weekKey(wk.monday)}>
-                  <div className="week-band">
-                    <span className="week-band-t">{weekLabel(wk.monday)}</span>
-                  </div>
-                  <div className="blist">
-                    {wk.sessions.map((s) => (
-                      <SessionRow key={s.id} session={s} firstName={firstName} nextPool={s.name === "No workout assigned yet" ? nextPool : undefined} clientNumber={clientNumber}
-                        onAction={s.status === "scheduled" && s.scheduledAt ? () => handleSessionAction({ id: s.id, name: s.name, scheduledAt: s.scheduledAt, cancelReason: s.cancelReason }) : undefined}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </>
-          )}
-
-          {/* Not yet booked */}
-          {unscheduledSessions.length > 0 && (
-            <>
-              <div className="sec-lbl plan">
-                <h2>Not yet booked</h2>
-                <span className="cnt">{unscheduledSessions.length} session{unscheduledSessions.length !== 1 ? "s" : ""}</span>
-              </div>
-              <div className="blist">
-                <div className="srow plan">
-                  <div className="srow-date" style={{ borderRight: 0 }}>
-                    <div className="srow-d" style={{ color: "var(--muted)" }}>—</div>
-                  </div>
-                  <div className="srow-body">
-                    <div className="srow-empty">
-                      Sessions {unscheduledSessions[0]?.position ?? "?"}–{unscheduledSessions[unscheduledSessions.length - 1]?.position ?? "?"} of {unscheduledSessions[0]?.total ?? "?"}
-                    </div>
-                    <div className="srow-sub">
-                      Nothing booked into Outlook yet — will appear here with real dates once they are.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Already happened */}
-          {pastSessions.length > 0 && (
-            <>
-              <div className="sec-lbl">
-                <h2>Already happened</h2>
-                <span className="cnt">{pastCount} session{pastCount !== 1 ? "s" : ""}</span>
-              </div>
-              {pastWeeks.map((wk) => (
-                <div key={weekKey(wk.monday)}>
-                  <div className="week-band">
-                    <span className="week-band-t">{weekLabel(wk.monday)}</span>
-                  </div>
-                  <div className="blist">
-                    {wk.sessions.map((s) => (
-                      <SessionRow key={s.id} session={s} firstName={firstName} clientNumber={clientNumber} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </>
-          )}
-
-          {sessionsView.length === 0 && (
-            <div className="empty">
-              <div className="empty-ic">{ICO.sessions}</div>
-              <p className="empty-t">No sessions yet</p>
-              <p className="empty-d">
-                Nothing has been planned for {firstName} yet — this isn&apos;t the same as being up to date.
-              </p>
-            </div>
-          )}
-        </section>
-
-        {/* ══════════════ POOL ══════════════ */}
-        <section className={`pane${tab === "pool" ? " on" : ""}`}>
-          {/* Next-up card */}
-          {nextPool && (
-            <div className="nextcard">
-              <div className="nextcard-top">
-                <span className="nextcard-let">{nextPool.letter}</span>
-                <div style={{ minWidth: 0 }}>
-                  <div className="nextcard-lbl">Up next</div>
-                  <div className="nextcard-n">{nextPool.name}</div>
-                  <div className="nextcard-s">
-                    {nextPool.assignedDate
-                      ? `Assigned to ${formatShortDate(nextPool.assignedDate)}`
-                      : "Not delivered yet"}
-                  </div>
-                </div>
-              </div>
-              <div className="nextcard-b">
-                {earliestUnattached ? (
-                  <div className="nextcard-target">
-                    {ICO.calSm}
-                    <span>
-                      Earliest session without a workout is <b>{formatShortDate(earliestUnattached.scheduledAt)}</b>
-                    </span>
-                  </div>
-                ) : nextPool.assignedDate ? (
-                  <div className="nextcard-target">
-                    {ICO.calSm}
-                    <span>
-                      Assigned to <b>{formatShortDate(nextPool.assignedDate)}</b>
-                    </span>
-                  </div>
-                ) : null}
-                <button className="mbtn" onClick={() => setTab("sessions")}>
-                  View sessions
-                </button>
-                <button className="mbtn ghost" onClick={() => setTab("sessions")}>
-                  Choose a different session
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Workout sequence */}
-          <div className="sec-lbl">
-            <h2>Workout sequence</h2>
-            <span className="cnt">
-              {poolUsed} used · {poolAssigned} assigned · {unusedPoolCount} unused
-            </span>
-          </div>
-          <div className="pool-list">
-            {poolWorkouts.map((w) => (
-              <div
-                key={w.id}
-                className={`pool-item${w.status === "used" ? " done" : ""}${w.status === "assigned" ? " assigned" : ""}${w.status === "next" ? " next" : ""}`}
-              >
-                <span className="pool-let">{w.letter}</span>
-                <div className="pool-body">
-                  <div className="pool-n">{w.name}</div>
-                  <div className="pool-s">
-                    {w.status === "used" && w.deliveryDate && `Delivered ${formatShortDate(w.deliveryDate)}`}
-                    {w.status === "assigned" && w.assignedDate && `Attached to ${formatShortDate(w.assignedDate)}`}
-                    {w.status === "next" && "Not used yet"}
-                    {w.status === "unused" && "Not used yet"}
-                  </div>
-                </div>
-                <span className={`pool-tag ${w.status === "used" ? "used" : w.status === "assigned" ? "assig" : w.status === "next" ? "nextup" : "unused"}`}>
-                  {w.status === "used" && "Used"}
-                  {w.status === "assigned" && "Assigned"}
-                  {w.status === "next" && "Next up"}
-                  {w.status === "unused" && "Unused"}
-                </span>
-              </div>
-            ))}
           </div>
         </section>
 
@@ -1106,237 +657,6 @@ export function ClientModeView({
           </button>
         ))}
       </nav>
-
-      {/* CR-EF-166: session move/cancel bottom sheet */}
-      {moveSessionOpen && moveSessionData && (
-        <>
-          <div className="scrim" onClick={() => { if (!moveSaving) setMoveSessionOpen(false); }} />
-          <div className="sheet" role="dialog" aria-modal="true" aria-label="Move or cancel session">
-            <div className="grab"><i /></div>
-            <header className="sh-head">
-              <div className="sh-title">
-                <h1>{moveTab === "move" ? "Move session" : "Cancel session"}</h1>
-                <p>{moveSessionData.name} · {new Date(moveSessionData.scheduledAt).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}</p>
-              </div>
-              <button className="sh-close" onClick={() => { if (!moveSaving) setMoveSessionOpen(false); }} aria-label="Close">✕</button>
-            </header>
-
-            {/* Tab bar */}
-            <div className="modes">
-              <button className={`mode-btn${moveTab === "move" ? " on" : ""}`} onClick={() => setMoveTab("move")}>Move it</button>
-              <button className={`mode-btn${moveTab === "cancel" ? " on" : ""}`} onClick={() => setMoveTab("cancel")}>Cancel it</button>
-            </div>
-
-            <div style={{ flex: 1, overflowY: "auto", padding: 14, paddingBottom: 108 }}>
-              {/* ── Move tab ── */}
-              {moveTab === "move" && (
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--muted)", marginBottom: 8 }}>
-                    New date and time
-                  </div>
-                  {moveSlotsLoading ? (
-                    <p style={{ fontSize: 13, color: "var(--muted)" }}>Loading available slots…</p>
-                  ) : moveSlots.length === 0 ? (
-                    <p style={{ fontSize: 13, color: "var(--muted)" }}>No available slots found in the next 3 weeks.</p>
-                  ) : (
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                      {moveSlots.map((slot) => {
-                        const isSel = slot.fullDateTime === moveSelectedSlot;
-                        return (
-                          <button key={slot.fullDateTime} onClick={() => setMoveSelectedSlot(slot.fullDateTime)}
-                            style={{
-                              border: `1px solid ${isSel ? "var(--rose)" : "var(--border)"}`,
-                              borderRadius: "var(--r-nested)",
-                              padding: "8px 12px",
-                              background: isSel ? "var(--s-primary-bg)" : "var(--card)",
-                              cursor: "pointer",
-                              fontFamily: "inherit",
-                              textAlign: "left",
-                              boxShadow: isSel ? "inset 0 0 0 1px var(--rose)" : "none",
-                            }}>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: isSel ? "var(--rose)" : "var(--ink)" }}>{slot.label}</div>
-                            <div style={{ fontSize: 11.5, color: isSel ? "var(--rose)" : "var(--muted)", marginTop: 2 }}>{slot.time}</div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                  {/* Programme unaffected reassurance */}
-                  <div style={{ marginTop: 12, padding: "10px 12px", borderRadius: "var(--r-nested)", background: "var(--s-success-bg)", border: "1px solid var(--s-success-bd)", fontSize: 13, fontWeight: 600, color: "var(--teal)" }}>
-                    Her programme is unaffected — <b>{moveSessionData.name}</b> still delivers at her next session. Moving this session does not touch the queue.
-                  </div>
-                </div>
-              )}
-
-              {/* ── Cancel tab ── */}
-              {moveTab === "cancel" && (
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--muted)", marginBottom: 8 }}>
-                    How should this cancellation be handled?
-                  </div>
-                  {/* Three-way route cards */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
-                    {([
-                      { route: "charge" as const, title: "Charge to balance", desc: "Uses one session. Remaining drops by 1." },
-                      { route: "free" as const, title: "Free cancellation", desc: "Doesn't use a session. No change." },
-                      { route: "reschedule" as const, title: "Reschedule", desc: "Move to a new date. No change." },
-                    ]).map((opt) => (
-                      <button key={opt.route} onClick={() => setCancelRoute(opt.route)}
-                        style={{
-                          border: `1px solid ${cancelRoute === opt.route ? "var(--rose)" : "var(--border)"}`,
-                          borderRadius: "var(--r-nested)",
-                          padding: "10px 8px",
-                          background: cancelRoute === opt.route ? "var(--s-primary-bg)" : "var(--card)",
-                          cursor: "pointer",
-                          fontFamily: "inherit",
-                          textAlign: "center",
-                          boxShadow: cancelRoute === opt.route ? "inset 0 0 0 1px var(--rose)" : "none",
-                        }}>
-                        <div style={{ fontSize: 12, fontWeight: 800, color: cancelRoute === opt.route ? "var(--rose)" : "var(--ink)" }}>{opt.title}</div>
-                        <div style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 2 }}>{opt.desc}</div>
-                      </button>
-                    ))}
-                  </div>
-                  {/* Consequence preview */}
-                  <div style={{ padding: "10px 12px", borderRadius: "var(--r-nested)", background: "var(--s-success-bg)", border: "1px solid var(--s-success-bd)", fontSize: 13, fontWeight: 600, color: "var(--teal)", marginBottom: 12 }}>
-                    {cancelRoute === "charge"
-                      ? `${potView.remaining ?? "?"} remaining → ${Math.max(0, (potView.remaining ?? 1) - 1)} remaining`
-                      : cancelRoute === "free"
-                        ? `${potView.remaining ?? "?"} remaining → ${potView.remaining ?? "?"} remaining (no change)`
-                        : `${potView.remaining ?? "?"} remaining → ${potView.remaining ?? "?"} remaining (date changes only)`}
-                  </div>
-                  {/* Reason */}
-                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--muted)", marginBottom: 6 }}>
-                    Reason
-                  </div>
-                  <select value={cancelReason} onChange={(e) => setCancelReason(e.target.value)}
-                    style={{ width: "100%", height: 40, border: "1px solid var(--field-border)", borderRadius: "var(--r-nested)", padding: "0 10px", fontFamily: "inherit", fontSize: 14, color: "var(--ink)", background: "var(--card)" }}>
-                    {["Illness", "Client request", "Esther unavailable", "Other"].map((r) => (
-                      <option key={r} value={r}>{r}</option>
-                    ))}
-                  </select>
-                  {cancelReason === "Other" && (
-                    <input type="text" value={otherReason} onChange={(e) => setOtherReason(e.target.value)} placeholder="Specify reason"
-                      style={{ width: "100%", height: 40, border: "1px solid var(--field-border)", borderRadius: "var(--r-nested)", padding: "0 10px", fontFamily: "inherit", fontSize: 14, color: "var(--ink)", background: "var(--card)", marginTop: 8 }} />
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: "10px 14px", borderTop: "1px solid var(--border)", background: "var(--card)" }}>
-              <button onClick={() => setMoveSessionOpen(false)} disabled={moveSaving}
-                style={{ height: 44, padding: "0 14px", borderRadius: "var(--r-nested)", border: "1px solid var(--border)", background: "var(--card)", color: "var(--muted)", fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer", opacity: moveSaving ? 0.5 : 1 }}>
-                Back
-              </button>
-              <button onClick={moveTab === "move" ? handleMoveConfirm : handleCancelConfirm}
-                disabled={moveSaving || (moveTab === "move" && !moveSelectedSlot)}
-                style={{
-                  height: 44, padding: "0 16px", borderRadius: "var(--r-nested)", border: "0",
-                  background: moveTab === "move" ? "var(--rose)" : "var(--s-danger)",
-                  color: "var(--color-white)", fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer",
-                  opacity: moveSaving || (moveTab === "move" && !moveSelectedSlot) ? 0.5 : 1,
-                }}>
-                {moveSaving ? "Saving…" : moveTab === "move" ? "Move session" : cancelRoute === "reschedule" ? "Reschedule" : "Cancel session"}
-              </button>
-            </div>
-          </div>
-        </>
-      )}
     </>
-  );
-}
-
-/* ── Session row sub-component ── */
-
-function SessionRow({ session: s, firstName, nextPool, clientNumber, onAction }: { session: SessionView; firstName: string; nextPool?: PoolWorkoutView; clientNumber: number; onAction?: () => void }) {
-  const positionLabel = s.position != null && s.total != null ? `Session ${s.position} of ${s.total}` : null;
-  const isCompleted = s.status === "completed";
-  const isCancelled = s.status === "cancelled";
-  const isCharged = s.chargedFree === "charged";
-  const isFree = s.chargedFree === "free";
-
-  let statusPillClass = "";
-  let statusPillLabel = "";
-  let statusPillIcon: ReactNode = null;
-
-  if (isCompleted) {
-    statusPillClass = "completed";
-    statusPillLabel = "Completed";
-    statusPillIcon = ICO.check;
-  } else if (isCancelled && isCharged) {
-    statusPillClass = "charged";
-    statusPillLabel = "Charged";
-    statusPillIcon = ICO.xCircle;
-  } else if (isCancelled && isFree) {
-    statusPillClass = "freecx";
-    statusPillLabel = "Cancelled — free";
-    statusPillIcon = ICO.xCircle;
-  } else if (isCancelled) {
-    statusPillClass = "unreviewed";
-    statusPillLabel = "Cancelled — needs review";
-    statusPillIcon = ICO.warn;
-  } else if (s.scheduledAt && !isCancelled) {
-    statusPillClass = "booked";
-    statusPillLabel = "Booked";
-    statusPillIcon = ICO.calSm;
-  }
-
-  const subParts: string[] = [];
-  if (positionLabel) subParts.push(positionLabel);
-  if (s.isToday) subParts.push("today");
-  if (s.scheduledAt && !isCancelled && !isCompleted && s.name === "No workout assigned yet") {
-    subParts.push("booked via Outlook");
-  }
-
-  return (
-    <div className={`srow${s.isToday ? " today" : ""}${isCancelled ? " cx" : ""}`}>
-      <div className="srow-date">
-        <div className="srow-d">{s.dayOfMonth ?? "—"}</div>
-        {s.dayOfWeek && <div className="srow-dow">{s.dayOfWeek}</div>}
-        {s.time && <div className="srow-time">{s.time}</div>}
-        {onAction && (
-          <button className="srow-action" onClick={(e) => { e.stopPropagation(); onAction(); }} aria-label="Move or cancel session">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-              <circle cx="12" cy="5" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" />
-            </svg>
-          </button>
-        )}
-      </div>
-      <div className="srow-body">
-        {s.name === "No workout assigned yet" ? (
-          <div className="srow-empty">{s.name}</div>
-        ) : (
-          <div className="srow-name">{s.name}</div>
-        )}
-        <div className="srow-sub">{subParts.join(" · ")}</div>
-        <div className="srow-flags">
-          {statusPillLabel && (
-            <span className={`s-pill ${statusPillClass}`}>
-              {statusPillIcon}
-              {statusPillLabel}
-            </span>
-          )}
-          {isCompleted && <span className="cost-flag minus">−1</span>}
-          {isCharged && <span className="cost-flag minus">−1</span>}
-          {isFree && <span className="cost-flag zero">no session used</span>}
-          {isCancelled && !isCharged && !isFree && <span className="cost-flag unreviewed">? pending review</span>}
-          {s.name === "No workout assigned yet" && nextPool && (
-            <span className="next-hint">
-              {ICO.arrowRight}
-              Up next: {nextPool.name}
-            </span>
-          )}
-          {s.subSessionCount > 0 && (
-            <span className="cost-flag" style={{ color: "var(--rose, #c1839f)", background: "rgba(193,131,159,.1)", border: "1px solid rgba(193,131,159,.2)" }}>
-              +{s.subSessionCount} supplementary
-            </span>
-          )}
-        </div>
-        {s.name === "No workout assigned yet" && nextPool && (
-          <Link className="mfill-btn" href={`/hub/m/clients/${clientNumber}/add-workout`}>Add workout</Link>
-        )}
-      </div>
-    </div>
   );
 }
