@@ -128,7 +128,7 @@ export function ShiftScheduleDialog({
             Shift the schedule
           </h3>
           <p className="m-0 mt-0.5 text-xs text-[var(--color-muted)]">
-            Move a run of bookings without touching the programme&rsquo;s content or queue position.
+            Move a run of bookings without touching the programme&rsquo;s content or position.
           </p>
         </div>
 
@@ -277,7 +277,7 @@ export function ShiftScheduleDialog({
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
                 </svg>
                 <span>
-                  The programme is unaffected — workouts still deliver in the same order, just on new dates. The queue only advances when a session is completed.
+                  The programme is unaffected — workouts still deliver in the same order, just on new dates. The programme only advances when a session is completed.
                 </span>
               </div>
             </div>

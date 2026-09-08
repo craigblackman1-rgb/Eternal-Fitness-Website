@@ -272,7 +272,7 @@ export function RenewalFlow({ client, sessionsRemaining, sessionsPurchased, onCl
                     Current programme
                   </p>
                   <p className="text-[12.5px] text-[var(--color-body)] mt-1 mb-0">
-                    Continues from where {firstName} left off. The queue picks up at session 1 of the new balance.
+                    Continues from where {firstName} left off. The programme picks up at session 1 of the new balance.
                   </p>
                 </button>
                 <button

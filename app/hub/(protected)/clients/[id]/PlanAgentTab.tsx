@@ -310,7 +310,7 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
             <Link href={`/hub/programs?client=${clientNumber}`} className="text-rose font-semibold hover:underline">
               Apply a program
             </Link>{" "}
-            to assign workouts from the queue.
+            to assign workouts from the programme.
           </span>
         </div>
       )}

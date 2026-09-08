@@ -252,7 +252,7 @@ export function SessionMoveDialog({
               </span>
               <p className="mt-1 mb-0 text-sm font-bold text-[var(--color-ink)]">Remove this booking</p>
               <p className="mt-0.5 mb-0 text-xs text-[var(--color-body)]">
-                Nothing is lost — the queue simply waits for the next booking.
+                Nothing is lost — the programme simply waits for the next booking.
               </p>
             </button>
           </div>
@@ -317,7 +317,7 @@ export function SessionMoveDialog({
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
                 </svg>
                 <span>
-                  Her programme is unaffected — <b>{sessionWorkoutName(session)}</b> still delivers at her next session. Moving this session does not touch the queue.
+                  Her programme is unaffected — <b>{sessionWorkoutName(session)}</b> still delivers at her next session. Moving this session does not touch the programme.
                 </span>
               </div>
             </div>
