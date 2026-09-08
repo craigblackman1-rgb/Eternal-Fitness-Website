@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase-server";
-import { StatusBadge } from "@/components/hub";
+import { StatusBadge, KpiTile } from "@/components/hub";
+import { IconCheckCircle, IconCheck, IconClock, IconTriangleAlert } from "@/components/icons";
 import {
   findSuggestedMatches,
   type MatchTransaction,
@@ -137,6 +138,21 @@ export default async function CashflowOverviewPage() {
   const clients = (clientsRes.data ?? []) as ClientRow[];
   const allInvoices = (invoicesRes.data ?? []) as InvoiceRow[];
   const invoiceTotalCount = invoiceCountRes.count ?? allInvoices.length;
+
+  // ── Finance KPIs (§7 — same anatomy as compliance/updates) ───────────
+  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+  const kpiInvoiced = allInvoices
+    .filter((inv) => inv.issue_date >= thisMonthStart)
+    .reduce((sum, inv) => sum + inv.total, 0);
+  const kpiPaid = allInvoices
+    .filter((inv) => inv.status === "paid" && inv.issue_date >= thisMonthStart)
+    .reduce((sum, inv) => sum + inv.total, 0);
+  const kpiOutstanding = allInvoices
+    .filter((inv) => inv.status === "sent" && inv.issue_date >= thisMonthStart)
+    .reduce((sum, inv) => sum + inv.total, 0);
+  const kpiOverdue = allInvoices
+    .filter((inv) => inv.status === "overdue" || (inv.status === "sent" && inv.due_date < today))
+    .reduce((sum, inv) => sum + inv.total, 0);
 
   // ── Bank matches actually confirmed — the one non-guessable signal ──────
   const matchedInvoiceRes = await supabase
@@ -278,6 +294,34 @@ export default async function CashflowOverviewPage() {
           Invoices you&rsquo;ve raised through the hub, and what the bank actually confirms. Most of Esther&rsquo;s
           clients pay her outside the app — this page cannot tell you who owes money, only what paperwork is open.
         </p>
+      </div>
+
+      {/* ── KPI band ─────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 mb-3.5">
+        <KpiTile
+          icon={<IconCheckCircle className="h-5 w-5" />}
+          label="Invoiced this month"
+          value={fmt(kpiInvoiced)}
+          statusToken="success"
+        />
+        <KpiTile
+          icon={<IconCheck className="h-5 w-5" />}
+          label="Paid"
+          value={fmt(kpiPaid)}
+          statusToken="primary"
+        />
+        <KpiTile
+          icon={<IconClock className="h-5 w-5" />}
+          label="Outstanding"
+          value={fmt(kpiOutstanding)}
+          statusToken="warning"
+        />
+        <KpiTile
+          icon={<IconTriangleAlert className="h-5 w-5" />}
+          label="Overdue"
+          value={fmt(kpiOverdue)}
+          statusToken={kpiOverdue > 0 ? "danger" : "neutral"}
+        />
       </div>
 
       {/* ── Needs you ── */}
