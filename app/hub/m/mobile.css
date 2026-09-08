@@ -136,6 +136,50 @@
 .tdue.overdue { background: var(--s-danger-bg); border: 1px solid var(--s-danger-bd); color: var(--s-danger); }
 .tdue.today { background: var(--s-primary-bg); border: 1px solid var(--s-primary-bd); color: var(--rose); }
 .tdue.soon { background: var(--hover); border: 1px solid var(--border); color: var(--muted); }
+.tdue.none { background: transparent; border: 1px dashed var(--border); color: var(--muted); }
+
+/* ── Task screen: advance button, metadata row ───────────────── */
+.trow.st-in_progress { }
+.trow.is-overdue { border-color: var(--s-danger-bd); }
+.tadv { width: 44px; height: 44px; flex-shrink: 0; margin: -11px 0 -11px -11px; border-radius: var(--r-nested); border: 0; background: none; display: grid; place-items: center; cursor: pointer; }
+.tadv:hover { background: var(--hover); }
+.tadv .ring { width: 21px; height: 21px; border-radius: var(--r-pill); border: 1.5px solid var(--field-border); display: grid; place-items: center; color: transparent; }
+.tadv .ring svg { width: 12px; height: 12px; }
+.trow.st-in_progress .tadv .ring { border-color: var(--rose); border-width: 2px; }
+.trow.st-in_progress .tadv .ring::after { content: ''; width: 9px; height: 9px; border-radius: var(--r-pill); background: var(--rose); }
+.trow.st-done .tadv .ring { background: var(--teal); border-color: var(--teal); color: var(--color-white); }
+.ttitle-row { display: flex; align-items: flex-start; gap: 8px; }
+.ttitle-row .ttitle { min-width: 0; flex: 1; }
+.ttitle-row .tdue { flex-shrink: 0; }
+.tmeta { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+.tclient { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; color: var(--ink); }
+.tav { width: 17px; height: 17px; flex-shrink: 0; border-radius: var(--r-pill); background: var(--s-primary-bg); border: 1px solid var(--s-primary-bd); color: var(--rose); display: grid; place-items: center; font-size: 9px; font-weight: 800; }
+.tbucket { font-size: 11px; font-weight: 600; color: var(--muted); background: var(--hover); border: 1px solid var(--border); border-radius: var(--r-pill); padding: 1px 8px; }
+.tsep { font-size: 11.5px; color: var(--muted); }
+.t-mempty { text-align: center; padding: 40px 20px; background: var(--card); border: 1px solid var(--border); border-radius: var(--r-surface); box-shadow: var(--shadow-sm); }
+
+/* ── Segmented status control ────────────────────────────────── */
+.seg { display: flex; gap: 2px; background: var(--canvas); border: 1px solid var(--border); border-radius: 10px; padding: 3px; margin: 0 14px 10px; }
+.seg-btn { flex: 1; min-width: 0; height: 40px; border: 0; border-radius: 8px; background: transparent; font-size: 12.5px; font-weight: 600; color: var(--muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; padding: 0 2px; font-family: inherit; }
+.seg-btn:hover { color: var(--ink); }
+.seg-btn.on { background: var(--card); color: var(--ink); box-shadow: var(--shadow-sm); font-weight: 700; }
+.seg-btn i { font-style: normal; font-size: 10.5px; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.seg-btn.on i { color: var(--rose); }
+
+/* ── Due chip bar + pinned Filters button ────────────────────── */
+.filtbar { display: flex; align-items: center; gap: 8px; padding: 0 14px 10px; }
+.filtrow { flex: 1; min-width: 0; display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 18px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 18px), transparent); }
+.filtrow::-webkit-scrollbar { display: none; }
+.chip { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px; border-radius: var(--r-pill); border: 1px solid var(--border); background: var(--card); color: var(--body); font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: inherit; }
+.chip:hover { background: var(--hover); color: var(--ink); }
+.chip.on { background: var(--s-primary-bg); border-color: var(--s-primary-bd); color: var(--rose); font-weight: 700; }
+.chip .n { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: var(--r-pill); background: var(--hover); border: 1px solid var(--border); font-size: 10.5px; font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
+.chip.on .n { background: var(--card); border-color: var(--s-primary-bd); color: var(--rose); }
+.chip.danger .n { background: var(--s-danger-bg); border-color: var(--s-danger-bd); color: var(--s-danger); }
+.chip.filters { flex-shrink: 0; border-color: var(--field-border); }
+
+/* ── FAB circle (tasks new-task button) ──────────────────────── */
+.fab-circle { width: 56px; height: 56px; padding: 0; border-radius: var(--r-pill); display: grid; place-items: center; }
 
 /* ── Empty state ──────────────────────────────────────────────── */
 .empty { text-align: center; padding: 40px 20px; background: var(--card); border: 1px solid var(--border); border-radius: var(--r-surface); box-shadow: var(--shadow-sm); }

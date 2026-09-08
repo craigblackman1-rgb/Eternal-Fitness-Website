@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-function TabIcon({ type }: { type: "today" | "calendar" | "train" | "clients" }) {
+function TabIcon({ type }: { type: "today" | "calendar" | "train" | "clients" | "tasks" }) {
   if (type === "today") {
     return (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -29,6 +29,13 @@ function TabIcon({ type }: { type: "today" | "calendar" | "train" | "clients" })
       </svg>
     );
   }
+  if (type === "tasks") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 6.5 4.6 8 8 4.5M3 12.5 4.6 14 8 10.5M3 18.5 4.6 20 8 16.5M11 6h10M11 12h10M11 18h10"/>
+      </svg>
+    );
+  }
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
@@ -40,12 +47,41 @@ function TabIcon({ type }: { type: "today" | "calendar" | "train" | "clients" })
 
 export function MobileShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [overdueCount, setOverdueCount] = useState(0);
+
+  // Fetch overdue task count for the tab badge. Runs once on mount and after
+  // navigations that land on a task-related route.
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchOverdue() {
+      try {
+        const res = await fetch("/api/tasks");
+        if (!res.ok) return;
+        const tasks = await res.json();
+        if (!Array.isArray(tasks)) return;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        let count = 0;
+        for (const t of tasks) {
+          if (t.status === "done" || !t.due_date) continue;
+          const due = new Date(`${t.due_date}T00:00:00`);
+          if (Math.round((due.getTime() - today.getTime()) / 86_400_000) < 0) count++;
+        }
+        if (!cancelled) setOverdueCount(count);
+      } catch {
+        // Badge is cosmetic — swallow the error.
+      }
+    }
+    fetchOverdue();
+    return () => { cancelled = true; };
+  }, [pathname]);
 
   const activeTab = useMemo(() => {
     if (pathname === "/hub/m") return "today";
     if (pathname.startsWith("/hub/m/calendar")) return "calendar";
     if (pathname.startsWith("/hub/m/train")) return "train";
     if (pathname.startsWith("/hub/m/clients")) return "clients";
+    if (pathname.startsWith("/hub/m/tasks")) return "tasks";
     return "today";
   }, [pathname]);
 
@@ -94,6 +130,15 @@ export function MobileShell({ children }: { children: React.ReactNode }) {
         >
           <TabIcon type="clients" />
           Clients
+        </Link>
+        <Link
+          className={`tab${activeTab === "tasks" ? " on" : ""}`}
+          href="/hub/m/tasks"
+          {...(activeTab === "tasks" ? { "aria-current": "page" as const } : {})}
+        >
+          <TabIcon type="tasks" />
+          <span className="tab-lbl">Tasks</span>
+          {overdueCount > 0 && <span className="tab-badge">{overdueCount}</span>}
         </Link>
       </nav>
       )}
