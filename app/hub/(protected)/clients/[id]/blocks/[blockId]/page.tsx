@@ -154,7 +154,10 @@ export default async function BlockViewPage({
   const projectedSessions = projectUnbookedDates(displaySessions, weekdays, lastBookedIso, scheduledStartIso);
 
   const weekGroups = groupSessionsByWeek(projectedSessions);
-  const planWeeks = Array.from(new Set(displaySessions.map((s) => s.week))).sort((a, b) => a - b);
+  // BUG-EF-141 — null week ordinals (from Outlook-synced sessions without a
+  // plan week) must sort last. JS default sort puts null before numbers.
+  const planWeeks = Array.from(new Set(displaySessions.map((s) => s.week)))
+    .sort((a, b) => (a === null ? 1 : b === null ? -1 : (a as number) - (b as number)));
 
   // CR-EF-145 — the week that opens by default is the one holding the first
   // session still to be delivered. Uses projectedSessions so an unbooked

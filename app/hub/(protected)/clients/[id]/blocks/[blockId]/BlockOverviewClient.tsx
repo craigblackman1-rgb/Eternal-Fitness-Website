@@ -398,21 +398,32 @@ export function BlockOverviewClient({
           {weekGroups.map((group) => {
             const isScheduled = group.kind === "scheduled";
             const isProjected = group.kind === "projected";
+            const isPlanWeek = group.kind === "plan";
             const weekPotSessions = group.sessions.filter((s) => !s.parent_session_id);
             const done = weekPotSessions.filter((s) => sessionStatus(s) === "completed").length;
             const cancelled = weekPotSessions.filter((s) => sessionStatus(s) === "cancelled").length;
             const total = weekPotSessions.length;
+            // BUG-EF-141 — null planWeek from Outlook-synced sessions without
+            // a plan week ordinal. Do not render "null".
+            const isNullWeek = isPlanWeek && (group.planWeek == null);
+            const allCancelled = isPlanWeek && total > 0 && cancelled === total;
 
             const numLabel = (isScheduled || isProjected)
               ? String(Number(group.monday!.split("-")[2]))
-              : String(group.planWeek);
+              : isNullWeek
+                ? "\u2014"
+                : String(group.planWeek);
             const title = (isScheduled || isProjected)
               ? `Week of ${formatShortDate(group.monday!)}`
-              : `Week ${group.planWeek}`;
+              : isNullWeek
+                ? "Not scheduled"
+                : `Week ${group.planWeek}`;
             const sub = (isScheduled || isProjected)
               ? isProjected
                 ? `${total} projected · not yet booked`
                 : formatWeekRange(group.monday!)
+              : allCancelled
+                ? `${cancelled} cancelled`
               // BUG-EF-115 — plan-week groups may hold completed sessions with
               // no date. Count them separately so the label stays truthful.
               : `${total} session${total === 1 ? "" : "s"} planned · no dates yet`;
@@ -420,9 +431,13 @@ export function BlockOverviewClient({
               ? isProjected
                 ? `${done} of ${total} booked${cancelled ? ` · ${cancelled} cancelled` : ""}`
                 : `${done} of ${total} done${cancelled ? ` · ${cancelled} cancelled` : ""}`
+              : allCancelled
+                ? ""
               : done > 0
                 ? `${done} completed${total - done > 0 ? ` · ${total - done} not yet booked` : ""}`
-                : "Not scheduled";
+                : isNullWeek
+                  ? ""
+                  : "Not scheduled";
 
             return (
               <details
