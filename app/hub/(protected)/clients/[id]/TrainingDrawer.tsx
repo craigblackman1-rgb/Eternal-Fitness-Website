@@ -6,9 +6,7 @@ import { toast } from "sonner";
 import { DrawerShell } from "./DrawerManager";
 import { SessionChooser } from "./SessionChooser";
 import { SessionMoveDialog } from "./SessionMoveDialog";
-import { sessionWorkoutName } from "@/lib/session-display";
 
-import { SupplementaryWorkoutsCard } from "@/components/hub/SupplementaryWorkoutsCard";
 import type { DBBlock, DBSession } from "@/types";
 import type { QueueState } from "@/lib/programs/types";
 import type {
@@ -109,19 +107,30 @@ function PerformedWorkoutRow({
 interface TrainingDrawerProps {
   clientNumber: number;
   clientName: string;
+  sessionDuration?: number | null;
+  deliveryMode?: string | null;
+  preferredTime?: string | null;
   latestBlock: DBBlock | null;
   blockSessions: DBSession[];
   allBlocks: DBBlock[];
   allSessions: DBSession[];
+  blockDateRangeLabel?: string;
+  exerciseTrendSummary?: {
+    totalExercisesLogged: number;
+    personalBests: number;
+    heaviestLift: string | null;
+    belowBestCount: number;
+    recentNotes: string | null;
+  };
   trainerizeHistory: TrainerizeHistoryData;
   standingRules?: { id: string; label: string | null; detail: string }[];
   sessionsRemaining: number | null;
   sessionsPurchased: number | null;
-  paymentStatus: string | null;
-  packageType: string | null;
+  paymentStatus?: string | null;
+  packageType?: string | null;
   programState: QueueState | null;
   flaggedSessionIds: Set<string>;
-  activeProgramId: string | null;
+  activeProgramId?: string | null;
   clientId: string;
 }
 
@@ -131,16 +140,14 @@ export function TrainingDrawer({
   latestBlock,
   blockSessions,
   allBlocks,
-  allSessions,
+  allSessions: _allSessions,
   trainerizeHistory,
   standingRules = [],
   sessionsRemaining,
   sessionsPurchased,
-  paymentStatus,
   packageType,
   programState,
   flaggedSessionIds,
-  activeProgramId,
   clientId,
 }: TrainingDrawerProps) {
   const router = useRouter();
@@ -346,23 +353,6 @@ export function TrainingDrawer({
       width="lg"
     >
       {/* ═══ STANDING RULES — stays on the page per Craig's override ═══ */}
-
-      {/* ═══ SUPPLEMENTARY ═══ */}
-      <div className="fcard">
-        <div className="fcard-h">
-          <span>Supplementary</span>
-          <span className="sub ml-2.5 normal-case tracking-normal font-medium text-[12px] text-[var(--color-body)]">
-            alongside the program · never uses a slot or paid session
-          </span>
-        </div>
-        <div className="fcard-b">
-          <SupplementaryWorkoutsCard
-            clientNumber={clientNumber}
-            clientName={clientName}
-            sessionsRemaining={sessionsRemaining}
-          />
-        </div>
-      </div>
 
       {/* ═══ BEFORE THE APP — tail of the workout-queue drawer ═══ */}
       {hasHistory && (
