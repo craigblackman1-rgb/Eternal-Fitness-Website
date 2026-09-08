@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase-server";
-import Link from "next/link";
 import { RESOURCES } from "@/lib/resources";
 import { HubPageHeader } from "@/components/hub";
 import { ResourcesMatrix } from "./resources-matrix";
@@ -23,9 +22,6 @@ export default async function ResourcesPage() {
 
   return (
     <div>
-      <Link href="/hub/document-templates" className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-3">
-        ← Document templates
-      </Link>
       <HubPageHeader
         title="Portal resources"
         subtitle="Every extra tool available in a client's portal, and who currently has each one switched on. Toggling stays in each client's Edit form — this page is the glance-across-everyone view that was missing."

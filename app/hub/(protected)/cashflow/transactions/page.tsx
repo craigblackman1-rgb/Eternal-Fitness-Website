@@ -301,7 +301,7 @@ export default function TransactionsPage() {
   return (
     <div className="space-y-6">
       <HubPageHeader
-        title="Bank transactions"
+        title="Transactions"
         subtitle="Statement lines from file upload — HSBC format. Categorise each line so it feeds the tax estimate and forecast correctly."
         actions={
           <label className="cursor-pointer">

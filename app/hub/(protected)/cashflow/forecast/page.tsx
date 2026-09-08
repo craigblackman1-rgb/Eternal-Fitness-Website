@@ -14,7 +14,7 @@ export default async function ForecastPage() {
     return (
       <div className="space-y-6">
         <HubPageHeader
-          title="Cash flow forecast"
+          title="Forecast"
           subtitle="What's coming in and going out over the next 12 months — built from unpaid invoices, pending bills, your current balance, and the tax estimate held back as a reserve."
         />
         <HubCard>

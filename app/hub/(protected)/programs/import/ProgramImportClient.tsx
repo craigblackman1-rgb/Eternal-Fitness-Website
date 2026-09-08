@@ -210,7 +210,7 @@ export function ProgramImportClient() {
       </Link>
 
       <HubPageHeader
-        title="Import a program"
+        title="Import a programme"
         subtitle="Paste a programme from Trainerize, a coach's plan, or plain text — we'll read the structure and show you exactly what will be saved."
       />
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
@@ -130,6 +130,20 @@ export function HubSidebarNav({ onNavigate }: { onNavigate?: () => void }) {
     return initial;
   });
 
+  useEffect(() => {
+    setExpanded((prev) => {
+      const next = { ...prev };
+      for (const group of navStructure) {
+        for (const item of group.items) {
+          if (item.children?.length) {
+            next[item.href] = isChildActive(pathname, item.children);
+          }
+        }
+      }
+      return next;
+    });
+  }, [pathname]);
+
   const toggleBranch = (href: string) => {
     setExpanded((prev) => ({ ...prev, [href]: !prev[href] }));
   };
@@ -224,10 +238,8 @@ export function HubSidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                     <div className="ml-5 mt-0.5 space-y-0.5">
                       {item.children!.map((child) => {
                         const childActive =
-                          child.href === item.href
-                            ? false
-                            : pathname === child.href ||
-                              pathname.startsWith(child.href + "/");
+                          pathname === child.href ||
+                          pathname.startsWith(child.href + "/");
                         return (
                           <Link
                             key={child.href}

@@ -216,7 +216,7 @@ export function DocumentsScreen({
   return (
     <div className="w-full">
       <div className="flex items-baseline gap-2.5 flex-wrap mb-3.5">
-        <h1 className="m-0 text-[22px] font-bold tracking-[-.015em] text-[var(--color-ink)]">All documents</h1>
+        <h1 className="m-0 text-[22px] font-bold tracking-[-.015em] text-[var(--color-ink)]">Sent documents</h1>
         <span className="text-[13px] text-[var(--color-body)]">
           Every document sent and signed, across every client
         </span>
@@ -275,10 +275,10 @@ export function DocumentsScreen({
         </div>
       </div>
 
-      {/* ── All documents ── */}
+      {/* ── Sent documents ── */}
       <div className="bg-white border border-[var(--hub-border)] rounded-surface shadow-sm overflow-hidden">
         <div className="flex items-center gap-2.5 py-2.5 px-4 border-b border-[var(--hub-border)]">
-          <h2 className="m-0 text-[15px] font-bold text-[var(--color-ink)] tracking-tight">All documents</h2>
+          <h2 className="m-0 text-[15px] font-bold text-[var(--color-ink)] tracking-tight">Sent documents</h2>
           <span className="text-xs text-[var(--color-muted)]">{filtered.length} of {totalCount} shown</span>
         </div>
 
