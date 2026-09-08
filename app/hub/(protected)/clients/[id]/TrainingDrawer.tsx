@@ -3,47 +3,30 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { DrawerShell, useDrawerManager } from "./DrawerManager";
+import { DrawerShell } from "./DrawerManager";
 import { SessionChooser } from "./SessionChooser";
 import { SessionMoveDialog } from "./SessionMoveDialog";
-import { ShiftScheduleDialog } from "./ShiftScheduleDialog";
 import { sessionWorkoutName } from "@/lib/session-display";
 
 import { SupplementaryWorkoutsCard } from "@/components/hub/SupplementaryWorkoutsCard";
-import { ensureUids } from "@/lib/exercise-ref";
-import type { DBBlock, DBSession, SessionVersion } from "@/types";
-import type { DBProgramSlot, QueueState } from "@/lib/programs/types";
-import { isRepeat } from "@/lib/programs/resolve";
+import type { DBBlock, DBSession } from "@/types";
+import type { QueueState } from "@/lib/programs/types";
 import type {
   TrainerizeHistoryData,
   TrainerizePerformedWorkoutSummary,
   TrainerizePerformedExerciseDetail,
 } from "@/components/hub";
 
-/* ── TrainingDrawer — per approved mockup: fcard sections with accent
-   bands, week-grouped queue map, paginated sessions with Reassign/Move/Cancel,
-   supplementary, standing rules, past programmes with derived status. ────── */
-
-function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
+/* ── TrainingDrawer — the workout queue drawer.
+   The record owns every count and date; this drawer owns the full contents
+   of the queue (including pre-app imported history) and the supplementary
+   section. Standing rules stay on the page per Craig's override. ────── */
 
 function fmtShortDate(iso: string | null): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso;
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-}
-
-function fmtDayShort(iso: string | null): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return "";
-  return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" });
 }
 
 function sourceLabel(source: string): string {
@@ -54,21 +37,6 @@ function sourceLabel(source: string): string {
     case "workout_instruction": return "Workout note";
     default: return source;
   }
-}
-
-/** Short display label for queue cells: "Workout 1" → "W1". */
-function slotLetter(slot: DBProgramSlot): string {
-  const label = slot.label?.trim();
-  if (label) {
-    const stripped = label.replace(/^(?:Workout|Warm[\s-]*up)\s+/i, "");
-    const match = stripped.match(/^([A-Za-z0-9]+)/);
-    if (match) {
-      const prefix = /^workout\s/i.test(label) ? "W" : "";
-      return prefix + match[1];
-    }
-    return stripped.slice(0, 3);
-  }
-  return String.fromCharCode(64 + slot.position);
 }
 
 /** Collapsed row for a Trainerize-performed workout, expanding on click. */
@@ -141,22 +109,10 @@ function PerformedWorkoutRow({
 interface TrainingDrawerProps {
   clientNumber: number;
   clientName: string;
-  sessionDuration: number | null;
-  deliveryMode: string | null;
-  preferredTime: string | null;
   latestBlock: DBBlock | null;
   blockSessions: DBSession[];
   allBlocks: DBBlock[];
   allSessions: DBSession[];
-
-  blockDateRangeLabel: string;
-  exerciseTrendSummary?: {
-    totalExercisesLogged: number;
-    personalBests: number;
-    heaviestLift: string | null;
-    belowBestCount: number;
-    recentNotes: string | null;
-  };
   trainerizeHistory: TrainerizeHistoryData;
   standingRules?: { id: string; label: string | null; detail: string }[];
   sessionsRemaining: number | null;
@@ -167,22 +123,15 @@ interface TrainingDrawerProps {
   flaggedSessionIds: Set<string>;
   activeProgramId: string | null;
   clientId: string;
-
 }
 
 export function TrainingDrawer({
   clientNumber,
   clientName,
-  sessionDuration,
-  deliveryMode,
-  preferredTime,
   latestBlock,
   blockSessions,
   allBlocks,
   allSessions,
-
-  blockDateRangeLabel,
-  exerciseTrendSummary,
   trainerizeHistory,
   standingRules = [],
   sessionsRemaining,
@@ -193,17 +142,14 @@ export function TrainingDrawer({
   flaggedSessionIds,
   activeProgramId,
   clientId,
-
 }: TrainingDrawerProps) {
-  const { openWorkoutDrawer } = useDrawerManager();
   const router = useRouter();
 
   // ── Dialog state ──
   const [chooserSessionId, setChooserSessionId] = useState<string | null>(null);
   const [chooserBusy, setChooserBusy] = useState(false);
   const [moveSession, setMoveSession] = useState<DBSession | null>(null);
-  const [shiftOpen, setShiftOpen] = useState(false);
-  const [extending, setExtending] = useState(false);
+  const [notesOpen, setNotesOpen] = useState(false);
 
   // ── Paid-pot computation ──
   const isOngoing = !sessionsPurchased || packageType === "ongoing";
@@ -214,42 +160,15 @@ export function TrainingDrawer({
   const slots = programState?.slots ?? [];
   const totalQueueSlots = programState?.totalSlots ?? 0;
   const completedCount = programState?.completedCount ?? 0;
-  const nextPosition = programState?.nextPosition ?? 1;
-  const currentWeek = programState?.currentWeek ?? 1;
-  const programWeeks = programState?.program?.weeks ?? 1;
-  const programName = programState?.program?.name ?? "";
   const slotCount = slots.length;
 
-  // Scheduled sessions by queue position
+  // Scheduled sessions by queue position (for the queue list display)
   const scheduledByPosition: Record<number, { scheduledAt: string | null }> = {};
   const programSessions = blockSessions.filter(
     (s) => s.program_id && s.program_slot_id && !s.parent_session_id
   );
 
-  // Flagged positions (completed with no sets)
-  const flaggedPositions = new Set<number>();
-  for (const s of programSessions) {
-    if (s.completed_at && flaggedSessionIds.has(s.id) && s.program_slot_id) {
-      const slot = slots.find((sl) => sl.id === s.program_slot_id);
-      if (slot) {
-        flaggedPositions.add(slot.position);
-      }
-    }
-  }
-
-  // Scheduled sessions list (not supplementary, not cancelled, not completed)
-  const scheduledSessions = blockSessions
-    .filter((s) => s.scheduled_at && !s.completed_at && !s.cancelled_at && !s.parent_session_id)
-    .sort((a, b) => new Date(a.scheduled_at!).getTime() - new Date(b.scheduled_at!).getTime());
-
-  // Completed sessions (not sub-sessions, newest first)
-  const completedSessions = allSessions
-    .filter((s) => s.completed_at && !s.parent_session_id)
-    .sort((a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime());
-
   // Completed program-consuming sessions (ascending by completed_at) for queue position dates.
-  // Exclude repeat sessions (program_repeat) — they consume a paid slot but do NOT
-  // advance the programme queue. Must match queue.ts's completedCount predicate.
   const completedAscending = blockSessions
     .filter((s) => s.completed_at && !s.cancelled_at && !s.parent_session_id && !isRepeat((s.data as unknown as Record<string, unknown>)?.program_repeat))
     .sort((a, b) => new Date(a.completed_at!).getTime() - new Date(b.completed_at!).getTime());
@@ -257,9 +176,9 @@ export function TrainingDrawer({
     const s = completedAscending[i];
     scheduledByPosition[i + 1] = { scheduledAt: s.scheduled_at ?? s.completed_at };
   }
-  // Upcoming scheduled sessions fill positions after completedCount.
-  // Prefer program_slot_id + week when stamped (more accurate than ordinal
-  // after cancellations/reschedules); fall back to ordinal for unstamped rows.
+  const scheduledSessions = blockSessions
+    .filter((s) => s.scheduled_at && !s.completed_at && !s.cancelled_at && !s.parent_session_id)
+    .sort((a, b) => new Date(a.scheduled_at!).getTime() - new Date(b.scheduled_at!).getTime());
   for (let i = 0; i < scheduledSessions.length; i++) {
     const s = scheduledSessions[i];
     const slot = s.program_slot_id ? slots.find((sl) => sl.id === s.program_slot_id) : null;
@@ -274,9 +193,6 @@ export function TrainingDrawer({
     if (pos > totalQueueSlots) break;
     scheduledByPosition[pos] = { scheduledAt: s.scheduled_at };
   }
-
-  // Block title lookup — for session history tags
-  const blockTitleById = new Map(allBlocks.map((b) => [b.id, b.title]));
 
   // Trainerize history summary
   const tBlocks = trainerizeHistory.blocks ?? [];
@@ -299,9 +215,6 @@ export function TrainingDrawer({
 
   const [expandedBlockId, setExpandedBlockId] = useState<string | null>(null);
   const [expandedWorkoutId, setExpandedWorkoutId] = useState<string | null>(null);
-  const [notesOpen, setNotesOpen] = useState(false);
-  const [showAllSessions, setShowAllSessions] = useState(false);
-  const [showAllCompleted, setShowAllCompleted] = useState(false);
   const [detailCache, setDetailCache] = useState<Record<string, TrainerizePerformedExerciseDetail[] | "loading" | "error">>({});
 
   const toggleWorkout = (workoutId: string) => {
@@ -414,103 +327,6 @@ export function TrainingDrawer({
     router.push(`/hub/clients/${clientNumber}/add-workout?view=chooser`);
   }
 
-  async function handleExtendProgram(weeks: number) {
-    if (!programState?.program.id) return;
-    setExtending(true);
-    try {
-      const res = await fetch(`/api/programs/${programState.program.id}/extend`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ weeks }),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to extend program");
-      }
-      toast.success(`Program extended by ${weeks} week${weeks === 1 ? "" : "s"}`);
-      router.refresh();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to extend program");
-    } finally {
-      setExtending(false);
-    }
-  }
-
-  // ── Week-grouped queue map data ──
-  const weeks: Array<{
-    label: string;
-    dateRange: string | null;
-    cells: Array<{
-      queueIndex: number;
-      slotLabel: string;
-      fullLabel: string;
-      dayLabel: string;
-      scheduledAt: string | null;
-      state: "done" | "flag" | "next" | "plain" | "beyond";
-      ariaLabel: string;
-    }>;
-  }> = [];
-
-  if (slotCount > 0 && totalQueueSlots > 0) {
-    const totalWeeks = Math.ceil(totalQueueSlots / slotCount);
-    const beyondPaidStart = totalSessions
-      ? Math.max(0, totalSessions - completedCount)
-      : Infinity;
-
-    for (let w = 0; w < totalWeeks; w++) {
-      const weekCells: typeof weeks[0]["cells"] = [];
-      for (let s = 0; s < slotCount; s++) {
-        const queueIndex = w * slotCount + s + 1;
-        if (queueIndex > totalQueueSlots) break;
-
-        const slot = slots.find((sl) => sl.position === s + 1);
-        const slotLabel = slot ? slotLetter(slot) : String(s + 1);
-        const fullLabel = slot?.label?.trim() || slotLabel;
-        const scheduled = scheduledByPosition[queueIndex];
-        const dayLabel = scheduled ? fmtDayShort(scheduled.scheduledAt) : "";
-
-        let state: "done" | "flag" | "next" | "plain" | "beyond";
-        if (queueIndex <= completedCount) {
-          state = flaggedPositions.has(queueIndex) ? "flag" : "done";
-        } else if (queueIndex === completedCount + 1) {
-          state = "next";
-        } else if (queueIndex > completedCount + beyondPaidStart) {
-          state = "beyond";
-        } else {
-          state = "plain";
-        }
-
-        weekCells.push({
-          queueIndex,
-          slotLabel,
-          fullLabel,
-          dayLabel,
-          scheduledAt: scheduled?.scheduledAt ?? null,
-          state,
-          ariaLabel: `${dayLabel ? `${dayLabel}, ` : ""}${fullLabel}${
-            state === "next" ? ", next session" : ""
-          }${state === "flag" ? ", completed with no sets logged" : ""}${
-            state === "beyond" ? ", beyond the current paid sessions" : ""
-          }`,
-        });
-      }
-      const dates = weekCells
-        .filter((c) => c.scheduledAt)
-        .map((c) => c.scheduledAt!)
-        .sort();
-      const dateRange = dates.length > 0
-        ? dates.length === 1
-          ? fmtShortDate(dates[0])
-          : `${fmtShortDate(dates[0])} – ${fmtShortDate(dates[dates.length - 1])}`
-        : null;
-      weeks.push({
-        label: `Round ${w + 1}`,
-        dateRange,
-        cells: weekCells,
-      });
-    }
-  }
-
   // Beyond-paid count for the note
   const beyondPaidCount = totalSessions
     ? Math.max(0, remaining - (totalQueueSlots - completedCount))
@@ -522,281 +338,14 @@ export function TrainingDrawer({
       title="Training"
       subtitle={
         programState
-          ? `${programState.program.name} · ${totalSessions != null ? `${remaining} of ${totalSessions} paid sessions remaining` : "Ongoing"}`
+          ? `${programState.program.name} · ${totalSessions != null ? `${remaining} of ${totalSessions} sessions remaining` : "Ongoing"}`
           : latestBlock
             ? `${blockSessions.length} sessions`
             : allBlocks.length > 0 ? `${allBlocks.length} training periods` : "No training yet"
       }
       width="lg"
     >
-      {/* ═══ PROGRAM QUEUE ═══ */}
-      {programState && totalQueueSlots > 0 && (
-        <div className="fcard acc-teal">
-          <div className="fcard-h">
-            <span>Program queue</span>
-            <span className="sub ml-2.5 normal-case tracking-normal font-medium text-[12px] text-[var(--color-body)]">
-              {totalQueueSlots} slots · consumed only by completed sessions, in order
-            </span>
-            <button
-              type="button"
-              className="btn-link ml-auto"
-              onClick={() => router.push(`/hub/programs/${programState.program.id}`)}
-            >
-              Open in builder
-            </button>
-          </div>
-          <div className="fcard-b">
-            {/* Queue map legend — compact single-line */}
-            {slotCount > 0 && (
-              <div className="flex gap-3 flex-wrap text-[11.5px] text-[var(--color-body)] mb-2 pb-2 border-b border-[var(--hub-border)]">
-                {slots.map((sl) => (
-                  <span key={sl.id} className="whitespace-nowrap">
-                    <b className="text-[var(--color-ink)] font-bold mr-0.5">{slotLetter(sl)}</b>
-                    {sl.label?.trim() || `Slot ${sl.position}`}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Week-grouped queue map */}
-            <div className="border border-[var(--hub-border)] rounded-nested bg-[var(--field-fill)] p-2.5">
-              {weeks.map((week, wi) => (
-                <div key={wi} className={`flex items-center gap-2.5 py-1 ${wi > 0 ? "border-t border-[var(--hub-border)]" : ""}`}>
-                  <span className="w-[80px] shrink-0 text-[11px] font-bold text-[var(--color-muted)]">
-                    {week.label}
-                    {week.dateRange && (
-                      <span className="block text-[9.5px] font-normal normal-case tracking-normal">{week.dateRange}</span>
-                    )}
-                  </span>
-                  <div className="flex gap-1">
-                    {week.cells.map((cell) => {
-                      const isNext = cell.state === "next";
-                      const isDone = cell.state === "done";
-                      const isFlag = cell.state === "flag";
-                      const isBeyond = cell.state === "beyond";
-                      return (
-                        <button
-                          key={cell.queueIndex}
-                          type="button"
-                          title={cell.fullLabel}
-                          aria-label={cell.ariaLabel}
-                          onClick={() => {
-                            if (isBeyond) return;
-                            const slotAtPosition = slots.find((sl) => sl.position === ((cell.queueIndex - 1) % slotCount) + 1);
-                            if (!slotAtPosition) return;
-                            const sessionForCell = programSessions.find((s) => s.program_slot_id === slotAtPosition.id);
-                            if (sessionForCell) openWorkoutDrawer(sessionForCell.id);
-                          }}
-                          className={`
-                            min-w-[80px] shrink-0 border rounded-control
-                            flex flex-col items-start justify-center
-                            font-[inherit] px-1.5 py-1 transition-[border-color,box-shadow] duration-[120ms]
-                            ${isBeyond
-                              ? "bg-[var(--hub-hover)] border-dashed border-[var(--hub-border)] cursor-default hover:border-[var(--hub-border)] hover:shadow-none"
-                              : isDone
-                                ? "bg-[var(--status-success-bg)] border-[var(--status-success-border)] cursor-pointer hover:border-[var(--color-rose)] hover:shadow-[0_0_0_1px_var(--color-rose)]"
-                                : isFlag
-                                  ? "bg-[var(--status-warning-bg)] border-[var(--status-warning)] cursor-pointer hover:border-[var(--color-rose)] hover:shadow-[0_0_0_1px_var(--color-rose)]"
-                                  : isNext
-                                    ? "bg-[var(--status-primary-bg)] border-[var(--color-rose)] shadow-[inset_0_0_0_1px_var(--color-rose)] cursor-pointer"
-                                    : "bg-white border-[var(--hub-border)] cursor-pointer hover:border-[var(--color-rose)] hover:shadow-[0_0_0_1px_var(--color-rose)]"
-                            }
-                          `}
-                        >
-                          <span className={`text-[10.5px] leading-tight ${
-                            isBeyond
-                              ? "text-[var(--color-muted)]"
-                              : isDone || isFlag
-                                ? "text-[var(--color-teal)]"
-                                : isNext
-                                  ? "text-[var(--color-rose)]"
-                                  : "text-[var(--color-body)]"
-                          } ${cell.dayLabel ? "font-semibold tabular-nums" : isDone || isFlag || isBeyond ? "" : "italic"}`}>
-                            {(isDone || isFlag) ? (cell.dayLabel || "done") : isBeyond ? "unscheduled" : (cell.dayLabel || "not booked")}
-                          </span>
-                          <span className={`text-[10.5px] leading-tight font-semibold truncate max-w-[110px] ${
-                            isBeyond
-                              ? "text-[var(--color-muted)]"
-                              : isDone || isFlag
-                                ? "text-[var(--color-teal)]"
-                                : isNext
-                                  ? "text-[var(--color-rose)]"
-                                  : "text-[var(--color-ink)]"
-                          }`} title={cell.fullLabel}>
-                            {(() => {
-                              const label = cell.fullLabel.replace(/^Workout\s+/i, "");
-                              return label.length > 16 ? label.slice(0, 16) + "\u2026" : label;
-                            })()}
-                          </span>
-                          <span className="text-[9.5px] leading-tight text-[var(--color-muted)]">
-                            {cell.queueIndex}/{totalQueueSlots}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-
-              {/* Map key */}
-              <div className="flex gap-3 flex-wrap mt-2 pt-2 border-t border-[var(--hub-border)] text-[11px] text-[var(--color-muted)]">
-                <span className="inline-flex items-center gap-1">
-                  <span className="w-[9px] h-[9px] rounded-[2px] border border-[var(--status-success-border)] bg-[var(--status-success-bg)] shrink-0" />
-                  Done
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <span className="w-[9px] h-[9px] rounded-[2px] border border-[var(--status-warning)] bg-[var(--status-warning-bg)] shrink-0" />
-                  Done, no sets
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <span className="w-[9px] h-[9px] rounded-[2px] border border-[var(--color-rose)] bg-[var(--status-primary-bg)] shrink-0" />
-                  Next
-                </span>
-                <span>Scheduled</span>
-                {totalSessions && (
-                  <span className="inline-flex items-center gap-1">
-                    <span className="w-[9px] h-[9px] rounded-[2px] border border-dashed border-[var(--hub-border)] bg-[var(--hub-hover)] shrink-0" />
-                    Unpaid
-                  </span>
-                )}
-              </div>
-
-              {/* Round-advance legend */}
-              <p className="text-[11px] text-[var(--color-muted)] mt-2 mb-0">
-                Rounds advance on completion, not by calendar.
-              </p>
-            </div>
-
-            {/* Beyond-paid note */}
-            {beyondPaidCount > 0 && (
-              <div className="flex items-center gap-2 mt-2 text-[12.5px] text-[var(--color-muted)]">
-                <span className="w-[6px] h-[6px] rounded-full shrink-0 bg-[var(--color-muted)]" />
-                <span>
-                  {beyondPaidCount} slot{beyondPaidCount === 1 ? "" : "s"} run past what&rsquo;s currently paid for.{" "}
-                  {clientName} needs a session renewal, or those sessions have nowhere to bill against.{" "}
-                  <button
-                    type="button"
-                    disabled={extending}
-                    onClick={() => handleExtendProgram(2)}
-                    className="inline font-[inherit] text-[11.5px] font-semibold text-[var(--color-rose)] hover:underline underline-offset-2 bg-transparent border-0 p-0 cursor-pointer disabled:opacity-50"
-                  >
-                    {extending ? "Extending\u2026" : "Manage the balance"}
-                  </button>
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ═══ SCHEDULED SESSIONS ═══ */}
-      {scheduledSessions.length > 0 && (
-        <div className="fcard acc-teal">
-          <div className="fcard-h">
-            <span>Scheduled</span>
-            <span className="sub ml-2.5 normal-case tracking-normal font-medium text-[12px] text-[var(--color-body)]">
-              {scheduledSessions.length} booked{preferredTime ? ` · ${preferredTime}` : ""}
-            </span>
-            <button
-              type="button"
-              className="btn-link ml-auto"
-              onClick={() => setShiftOpen(true)}
-            >
-              Shift schedule
-            </button>
-          </div>
-          <div className="fcard-b">
-            {(showAllSessions ? scheduledSessions : scheduledSessions.slice(0, 3)).map((s) => (
-              <div
-                key={s.id}
-                className="flex items-center gap-2.5 py-2 border-b border-[var(--hub-border)] last:border-b-0"
-              >
-                <span className="w-[110px] shrink-0 text-[13px] font-semibold text-[var(--color-ink)] leading-tight">
-                  {fmtShortDate(s.scheduled_at!)}
-                  {preferredTime && (
-                    <small className="block text-[11px] font-medium text-[var(--color-muted)]">{preferredTime}</small>
-                  )}
-                </span>
-                <span className="flex-1 min-w-0 text-[13px] text-[var(--color-ink)]">
-                  {sessionWorkoutName(s)}
-                </span>
-                <span className="flex gap-1 shrink-0">
-                  {programState && (
-                    <button
-                      onClick={() => setChooserSessionId(s.id)}
-                      className="inline-flex items-center justify-center rounded-control border border-[var(--hub-field-border)] bg-white px-2 py-0.5 min-h-[26px] font-[inherit] text-[11.5px] font-semibold cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
-                    >
-                      Reassign
-                    </button>
-                  )}
-                  <button
-                    onClick={() => setMoveSession(s)}
-                    className="inline-flex items-center justify-center rounded-control border border-[var(--hub-field-border)] bg-white px-2 py-0.5 min-h-[26px] font-[inherit] text-[11.5px] font-semibold cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
-                  >
-                    Move
-                  </button>
-                  <button
-                    onClick={() => setMoveSession(s)}
-                    className="inline-flex items-center justify-center rounded-control border border-[var(--hub-field-border)] bg-white px-2 py-0.5 min-h-[26px] font-[inherit] text-[11.5px] font-semibold cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </span>
-              </div>
-            ))}
-            {scheduledSessions.length > 3 && !showAllSessions && (
-              <button
-                type="button"
-                onClick={() => setShowAllSessions(true)}
-                className="w-full py-1.5 mt-1 text-[11.5px] font-semibold text-[var(--color-rose)] hover:underline underline-offset-2 bg-transparent border-0 p-0 cursor-pointer text-left font-[inherit]"
-              >
-                Show all {scheduledSessions.length} sessions
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ═══ SESSION HISTORY ═══ */}
-      {completedSessions.length > 0 && (
-        <div className="fcard acc-teal">
-          <div className="fcard-h">
-            <span>History</span>
-            <span className="sub ml-2.5 normal-case tracking-normal font-medium text-[12px] text-[var(--color-body)]">
-              {completedSessions.length} completed
-            </span>
-          </div>
-          <div className="fcard-b">
-            {(showAllCompleted ? completedSessions : completedSessions.slice(0, 5)).map((s) => (
-              <div
-                key={s.id}
-                className="flex items-center gap-2.5 py-2 border-b border-[var(--hub-border)] last:border-b-0"
-              >
-                <span className="w-[110px] shrink-0 text-[13px] font-semibold text-[var(--color-ink)] leading-tight">
-                  {fmtDate(s.completed_at!)}
-                </span>
-                <span className="flex-1 min-w-0 text-[13px] text-[var(--color-ink)]">
-                  {sessionWorkoutName(s)}
-                  {blockTitleById.get(s.block_id) && (
-                    <span className="ml-1.5 inline-block rounded-pill border border-[var(--hub-border)] bg-[var(--hub-hover)] px-1.5 py-[1px] text-[10.5px] font-medium text-[var(--color-muted)] leading-snug align-middle">
-                      {blockTitleById.get(s.block_id)}
-                    </span>
-                  )}
-                </span>
-              </div>
-            ))}
-            {completedSessions.length > 5 && !showAllCompleted && (
-              <button
-                type="button"
-                onClick={() => setShowAllCompleted(true)}
-                className="w-full py-1.5 mt-1 text-[11.5px] font-semibold text-[var(--color-rose)] hover:underline underline-offset-2 bg-transparent border-0 p-0 cursor-pointer text-left font-[inherit]"
-              >
-                Show all {completedSessions.length} sessions
-              </button>
-            )}
-          </div>
-        </div>
-      )}
+      {/* ═══ STANDING RULES — stays on the page per Craig's override ═══ */}
 
       {/* ═══ SUPPLEMENTARY ═══ */}
       <div className="fcard">
@@ -815,39 +364,7 @@ export function TrainingDrawer({
         </div>
       </div>
 
-      {/* ═══ STANDING RULES ═══ */}
-      {standingRules.length > 0 && (
-        <div className="fcard acc-amber">
-          <div className="fcard-h">
-            <span>Standing rules</span>
-            <button
-              type="button"
-              className="btn-link ml-auto"
-              onClick={() => router.push(`/hub/clients/${clientNumber}`)}
-            >
-              Edit rules
-            </button>
-          </div>
-          <div className="fcard-b">
-            <div className="flex flex-wrap gap-1">
-              {standingRules.map((rule) => (
-                <span
-                  key={rule.id}
-                  className="inline-flex items-center h-[23px] px-2 rounded-pill bg-[var(--hub-hover)] border border-[var(--hub-border)] text-[12px] text-[var(--color-ink)]"
-                >
-                  {rule.label && <span className="font-semibold">{rule.label} — </span>}
-                  {rule.detail}
-                </span>
-              ))}
-            </div>
-            <p className="miss mt-1.5 mb-0">
-              Both apply to every slot. Either one that bites the next session is named on it.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* ═══ BEFORE THE APP ═══ */}
+      {/* ═══ BEFORE THE APP — tail of the workout-queue drawer ═══ */}
       {hasHistory && (
         <div className="fcard acc-ink">
           <div className="fcard-h">
@@ -983,19 +500,16 @@ export function TrainingDrawer({
               <h3 className="m-0 text-[15.5px] font-bold text-[var(--color-ink)] tracking-tight">
                 Assign this session
               </h3>
-              <p className="m-0 mt-0.5 text-xs text-[var(--color-muted)]">
-                {fmtShortDate(scheduledSessions.find((s) => s.id === chooserSessionId)?.scheduled_at ?? "")} · {clientName}
-              </p>
             </div>
             <div className="px-5 py-4">
               <SessionChooser
                 nextSlot={programState.nextSlot}
-                currentWeek={currentWeek}
-                programWeeks={programWeeks}
-                slotPosition={nextPosition}
+                currentWeek={programState.currentWeek ?? 1}
+                programWeeks={programState.program?.weeks ?? 1}
+                slotPosition={programState.nextPosition ?? 1}
                 totalSlots={totalQueueSlots}
                 sessionsRemaining={remaining}
-                programName={programName}
+                programName={programState.program?.name ?? ""}
                 clientNumber={clientNumber}
                 onConfirmProgram={(slotId) => handleReassignProgram(chooserSessionId, slotId)}
                 onConfirmTemplate={(templateId, templateName) => handleReassignTemplate(chooserSessionId, templateId, templateName)}
@@ -1018,18 +532,9 @@ export function TrainingDrawer({
           session={moveSession}
           clientNumber={clientNumber}
           clientName={clientName}
-          preferredTime={preferredTime}
+          preferredTime={null}
           sessionsRemaining={sessionsRemaining}
           onClose={() => setMoveSession(null)}
-        />
-      )}
-
-      {/* ═══ SHIFT SCHEDULE DIALOG ═══ */}
-      {shiftOpen && (
-        <ShiftScheduleDialog
-          clientNumber={clientNumber}
-          clientId={clientId}
-          onClose={() => setShiftOpen(false)}
         />
       )}
     </DrawerShell>
