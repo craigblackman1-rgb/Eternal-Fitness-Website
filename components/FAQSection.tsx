@@ -13,8 +13,8 @@ const faqs = [
     answer: "No. Most clients haven't exercised in a while, or don't think of themselves as \"gym people.\" You do not need any experience — the only starting point is where you are right now.",
   },
   {
-    question: "What happens if my health changes during my training?",
-    answer: "If you experience a medical setback, injury, or flare-up, your sessions do not simply disappear. While session packages have fixed validity periods (120 or 240 days), I offer a medical suspension framework. We can safely hold your unused sessions on account and resume training the moment your body is ready.",
+    question: "What happens if my health changes during a block?",
+    answer: "If you experience a medical setback, injury, or flare-up, your sessions do not simply disappear. While blocks have fixed validity periods (120 or 240 days), I offer a medical suspension framework. We can safely hold your unused sessions on account and resume training the moment your body is ready.",
   },
   {
     question: "What is your session cancellation policy?",
@@ -22,7 +22,7 @@ const faqs = [
   },
   {
     question: "Do you offer flexible or rolling packages?",
-    answer: "Yes. Alongside our fixed session packages, we offer structured Rolling Monthly Contracts. These require a minimum initial term of 3 months (12 weeks) to establish real consistency, followed by a one-calendar-month written notice period if you ever choose to cancel.",
+    answer: "Yes. Alongside our fixed session blocks, we offer structured Rolling Monthly Contracts. These require a minimum initial term of 3 months (12 weeks) to establish real consistency, followed by a one-calendar-month written notice period if you ever choose to cancel.",
   },
 ];
 

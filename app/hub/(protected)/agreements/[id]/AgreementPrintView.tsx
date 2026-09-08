@@ -175,7 +175,7 @@ export default function AgreementPrintView({ agreement, onClose }: { agreement: 
               </div>
               <div>
                 <h4 className="font-semibold text-[#087E8B]">4. Payment terms</h4>
-                <p className="mt-1">A session package of 12 sessions is valid for 120 days from purchase. A session package of 24 sessions is valid for 240 days. Sessions not used within the validity period are forfeited without refund. Full payment is required before the training commences. A non-refundable deposit of £100 is required to secure time slots. Rolling contracts are subject to a minimum initial term of 3 months. No refunds will be issued for unused sessions for any reason.</p>
+                <p className="mt-1">A block of 12 sessions is valid for 120 days from purchase. A block of 24 sessions is valid for 240 days. Sessions not used within the validity period are forfeited without refund. Full payment is required before the block commences. A non-refundable deposit of £100 is required to secure time slots. Rolling contracts are subject to a minimum initial term of 3 months. No refunds will be issued for unused sessions for any reason.</p>
               </div>
               <div>
                 <h4 className="font-semibold text-[#087E8B]">5. Risk, liability, and safety</h4>
@@ -358,7 +358,7 @@ export default function AgreementPrintView({ agreement, onClose }: { agreement: 
                   <div><p className="text-xs text-[#525A61] uppercase">Sessions used / remaining</p><p>{agreement.sessions_used} / {agreement.sessions_remaining ?? "?"}</p></div>
                 )}
                 {agreement.block_expiry_date && (
-                  <div><p className="text-xs text-[#525A61] uppercase">Training expiry</p><p>{formatDate(agreement.block_expiry_date)}</p></div>
+                  <div><p className="text-xs text-[#525A61] uppercase">Block expiry</p><p>{formatDate(agreement.block_expiry_date)}</p></div>
                 )}
                 {agreement.medical_clearance_status && agreement.medical_clearance_status !== "not_required" && (
                   <div className="grid grid-cols-3 gap-4">
