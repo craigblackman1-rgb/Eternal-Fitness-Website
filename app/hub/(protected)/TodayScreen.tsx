@@ -1,15 +1,14 @@
 import Link from "next/link";
 
 /* ── S5 Today (design-systems v3/03-today.html) ───────────────────────────
-   The entry point. Booked sessions first, then what is outstanding, then
-   alerts — and every alert links to the thing you do about it, rather than
-   telling you something you then have to go and find.
+   The attention queue. Booked sessions first, then outstanding tasks (as a
+   linked tile), then alerts — every alert links to the surface that answers
+   it.
 
-   This replaces a dashboard of seven browse-widgets (recent clients, recent
+   Replaces a dashboard of seven browse-widgets (recent clients, recent
    blocks, this week's plan, recent check-ins…). Those answered "what has
    been happening"; this answers "what needs me". That is the whole point of
-   the surface, so their removal is the design, not an omission — with one
-   exception, noted at Updates due below. */
+   the surface, so their removal is the design, not an omission. */
 
 export interface TodaySession {
   time: string;
@@ -27,15 +26,6 @@ export interface AlertRow {
   dot: "due" | "warn";
 }
 
-export interface TaskRow {
-  id: string;
-  title: string;
-  clientName: string | null;
-  clientNumber: number | null;
-  due: string | null;
-  overdue: boolean;
-}
-
 const DOT: Record<string, string> = {
   due: "bg-rose",
   warn: "bg-[var(--status-warning)]",
@@ -44,12 +34,10 @@ const DOT: Record<string, string> = {
 function Section({
   title,
   meta,
-  action,
   children,
 }: {
   title: string;
   meta?: string;
-  action?: { label: string; href: string };
   children: React.ReactNode;
 }) {
   return (
@@ -57,14 +45,6 @@ function Section({
       <div className="flex items-center gap-2.5 py-2.5 px-4 border-b border-[var(--hub-border)]">
         <h2 className="m-0 text-[15px] font-bold text-[var(--color-ink)] tracking-tight">{title}</h2>
         {meta && <span className="text-xs text-[var(--color-muted)]">{meta}</span>}
-        {action && (
-          <Link
-            href={action.href}
-            className="ml-auto text-xs font-semibold text-[var(--color-muted)] hover:text-[var(--color-ink)] no-underline"
-          >
-            {action.label}
-          </Link>
-        )}
       </div>
       {children}
     </div>
@@ -75,23 +55,24 @@ export function TodayScreen({
   dateLabel,
   sessions,
   weekCount,
-  tasks,
+  taskCount,
   alerts,
 }: {
   dateLabel: string;
   sessions: TodaySession[];
   weekCount: number;
-  tasks: TaskRow[];
+  taskCount: number;
   alerts: AlertRow[];
 }) {
   return (
-    <div className="w-full">
-      <div className="flex items-baseline gap-2.5 flex-wrap mb-3.5">
+    <div className="w-full max-w-[940px]">
+      {/* ── Header ── */}
+      <div className="mb-3">
         <h1 className="m-0 text-[25px] font-bold tracking-tight text-[var(--color-ink)]">Today</h1>
-        <span className="text-[13px] text-[var(--color-body)]">{dateLabel}</span>
+        <p className="m-0 mt-0.5 text-[13px] text-[var(--color-body)]">{dateLabel}</p>
       </div>
 
-      {/* ── Booked today ── */}
+      {/* ── 1 · Booked today ── */}
       <Section
         title="Booked today"
         meta={
@@ -109,13 +90,13 @@ export function TodayScreen({
               <span className="w-[52px] shrink-0 text-[13px] font-semibold text-[var(--color-ink)] tabular-nums">
                 {s.time}
               </span>
-              <span className="flex-1 min-w-0 text-[13.5px] text-[var(--color-ink)] truncate">
-                {s.clientName}
+              <span className="flex-1 min-w-0 text-[13.5px] text-[var(--color-ink)]">
+                <b className="font-semibold">{s.clientName}</b>
                 {s.focus && <span className="text-[var(--color-muted)]"> · {s.focus}</span>}
               </span>
               <Link
                 href={`/hub/clients/${s.clientNumber}`}
-                className="shrink-0 inline-flex items-center justify-center rounded-lg border border-[var(--hub-field-border)] bg-white hover:bg-[var(--hub-hover)] text-foreground px-2.5 py-1 min-h-[30px] text-xs font-semibold no-underline transition-colors"
+                className="shrink-0 inline-flex items-center justify-center rounded-control border border-[var(--hub-field-border)] bg-white hover:bg-[var(--hub-hover)] text-foreground px-2.5 py-1 min-h-[30px] text-xs font-semibold no-underline transition-colors"
               >
                 Open
               </Link>
@@ -127,52 +108,43 @@ export function TodayScreen({
         </div>
       </Section>
 
-      {/* ── Outstanding tasks ── */}
+      {/* ── 2 · Outstanding tasks ──
+           A linked tile, not a list. The full task list lives at /hub/tasks;
+           Today shows the count and one click to get there. */}
       <Section
         title="Outstanding tasks"
-        meta={tasks.length > 0 ? `${tasks.length} open` : undefined}
-        action={{ label: "Open tasks", href: "/hub/tasks" }}
+        meta={taskCount > 0 ? `${taskCount} open` : undefined}
       >
-        <div>
-          {tasks.slice(0, 8).map((t) => (
-            <div
-              key={t.id}
-              className="flex items-center gap-3 py-2 px-4 border-t border-[var(--hub-border)] first:border-t-0 hover:bg-[var(--hub-hover)] transition-colors"
-            >
-              <span className={`w-[7px] h-[7px] rounded-pill shrink-0 ${t.overdue ? "bg-rose" : "bg-[var(--status-warning)]"}`} />
-              <span className="flex-1 min-w-0 text-[13.5px] text-[var(--color-ink)] truncate">
-                {t.title}
-                {t.clientName && <span className="text-[var(--color-muted)]"> · {t.clientName}</span>}
+        <div className="px-4 pb-3 pt-1">
+          {taskCount > 0 ? (
+            <div className="flex items-center gap-3 py-2 px-3 rounded-nested border border-transparent hover:bg-[var(--hub-hover)] hover:border-[var(--hub-border)] transition-colors">
+              <span className="w-[7px] h-[7px] rounded-pill bg-[var(--status-warning)] shrink-0" />
+              <span className="min-w-0 flex-1 text-[13.5px] text-[var(--color-ink)]">
+                <b className="font-semibold">{taskCount} open task{taskCount === 1 ? "" : "s"}</b>
+                <span className="block text-xs text-[var(--color-muted)] mt-px">In the order you&apos;d work them</span>
               </span>
-              {t.due && (
-                <span className={`shrink-0 text-xs ${t.overdue ? "font-semibold text-rose" : "text-[var(--color-muted)]"}`}>
-                  {t.overdue ? "Overdue " : ""}{t.due}
-                </span>
-              )}
-              {t.clientNumber != null && (
-                <Link
-                  href={`/hub/clients/${t.clientNumber}`}
-                  className="shrink-0 text-xs font-semibold text-[var(--color-rose)] no-underline hover:underline underline-offset-2"
-                >
-                  Open
-                </Link>
-              )}
+              <Link
+                href="/hub/tasks"
+                className="shrink-0 inline-flex items-center justify-center rounded-control border border-[var(--hub-field-border)] bg-white hover:bg-[var(--hub-hover)] text-foreground px-2.5 py-1 min-h-[30px] text-xs font-semibold no-underline transition-colors"
+              >
+                See all
+              </Link>
             </div>
-          ))}
-          {tasks.length > 8 && (
-            <p className="m-0 py-2 px-4 text-xs text-[var(--color-muted)] border-t border-[var(--hub-border)]">
-              Showing 8 of {tasks.length}.
-            </p>
-          )}
-          {tasks.length === 0 && (
-            <p className="m-0 py-6 px-4 text-[13px] text-[var(--color-muted)]">No outstanding tasks.</p>
+          ) : (
+            <div className="flex items-center gap-2.5 py-2 px-3 text-[13px] text-[var(--color-muted)]">
+              <span className="w-[7px] h-[7px] rounded-pill bg-[var(--status-success)] shrink-0" />
+              <span>No outstanding tasks.</span>
+            </div>
           )}
         </div>
       </Section>
 
-      {/* ── Alerts ── every one links to the thing you do about it */}
-      <Section title="Alerts" meta={alerts.length > 0 ? `${alerts.length} to look at` : undefined}>
-        <div className="px-4 pb-3">
+      {/* ── 3 · Alerts ──
+           Every alert links to the surface that answers it. The same
+           pattern as the arow on the client record: dot · headline · action.
+           No drawers here — direct links to the destination screens. */}
+      <Section title="Alerts" meta={alerts.length > 0 ? `${alerts.length} thing${alerts.length === 1 ? "" : "s"} need${alerts.length === 1 ? "s" : ""} a decision` : undefined}>
+        <div className="px-4 pb-3 pt-1">
           {alerts.map((a) => (
             <div
               key={a.id}
@@ -185,7 +157,7 @@ export function TodayScreen({
               </span>
               <Link
                 href={a.href}
-                className="shrink-0 inline-flex items-center justify-center rounded-lg border border-[var(--hub-field-border)] bg-white hover:bg-[var(--hub-hover)] text-foreground px-2.5 py-1 min-h-[30px] text-xs font-semibold no-underline transition-colors"
+                className="shrink-0 inline-flex items-center justify-center rounded-control border border-[var(--hub-field-border)] bg-white hover:bg-[var(--hub-hover)] text-foreground px-2.5 py-1 min-h-[30px] text-xs font-semibold no-underline transition-colors"
               >
                 {a.actionLabel}
               </Link>
