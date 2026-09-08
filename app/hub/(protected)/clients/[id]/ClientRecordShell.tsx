@@ -266,7 +266,6 @@ export function ClientRecordShell({
           items={[
             { id: "dw-profile", label: "Profile" },
             { id: "dw-health", label: "Health", count: healthFlags },
-            { id: "dw-training", label: "Training" },
             { id: "dw-arrangement", label: "Arrangement" },
             { id: "dw-documents", label: "Documents" },
             { id: "dw-comms", label: "Comms", count: pendingTaskCount },
