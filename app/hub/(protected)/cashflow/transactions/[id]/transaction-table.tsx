@@ -85,13 +85,13 @@ export function TransactionTable({ transactions, onRowUpdated }: TransactionTabl
     <div className="overflow-auto">
       <table className="w-full">
         <thead>
-          <tr className="bg-[var(--hub-hover)] text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--hub-muted)]">
-            <th className="px-5 py-2.5 text-left">Date</th>
-            <th className="px-5 py-2.5 text-left">Description</th>
-            <th className="px-5 py-2.5 text-right">Amount</th>
-            <th className="px-5 py-2.5 text-right">Balance</th>
-            <th className="px-5 py-2.5 text-left">Category</th>
-            <th className="px-5 py-2.5 text-center w-10">
+          <tr className="bg-[var(--hub-hover)]">
+            <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Date</th>
+            <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Description</th>
+            <th className="text-right text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Amount</th>
+            <th className="text-right text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Balance</th>
+            <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Category</th>
+            <th className="text-center text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap w-10">
               <span title="Exclude from tax calc">Excl.</span>
             </th>
           </tr>

@@ -88,22 +88,22 @@ export function PrescriptionTable({ version, className }: PrescriptionTableProps
     <table className={cn("w-full text-sm", className)}>
       <thead>
         <tr>
-          <th className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] px-3 py-2 text-left">
+          <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">
             Exercise
           </th>
-          <th className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] px-3 py-2 text-left whitespace-nowrap">
+          <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">
             Sets
           </th>
-          <th className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] px-3 py-2 text-left whitespace-nowrap">
+          <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">
             Reps
           </th>
-          <th className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] px-3 py-2 text-left whitespace-nowrap">
+          <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">
             Load
           </th>
-          <th className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] px-3 py-2 text-left whitespace-nowrap">
+          <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">
             Tempo
           </th>
-          <th className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium bg-[var(--hub-hover)] px-3 py-2 text-left whitespace-nowrap">
+          <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">
             Rest
           </th>
         </tr>

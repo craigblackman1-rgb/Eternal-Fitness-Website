@@ -105,19 +105,19 @@ export default async function ForecastPage() {
         <table className="w-full border-collapse text-[13px]">
           <thead>
             <tr>
-              <th className="text-left text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-muted-text)] bg-[var(--hub-hover)] px-[18px] h-10 border-b border-[var(--hub-border)]">
+              <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">
                 Month
               </th>
-              <th className="text-right text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-muted-text)] bg-[var(--hub-hover)] px-[18px] h-10 border-b border-[var(--hub-border)]">
+              <th className="text-right text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">
                 Opening
               </th>
-              <th className="text-right text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-muted-text)] bg-[var(--hub-hover)] px-[18px] h-10 border-b border-[var(--hub-border)]">
+              <th className="text-right text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">
                 Income
               </th>
-              <th className="text-right text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-muted-text)] bg-[var(--hub-hover)] px-[18px] h-10 border-b border-[var(--hub-border)]">
+              <th className="text-right text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">
                 Expenses
               </th>
-              <th className="text-right text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-muted-text)] bg-[var(--hub-hover)] px-[18px] h-10 border-b border-[var(--hub-border)]">
+              <th className="text-right text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">
                 Closing
               </th>
             </tr>

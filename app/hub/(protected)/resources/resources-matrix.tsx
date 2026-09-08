@@ -169,18 +169,18 @@ export function ResourcesMatrix({
           <table className="w-full border-collapse text-[13px]">
             <thead>
               <tr>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground bg-[var(--hub-hover)] px-5 h-10 border-b border-[var(--hub-border)]">
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">
                   Client
                 </th>
                 {resources.map((r) => (
                   <th
                     key={r.key}
-                    className="text-center text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground bg-[var(--hub-hover)] px-5 h-10 border-b border-[var(--hub-border)]"
+                    className="text-center text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap"
                   >
                     {r.name}
                   </th>
                 ))}
-                <th className="text-left text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground bg-[var(--hub-hover)] px-5 h-10 border-b border-[var(--hub-border)] w-1" />
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap w-1" />
               </tr>
             </thead>
             <tbody>

@@ -53,11 +53,11 @@ export function TrainerizeHistoryPanel({
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[var(--hub-border)] bg-[var(--hub-hover)]">
-                  <th className="text-left font-semibold text-muted-foreground text-xs uppercase tracking-wider h-10 px-5 py-0 whitespace-nowrap">Phase</th>
-                  <th className="text-left font-semibold text-muted-foreground text-xs uppercase tracking-wider h-10 px-5 py-0 whitespace-nowrap">Dates</th>
-                  <th className="text-left font-semibold text-muted-foreground text-xs uppercase tracking-wider h-10 px-5 py-0 whitespace-nowrap">Workouts</th>
-                  <th className="text-left font-semibold text-muted-foreground text-xs uppercase tracking-wider h-10 px-5 py-0 whitespace-nowrap">Notes</th>
-                  <th className="h-10 px-5 py-0"></th>
+                  <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Phase</th>
+                  <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Dates</th>
+                  <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Workouts</th>
+                  <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Notes</th>
+                  <th className="bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)]" />
                 </tr>
               </thead>
               <tbody>

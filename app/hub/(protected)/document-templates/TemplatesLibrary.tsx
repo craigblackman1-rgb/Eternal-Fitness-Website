@@ -307,12 +307,12 @@ export function TemplatesLibrary({ templates, clients }: { templates: DocumentTe
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="border-b border-[var(--hub-border)] bg-[var(--hub-hover)] text-left">
-                    <th className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-4 h-10">Template</th>
-                    <th className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-4 h-10">Category</th>
-                    <th className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-4 h-10">Completed by</th>
-                    <th className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-4 h-10">Version</th>
-                    <th className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-4 h-10">Status</th>
-                    <th className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-4 h-10 text-right">Actions</th>
+                    <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Template</th>
+                    <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Category</th>
+                    <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Completed by</th>
+                    <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Version</th>
+                    <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Status</th>
+                    <th className="text-right text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Actions</th>
                   </tr>
                 </thead>
                 <tbody>

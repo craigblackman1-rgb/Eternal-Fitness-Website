@@ -220,12 +220,12 @@ function PaceModesEditor({
           <table className="w-full text-[13px]">
             <thead>
               <tr className="border-b border-[var(--hub-border)]">
-                <th className="text-left font-semibold uppercase tracking-[.04em] text-[11px] text-muted-foreground py-2 px-1.5">Mode</th>
-                <th className="text-center font-semibold uppercase tracking-[.04em] text-[11px] text-muted-foreground py-2 px-1.5">Superset A</th>
-                <th className="text-center font-semibold uppercase tracking-[.04em] text-[11px] text-muted-foreground py-2 px-1.5">Superset B</th>
-                <th className="text-center font-semibold uppercase tracking-[.04em] text-[11px] text-muted-foreground py-2 px-1.5">Arms + core</th>
-                <th className="text-center font-semibold uppercase tracking-[.04em] text-[11px] text-muted-foreground py-2 px-1.5">Total</th>
-                <th className="text-center font-semibold uppercase tracking-[.04em] text-[11px] text-muted-foreground py-2 pl-1.5 pr-1.5">
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Mode</th>
+                <th className="text-center text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Superset A</th>
+                <th className="text-center text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Superset B</th>
+                <th className="text-center text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Arms + core</th>
+                <th className="text-center text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Total</th>
+                <th className="text-center text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">
                   Finisher
                 </th>
               </tr>

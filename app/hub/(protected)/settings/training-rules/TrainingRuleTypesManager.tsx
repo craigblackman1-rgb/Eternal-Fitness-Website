@@ -174,11 +174,11 @@ export function TrainingRuleTypesManager({ initialRuleTypes }: TrainingRuleTypes
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--hub-border)] bg-[var(--hub-hover)]">
-                <th className="text-left font-semibold uppercase tracking-wide text-[11px] text-muted-foreground h-10 px-5">Label</th>
-                <th className="text-left font-semibold uppercase tracking-wide text-[11px] text-muted-foreground h-10 px-5">Bucket</th>
-                <th className="text-left font-semibold uppercase tracking-wide text-[11px] text-muted-foreground h-10 px-5">Description</th>
-                <th className="text-right font-semibold uppercase tracking-wide text-[11px] text-muted-foreground h-10 px-5">Active</th>
-                <th className="text-center font-semibold uppercase tracking-wide text-[11px] text-muted-foreground h-10 px-3 w-[52px]">Edit</th>
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Label</th>
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Bucket</th>
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Description</th>
+                <th className="text-right text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Active</th>
+                <th className="text-center text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-3 h-10 border-b border-[var(--hub-border)] whitespace-nowrap w-[52px]">Edit</th>
               </tr>
             </thead>
             <tbody>

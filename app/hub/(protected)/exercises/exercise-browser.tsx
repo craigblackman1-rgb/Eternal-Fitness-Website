@@ -416,11 +416,11 @@ export function ExerciseBrowser({
                 <table className="w-full text-sm border-collapse">
                   <thead>
                     <tr className="border-b border-[var(--hub-border)] bg-[var(--hub-hover)]">
-                      <th className="w-10 text-left px-4 py-2"></th>
-                      <th className="text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground px-3 py-2">Movement</th>
-                      <th className="text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground px-3 py-2">Type</th>
-                      <th className="text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground px-3 py-2">Level</th>
-                      <th className="text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground px-3 py-2">Source</th>
+                      <th className="w-10 bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)]"></th>
+                      <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Movement</th>
+                      <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Type</th>
+                      <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Level</th>
+                      <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Source</th>
                     </tr>
                   </thead>
                   <tbody>

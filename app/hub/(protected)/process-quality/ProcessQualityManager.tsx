@@ -361,13 +361,13 @@ function RegisterSection({ initial }: { initial: ProcessEntry[] }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--hub-border)] bg-[var(--hub-hover)] text-left">
-                <th className="px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ref</th>
-                <th className="px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Name</th>
-                <th className="px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</th>
-                <th className="px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</th>
-                <th className="px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Reviewed</th>
-                <th className="px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">SOP</th>
-                <th className="px-5 py-2.5" />
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Ref</th>
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Name</th>
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Category</th>
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Status</th>
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Reviewed</th>
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">SOP</th>
+                <th className="bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)]" />
               </tr>
             </thead>
             <tbody>

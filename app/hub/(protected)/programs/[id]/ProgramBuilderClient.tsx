@@ -349,12 +349,12 @@ function InlineExerciseEditor({
         <table className="w-full border-collapse text-[13px]">
           <thead>
             <tr className="border-b border-[var(--hub-border)]">
-              <th className="text-left px-2.5 py-1.5 text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Weeks</th>
-              <th className="text-left px-2.5 py-1.5 text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Exercise</th>
-              <th className="text-left px-2.5 py-1.5 text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Sets × reps</th>
-              <th className="text-left px-2.5 py-1.5 text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Weight</th>
-              <th className="text-left px-2.5 py-1.5 text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Notes</th>
-              <th className="w-8"></th>
+              <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Weeks</th>
+              <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Exercise</th>
+              <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Sets × reps</th>
+              <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Weight</th>
+              <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Notes</th>
+              <th className="bg-[var(--hub-hover)] h-10 border-b border-[var(--hub-border)] w-8"></th>
             </tr>
           </thead>
           <tbody>
@@ -509,11 +509,11 @@ function InlineExerciseEditor({
         <table className="w-full border-collapse text-[13px]">
           <thead>
             <tr className="border-b border-[var(--hub-border)]">
-              <th className="text-left px-2.5 py-1.5 text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Week</th>
-              <th className="text-left px-2.5 py-1.5 text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Exercise</th>
-              <th className="text-left px-2.5 py-1.5 text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Sets × reps</th>
-              <th className="text-left px-2.5 py-1.5 text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Weight</th>
-              <th className="text-left px-2.5 py-1.5 text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">Notes</th>
+              <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Week</th>
+              <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Exercise</th>
+              <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Sets × reps</th>
+              <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Weight</th>
+              <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Notes</th>
             </tr>
           </thead>
           <tbody>

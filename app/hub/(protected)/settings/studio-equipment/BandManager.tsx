@@ -328,13 +328,13 @@ export function BandManager({ initialBandSets, initialBands, initialSelectedSetI
         <table className="w-full text-[13px] border-collapse">
           <thead>
             <tr>
-              <th className="w-[40px]" />
-              <th className="text-left text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground bg-[var(--hub-hover)] h-10 px-4 border-b border-[var(--hub-border)]">Colour</th>
-              <th className="text-left text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground bg-[var(--hub-hover)] h-10 px-4 border-b border-[var(--hub-border)]">Hex</th>
-              <th className="text-left text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground bg-[var(--hub-hover)] h-10 px-4 border-b border-[var(--hub-border)]">Tension</th>
-              <th className="text-left text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground bg-[var(--hub-hover)] h-10 px-4 border-b border-[var(--hub-border)]">Order</th>
-              <th className="text-left text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground bg-[var(--hub-hover)] h-10 px-4 border-b border-[var(--hub-border)] w-[110px]">Active</th>
-              <th className="w-[56px] px-4 border-b border-[var(--hub-border)]" />
+              <th className="w-[40px] bg-[var(--hub-hover)] h-10 border-b border-[var(--hub-border)]" />
+              <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Colour</th>
+              <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Hex</th>
+              <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Tension</th>
+              <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Order</th>
+              <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap w-[110px]">Active</th>
+              <th className="bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] w-[56px]" />
             </tr>
           </thead>
           <tbody>

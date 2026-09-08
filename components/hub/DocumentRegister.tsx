@@ -112,18 +112,18 @@ export function DocumentRegister({ clientNumber, documents = [], clientEmail, cl
       {rows.length === 0 ? (
         <p className="text-sm text-muted-foreground py-2">No documents on file yet — create one with &ldquo;Create document&rdquo;.</p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-[var(--hub-border)]">
+        <div className="overflow-x-auto rounded-surface border border-[var(--hub-border)] bg-[var(--hub-card)] shadow-sm">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[var(--hub-border)] bg-[var(--hub-canvas)] text-xs text-muted-foreground">
-                <th className="px-3 py-1.5 text-left font-medium">Document</th>
-                <th className="px-3 py-1.5 text-left font-medium">Status</th>
-                <th className="px-3 py-1.5 text-left font-medium">Date</th>
-                <th className="px-3 py-1.5 text-left font-medium">Version</th>
-                <th className="px-3 py-1.5 text-left font-medium">Last updated</th>
-                <th className="px-3 py-1.5 text-left font-medium">Last updated by</th>
-                <th className="px-3 py-1.5 text-right font-medium">&nbsp;</th>
-                <th className="px-3 py-1.5 text-right font-medium">&nbsp;</th>
+              <tr className="border-b border-[var(--hub-border)] bg-[var(--hub-hover)]">
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)]">Document</th>
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)]">Status</th>
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)]">Date</th>
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)]">Version</th>
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)]">Last updated</th>
+                <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)]">Last updated by</th>
+                <th className="text-right text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)]">&nbsp;</th>
+                <th className="text-right text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)]">&nbsp;</th>
               </tr>
             </thead>
             <tbody>

@@ -582,7 +582,7 @@ export function MedicalTracker({ clients }: MedicalTrackerProps) {
                         { k: "risk", label: "Risk", cls: "max-[1240px]:hidden" },
                         { k: "consent", label: "Consent", cls: "max-[1240px]:hidden" },
                       ].map((h) => (
-                        <th key={h.k} className={cn("text-left text-[11px] font-semibold uppercase tracking-[.05em] text-muted-foreground bg-[var(--hub-hover)] px-3 h-10 border-b border-[var(--hub-border)] whitespace-nowrap cursor-pointer select-none hover:text-foreground", h.cls)} onClick={() => { if (sortKey === h.k) setSortDir((d) => (d === 1 ? -1 : 1)); else { setSortKey(h.k); setSortDir(1); } }}>
+                        <th key={h.k} className={cn("text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap cursor-pointer select-none hover:text-foreground", h.cls)} onClick={() => { if (sortKey === h.k) setSortDir((d) => (d === 1 ? -1 : 1)); else { setSortKey(h.k); setSortDir(1); } }}>
                           <span className="inline-flex items-center gap-1">
                             {h.label}
                             {sortKey === h.k && <span className="text-[var(--color-rose)]">{sortDir === 1 ? "↑" : "↓"}</span>}
@@ -640,7 +640,7 @@ export function MedicalTracker({ clients }: MedicalTrackerProps) {
                         { k: "note", label: "Detail", cls: "max-[1240px]:hidden" },
                         { k: "action", label: "" },
                       ].map((h) => (
-                        <th key={h.k} className={cn("text-left text-[11px] font-semibold uppercase tracking-[.05em] text-muted-foreground bg-[var(--hub-hover)] px-3 h-10 border-b border-[var(--hub-border)] whitespace-nowrap cursor-pointer select-none hover:text-foreground", h.cls, !h.k && "w-0")} onClick={() => { if (h.k) { if (sortKey === h.k) setSortDir((d) => (d === 1 ? -1 : 1)); else { setSortKey(h.k); setSortDir(1); } } }}>
+                        <th key={h.k} className={cn("text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap cursor-pointer select-none hover:text-foreground", h.cls, !h.k && "w-0")} onClick={() => { if (h.k) { if (sortKey === h.k) setSortDir((d) => (d === 1 ? -1 : 1)); else { setSortKey(h.k); setSortDir(1); } } }}>
                           {h.label && (
                             <span className="inline-flex items-center gap-1">
                               {h.label}

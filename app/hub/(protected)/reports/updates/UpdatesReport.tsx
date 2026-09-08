@@ -293,14 +293,14 @@ export function UpdatesReport({ updates }: { updates: UpdateWithClient[] }) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[var(--hub-border)] bg-[var(--hub-hover)]">
-                  <th className="w-10 px-3 h-10">
+                  <th className="w-10 bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)]">
                     <Checkbox
                       checked={allVisibleSelected ? true : someVisibleSelected ? "indeterminate" : false}
                       onCheckedChange={handleSelectAll}
                       aria-label="Select all"
                     />
                   </th>
-                  <th className="text-left font-semibold text-muted-foreground text-[11px] uppercase tracking-wider px-5 h-10">
+                  <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">
                     <button type="button" className="inline-flex items-center gap-1 hover:text-foreground transition-colors" onClick={() => handleSortClick("client")}>
                       Client
                       {sortKey === "client" && (
@@ -308,8 +308,8 @@ export function UpdatesReport({ updates }: { updates: UpdateWithClient[] }) {
                       )}
                     </button>
                   </th>
-                  <th className="text-left font-semibold text-muted-foreground text-[11px] uppercase tracking-wider px-5 h-10">Programme</th>
-                  <th className="text-left font-semibold text-muted-foreground text-[11px] uppercase tracking-wider px-5 h-10">
+                  <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">Programme</th>
+                  <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">
                     <button type="button" className="inline-flex items-center gap-1 hover:text-foreground transition-colors" onClick={() => handleSortClick("subject")}>
                       Subject
                       {sortKey === "subject" && (
@@ -317,7 +317,7 @@ export function UpdatesReport({ updates }: { updates: UpdateWithClient[] }) {
                       )}
                     </button>
                   </th>
-                  <th className="text-left font-semibold text-muted-foreground text-[11px] uppercase tracking-wider px-5 h-10">
+                  <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">
                     <button type="button" className="inline-flex items-center gap-1 hover:text-foreground transition-colors" onClick={() => handleSortClick("when")}>
                       When
                       {sortKey === "when" && (
@@ -325,7 +325,7 @@ export function UpdatesReport({ updates }: { updates: UpdateWithClient[] }) {
                       )}
                     </button>
                   </th>
-                  <th className="text-left font-semibold text-muted-foreground text-[11px] uppercase tracking-wider px-5 h-10">
+                  <th className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap">
                     <button type="button" className="inline-flex items-center gap-1 hover:text-foreground transition-colors" onClick={() => handleSortClick("status")}>
                       Status
                       {sortKey === "status" && (
@@ -333,7 +333,7 @@ export function UpdatesReport({ updates }: { updates: UpdateWithClient[] }) {
                       )}
                     </button>
                   </th>
-                  <th className="px-5 h-10"></th>
+                  <th className="bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)]" />
                 </tr>
               </thead>
               <tbody>
