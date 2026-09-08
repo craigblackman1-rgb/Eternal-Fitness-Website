@@ -611,24 +611,12 @@ export function TrainingSection({
                   )}
                 </span>
                 <span className="shrink-0">
-                  {queueItem ? (
-                    <button
-                      onClick={(e) => {
-                        if ("sessionId" in queueItem && queueItem.sessionId) {
-                          openWorkoutDrawer(queueItem.sessionId as string, e.currentTarget);
-                        } else {
-                          openDrawer("dw-training", e.currentTarget);
-                        }
-                      }}
-                      className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-white hover:bg-[var(--hub-hover)] text-foreground px-2.5 py-1 min-h-[30px] font-[inherit] text-xs font-semibold cursor-pointer transition-colors"
-                    >
-                      Open session
-                    </button>
-                  ) : (
-                    <button className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-white hover:bg-[var(--hub-hover)] text-foreground px-2.5 py-1 min-h-[30px] font-[inherit] text-xs font-semibold cursor-pointer transition-colors">
-                      Assign a workout
-                    </button>
-                  )}
+                  <button
+                    onClick={(e) => openWorkoutDrawer(booking.id, e.currentTarget)}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-white hover:bg-[var(--hub-hover)] text-foreground px-2.5 py-1 min-h-[30px] font-[inherit] text-xs font-semibold cursor-pointer transition-colors"
+                  >
+                    {queueItem ? "Open session" : "Assign a workout"}
+                  </button>
                 </span>
               </div>
             );
