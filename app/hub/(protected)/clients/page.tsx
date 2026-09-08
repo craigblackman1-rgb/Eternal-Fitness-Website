@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase-server";
 import { getPool } from "@/lib/pg-client";
 import { computeComplianceFlags } from "@/lib/compliance";
+import { deriveSessionPot } from "@/lib/session-pot";
 import { ClientsScreen, type ClientRow, type QueueItem } from "./ClientsScreen";
 
 /* ── S6 Clients (design-systems v3/07-clients.html) ───────────────────────
@@ -23,7 +24,7 @@ export default async function ClientsPage({ searchParams }: { searchParams?: { f
 
   const { data: clientsRaw } = await supabase
     .from("clients")
-    .select("*, compliance_status, outstanding_actions, group_type, pace_mode")
+    .select("*, compliance_status, outstanding_actions, group_type, pace_mode, pot_baseline_used")
     .order("name", { ascending: true });
   const clients = clientsRaw ?? [];
   const ids = clients.map((c: any) => c.id);
@@ -31,9 +32,9 @@ export default async function ClientsPage({ searchParams }: { searchParams?: { f
   // ── Everything below is one query per grouping, keyed by client id ──
   const todayIso = new Date().toISOString().slice(0, 10);
 
-  const [sessionsToday, draftBlocks, openBookings, lastActivity, docRows, parqRows, agreementRows] =
+  const [sessionsToday, draftBlocks, openBookings, lastActivity, docRows, parqRows, agreementRows, potSessionRows] =
     ids.length === 0
-      ? [[], [], [], [], [], [], []]
+      ? [[], [], [], [], [], [], [], []]
       : await Promise.all([
           // Sessions booked for today, not cancelled.
           pool
@@ -107,6 +108,19 @@ export default async function ClientsPage({ searchParams }: { searchParams?: { f
               [ids],
             )
             .then((r) => r.rows),
+          // All sessions across all blocks for pot computation — one query,
+          // grouped in JS. CR-EF-101: sub-sessions excluded.
+          pool
+            .query(
+              `SELECT b.client_id, s.status, s.charged_free, s.cancelled_at,
+                      s.parent_session_id, s.completed_at
+                 FROM sessions s
+                 JOIN blocks b ON b.id = s.block_id
+                WHERE b.client_id = ANY($1)
+                  AND s.parent_session_id IS NULL`,
+              [ids],
+            )
+            .then((r) => r.rows),
         ]);
 
   const by = (rows: any[]) => {
@@ -125,6 +139,14 @@ export default async function ClientsPage({ searchParams }: { searchParams?: { f
   const parqBy = by(parqRows as any);
   const agreeBy = by(agreementRows as any);
   const activityBy = new Map<string, any>((lastActivity as any[]).map((r) => [r.client_id, r]));
+
+  // Group pot sessions by client for deriveSessionPot
+  const potSessionsByClient = new Map<string, any[]>();
+  for (const r of potSessionRows as any[]) {
+    const list = potSessionsByClient.get(r.client_id) ?? [];
+    list.push(r);
+    potSessionsByClient.set(r.client_id, list);
+  }
 
   const fmtTime = (iso: string) =>
     new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
@@ -189,6 +211,12 @@ export default async function ClientsPage({ searchParams }: { searchParams?: { f
                   ? { text: "Paperwork outstanding", hot: false }
                   : null;
 
+    // Session pot computation
+    const clientSessions = potSessionsByClient.get(c.id) ?? [];
+    const sessionsPurchased = c.sessions_purchased ?? null;
+    const baselineUsed = c.pot_baseline_used ?? 0;
+    const pot = deriveSessionPot(clientSessions, sessionsPurchased, baselineUsed);
+
     rows.push({
       id: c.id,
       clientNumber: c.client_number,
@@ -201,6 +229,8 @@ export default async function ClientsPage({ searchParams }: { searchParams?: { f
       reason: reason?.text ?? null,
       hot: reason?.hot ?? false,
       dot: doNotTrain || todays.length ? "due" : reason ? "warn" : "nil",
+      sessionsRemaining: pot.remaining,
+      sessionsPurchased,
     });
   }
 

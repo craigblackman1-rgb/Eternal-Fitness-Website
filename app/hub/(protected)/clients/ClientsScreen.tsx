@@ -23,6 +23,9 @@ export interface ClientRow {
   reason: string | null;
   hot: boolean;
   dot: "due" | "warn" | "nil";
+  /** null = no package on file (not set up / ongoing). */
+  sessionsRemaining: number | null;
+  sessionsPurchased: number | null;
 }
 
 export interface QueueItem {
@@ -225,6 +228,14 @@ export function ClientsScreen({
         </div>
 
         <div>
+          {/* Column header — matches the mockup's .clist-h */}
+          <div className="flex items-center gap-3 px-4 pb-1.5 pt-0 text-[10.5px] font-bold uppercase tracking-[.07em] text-[var(--color-muted)]" aria-hidden="true">
+            <span className="w-[7px] shrink-0" />
+            <span className="w-[190px] shrink-0">Client</span>
+            <span className="flex-1 min-w-0">How they train</span>
+            <span className="shrink-0 w-[96px] text-right">Sessions left</span>
+            <span className="shrink-0">Needs</span>
+          </div>
           {visible.map((r) => (
             <Link
               key={r.id}
@@ -237,6 +248,20 @@ export function ClientsScreen({
                 {r.archived && <span className="ml-1.5 text-[11px] font-normal text-[var(--color-muted)]">archived</span>}
               </span>
               <span className="flex-1 min-w-0 text-xs text-[var(--color-muted)] truncate">{facts(r)}</span>
+              {r.sessionsPurchased != null ? (
+                <span
+                  className={`shrink-0 w-[96px] text-right text-[13.5px] font-bold tabular-nums ${
+                    r.sessionsRemaining != null && r.sessionsRemaining <= 2
+                      ? "text-[var(--status-danger)]"
+                      : "text-[var(--color-ink)]"
+                  }`}
+                >
+                  {r.sessionsRemaining}
+                  <small className="block text-[11px] font-medium tracking-[0.02em] text-[var(--color-muted)]">of {r.sessionsPurchased}</small>
+                </span>
+              ) : (
+                <span className="shrink-0 w-[96px] text-right text-[12.5px] font-medium text-[var(--color-muted)]">Not set up</span>
+              )}
               {r.reason && (
                 <span
                   className={`shrink-0 text-xs ${r.hot ? "font-semibold text-[var(--color-ink)]" : "text-[var(--color-muted)]"}`}
