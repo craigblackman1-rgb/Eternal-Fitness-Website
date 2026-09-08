@@ -1734,6 +1734,49 @@ table.eb-table { width: 100%; border-collapse: collapse; font-size: 14px; min-wi
 .pick-s { display: block; font-size: 12px; color: var(--color-body); margin-top: 1px; }
 .pick-a { flex-shrink: 0; }
 
+/* ── CR-EF-186 Progress drawer (REVIEW rung) ──────────────────────────────
+    Session log rows, personal best rows, attendance figures, programme
+    review rows — ported from training-progress-drawer-v1.html §12. */
+
+/* Lrow2: session log row — date · workout · sets count · action */
+.lrow2 { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--hub-border); }
+.lrow2:last-child { border-bottom: 0; }
+.lrow2-d { flex: 0 0 96px; font-size: 13px; font-weight: 600; color: var(--color-ink); font-variant-numeric: tabular-nums; }
+.lrow2-m { flex: 1; min-width: 0; }
+.lrow2-t { display: block; font-size: 13.5px; font-weight: 600; color: var(--color-ink); }
+.lrow2-s { display: block; font-size: 12px; color: var(--color-body); margin-top: 1px; }
+.lrow2-n { display: block; flex: 0 0 86px; text-align: right; font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lrow2-n b { color: var(--color-ink); font-weight: 700; }
+.lrow2-n small { color: var(--color-body); }
+.lrow2-n.none b, .lrow2-n.none small { color: var(--amber-text); }
+.lrow2-a { display: block; flex-shrink: 0; }
+
+/* PB row: exercise · value · delta — teal delta for improvement, muted for flat */
+.pb-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--hub-border); }
+.pb-row:last-child { border-bottom: 0; }
+.pb-row-m { flex: 1; min-width: 0; }
+.pb-row-t { display: block; font-size: 13.5px; font-weight: 600; color: var(--color-ink); }
+.pb-row-s { display: block; font-size: 12px; color: var(--color-body); margin-top: 1px; }
+.pb-row-v { flex: 0 0 92px; text-align: right; font-size: 15px; font-weight: 800; color: var(--color-ink); font-variant-numeric: tabular-nums; letter-spacing: -.01em; white-space: nowrap; }
+.pb-row-d { flex: 0 0 72px; text-align: right; font-size: 12.5px; font-weight: 700; color: var(--status-success-text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pb-row-d.flat { color: var(--color-body); font-weight: 500; }
+
+/* Att: attendance figure row — four counts on one line */
+.att { display: flex; gap: 18px; flex-wrap: wrap; }
+.att span { font-size: 12px; color: var(--color-body); }
+.att b { display: block; font-size: 18px; font-weight: 800; color: var(--color-ink); letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+.att b.up { color: var(--status-success-text); }
+.att b.warn { color: var(--amber-text); }
+
+/* Hrow2: programme review row — block number · name · status · action */
+.hrow2 { display: flex; align-items: center; gap: 11px; padding: 9px 0; border-bottom: 1px solid var(--hub-border); }
+.hrow2:last-child { border-bottom: 0; }
+.hrow2-t { flex: 0 0 26px; height: 26px; border-radius: var(--r-control-sm); display: grid; place-items: center; font-size: 11px; font-weight: 800; background: var(--status-neutral-bg); color: var(--color-ink); }
+.hrow2-m { flex: 1; min-width: 0; }
+.hrow2-n { display: block; font-size: 13.5px; font-weight: 600; color: var(--color-ink); }
+.hrow2-s { display: block; font-size: 12px; color: var(--color-body); margin-top: 1px; }
+.hrow2-a { flex-shrink: 0; }
+
 /* ── S7 Documents additions ──────────────────────────────────────────────
    New, appended per RULES.md's Output rule. Two of these (.fld, and the
    fact ClientDrawers.tsx already assumed .fld existed) close a pre-existing

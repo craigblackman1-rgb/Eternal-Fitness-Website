@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { DrawerShell, useDrawerManager } from "./DrawerManager";
-import { sessionWorkoutName } from "@/lib/session-display";
+import { sessionWorkoutName, isOutlookPlaceholder, isTrainerizeImported } from "@/lib/session-display";
 import { UpdateIntervalControl } from "./UpdateIntervalControl";
 import { ClientTasksPanel, type ClientTasksPanelHandle } from "./ClientTasksPanel";
 import { PortalAccountCard } from "./PortalAccountCard";
@@ -1524,10 +1524,11 @@ function WorkoutDrawer({ sessions, ruleTypesById }: { sessions: DBSession[]; rul
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   PROGRESS — per-exercise last/best table
+   PROGRESS — the REVIEW rung: how it's going, session log, PBs, attendance,
+   programme reviews. Rebuilt to training-progress-drawer-v1.html (CR-EF-186).
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, clientNumber, client }: {
+function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks, clientNumber, client }: {
   exerciseTrends: ExerciseTrend[];
   exerciseTrendSummary?: {
     totalExercisesLogged: number;
@@ -1537,88 +1538,121 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, client
     recentNotes: string | null;
   };
   sessions: DBSession[];
+  blocks: DBBlock[];
   clientNumber: number;
   client: any;
 }) {
-  // Build a table: exercise name, last performed, best, with trend arrows
-  const rows = exerciseTrends.map((trend) => {
-    const pts = trend.points;
-    if (!pts || pts.length === 0) return null;
-    const last = pts[pts.length - 1];
+  // ── Shared: main sessions only (exclude sub-sessions, Outlook placeholders, Trainerize imports) ──
+  const mainSessions = sessions.filter(
+    (s) => !s.parent_session_id && !isOutlookPlaceholder(s) && !isTrainerizeImported(s),
+  );
 
-    // Find best point by metric
-    let best = last;
-    for (const p of pts) {
-      if (trend.metric === "weight" && (p.topWeightKg ?? 0) > (best.topWeightKg ?? 0)) best = p;
-      else if (trend.metric === "reps" && (p.maxReps ?? 0) > (best.maxReps ?? 0)) best = p;
-      else if (trend.metric === "duration" && (p.maxDurationSeconds ?? 0) > (best.maxDurationSeconds ?? 0)) best = p;
-    }
+  // ── Completed sessions (status or completed_at) ──
+  const completedSessions = mainSessions.filter(
+    (s) => s.status === "completed" || s.completed_at,
+  );
 
-    const formatValue = (pt: any) => {
-      if (trend.metric === "weight" && pt.topWeightKg != null) {
-        return `${pt.topWeightKg} kg \u00d7 ${pt.repsAtTopWeight ?? "?"}`;
-      }
-      if (trend.metric === "reps" && pt.maxReps != null) {
-        return `${pt.maxReps} reps`;
-      }
-      if (trend.metric === "duration" && pt.maxDurationSeconds != null) {
-        return `${Math.round(pt.maxDurationSeconds)}s`;
-      }
-      return "\u2014";
-    };
-
-    // Trend arrow: compare last two points
-    let trendDir: "up" | "flat" | "down" = "flat";
-    if (pts.length >= 2) {
-      const prev = pts[pts.length - 2];
-      if (trend.metric === "weight") {
-        const lastVal = last.topWeightKg ?? 0;
-        const prevVal = prev.topWeightKg ?? 0;
-        trendDir = lastVal > prevVal ? "up" : lastVal < prevVal ? "down" : "flat";
-      } else if (trend.metric === "reps") {
-        const lastVal = last.maxReps ?? 0;
-        const prevVal = prev.maxReps ?? 0;
-        trendDir = lastVal > prevVal ? "up" : lastVal < prevVal ? "down" : "flat";
-      } else if (trend.metric === "duration") {
-        const lastVal = last.maxDurationSeconds ?? 0;
-        const prevVal = prev.maxDurationSeconds ?? 0;
-        trendDir = lastVal > prevVal ? "up" : lastVal < prevVal ? "down" : "flat";
+  // ── Set logs per session (from exercise trends — each point is one session's logs) ──
+  const sessionSetCounts = new Map<string, number>();
+  for (const s of completedSessions) {
+    let count = 0;
+    for (const trend of exerciseTrends) {
+      for (const pt of trend.points) {
+        if (pt.loggedAt && s.completed_at) {
+          const ptDate = new Date(pt.loggedAt).getTime();
+          const sDate = new Date(s.completed_at).getTime();
+          if (Math.abs(ptDate - sDate) < 86_400_000) {
+            count += pt.completedSets;
+          }
+        }
       }
     }
+    sessionSetCounts.set(s.id, count);
+  }
 
-    return {
-      name: trend.exerciseName,
-      lastValue: formatValue(last),
-      lastDate: fmtShortDate(last.loggedAt),
-      bestValue: formatValue(best),
-      bestDate: fmtShortDate(best.loggedAt),
-      isBest: last === best || (trend.metric === "weight" && last.topWeightKg === best.topWeightKg && last.repsAtTopWeight === best.repsAtTopWeight),
-      trendDir,
-    };
-  }).filter(Boolean);
+  // ── 1. How it's going ──
+  const sessionsCompleted = completedSessions.length;
+  const totalBooked = mainSessions.length;
+  const attendanceRate = totalBooked > 0 ? Math.round((sessionsCompleted / totalBooked) * 100) : null;
+  const totalSetsLogged = exerciseTrendSummary?.totalExercisesLogged ?? 0;
+  const sessionsWithNoLog = completedSessions.filter(
+    (s) => (sessionSetCounts.get(s.id) ?? 0) === 0,
+  ).length;
+  const oldestNoLog = completedSessions
+    .filter((s) => (sessionSetCounts.get(s.id) ?? 0) === 0)
+    .sort((a, b) => new Date(a.completed_at ?? a.scheduled_at ?? "").getTime() - new Date(b.completed_at ?? b.scheduled_at ?? "").getTime())[0];
+  const programmeCount = blocks.length;
+  const firstDate = completedSessions.length > 0
+    ? completedSessions
+        .map((s) => s.completed_at ?? s.scheduled_at ?? "")
+        .filter(Boolean)
+        .sort()[0]
+    : null;
 
-  // RPE mini-trend: pull session RPE from recent completed sessions
-  const rpeData = sessions
-    .filter((s: any) => s.data?.session_log?.rpe != null && s.status === "completed")
-    .sort((a: any, b: any) => {
-      const aDate = a.data?.session_log?.completed_at ?? a.scheduled_at ?? "";
-      const bDate = b.data?.session_log?.completed_at ?? b.scheduled_at ?? "";
-      return aDate.localeCompare(bDate);
+  // ── 2. Session log (completed, newest first) ──
+  const logSessions = [...completedSessions].sort(
+    (a, b) => new Date(b.completed_at ?? b.scheduled_at ?? "").getTime() - new Date(a.completed_at ?? a.scheduled_at ?? "").getTime(),
+  );
+  const LOG_INITIAL_COUNT = 5;
+  const [showAllLog, setShowAllLog] = useState(false);
+  const visibleLogSessions = showAllLog ? logSessions : logSessions.slice(0, LOG_INITIAL_COUNT);
+
+  // ── 3. Personal bests ──
+  const pbRows = exerciseTrends
+    .filter((t) => t.points && t.points.length > 0)
+    .map((trend) => {
+      const pts = trend.points;
+      const last = pts[pts.length - 1];
+      let best = last;
+      let first = pts[0];
+      for (const p of pts) {
+        if (trend.metric === "weight" && (p.topWeightKg ?? 0) > (best.topWeightKg ?? 0)) best = p;
+        else if (trend.metric === "reps" && (p.maxReps ?? 0) > (best.maxReps ?? 0)) best = p;
+        else if (trend.metric === "duration" && (p.maxDurationSeconds ?? 0) > (best.maxDurationSeconds ?? 0)) best = p;
+      }
+      const formatValue = (pt: any) => {
+        if (trend.metric === "weight" && pt.topWeightKg != null) return `${pt.topWeightKg} kg`;
+        if (trend.metric === "reps" && pt.maxReps != null) return `${pt.maxReps} reps`;
+        if (trend.metric === "duration" && pt.maxDurationSeconds != null) return `${Math.round(pt.maxDurationSeconds)}s`;
+        return "\u2014";
+      };
+      const currentValue = formatValue(best);
+      const firstValue = formatValue(first);
+      let delta: string | null = null;
+      let isFlat = false;
+      if (trend.metric === "weight" && first.topWeightKg != null && best.topWeightKg != null) {
+        const diff = best.topWeightKg - first.topWeightKg;
+        if (diff === 0) { delta = "no change"; isFlat = true; } else delta = diff > 0 ? `+${diff} kg` : `${diff} kg`;
+      } else if (trend.metric === "reps" && first.maxReps != null && best.maxReps != null) {
+        const diff = best.maxReps - first.maxReps;
+        if (diff === 0) { delta = "no change"; isFlat = true; } else delta = diff > 0 ? `+${diff} reps` : `${diff} reps`;
+      } else if (trend.metric === "duration" && first.maxDurationSeconds != null && best.maxDurationSeconds != null) {
+        const diff = Math.round(best.maxDurationSeconds - first.maxDurationSeconds);
+        if (diff === 0) { delta = "no change"; isFlat = true; } else delta = diff > 0 ? `+${diff}s` : `${diff}s`;
+      }
+      const setWhen = fmtShortDate(best.loggedAt);
+      const wasWhat = first !== best ? `${firstValue} on ${fmtShortDate(first.loggedAt)}` : null;
+      const subtitle = wasWhat ? `Set ${setWhen} \u00b7 was ${wasWhat}` : `Set ${setWhen}`;
+      return { name: trend.exerciseName, value: currentValue, subtitle, delta, isFlat };
     })
-    .slice(-8)
-    .map((s: any) => ({
-      rpe: s.data.session_log.rpe as number,
-      date: fmtShortDate(s.data?.session_log?.completed_at ?? s.scheduled_at),
-    }));
+    .filter((r) => r.delta !== null);
 
-  // Physical baseline + goals from client profile
-  const profile = client?.profile as Record<string, any> | undefined;
-  const baseline = profile?.physical_baseline as Record<string, any> | undefined;
-  const goals = profile?.goals as Record<string, any> | undefined;
-  const milestones = Array.isArray(goals?.milestones) ? goals.milestones : [];
-  const hasBaseline = baseline && (baseline.fitness_level || baseline.strength_baseline);
+  // ── 4. Attendance ──
+  const rescheduled = mainSessions.filter(
+    (s) => s.status === "cancelled" && s.charged_free === "free",
+  ).length;
+  const cancelledNotCharged = mainSessions.filter(
+    (s) => s.status === "cancelled" && (s.charged_free === "free" || s.charged_free == null),
+  ).length;
+  const cancelledCharged = mainSessions.filter(
+    (s) => s.status === "cancelled" && s.charged_free === "charged",
+  ).length;
+
+  // ── 5. Programme reviews ──
+  const sortedBlocks = [...blocks].sort((a, b) => b.block_number - a.block_number);
 
   // PB entry form state
+  const [showPbForm, setShowPbForm] = useState(false);
   const [pbExercise, setPbExercise] = useState("");
   const [pbValue, setPbValue] = useState("");
   const [pbReps, setPbReps] = useState("");
@@ -1649,177 +1683,255 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, client
         setPbValue("");
         setPbReps("");
         setPbNote("");
+        setShowPbForm(false);
       }
     } finally {
       setPbSaving(false);
     }
   };
 
-  const rpeColor = (rpe: number) =>
-    rpe <= 4 ? "bg-[var(--status-success-bg)] text-[var(--status-success-text)]"
-    : rpe <= 7 ? "bg-[var(--status-warning-bg)] text-[var(--amber-text)]"
-    : "bg-[var(--status-primary-bg)] text-[var(--rose-text)]";
+  const programmeLabel = client?.profile?.goals?.primary ?? "programme";
 
   return (
-    <DrawerShell id="dw-progress" title="Progress" subtitle={`${exerciseTrends.length} exercise${exerciseTrends.length !== 1 ? "s" : ""} logged \u00b7 ${exerciseTrendSummary?.personalBests ?? 0} personal bests`} width="lg">
-      {rows.length > 0 ? (
-        <div className="fcard acc-teal">
-          <div className="fcard-h">Load progression</div>
-          <div className="fcard-b" style={{ padding: 0 }}>
-            <div className="ptab-wrap">
-              <table className="ptab">
-                <thead>
-                  <tr>
-                    <th>Exercise</th>
-                    <th>Last</th>
-                    <th>Best</th>
-                    <th>Trend</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row, i) => (
-                    <tr key={i}>
-                      <td>{row!.name}</td>
-                      <td className="n">{row!.lastValue}</td>
-                      <td className="n">
-                        {row!.bestValue}
-                        {row!.isBest && <span className="pb ml-1.5">PB</span>}
-                      </td>
-                      <td>
-                        <span className={`trend ${row!.trendDir}`}>
-                          {row!.trendDir === "up" ? "\u2191" : row!.trendDir === "down" ? "\u2193" : "\u2192"}
-                        </span>
-                      </td>
-                      <td className="n w">{row!.lastDate}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+    <DrawerShell
+      id="dw-progress"
+      title="Progress"
+      subtitle={`${client?.name ?? ""} \u00b7 ${programmeLabel} \u00b7 ${sessionsCompleted} sessions completed`}
+      width="lg"
+    >
+      {/* 1 ── How it is going */}
+      <div className="fcard acc-teal">
+        <div className="fcard-h">
+          How it is going
+          <span className="sub">
+            {firstDate ? `Since ${fmtShortDate(firstDate)}` : "No sessions yet"}
+            {programmeCount > 0 && ` \u00b7 ${programmeCount} programme${programmeCount !== 1 ? "s" : ""}`}
+          </span>
         </div>
-      ) : (
-        <p className="miss">No exercise data to show yet.</p>
-      )}
-
-      <div className="fcard">
-        <div className="fcard-h">Session RPE</div>
         <div className="fcard-b">
-          {rpeData.length > 0 ? (
-            <>
-              <div className="rpe-row">
-                {rpeData.map((d, i) => (
-                  <div key={i} className="rpe-cell">
-                    <div className={`rpe-box ${rpeColor(d.rpe)}`}>{d.rpe}</div>
-                    <span className="rpe-date">{d.date}</span>
-                  </div>
-                ))}
-              </div>
-              <p style={{ margin: "10px 0 0", fontSize: 12, color: "var(--muted)" }}>
-                Session effort on a 1–10 scale.
-              </p>
-            </>
-          ) : (
-            <p className="miss" style={{ margin: 0 }}>
-              No session RPE recorded yet. RPE is logged when a session is completed in the trainer hub or client portal.
+          <div className="att">
+            <span>Sessions completed<b>{sessionsCompleted}</b></span>
+            {attendanceRate !== null && <span>Attendance<b className={attendanceRate >= 80 ? "up" : ""}>{attendanceRate}%</b></span>}
+            <span>Sets logged<b>{totalSetsLogged}</b></span>
+            {sessionsWithNoLog > 0 && <span>Sessions with no log<b className="warn">{sessionsWithNoLog}</b></span>}
+          </div>
+          {sessionsWithNoLog > 0 && (
+            <p className="miss" style={{ marginTop: 12 }}>
+              <b style={{ color: "var(--amber-text)" }}>
+                {sessionsWithNoLog} completed session{sessionsWithNoLog !== 1 ? "s" : ""} {sessionsWithNoLog !== 1 ? "have" : "has"} no sets recorded.
+              </b>
+              {" "}Nothing can be reviewed from {sessionsWithNoLog !== 1 ? "them" : "it"} and {sessionsWithNoLog !== 1 ? "they do" : "it does"} not count towards a personal best
+              {oldestNoLog && ` \u2014 the oldest is ${fmtShortDate(oldestNoLog.completed_at ?? oldestNoLog.scheduled_at ?? "")}`}.
             </p>
           )}
         </div>
       </div>
 
-      <div className="fcard">
-        <div className="fcard-h">Log a personal best</div>
-        <div className="fcard-b">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 60px 100px", gap: 8, alignItems: "end" }}>
-            <div>
-              <label className="lbl">Exercise</label>
-              <select className="fld" value={pbExercise} onChange={(e) => setPbExercise(e.target.value)}>
-                <option value="">Select…</option>
-                {uniqueExercises.map((name) => (
-                  <option key={name} value={name}>{name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="lbl">Value (kg)</label>
-              <input className="fld" type="text" placeholder="65" value={pbValue} onChange={(e) => setPbValue(e.target.value)} />
-            </div>
-            <div>
-              <label className="lbl">Reps</label>
-              <input className="fld" type="text" placeholder="8" value={pbReps} onChange={(e) => setPbReps(e.target.value)} />
-            </div>
-            <div>
-              <label className="lbl">Date</label>
-              <input className="fld" type="date" value={pbDate} onChange={(e) => setPbDate(e.target.value)} />
-            </div>
-            <div style={{ gridColumn: "1 / -1" }}>
-              <label className="lbl">Note</label>
-              <textarea className="fld" placeholder="e.g. felt strong, good depth" value={pbNote} onChange={(e) => setPbNote(e.target.value)} />
-            </div>
-          </div>
-          <div style={{ marginTop: 10, display: "flex", justifyContent: "flex-end" }}>
-            <button
-              type="button"
-              onClick={savePB}
-              disabled={pbSaving || !pbExercise || !pbValue || !pbReps}
-              className="inline-flex items-center rounded-control bg-rose px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose/90 disabled:opacity-50 transition-colors"
-            >
-              {pbSaving ? "Saving\u2026" : "Save PB"}
-            </button>
-          </div>
+      {/* 2 ── Session log */}
+      <div className="fcard acc-ink">
+        <div className="fcard-h">
+          Session log
+          <span className="sub">{sessionsCompleted} completed \u00b7 newest first</span>
         </div>
-      </div>
-
-      <div className="fcard acc-rose">
-        <div className="fcard-h">Baseline &amp; goals</div>
         <div className="fcard-b">
-          {hasBaseline ? (
+          {visibleLogSessions.length > 0 ? (
             <>
-              <div className="bl-row">
-                <span className="bl-k">Fitness level</span>
-                <span className="bl-v">{baseline.fitness_level ?? "\u2014"} / 5</span>
-              </div>
-              {baseline.strength_baseline && (
-                <>
-                  <div className="bl-row">
-                    <span className="bl-k">Lower body</span>
-                    <span className="bl-v">{baseline.strength_baseline.lower_body ?? "\u2014"}</span>
+              {visibleLogSessions.map((s) => {
+                const setCount = sessionSetCounts.get(s.id) ?? 0;
+                const hasLog = setCount > 0;
+                const rpe = (s as any).data?.session_log?.rpe;
+                const workoutName = sessionWorkoutName(s);
+                const posLabel = s.session_number != null ? `Position ${s.session_number}` : "";
+                const duration = (s as any).data?.session_log?.duration_minutes;
+                const metaParts = [posLabel, duration ? `${duration} min` : null, rpe != null ? `RPE ${rpe}` : null].filter(Boolean);
+
+                return (
+                  <div key={s.id} className="lrow2">
+                    <span className="lrow2-d">{fmtShortDate(s.completed_at ?? s.scheduled_at ?? "")}</span>
+                    <span className="lrow2-m">
+                      <span className="lrow2-t">{workoutName}</span>
+                      <span className="lrow2-s">
+                        {metaParts.length > 0 ? metaParts.join(" \u00b7 ") : "Marked complete on the day"}
+                      </span>
+                    </span>
+                    <span className={`lrow2-n${hasLog ? "" : " none"}`}>
+                      <b>{setCount}</b> <small>sets</small>
+                    </span>
+                    <span className="lrow2-a">
+                      {hasLog ? (
+                        <Link
+                          href={`/hub/sessions/${s.id}`}
+                          className="inline-flex items-center justify-center h-[var(--h-control-sm)] px-2.5 rounded-control-sm border-0 bg-transparent text-[var(--color-body)] text-[12.5px] font-semibold cursor-pointer font-[inherit] hover:bg-[var(--hub-hover)] hover:text-[var(--color-ink)] transition-colors"
+                        >
+                          Open
+                        </Link>
+                      ) : (
+                        <Link
+                          href={`/hub/sessions/${s.id}`}
+                          className="inline-flex items-center justify-center h-[var(--h-control-sm)] px-2.5 rounded-control-sm border border-[var(--hub-border)] bg-white text-[var(--color-body)] text-[12.5px] font-semibold cursor-pointer font-[inherit] hover:bg-[var(--hub-hover)] hover:border-[var(--hub-field-border)] transition-colors"
+                        >
+                          Log the sets
+                        </Link>
+                      )}
+                    </span>
                   </div>
-                  <div className="bl-row">
-                    <span className="bl-k">Upper body</span>
-                    <span className="bl-v">{baseline.strength_baseline.upper_body ?? "\u2014"}</span>
-                  </div>
-                  <div className="bl-row">
-                    <span className="bl-k">Core</span>
-                    <span className="bl-v">{baseline.strength_baseline.core ?? "\u2014"}</span>
-                  </div>
-                </>
+                );
+              })}
+              {logSessions.length > LOG_INITIAL_COUNT && !showAllLog && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllLog(true)}
+                  className="inline-flex items-center justify-center h-8 px-2.5 rounded-control-sm border-0 bg-transparent text-[var(--color-body)] text-[12.5px] font-semibold cursor-pointer font-[inherit] hover:bg-[var(--hub-hover)] hover:text-[var(--color-ink)] transition-colors mt-2.5"
+                >
+                  Show all {logSessions.length}
+                </button>
               )}
             </>
           ) : (
-            <div className="miss">
-              No baseline recorded · <Link href={`/hub/clients/${clientNumber}/edit`} className="text-[var(--color-rose)] hover:underline">Add on Edit</Link>
+            <p className="miss" style={{ margin: 0 }}>No completed sessions yet.</p>
+          )}
+        </div>
+      </div>
+
+      {/* 3 ── Personal bests */}
+      <div className="fcard acc-teal">
+        <div className="fcard-h">
+          Personal bests
+          <span className="sub">{pbRows.length} lift{pbRows.length !== 1 ? "s" : ""} tracked{firstDate ? ` \u00b7 since ${fmtShortDate(firstDate)}` : ""}</span>
+          <button type="button" className="btn-link" onClick={() => setShowPbForm(!showPbForm)}>
+            {showPbForm ? "Cancel" : "Add one by hand"}
+          </button>
+        </div>
+        <div className="fcard-b">
+          {pbRows.length > 0 ? (
+            pbRows.map((pb, i) => (
+              <div key={i} className="pb-row">
+                <span className="pb-row-m">
+                  <span className="pb-row-t">{pb.name}</span>
+                  <span className="pb-row-s">{pb.subtitle}</span>
+                </span>
+                <span className="pb-row-v">{pb.value}</span>
+                <span className={`pb-row-d${pb.isFlat ? " flat" : ""}`}>{pb.delta}</span>
+              </div>
+            ))
+          ) : (
+            <p className="miss" style={{ margin: 0 }}>No personal bests recorded yet. As exercises are logged, the best values appear here.</p>
+          )}
+
+          {showPbForm && (
+            <div style={{ marginTop: 14, padding: 12, border: "1px solid var(--hub-border)", borderRadius: "var(--r-nested)", background: "var(--hub-hover)" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 60px 100px", gap: 8, alignItems: "end" }}>
+                <div>
+                  <label className="lbl">Exercise</label>
+                  <select className="fld" value={pbExercise} onChange={(e) => setPbExercise(e.target.value)}>
+                    <option value="">Select\u2026</option>
+                    {uniqueExercises.map((name) => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="lbl">Value (kg)</label>
+                  <input className="fld" type="text" placeholder="65" value={pbValue} onChange={(e) => setPbValue(e.target.value)} />
+                </div>
+                <div>
+                  <label className="lbl">Reps</label>
+                  <input className="fld" type="text" placeholder="8" value={pbReps} onChange={(e) => setPbReps(e.target.value)} />
+                </div>
+                <div>
+                  <label className="lbl">Date</label>
+                  <input className="fld" type="date" value={pbDate} onChange={(e) => setPbDate(e.target.value)} />
+                </div>
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <label className="lbl">Note</label>
+                  <textarea className="fld" placeholder="e.g. felt strong, good depth" value={pbNote} onChange={(e) => setPbNote(e.target.value)} style={{ height: 48 }} />
+                </div>
+              </div>
+              <div style={{ marginTop: 10, display: "flex", justifyContent: "flex-end" }}>
+                <button
+                  type="button"
+                  onClick={savePB}
+                  disabled={pbSaving || !pbExercise || !pbValue || !pbReps}
+                  className="inline-flex items-center h-[var(--h-control-sm)] px-3 rounded-control-sm bg-[var(--color-rose)] text-white text-xs font-semibold border-0 cursor-pointer font-[inherit] hover:opacity-90 disabled:opacity-50 transition-opacity"
+                >
+                  {pbSaving ? "Saving\u2026" : "Save PB"}
+                </button>
+              </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Goal milestones */}
-      <div className="fcard acc-rose">
-        <div className="fcard-h">Goal milestones</div>
+      {/* 4 ── Attendance */}
+      <div className="fcard acc-ink">
+        <div className="fcard-h">
+          Attendance
+          <span className="sub">Across {totalBooked} booked session{totalBooked !== 1 ? "s" : ""}</span>
+        </div>
         <div className="fcard-b">
-          {milestones.length > 0 ? (
-            milestones.map((m: string, i: number) => (
-              <div key={i} className="goal-row">
-                <span className="goal-icon">{m.charAt(0).toUpperCase()}</span>
-                {m}
-              </div>
-            ))
+          <div className="att">
+            <span>Completed<b>{sessionsCompleted}</b></span>
+            <span>Rescheduled<b>{rescheduled}</b></span>
+            <span>Cancelled, not charged<b>{cancelledNotCharged}</b></span>
+            <span>Cancelled, charged<b>{cancelledCharged}</b></span>
+          </div>
+          <p className="miss" style={{ marginTop: 12 }}>
+            Only the {sessionsCompleted} completed took a session from the pot. The reschedule{rescheduled !== 1 ? "s" : ""} and the free cancellation{cancelledNotCharged !== 1 ? "s" : ""} took none \u2014 the rule is unchanged.
+          </p>
+        </div>
+      </div>
+
+      {/* 5 ── Programme reviews */}
+      <div className="fcard acc-ink">
+        <div className="fcard-h">
+          Programme reviews
+          <span className="sub">Written at the end of a programme</span>
+        </div>
+        <div className="fcard-b">
+          {sortedBlocks.length > 0 ? (
+            sortedBlocks.map((block) => {
+              const blockSessionsForCount = sessions.filter(
+                (s) => s.block_id === block.id && !s.parent_session_id,
+              );
+              const completedInBlock = blockSessionsForCount.filter(
+                (s) => s.status === "completed" || s.completed_at,
+              ).length;
+              const totalInBlock = blockSessionsForCount.length;
+              const hasReview = !!(block as any).summary;
+              const isCurrent = block.id === client?.block_id;
+
+              return (
+                <div key={block.id} className="hrow2">
+                  <span className="hrow2-t">{block.block_number}</span>
+                  <span className="hrow2-m">
+                    <span className="hrow2-n">{block.title || `Block ${block.block_number}`}</span>
+                    <span className="hrow2-s">
+                      {isCurrent ? "Current" : "Complete"} \u00b7 {completedInBlock} of {totalInBlock}
+                      {hasReview ? " \u00b7 reviewed" : " \u00b7 no review yet"}
+                    </span>
+                  </span>
+                  <span className="hrow2-a">
+                    {hasReview ? (
+                      <Link
+                        href={`/hub/clients/${clientNumber}/blocks/${block.id}`}
+                        className="inline-flex items-center justify-center h-[var(--h-control-sm)] px-2.5 rounded-control-sm border-0 bg-transparent text-[var(--color-body)] text-[12.5px] font-semibold cursor-pointer font-[inherit] hover:bg-[var(--hub-hover)] hover:text-[var(--color-ink)] transition-colors"
+                      >
+                        Read
+                      </Link>
+                    ) : (
+                      <Link
+                        href={`/hub/clients/${clientNumber}/blocks/${block.id}`}
+                        className="inline-flex items-center justify-center h-[var(--h-control-sm)] px-2.5 rounded-control-sm border border-[var(--hub-border)] bg-white text-[var(--color-body)] text-[12.5px] font-semibold cursor-pointer font-[inherit] hover:bg-[var(--hub-hover)] hover:border-[var(--hub-field-border)] transition-colors"
+                      >
+                        Write a review
+                      </Link>
+                    )}
+                  </span>
+                </div>
+              );
+            })
           ) : (
-            <div className="miss">
-              No milestones set · <Link href={`/hub/clients/${clientNumber}/edit`} className="text-[var(--color-rose)] hover:underline">Add on Edit</Link>
-            </div>
+            <p className="miss" style={{ margin: 0 }}>No programmes yet. A review is the written answer to "did that programme work". It goes into the client update, so it is worth writing before the next one starts.</p>
           )}
         </div>
       </div>
@@ -1912,6 +2024,7 @@ export function ClientDrawers(props: ClientDrawersProps) {
         exerciseTrends={props.exerciseTrends}
         exerciseTrendSummary={props.exerciseTrendSummary}
         sessions={props.sessions}
+        blocks={props.blocks}
         clientNumber={props.client.client_number}
         client={props.client}
       />
