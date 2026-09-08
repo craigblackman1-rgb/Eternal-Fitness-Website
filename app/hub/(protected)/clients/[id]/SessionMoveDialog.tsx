@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import type { DBSession } from "@/types";
+import { sessionWorkoutName } from "@/lib/session-display";
 
 /* ── SessionMoveDialog — Move or cancel one session.
    Fetches candidate slots from GET /api/availability/slots, shows clash/free
@@ -417,17 +418,6 @@ export function SessionMoveDialog({
       </div>
     </div>
   );
-}
-
-/** Minimal workout-name helper (copied from session-display to avoid server import). */
-function sessionWorkoutName(s: DBSession): string {
-  const data = (s.data as unknown as Record<string, unknown>) ?? null;
-  const versions = data?.versions as Record<string, { focus_label?: string }> | undefined;
-  const version = versions?.studio ?? versions?.home;
-  const label = version?.focus_label ?? (data as any)?.focus_label;
-  if (label && typeof label === "string" && label.trim()) return label.trim();
-  if (s.program_id && s.program_slot_id) return "Programme session";
-  return "Workout";
 }
 
 /** C1a — Route card for three-way cancel choice. */
