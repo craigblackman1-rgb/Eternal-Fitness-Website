@@ -205,7 +205,7 @@ export default async function HubTodayPage() {
       dot: "due",
       headline: `${updateRows.length} training update${updateRows.length === 1 ? "" : "s"} due`,
       actionLabel: "Review updates",
-      href: "/hub/updates",
+      href: "/hub/reports/updates",
     });
 
   if (unconfirmedBookingsRow > 0)
