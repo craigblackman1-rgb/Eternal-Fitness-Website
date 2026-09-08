@@ -118,7 +118,7 @@ export function ClientsScreen({
   const needCount = queue.length;
 
   return (
-    <div className="w-full max-w-[1680px] mx-auto">
+    <div className="w-full">
       {/* Header — no page-level primary button; every action belongs to a row. */}
       <div className="flex items-baseline gap-2.5 flex-wrap mb-3.5">
         <h1 className="m-0 text-[25px] font-bold tracking-tight text-[var(--color-ink)]">Clients</h1>

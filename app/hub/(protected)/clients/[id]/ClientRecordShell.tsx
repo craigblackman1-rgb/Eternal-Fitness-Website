@@ -249,7 +249,7 @@ export function ClientRecordShell({
 
   return (
     <DrawerManager>
-      <div className="w-full max-w-[1680px] mx-auto">
+      <div className="w-full">
         <ClientRecordHeader
           client={client}
           status={effectiveStatus}

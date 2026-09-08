@@ -268,7 +268,7 @@ export default async function CashflowOverviewPage() {
   const recentInvoices = allInvoices.slice(0, 7);
 
   return (
-    <div className="w-full max-w-[1680px] mx-auto">
+    <div className="w-full">
       {/* Header — no avatar, this page has no single subject. */}
       <div className="mb-3.5">
         <div className="flex items-baseline gap-2.5 flex-wrap">

@@ -22,7 +22,7 @@ export function HubShell({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col min-w-0">
         <HubTopbar onMenuOpen={() => setMobileMenuOpen(true)} />
         <main className="flex-1 overflow-auto">
-          <div className="mx-auto max-w-[1600px] px-6 py-7 lg:px-10 lg:py-9">
+          <div className="px-6 py-7 lg:px-10 lg:py-9">
             {children}
           </div>
         </main>

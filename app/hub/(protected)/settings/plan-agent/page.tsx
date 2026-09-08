@@ -14,7 +14,7 @@ export default async function PlanAgentSettingsPage() {
     .order("sort_order", { ascending: true });
 
   return (
-    <div className="space-y-6 w-full max-w-[1680px] mx-auto">
+    <div className="space-y-6 w-full">
       <HubPageHeader
         title="Plan agent rules"
         subtitle="The principles, checklists and safety rules the Plan Agent follows when building training plans. Edit here — no deploy needed — the agent picks these up on the next conversation."

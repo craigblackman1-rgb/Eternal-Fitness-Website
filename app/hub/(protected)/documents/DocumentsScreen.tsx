@@ -214,7 +214,7 @@ export function DocumentsScreen({
   const settledCount = totalCount - queue.length;
 
   return (
-    <div className="w-full max-w-[1680px] mx-auto">
+    <div className="w-full">
       <Link href="/hub/document-templates" className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-3">
         ← Document templates
       </Link>
