@@ -104,7 +104,7 @@ export default async function MobileClientModePage({ params }: { params: { id: s
 
   const { data: client } = await supabase
     .from("clients")
-    .select("id, name, client_number, email, phone, profile, compliance_status, gp_letter_status, annual_review_due_date, exercise_modifications, sessions_purchased, active_program_id")
+    .select("id, name, client_number, email, phone, profile, compliance_status, gp_letter_status, annual_review_due_date, exercise_modifications, sessions_purchased, active_program_id, pot_baseline_used")
     .eq("client_number", clientNumber)
     .single();
 
@@ -400,6 +400,7 @@ export default async function MobileClientModePage({ params }: { params: { id: s
       parent_session_id: s.parent_session_id,
     })),
     row.sessions_purchased,
+    (row as any).pot_baseline_used ?? 0,
   );
   const potView: SessionPotView = {
     remaining: pot.remaining,

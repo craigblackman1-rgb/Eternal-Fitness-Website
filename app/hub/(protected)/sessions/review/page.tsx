@@ -61,12 +61,12 @@ export default async function CancellationReviewPage() {
   // 3. Clients for names + sessions_purchased
   const { data: clientRows } = await supabase
     .from("clients")
-    .select("id, name, sessions_purchased")
+    .select("id, name, sessions_purchased, pot_baseline_used")
     .in("id", clientIds);
 
-  const clientsMap = new Map<string, { name: string; sessionsPurchased: number | null }>();
+  const clientsMap = new Map<string, { name: string; sessionsPurchased: number | null; baselineUsed: number }>();
   for (const c of clientRows ?? []) {
-    clientsMap.set(c.id, { name: c.name, sessionsPurchased: c.sessions_purchased });
+    clientsMap.set(c.id, { name: c.name, sessionsPurchased: c.sessions_purchased, baselineUsed: c.pot_baseline_used ?? 0 });
   }
 
   // 4. All sessions per client (for pot calculation — CR-EF-101: pot excludes sub-sessions)
@@ -86,15 +86,16 @@ export default async function CancellationReviewPage() {
 
   // 5. Build client data with pot breakdowns
   const clientData = clientIds.map((clientId) => {
-    const client = clientsMap.get(clientId) ?? { name: "Unknown", sessionsPurchased: null };
+    const client = clientsMap.get(clientId) ?? { name: "Unknown", sessionsPurchased: null, baselineUsed: 0 };
     const allSessions = sessionsByClient.get(clientId) ?? [];
     const unreviewedSessions = unreviewed.filter((s) => blockClientIdMap.get(s.block_id) === clientId);
-    const pot = deriveSessionPot(allSessions, client.sessionsPurchased);
+    const pot = deriveSessionPot(allSessions, client.sessionsPurchased, client.baselineUsed);
 
     return {
       clientId,
       clientName: client.name,
       sessionsPurchased: client.sessionsPurchased,
+      baselineUsed: client.baselineUsed,
       pot,
       sessions: unreviewedSessions.map((s) => ({
         id: s.id,

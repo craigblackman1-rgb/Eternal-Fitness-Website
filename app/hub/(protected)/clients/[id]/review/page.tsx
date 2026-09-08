@@ -81,7 +81,7 @@ export default async function ReviewPage({ params }: { params: { id: string } })
 
   const activeBlock = blocks?.find((b) => b.status === "active");
   const activeBlockSessions = activeBlock ? sessions.filter((s) => s.block_id === activeBlock.id) : [];
-  const pot = deriveSessionPot(activeBlockSessions, client.sessions_purchased);
+  const pot = deriveSessionPot(activeBlockSessions, client.sessions_purchased, client.pot_baseline_used ?? 0);
 
   const positions = deriveChronologicalPositions(activeBlockSessions);
   const chronologicalTotal = Array.from(positions.values())[0]?.total ?? 0;

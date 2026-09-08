@@ -21,6 +21,7 @@ interface ReviewClient {
   clientId: string;
   clientName: string;
   sessionsPurchased: number | null;
+  baselineUsed: number;
   pot: SessionPotBreakdown;
   sessions: ReviewSession[];
 }
@@ -92,7 +93,7 @@ export function CancellationReview({ clients: initialClients }: CancellationRevi
           ...Array(client.pot.freeCancellations + (chargedFree === "free" ? 1 : 0)).fill({ status: "cancelled", charged_free: "free" }),
           ...Array(client.pot.unreviewedCancellations - 1).fill({ status: "cancelled", charged_free: null }),
         ];
-        const newPot = deriveSessionPot(updatedAllSessions, client.sessionsPurchased);
+        const newPot = deriveSessionPot(updatedAllSessions, client.sessionsPurchased, client.baselineUsed);
 
         return {
           ...prev,
@@ -143,7 +144,7 @@ export function CancellationReview({ clients: initialClients }: CancellationRevi
           ...Array(client.pot.freeCancellations).fill({ status: "cancelled", charged_free: "free" }),
           ...Array(client.pot.unreviewedCancellations + 1).fill({ status: "cancelled", charged_free: null }),
         ];
-        const newPot = deriveSessionPot(updatedAllSessions, client.sessionsPurchased);
+        const newPot = deriveSessionPot(updatedAllSessions, client.sessionsPurchased, client.baselineUsed);
 
         return {
           ...prev,

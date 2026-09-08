@@ -53,6 +53,7 @@ interface SessionListProps {
   /** Needed by the cancel dialog to re-derive the session pot. */
   clientName?: string;
   sessionsPurchased?: number | null;
+  baselineUsed?: number;
   /** CR-EF-154 — program state for the guided SessionChooser. */
   programState?: QueueState | null;
   clientNumber?: number;
@@ -113,6 +114,7 @@ export function SessionList({
   allSessions = [],
   clientName = "",
   sessionsPurchased = null,
+  baselineUsed = 0,
   programState = null,
   clientNumber = 0,
   sessionsRemaining = null,
@@ -367,6 +369,7 @@ export function SessionList({
           session={cancelSession}
           clientName={clientName}
           sessionsPurchased={sessionsPurchased}
+          baselineUsed={baselineUsed}
           allSessions={allSessions}
           childCount={allSessions.filter((s) => s.parent_session_id === cancelSession.id).length}
         />

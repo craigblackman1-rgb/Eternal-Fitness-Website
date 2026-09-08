@@ -45,7 +45,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
   const { data: client } = await supabase
     .from("clients")
-    .select("sessions_purchased")
+    .select("sessions_purchased, pot_baseline_used")
     .eq("id", sourceBlock.client_id)
     .single();
 
@@ -60,6 +60,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const pot = deriveSessionPot(
     (sourceSessions ?? []) as unknown as Parameters<typeof deriveSessionPot>[0],
     client?.sessions_purchased ?? null,
+    (client as any)?.pot_baseline_used ?? 0,
   );
   const remaining = pot.remaining ?? pot.estimatedRemaining;
 

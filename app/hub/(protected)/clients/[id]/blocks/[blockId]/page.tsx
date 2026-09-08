@@ -69,7 +69,7 @@ export default async function BlockViewPage({
 
   const { data: client } = await supabase
     .from("clients")
-    .select("id, name, client_number, profile, sessions_purchased, block_expiry_date, block_expiry_extensions")
+    .select("id, name, client_number, profile, sessions_purchased, block_expiry_date, block_expiry_extensions, pot_baseline_used")
     .eq("client_number", parseInt(params.id))
     .single();
 
@@ -114,6 +114,7 @@ export default async function BlockViewPage({
   const sessionPot = deriveSessionPot(
     sessions as unknown as Parameters<typeof deriveSessionPot>[0],
     client?.sessions_purchased ?? null,
+    (client as any)?.pot_baseline_used ?? 0,
   );
   const remainingCount = sessionPot.remaining ?? sessionPot.estimatedRemaining;
 
@@ -321,6 +322,7 @@ export default async function BlockViewPage({
         previousBlocks={previousBlocksWithCounts}
         archetypeTint={archetypeTint}
         sessionsPurchased={client?.sessions_purchased ?? null}
+        baselineUsed={(client as any)?.pot_baseline_used ?? 0}
         blockExpiryDate={client?.block_expiry_date ?? null}
         blockExpiryExtensions={client?.block_expiry_extensions ?? []}
         programState={programState}

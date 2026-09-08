@@ -26,7 +26,7 @@ export interface SessionPotBreakdown {
   freeCancellations: number;
   /** Cancelled sessions without a charged_free flag — awaiting review. */
   unreviewedCancellations: number;
-  /** Total sessions that consumed a slot: completed + charged. */
+  /** Total sessions that consumed a slot: baseline + completed + charged. */
   used: number;
   /** Total purchased from the client record, or null when not recorded. */
   purchased: number | null;
@@ -47,6 +47,9 @@ export interface SessionPotBreakdown {
 /**
  * Derive the session pot breakdown from a list of sessions in a block.
  * `sessionsPurchased` comes from the client record (not derived from session rows).
+ * `baselineUsed` is the client's pre-hub session count (BUG-EF-142) — sessions
+ * consumed before the hub existed. It is subtracted from purchased alongside
+ * in-hub completions and charged cancellations.
  *
  * CR-EF-101 — sub-sessions (parent_session_id IS NOT NULL) are excluded from
  * the pot count entirely. One slot consumes one session no matter how much
@@ -56,6 +59,7 @@ export interface SessionPotBreakdown {
 export function deriveSessionPot(
   sessions: Pick<DBSession, "status" | "charged_free" | "cancelled_at" | "parent_session_id" | "completed_at">[],
   sessionsPurchased: number | null,
+  baselineUsed: number = 0,
 ): SessionPotBreakdown {
   // CR-EF-101 — only count sessions where parent_session_id IS NULL
   const potSessions = sessions.filter((s) => !s.parent_session_id);
@@ -81,13 +85,18 @@ export function deriveSessionPot(
     }
   }
 
-  const used = completed + chargedCancellations;
+  const used = baselineUsed + completed + chargedCancellations;
   const purchasedIsEstimate = sessionsPurchased == null;
   const purchased = purchasedIsEstimate ? null : sessionsPurchased;
   const remaining = purchased != null ? Math.max(purchased - used, 0) : null;
 
+  // estimatedRemaining is used when purchased is unknown — derived from session
+  // row count minus in-hub usage. The baseline does NOT apply here because
+  // estimatedPurchase (potSessions.length) reflects only tracked rows; subtracting
+  // the baseline (pre-hub, untracked) from a row-count estimate would understate
+  // the true remaining. The baseline is only meaningful when purchased is known.
   const estimatedPurchase = potSessions.length;
-  const estimatedRemaining = Math.max(estimatedPurchase - used, 0);
+  const estimatedRemaining = Math.max(estimatedPurchase - (completed + chargedCancellations), 0);
 
   return {
     completed,

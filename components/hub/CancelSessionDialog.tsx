@@ -15,6 +15,7 @@ interface CancelSessionDialogProps {
   session: DBSession;
   clientName: string;
   sessionsPurchased: number | null;
+  baselineUsed?: number;
   /** All sessions in the block — needed to re-derive the pot. */
   allSessions: Pick<DBSession, "status" | "charged_free" | "cancelled_at" | "parent_session_id">[];
   /** CR-EF-101 — number of sub-sessions linked to this parent. */
@@ -33,6 +34,7 @@ export function CancelSessionDialog({
   session,
   clientName,
   sessionsPurchased,
+  baselineUsed = 0,
   allSessions,
   childCount = 0,
 }: CancelSessionDialogProps) {
@@ -41,7 +43,7 @@ export function CancelSessionDialog({
   const [reason, setReason] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const pot = deriveSessionPot(allSessions, sessionsPurchased);
+  const pot = deriveSessionPot(allSessions, sessionsPurchased, baselineUsed);
 
   const handleConfirm = useCallback(async () => {
     if (!chargedFree) return;

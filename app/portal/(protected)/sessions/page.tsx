@@ -31,7 +31,7 @@ export default async function PortalSessionsPage() {
   // Fetch client extras
   const { data: clientExtra } = await supabase
     .from("clients")
-    .select("sessions_purchased, block_expiry_date, block_expiry_extensions")
+    .select("sessions_purchased, block_expiry_date, block_expiry_extensions, pot_baseline_used")
     .eq("id", client.id)
     .single();
 
@@ -74,7 +74,8 @@ export default async function PortalSessionsPage() {
   // Derive pot — CR-EF-101: sub-sessions (parent_session_id) excluded automatically
   const pot = deriveSessionPot(
     sessions as Pick<DBSession, "status" | "charged_free" | "cancelled_at" | "parent_session_id">[],
-    clientExtra?.sessions_purchased
+    clientExtra?.sessions_purchased,
+    (clientExtra as any)?.pot_baseline_used ?? 0,
   );
 
   // Fetch notice period setting

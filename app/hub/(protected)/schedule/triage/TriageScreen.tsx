@@ -143,6 +143,7 @@ function CancellationReviewWithData() {
       clientId: string;
       clientName: string;
       sessionsPurchased: number | null;
+      baselineUsed: number;
       pot: ReturnType<typeof import("@/lib/session-pot").deriveSessionPot>;
       sessions: {
         id: string;

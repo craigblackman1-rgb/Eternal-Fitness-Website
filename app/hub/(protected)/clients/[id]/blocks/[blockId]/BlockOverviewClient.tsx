@@ -117,6 +117,7 @@ interface BlockOverviewClientProps {
   archetypeTint: Record<string, string>;
   /** CR-EF-099 — session pot inputs for BlockPoolView. */
   sessionsPurchased: number | null;
+  baselineUsed: number;
   blockExpiryDate: string | null;
   blockExpiryExtensions: { from: string; to: string; at: string; reason?: string }[];
   programState: QueueState | null;
@@ -163,6 +164,7 @@ export function BlockOverviewClient({
   previousBlocks,
   archetypeTint,
   sessionsPurchased,
+  baselineUsed,
   blockExpiryDate,
   blockExpiryExtensions,
   programState,
@@ -465,6 +467,7 @@ export function BlockOverviewClient({
                     allSessions={sessions}
                     clientName={clientName}
                     sessionsPurchased={sessionsPurchased}
+                    baselineUsed={baselineUsed}
                     programState={programState}
                     clientNumber={clientNumber}
                     sessionsRemaining={sessionsRemaining}
