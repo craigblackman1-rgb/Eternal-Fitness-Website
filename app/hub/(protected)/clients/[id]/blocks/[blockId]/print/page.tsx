@@ -217,7 +217,7 @@ function SessionPrintSection({
       </div>
 
       {s?.focus_label && (
-        <p className="text-sm font-medium mb-3">{s.focus_label}</p>
+        <p className="text-sm font-medium mb-3">{sessionWorkoutName(session, s.focus_label)}</p>
       )}
 
       {(clientIntro || s?.client_intro) && (

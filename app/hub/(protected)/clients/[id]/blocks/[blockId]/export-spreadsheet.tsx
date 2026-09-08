@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import * as XLSX from "xlsx";
 import type { DBSession } from "@/types";
 import { derivedWeekLabel } from "@/lib/schedule-dates";
+import { sessionWorkoutName } from "@/lib/session-display";
 
 export function ExportSpreadsheetButton({
   blockId,
@@ -47,7 +48,7 @@ export function ExportSpreadsheetButton({
                 Week: derivedWeekLabel(session.scheduled_at ?? null, session.week),
                 Phase: session.phase,
                 Archetype: session.archetype,
-                Focus: s?.focus_label || "",
+                Focus: sessionWorkoutName(session, ""),
                 Version: version === "studio" ? "Studio" : "Home",
                 Section:
                   section === "warm_up"

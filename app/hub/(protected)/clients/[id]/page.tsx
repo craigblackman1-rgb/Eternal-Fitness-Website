@@ -10,6 +10,7 @@ import { trainerizeResultsToSetLogs } from "@/lib/trainerize-adapter";
 import { toIsoTimestamp } from "@/lib/pg-timestamp";
 import { aggregateExerciseNotes } from "@/lib/exercise-notes";
 import { getClientProgramState } from "@/lib/programs/queue";
+import { sessionWorkoutName } from "@/lib/session-display";
 import type { SessionNoteData, PinnedNoteRef, DBSession, SetLog } from "@/types";
 import { ClientRecordShell } from "./ClientRecordShell";
 import type { TrainerizeHistoryData } from "@/components/hub";
@@ -145,7 +146,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
     })
     .map((s: any) => {
       const log = s.data?.session_log as { completed_at?: string | null; notes: string };
-      const sessName = s.data?.focus_label ?? (s.session_number != null ? `Session ${s.session_number}` : "—");
+      const sessName = sessionWorkoutName(s, s.session_number != null ? `Session ${s.session_number}` : "—");
       return {
         note: log.notes,
         sessionName: sessName,

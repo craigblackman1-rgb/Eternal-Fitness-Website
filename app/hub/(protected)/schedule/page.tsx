@@ -140,7 +140,7 @@ export default async function SchedulePage() {
       sessionNumber: s.session_number,
       archetype: s.archetype,
       durationMinutes: sessionDurationMinutes(timeTier),
-      focusLabel: s.data?.focus_label ?? "",
+      focusLabel: sessionWorkoutName(s, ""),
     };
   });
 

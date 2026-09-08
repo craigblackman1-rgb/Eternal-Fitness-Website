@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { deriveSessionStatus } from "@/lib/session-status";
+import { sessionWorkoutName } from "@/lib/session-display";
 import type { DBSession } from "@/types";
 
 interface SubSessionRowProps {
@@ -52,7 +53,7 @@ export function SubSessionRow({ subSession, clientId, blockId }: SubSessionRowPr
   }
 
   const sessionUrl = `/hub/clients/${clientId}/blocks/${blockId}/sessions/${subSession.session_number}?session=${subSession.id}`;
-  const name = subSession.data?.focus_label || "Supplementary work";
+  const name = sessionWorkoutName(subSession, "Supplementary work");
 
   return (
     <div className="border-t border-[var(--hub-border)]">

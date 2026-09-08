@@ -713,7 +713,7 @@ export default function SessionViewPage({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-[13.5px] font-bold text-foreground flex items-center gap-2 flex-wrap">
-                      {sub.data?.focus_label || "Supplementary work"}
+                      {sessionWorkoutName(sub, "Supplementary work")}
                       <span className="text-[10px] font-extrabold uppercase tracking-wider rounded-pill px-2 py-0.5 bg-rose/10 text-rose border border-rose/20">
                         Every session
                       </span>
