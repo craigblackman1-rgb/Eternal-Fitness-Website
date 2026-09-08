@@ -11,6 +11,8 @@ import { AddWorkoutDialog } from "./AddWorkoutDialog";
 import { CarryOverDialog } from "./CarryOverDialog";
 import { SessionList } from "./SessionList";
 import { StatusBadge } from "@/components/hub/StatusBadge";
+import { SessionPotCounter } from "@/components/hub/SessionPotCounter";
+import { deriveSessionPot } from "@/lib/session-pot";
 import { isoToLocalTime, shiftDay, derivedWeekLabel } from "@/lib/schedule-dates";
 import { deriveSessionStatus } from "@/lib/session-status";
 import { sessionWorkoutName } from "@/lib/session-display";
@@ -378,6 +380,19 @@ export function BlockOverviewClient({
           </div>
         </div>
       </section>
+
+      {/* ── Session pot ──────────────────────────────────────────────
+          Kept visible (Craig, 4 Sep) but ONLY the pot. The rest of
+          BlockPoolView -- the sequence ribbon, Booked slots and Planned
+          workouts -- listed the same 18 sessions a second and third time and
+          made this the hardest page in the hub to drive. Its two unique
+          actions (Cancel, Add supplementary) now live on the session row. */}
+      <SessionPotCounter
+        pot={deriveSessionPot(sessions as any, sessionsPurchased, baselineUsed)}
+        blockExpiryDate={blockExpiryDate}
+        extended={blockExpiryExtensions.length > 0}
+        originalExpiry={blockExpiryExtensions.length > 0 ? blockExpiryExtensions[0].from : null}
+      />
 
       {/* ── Sessions ──────────────────────────────────────────────
           CR-EF-032 / CR-EF-145: weeks are DERIVED from dates, never the
