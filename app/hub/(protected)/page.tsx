@@ -214,7 +214,7 @@ export default async function HubTodayPage() {
     alerts.push({
       id: "bookings",
       dot: "warn",
-      headline: `${unconfirmedBookingsRow} Outlook booking${unconfirmedBookingsRow === 1 ? "" : "s"} waiting to be sorted`,
+      headline: `${unconfirmedBookingsRow} unconfirmed booking${unconfirmedBookingsRow === 1 ? "" : "s"} waiting to be sorted`,
       actionLabel: "Sort in triage",
       href: "/hub/schedule/triage",
     });

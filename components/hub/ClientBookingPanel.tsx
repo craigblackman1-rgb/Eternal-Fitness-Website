@@ -135,7 +135,7 @@ export function ClientBookingPanel({ clientId, clientName, mobile = false }: Cli
             <IconTriangleAlert className="w-[18px] h-[18px] shrink-0 text-[var(--status-warning-text)] mt-0.5" />
             <div className="flex-1 min-w-0">
               <p className="font-bold text-sm text-foreground">
-                {bookings.length} Outlook booking{bookings.length === 1 ? "" : "s"} waiting for {firstName}
+                {bookings.length} unconfirmed booking{bookings.length === 1 ? "" : "s"} waiting for {firstName}
               </p>
               <p className="text-[13px] text-foreground/75 mt-0.5">
                 Booked through Microsoft Bookings. Confirm to attach each to a session, or dismiss if it is not a client booking.

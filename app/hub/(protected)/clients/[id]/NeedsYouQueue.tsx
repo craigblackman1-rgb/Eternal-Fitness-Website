@@ -125,7 +125,7 @@ export function buildNeedsYouItems(input: NeedsYouInput): QueueItem[] {
     items.push({
       id: "outlook-bookings",
       dot: "warn",
-      headline: `${n} Outlook booking${n === 1 ? "" : "s"} waiting to be sorted`,
+      headline: `${n} unconfirmed booking${n === 1 ? "" : "s"} waiting to be sorted`,
       subline: oldestOpenBooking
         ? `Oldest ${new Date(oldestOpenBooking).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}. Until they are confirmed the block reads fewer sessions done than really happened.`
         : "Until they are confirmed the block reads fewer sessions done than really happened.",

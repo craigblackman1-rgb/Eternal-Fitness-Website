@@ -103,7 +103,7 @@ export function WeekView({ entries, plannedEntries, unconfirmedCount, onSelectSe
               <span className="min-w-0 flex-1 text-[13.5px] text-foreground">
                 <b className="font-semibold">{unconfirmedCount} decisions</b> are waiting in triage before this calendar is complete
                 <span className="block text-[12.5px] text-muted-foreground mt-px">
-                  {unconfirmedCount} Outlook bookings. Nothing shows here until confirmed.
+                  Unconfirmed bookings. Nothing shows here until confirmed.
                 </span>
               </span>
               <span className="shrink-0">
