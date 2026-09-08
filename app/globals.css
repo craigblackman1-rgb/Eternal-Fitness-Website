@@ -1750,6 +1750,12 @@ table.eb-table { width: 100%; border-collapse: collapse; font-size: 14px; min-wi
 }
 .edit-save-bar.dirty { transform: translateY(0); }
 
+/* ══ TODAY SPLIT (CR-EF-185) ═══════════════════════════════════════════
+   Two-column grid for the Today screen: sessions (flexible) left,
+   alerts (fixed 380px) right. Stacks at 1000px. */
+.hub-split { display: grid; grid-template-columns: minmax(0,1fr) 380px; gap: 16px; align-items: start; }
+@media (max-width: 1000px) { .hub-split { grid-template-columns: 1fr; } }
+
 /* ══ TABLE CONTRACT (§6 hub-uniform) ════════════════════════════════════
    Column sizing is the flagship fix. Every column is content-sized through
    an explicit <col>; EXACTLY ONE column may be width:auto and it must be the
