@@ -1,6 +1,7 @@
 import { getPool } from "@/lib/pg-client";
 import { getClientsNeedingAttention } from "@/lib/hub/attention";
 import { getClientsUpdateDueSoon } from "@/lib/updates-due-db";
+import { sessionWorkoutName } from "@/lib/session-display";
 import { TodayScreen, type TodaySession, type AlertRow } from "./TodayScreen";
 
 /* ── S5 Today (design-systems v3/03-today.html) ───────────────────────────
@@ -48,7 +49,8 @@ export default async function HubTodayPage() {
   ] = await Promise.all([
     pool
       .query(
-        `SELECT s.scheduled_at, c.name, c.client_number, s.data->>'focus_label' AS focus
+        `SELECT s.scheduled_at, c.name, c.client_number,
+                s.archetype, s.week, s.phase, s.data
            FROM sessions s
            JOIN blocks b ON b.id = s.block_id
            JOIN clients c ON c.id = b.client_id
@@ -155,7 +157,7 @@ export default async function HubTodayPage() {
     time: fmtTime(r.scheduled_at),
     clientName: r.name,
     clientNumber: r.client_number,
-    focus: r.focus ?? null,
+    focus: sessionWorkoutName({ archetype: r.archetype, week: r.week, phase: r.phase, data: r.data }, "Session"),
   }));
 
   const names = (xs: any[], max = 3) => {
