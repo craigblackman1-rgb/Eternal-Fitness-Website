@@ -167,22 +167,41 @@ export function TrainingSection({
       : 100;
 
   // ── Pot history (from blocks) ──
+  // BUG-EF-142: the current pot uses the same derived figures as the header
+  // (pot.used / pot.remaining) so the SO FAR row can never disagree with it.
+  // Previous pots keep their own block-level counts — the baseline only
+  // applies to the current pot.
   const potHistory = allBlocks
     .slice()
     .sort((a, b) => b.block_number - a.block_number)
     .map((block, idx) => {
+      const isCurrent = latestBlock?.id === block.id;
+
+      if (isCurrent) {
+        const total = sessionsPurchased ?? pot.totalInBlock;
+        const done = used; // baselineUsed + in-hub completed + charged cancellations
+        const remainingVal = remaining;
+        return {
+          position: allBlocks.length - idx,
+          total,
+          done,
+          remaining: remainingVal,
+          isCurrent: true,
+          isFullyDone: done >= total && total > 0,
+        };
+      }
+
       const blockSess = allSessions.filter(
         (s) => s.block_id === block.id && !s.parent_session_id,
       );
       const done = blockSess.filter((s) => s.completed_at).length;
-      const isCurrent = latestBlock?.id === block.id;
-      const total = isCurrent ? (sessionsPurchased ?? blockSess.length) : blockSess.length;
+      const total = blockSess.length;
       return {
         position: allBlocks.length - idx,
         total,
         done,
         remaining: total - done,
-        isCurrent,
+        isCurrent: false,
         isFullyDone: done >= total && total > 0,
       };
     });
