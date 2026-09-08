@@ -115,7 +115,7 @@ export function BlockReviewClient({
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="m-0 text-[25px] font-bold tracking-tight text-[var(--color-ink)]">
+            <h1 className="m-0 text-[22px] font-bold tracking-[-.015em] text-[var(--color-ink)]">
               {block.status === "complete" ? `Block ${block.blockNumber} is complete` : `Block ${block.blockNumber} review`}
             </h1>
             <span

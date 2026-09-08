@@ -15,7 +15,7 @@ export function HubPageHeader({ title, subtitle, actions, className }: HubPageHe
   return (
     <div className={cn("flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3", className)}>
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">{title}</h1>
+        <h1 className="text-[22px] font-bold tracking-[-.015em] text-[var(--color-ink)] m-0">{title}</h1>
         {subtitle && <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>}
       </div>
       {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { HubCard, HubCardHeader, EmptyState } from "@/components/hub";
+import { Toolbar, toolbarSelectClasses } from "@/components/hub/Toolbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -162,14 +163,12 @@ export function TasksManager({ initialTasks, initialBuckets, currentUserName, cl
   const [clientFilter, setClientFilter] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<SortKey>("due_date");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
-  const [editingBucketId, setEditingBucketId] = useState<string | null>(null);
-  const [bucketNameDraft, setBucketNameDraft] = useState("");
-  const [bucketBusy, setBucketBusy] = useState(false);
   // Default to "my tasks" whenever the logged-in user's name matches an assignee option
   // (e.g. Esther logging in as "Esther Fair") — otherwise show everything.
   const [showOnlyMine, setShowOnlyMine] = useState(
     () => !!currentUserName && ASSIGNEE_OPTIONS.includes(currentUserName),
   );
+  const [searchQuery, setSearchQuery] = useState("");
 
   const blankForm = {
     title: "",
@@ -286,68 +285,6 @@ export function TasksManager({ initialTasks, initialBuckets, currentUserName, cl
     }
   }
 
-  function startEditBucket(bucket: TaskBucket) {
-    setEditingBucketId(bucket.id);
-    setBucketNameDraft(bucket.name);
-  }
-
-  function cancelEditBucket() {
-    setEditingBucketId(null);
-    setBucketNameDraft("");
-  }
-
-  async function saveBucketRename(bucket: TaskBucket) {
-    const name = bucketNameDraft.trim();
-    if (!name || name === bucket.name) {
-      cancelEditBucket();
-      return;
-    }
-    setBucketBusy(true);
-    try {
-      const res = await fetch(`/api/task-buckets/${bucket.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
-      });
-      if (!res.ok) {
-        const body = await res.json();
-        throw new Error(body.error ?? "Failed to rename bucket");
-      }
-      const updated = await res.json();
-      setBuckets((prev) =>
-        prev.map((b) => (b.id === bucket.id ? updated : b)).sort((a, b) => a.name.localeCompare(b.name)),
-      );
-      toast.success(`Renamed to "${updated.name}"`);
-      cancelEditBucket();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to rename bucket");
-    } finally {
-      setBucketBusy(false);
-    }
-  }
-
-  async function deleteBucket(bucket: TaskBucket) {
-    if (!confirm(`Delete bucket "${bucket.name}"? Tasks in it become unbucketed, not deleted.`)) return;
-    setBucketBusy(true);
-    try {
-      const res = await fetch(`/api/task-buckets/${bucket.id}`, { method: "DELETE" });
-      if (!res.ok) {
-        const body = await res.json();
-        throw new Error(body.error ?? "Failed to delete bucket");
-      }
-      setBuckets((prev) => prev.filter((b) => b.id !== bucket.id));
-      setTasks((prev) =>
-        prev.map((t) => (t.bucket_id === bucket.id ? { ...t, bucket_id: null } : t)),
-      );
-      if (bucketFilter === bucket.id) setBucketFilter(null);
-      toast.success(`Bucket "${bucket.name}" deleted`);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete bucket");
-    } finally {
-      setBucketBusy(false);
-    }
-  }
-
   async function remove(task: Task) {
     if (!confirm(`Delete task "${task.title}"?`)) return;
     setTasks((prev) => prev.filter((t) => t.id !== task.id));
@@ -399,7 +336,10 @@ export function TasksManager({ initialTasks, initialBuckets, currentUserName, cl
   const filteredTasks = bucketScopedTasks.filter(
     (t) => matchesDueFilter(t, dueFilter) && (clientFilter ? t.client_id === clientFilter : true),
   );
-  const sortedTasks = sortTasks(filteredTasks, sortKey, sortDir);
+  const searchedTasks = searchQuery.trim()
+    ? filteredTasks.filter((t) => t.title.toLowerCase().includes(searchQuery.trim().toLowerCase()))
+    : filteredTasks;
+  const sortedTasks = sortTasks(searchedTasks, sortKey, sortDir);
 
   const filterByStatus = (status: TaskStatus) =>
     sortedTasks.filter((t) => t.status === status);
@@ -414,8 +354,83 @@ export function TasksManager({ initialTasks, initialBuckets, currentUserName, cl
   const overdueCount = dueSoonTasks.filter((t) => getDueBucket(t) === "overdue").length;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
+    <div className="space-y-5">
+      <Toolbar
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="Filter tasks…"
+        count={`${sortedTasks.length} task${sortedTasks.length !== 1 ? "s" : ""}`}
+        segments={
+          currentUserName && ASSIGNEE_OPTIONS.includes(currentUserName)
+            ? [
+                { value: "mine", label: "My Tasks" },
+                { value: "all", label: "All Tasks" },
+              ]
+            : undefined
+        }
+        activeSegment={showOnlyMine ? "mine" : "all"}
+        onSegmentChange={(v) => setShowOnlyMine(v === "mine")}
+      >
+        {buckets.length > 0 && (
+          <select
+            value={bucketFilter ?? "all"}
+            onChange={(e) => setBucketFilter(e.target.value === "all" ? null : e.target.value)}
+            className={toolbarSelectClasses}
+            aria-label="Filter by bucket"
+          >
+            <option value="all">All buckets</option>
+            {buckets.map((b) => (
+              <option key={b.id} value={b.id}>{b.name}</option>
+            ))}
+          </select>
+        )}
+        <select
+          value={dueFilter}
+          onChange={(e) => setDueFilter(e.target.value as DueFilter)}
+          className={toolbarSelectClasses}
+          aria-label="Filter by due date"
+        >
+          {DUE_FILTER_OPTIONS.map((opt) => (
+            <option key={opt.key} value={opt.key}>{opt.label}</option>
+          ))}
+        </select>
+        {clients.length > 0 && (
+          <select
+            value={clientFilter ?? ""}
+            onChange={(e) => setClientFilter(e.target.value || null)}
+            className={toolbarSelectClasses}
+            aria-label="Filter by client"
+          >
+            <option value="">All clients</option>
+            {clients.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        )}
+        <select
+          value={sortKey}
+          onChange={(e) => setSortKey(e.target.value as SortKey)}
+          className={toolbarSelectClasses}
+          aria-label="Sort by"
+        >
+          <option value="due_date">Due date</option>
+          <option value="created_at">Date created</option>
+          <option value="title">Title</option>
+        </select>
+        <Button
+          size="icon"
+          variant="outline"
+          className="h-9 w-9 shrink-0"
+          onClick={() => setSortDir((d) => (d === "asc" ? "desc" : "asc"))}
+          aria-label={sortDir === "asc" ? "Sort ascending" : "Sort descending"}
+          title={sortDir === "asc" ? "Ascending" : "Descending"}
+        >
+          {sortDir === "asc" ? (
+            <IconChevronUp className="h-3.5 w-3.5" />
+          ) : (
+            <IconChevronDown className="h-3.5 w-3.5" />
+          )}
+        </Button>
         <Button
           size="sm"
           className="gap-1.5 rounded-lg bg-rose text-white hover:bg-rose/90"
@@ -423,31 +438,7 @@ export function TasksManager({ initialTasks, initialBuckets, currentUserName, cl
         >
           <IconPlus className="h-4 w-4" /> New Task
         </Button>
-        {currentUserName && ASSIGNEE_OPTIONS.includes(currentUserName) && (
-          <div className="inline-flex gap-0.5 rounded-nested border border-[var(--hub-border)] bg-[var(--hub-card)] p-[3px] shadow-sm">
-            <button
-              onClick={() => setShowOnlyMine(true)}
-              className={`rounded-control-sm px-3.5 py-1.5 text-sm font-medium transition-colors ${
-                showOnlyMine
-                  ? "bg-[var(--hub-sidebar-active)] font-semibold text-foreground"
-                  : "bg-transparent text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
-              }`}
-            >
-              My Tasks
-            </button>
-            <button
-              onClick={() => setShowOnlyMine(false)}
-              className={`rounded-control-sm px-3.5 py-1.5 text-sm font-medium transition-colors ${
-                !showOnlyMine
-                  ? "bg-[var(--hub-sidebar-active)] font-semibold text-foreground"
-                  : "bg-transparent text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
-              }`}
-            >
-              All Tasks
-            </button>
-          </div>
-        )}
-      </div>
+      </Toolbar>
 
       {dueSoonTasks.length > 0 && (
         <HubCard padded={false}>
@@ -672,177 +663,6 @@ export function TasksManager({ initialTasks, initialBuckets, currentUserName, cl
           </div>
         </DialogContent>
       </Dialog>
-
-      {buckets.length > 0 && (
-        <div className="inline-flex w-full max-w-full justify-start gap-0.5 flex-wrap rounded-nested border border-[var(--hub-border)] bg-[var(--hub-card)] p-1 shadow-sm sm:w-auto">
-          <button
-            onClick={() => setBucketFilter(null)}
-            className={`inline-flex items-center gap-2 rounded-control-sm border-0 px-3.5 py-2 text-sm font-medium transition-colors ${
-              bucketFilter === null
-                ? "bg-[var(--hub-sidebar-active)] font-semibold text-foreground shadow-none"
-                : "bg-transparent text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
-            }`}
-          >
-            All
-          </button>
-          {buckets.map((b) => {
-            const isActive = bucketFilter === b.id;
-            const count = assigneeScopedTasks.filter((t) => t.bucket_id === b.id).length;
-
-            if (editingBucketId === b.id) {
-              return (
-                <div key={b.id} className="inline-flex items-center gap-1 rounded-lg bg-[var(--hub-hover)] px-2 py-1">
-                  <input
-                    autoFocus
-                    value={bucketNameDraft}
-                    onChange={(e) => setBucketNameDraft(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") saveBucketRename(b);
-                      if (e.key === "Escape") cancelEditBucket();
-                    }}
-                    disabled={bucketBusy}
-                    className="w-28 rounded-nested border border-[var(--hub-border)] bg-[var(--hub-card)] px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-rose"
-                  />
-                  <button
-                    onClick={() => saveBucketRename(b)}
-                    disabled={bucketBusy}
-                    title="Save"
-                    className="rounded-nested p-1 text-muted-foreground hover:bg-[var(--hub-card)] hover:text-foreground"
-                  >
-                    <IconCheck className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    onClick={cancelEditBucket}
-                    disabled={bucketBusy}
-                    title="Cancel"
-                    className="rounded-nested p-1 text-muted-foreground hover:bg-[var(--hub-card)] hover:text-foreground"
-                  >
-                    <IconX className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              );
-            }
-
-            return (
-              <div key={b.id} className="group inline-flex items-center rounded-lg">
-                <button
-                  onClick={() => setBucketFilter(isActive ? null : b.id)}
-                  className={`inline-flex items-center gap-2 rounded-control-sm border-0 px-3.5 py-2 text-sm font-medium transition-colors ${
-                    isActive
-                      ? "bg-[var(--hub-sidebar-active)] font-semibold text-foreground shadow-none"
-                      : "bg-transparent text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
-                  }`}
-                >
-                  {b.name}
-                  <span
-                    className={`inline-grid min-w-[18px] h-[18px] place-items-center rounded-pill border px-1 text-[11px] font-bold leading-none tabular-nums ${
-                      isActive
-                        ? "border-[var(--status-primary-border)] bg-[var(--status-primary-bg)] text-[var(--status-primary-text)]"
-                        : "border-[var(--hub-border)] bg-[var(--hub-canvas)] text-muted-foreground"
-                    }`}
-                  >
-                    {count}
-                  </span>
-                </button>
-                <button
-                  onClick={() => startEditBucket(b)}
-                  title={`Rename "${b.name}"`}
-                  className="ml-0.5 rounded-nested p-1.5 text-muted-foreground opacity-0 transition-opacity hover:bg-[var(--hub-hover)] hover:text-foreground group-hover:opacity-100 focus-visible:opacity-100"
-                >
-                  <IconPencil className="h-3 w-3" />
-                </button>
-                <button
-                  onClick={() => deleteBucket(b)}
-                  title={`Delete "${b.name}"`}
-                  className="rounded-nested p-1.5 text-muted-foreground opacity-0 transition-opacity hover:bg-[var(--hub-hover)] hover:text-destructive group-hover:opacity-100 focus-visible:opacity-100"
-                >
-                  <IconTrash2 className="h-3 w-3" />
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="inline-flex items-center gap-3 flex-wrap">
-          <div className="inline-flex w-full max-w-full flex-wrap gap-0.5 rounded-nested border border-[var(--hub-border)] bg-[var(--hub-card)] p-1 shadow-sm sm:w-auto">
-            {DUE_FILTER_OPTIONS.map((opt) => {
-              const isActive = dueFilter === opt.key;
-              const count = bucketScopedTasks.filter((t) => matchesDueFilter(t, opt.key)).length;
-              return (
-                <button
-                  key={opt.key}
-                  onClick={() => setDueFilter(isActive && opt.key !== "all" ? "all" : opt.key)}
-                  className={`inline-flex items-center gap-2 rounded-control-sm border-0 px-3 py-1.5 text-sm font-medium transition-colors ${
-                    isActive
-                      ? "bg-[var(--hub-sidebar-active)] font-semibold text-foreground shadow-none"
-                      : "bg-transparent text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
-                  }`}
-                >
-                  {opt.label}
-                  <span
-                    className={`inline-grid min-w-[18px] h-[18px] place-items-center rounded-pill border px-1 text-[11px] font-bold leading-none tabular-nums ${
-                      isActive
-                        ? "border-[var(--status-primary-border)] bg-[var(--status-primary-bg)] text-[var(--status-primary-text)]"
-                        : "border-[var(--hub-border)] bg-[var(--hub-canvas)] text-muted-foreground"
-                    }`}
-                  >
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          {clients.length > 0 && (
-            <div className="inline-flex items-center gap-1.5">
-              <Label className="text-xs text-muted-foreground shrink-0">Client</Label>
-              <select
-                value={clientFilter ?? ""}
-                onChange={(e) => setClientFilter(e.target.value || null)}
-                className="h-8 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] px-2.5 text-sm text-foreground hover:border-[var(--hub-field-border-hover)] focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30"
-              >
-                <option value="">All clients</option>
-                {clients.map((c) => {
-                  const count = bucketScopedTasks.filter((t) => t.client_id === c.id).length;
-                  return (
-                    <option key={c.id} value={c.id}>
-                      {c.name} ({count})
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-          )}
-        </div>
-
-        <div className="inline-flex items-center gap-1.5">
-          <Label className="text-xs text-muted-foreground shrink-0">Sort by</Label>
-          <select
-            value={sortKey}
-            onChange={(e) => setSortKey(e.target.value as SortKey)}
-            className="h-8 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] px-2.5 text-sm text-foreground hover:border-[var(--hub-field-border-hover)] focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30"
-          >
-            <option value="due_date">Due date</option>
-            <option value="created_at">Date created</option>
-            <option value="title">Title</option>
-          </select>
-          <Button
-            size="icon"
-            variant="outline"
-            className="h-8 w-8 shrink-0"
-            onClick={() => setSortDir((d) => (d === "asc" ? "desc" : "asc"))}
-            aria-label={sortDir === "asc" ? "Sort ascending" : "Sort descending"}
-            title={sortDir === "asc" ? "Ascending" : "Descending"}
-          >
-            {sortDir === "asc" ? (
-              <IconChevronUp className="h-3.5 w-3.5" />
-            ) : (
-              <IconChevronDown className="h-3.5 w-3.5" />
-            )}
-          </Button>
-        </div>
-      </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
         {STATUS_OPTIONS.map((status) => {

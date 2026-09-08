@@ -219,7 +219,7 @@ export function DocumentsScreen({
         ← Document templates
       </Link>
       <div className="flex items-baseline gap-2.5 flex-wrap mb-3.5">
-        <h1 className="m-0 text-[25px] font-bold tracking-tight text-[var(--color-ink)]">Documents</h1>
+        <h1 className="m-0 text-[22px] font-bold tracking-[-.015em] text-[var(--color-ink)]">Documents</h1>
         <span className="text-[13px] text-[var(--color-body)]">
           Every document sent and signed, across every client
         </span>

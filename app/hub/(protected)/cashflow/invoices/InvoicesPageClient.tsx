@@ -36,7 +36,7 @@ export function InvoicesPageClient({ invoices, outstandingTotal }: InvoicesPageC
   const countText = `${filtered.length} invoice${filtered.length !== 1 ? "s" : ""} · ${fmt(outstandingTotal)} outstanding`;
 
   return (
-    <div className="space-y-[20px]">
+    <div className="space-y-5">
       <HubPageHeader
         title="Invoices"
         subtitle="Every invoice, its line items and its status — draft through paid."

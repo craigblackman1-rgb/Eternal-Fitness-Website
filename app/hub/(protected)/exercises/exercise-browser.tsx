@@ -263,7 +263,7 @@ export function ExerciseBrowser({
 
               <span className="text-xs font-medium text-muted-foreground">Add equipment:</span>
               <Input
-                className="h-7 w-40 text-xs rounded-lg border-[var(--hub-field-border)] bg-[var(--hub-card)]"
+                className="h-9 w-40 text-xs rounded-lg border-[var(--hub-field-border)] bg-[var(--hub-card)]"
                 value={bulkEquipment}
                 onChange={(e) => setBulkEquipment(e.target.value)}
                 placeholder="e.g. dumbbell, mat"
@@ -271,7 +271,7 @@ export function ExerciseBrowser({
 
               <span className="text-xs font-medium text-muted-foreground">Add muscles:</span>
               <Input
-                className="h-7 w-40 text-xs rounded-lg border-[var(--hub-field-border)] bg-[var(--hub-card)]"
+                className="h-9 w-40 text-xs rounded-lg border-[var(--hub-field-border)] bg-[var(--hub-card)]"
                 value={bulkMuscleGroups}
                 onChange={(e) => setBulkMuscleGroups(e.target.value)}
                 placeholder="e.g. quads, glutes"
@@ -279,7 +279,7 @@ export function ExerciseBrowser({
 
               <span className="text-xs font-medium text-muted-foreground">Add tags:</span>
               <Input
-                className="h-7 w-36 text-xs rounded-lg border-[var(--hub-field-border)] bg-[var(--hub-card)]"
+                className="h-9 w-36 text-xs rounded-lg border-[var(--hub-field-border)] bg-[var(--hub-card)]"
                 value={bulkTags}
                 onChange={(e) => setBulkTags(e.target.value)}
                 placeholder="e.g. bilateral"
@@ -289,7 +289,7 @@ export function ExerciseBrowser({
               <div className="flex gap-1">
                 <button
                   onClick={() => setBulkActive(bulkActive === true ? null : true)}
-                  className={`h-7 text-xs rounded-lg px-3 font-medium transition-colors ${
+                  className={`h-9 text-xs rounded-lg px-3 font-medium transition-colors ${
                     bulkActive === true
                       ? "bg-rose text-white"
                       : "border border-[var(--hub-field-border)] bg-[var(--hub-card)] text-muted-foreground hover:text-foreground"
@@ -299,7 +299,7 @@ export function ExerciseBrowser({
                 </button>
                 <button
                   onClick={() => setBulkActive(bulkActive === false ? null : false)}
-                  className={`h-7 text-xs rounded-lg px-3 font-medium transition-colors ${
+                  className={`h-9 text-xs rounded-lg px-3 font-medium transition-colors ${
                     bulkActive === false
                       ? "bg-rose text-white"
                       : "border border-[var(--hub-field-border)] bg-[var(--hub-card)] text-muted-foreground hover:text-foreground"

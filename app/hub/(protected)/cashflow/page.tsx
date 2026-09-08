@@ -272,7 +272,7 @@ export default async function CashflowOverviewPage() {
       {/* Header — no avatar, this page has no single subject. */}
       <div className="mb-3.5">
         <div className="flex items-baseline gap-2.5 flex-wrap">
-          <h1 className="m-0 text-[25px] font-bold tracking-tight text-[var(--color-ink)]">Finance</h1>
+          <h1 className="m-0 text-[22px] font-bold tracking-[-.015em] text-[var(--color-ink)]">Finance</h1>
         </div>
         <p className="mt-1 mb-0 text-[13px] text-[var(--color-body)] max-w-[76ch]">
           Invoices you&rsquo;ve raised through the hub, and what the bank actually confirms. Most of Esther&rsquo;s

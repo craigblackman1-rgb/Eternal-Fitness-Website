@@ -325,7 +325,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-[22px] font-bold tracking-tight text-foreground">Edit {name}</h1>
+                <h1 className="text-[22px] font-bold tracking-[-.015em] text-[var(--color-ink)] m-0">Edit {name}</h1>
                 {clientNumber != null && (
                   <span className="text-xs font-medium text-muted-foreground bg-[var(--hub-canvas)] border border-[var(--hub-border)] rounded-nested px-1.5 py-0.5">
                     #{clientNumber}

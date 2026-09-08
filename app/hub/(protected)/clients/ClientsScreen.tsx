@@ -124,7 +124,7 @@ export function ClientsScreen({
     <div className="w-full">
       {/* Header — no page-level primary button; every action belongs to a row. */}
       <div className="flex items-baseline gap-2.5 flex-wrap mb-3.5">
-        <h1 className="m-0 text-[25px] font-bold tracking-tight text-[var(--color-ink)]">Clients</h1>
+        <h1 className="m-0 text-[22px] font-bold tracking-[-.015em] text-[var(--color-ink)]">Clients</h1>
         {needCount > 0 && (
           <span className="inline-flex items-center rounded-pill border px-2.5 py-0.5 text-xs font-semibold bg-[var(--status-warning-bg)] text-[var(--status-warning-text)] border-[var(--status-warning-border)]">
             {needCount} need{needCount === 1 ? "s" : ""} you
@@ -271,7 +271,7 @@ export function ClientsScreen({
                   ) : (
                     <td className="num dim">Not set up</td>
                   )}
-                  <td className={`trunc${r.hot ? " font-semibold text-[var(--color-ink)]" : ""}`}>
+                  <td className={`trunc${r.hot ? " font-semibold text-[var(--color-ink)]" : " dim"}`}>
                     {r.reason ?? ""}
                   </td>
                 </tr>

@@ -167,7 +167,7 @@ export function ReviewFlowClient({
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-[22px] font-bold text-foreground tracking-tight">{client.name}</h1>
+            <h1 className="text-[22px] font-bold tracking-[-.015em] text-[var(--color-ink)] m-0">{client.name}</h1>
             {client.display_code && (
               <span className="text-[12.5px] text-muted-foreground font-mono">#{client.display_code}</span>
             )}

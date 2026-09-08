@@ -508,7 +508,7 @@ export function AddWorkoutClient({
 
       {/* Page header */}
       <div className="mb-5">
-        <h1 className="text-2xl font-bold tracking-tight text-[var(--color-ink)]">Add a workout</h1>
+        <h1 className="text-[22px] font-bold tracking-[-.015em] text-[var(--color-ink)] m-0">Add a workout</h1>
         <p className="text-sm text-muted-foreground mt-1">
           This becomes part of {clientName}&rsquo;s programme automatically — there&rsquo;s nothing separate to set up first.
         </p>

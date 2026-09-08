@@ -144,7 +144,7 @@ export function TemplatesLibrary({ templates, clients }: { templates: DocumentTe
   const filtersActive = query.trim() !== "" || categoryFilter !== "all" || whoFilter !== "all";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <HubQuickActions
         variant="bar"
         actions={[

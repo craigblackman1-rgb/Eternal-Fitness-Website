@@ -278,7 +278,7 @@ export function BlockOverviewClient({
       <div className="flex items-start gap-3.5">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-2xl font-bold tracking-tight text-[var(--color-ink)]">
+            <h1 className="text-[22px] font-bold tracking-[-.015em] text-[var(--color-ink)]">
               {blockDisplayNameLabel}
             </h1>
             <StatusBadge status={blockStatusState} />

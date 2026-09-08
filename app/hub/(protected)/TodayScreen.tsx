@@ -68,7 +68,7 @@ export function TodayScreen({
     <div className="w-full max-w-[940px]">
       {/* ── Header ── */}
       <div className="mb-3">
-        <h1 className="m-0 text-[25px] font-bold tracking-tight text-[var(--color-ink)]">Today</h1>
+        <h1 className="m-0 text-[22px] font-bold tracking-[-.015em] text-[var(--color-ink)]">Today</h1>
         <p className="m-0 mt-0.5 text-[13px] text-[var(--color-body)]">{dateLabel}</p>
       </div>
 

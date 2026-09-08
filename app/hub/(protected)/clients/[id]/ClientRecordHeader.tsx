@@ -120,7 +120,7 @@ export function ClientRecordHeader({
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="m-0 text-[22px] font-bold tracking-tight text-[var(--color-ink)]">
+                <h1 className="m-0 text-[22px] font-bold tracking-[-.015em] text-[var(--color-ink)]">
                   {client.name}
                 </h1>
                 <span className="inline-flex items-center h-[21px] px-2.5 rounded-pill text-[11.5px] font-semibold border bg-[var(--status-danger-bg)] text-[var(--status-danger)] border-[var(--status-danger-border)]">
@@ -148,7 +148,7 @@ export function ClientRecordHeader({
         {/* Main */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="m-0 text-[25px] font-bold tracking-tight text-[var(--color-ink)]">
+            <h1 className="m-0 text-[22px] font-bold tracking-[-.015em] text-[var(--color-ink)]">
               {client.name}
             </h1>
             <span className="text-sm font-semibold text-[var(--color-muted)]">
