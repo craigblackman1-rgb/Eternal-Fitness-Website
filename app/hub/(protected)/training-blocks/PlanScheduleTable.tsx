@@ -250,7 +250,7 @@ export function PlanScheduleTable({ data }: { data: BlockWithClient[] }) {
       header: "",
       render: (row: BlockWithClient) => (
         <Link
-          href={`/hub/clients/${row.client_number ?? row.client_id}/blocks/${row.id}`}
+          href={`/hub/clients/${row.client_number ?? row.client_id}`}
           onClick={(e) => e.stopPropagation()}
           className="text-teal font-medium hover:underline whitespace-nowrap"
         >
@@ -264,7 +264,7 @@ export function PlanScheduleTable({ data }: { data: BlockWithClient[] }) {
     <HubTable
       data={sortedData}
       columns={columns}
-      getRowHref={(row) => `/hub/clients/${row.client_number ?? row.client_id}/blocks/${row.id}`}
+      getRowHref={(row) => `/hub/clients/${row.client_number ?? row.client_id}`}
       searchPlaceholder="Search clients…"
       searchKeys={[(row: BlockWithClient) => row.client_name ?? ""]}
       countLabel="block"

@@ -153,7 +153,7 @@ export function buildNeedsYouItems(input: NeedsYouInput): QueueItem[] {
       headline: `${draftBlockCount} block${draftBlockCount === 1 ? "" : "s"} still draft`,
       subline: "Cannot run until approved",
       actionLabel: "Review",
-      actionHref: latestBlock ? `/hub/clients/${clientNumber}/blocks/${latestBlock.id}` : undefined,
+      actionDrawerId: "dw-training",
     });
   }
 
@@ -165,7 +165,7 @@ export function buildNeedsYouItems(input: NeedsYouInput): QueueItem[] {
       dot: "warn",
       headline: `${undatedSessionCount} session${undatedSessionCount === 1 ? "" : "s"} with no date set`,
       actionLabel: "Set dates",
-      actionHref: latestBlock ? `/hub/clients/${clientNumber}/blocks/${latestBlock.id}` : undefined,
+      actionDrawerId: "dw-training",
     });
   }
 

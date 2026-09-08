@@ -26,7 +26,6 @@ interface ClientRecordShellProps {
   client: any; // DBClient — using `any` to avoid type serialization issues across the boundary
   blocks: DBBlock[];
   sessions: DBSession[];
-  blockSessionCounts: Record<number, number>;
   blockCompletedCounts: Record<number, number>;
   blockDateRangeLabel: string;
   nextSession: DBSession | null;
@@ -63,7 +62,6 @@ interface ClientRecordShellProps {
   oldestOpenBooking: string | null;
   trainingRules: { id: string; rule_type_id: string; detail: string; severity?: string }[];
   latestBlock: DBBlock | null;
-  derivedStatusByBlock: Map<string, import("@/types").BlockStatus>;
   /* S0b drawer data */
   portalAccount: any;
   clientNotes: any[];
@@ -117,7 +115,6 @@ export function ClientRecordShell({
   client,
   blocks,
   sessions,
-  blockSessionCounts,
   blockCompletedCounts,
   blockDateRangeLabel,
   nextSession,
@@ -147,7 +144,6 @@ export function ClientRecordShell({
   oldestOpenBooking,
   trainingRules,
   latestBlock: latestBlockProp,
-  derivedStatusByBlock,
   /* S0b drawer data */
   portalAccount,
   clientNotes,
@@ -253,7 +249,6 @@ export function ClientRecordShell({
         <ClientRecordHeader
           client={client}
           status={effectiveStatus}
-          activeBlockId={latestBlock?.id ?? null}
           sessionsRemaining={sessionsRemaining}
           sessionsUsed={sessionsUsed}
           sessionsPurchased={client.sessions_purchased ?? null}
@@ -318,7 +313,6 @@ export function ClientRecordShell({
         blockSessions={blockSessions}
         allBlocks={blocks}
         allSessions={sessions}
-        blockSessionCounts={blockSessionCounts}
         blockDateRangeLabel={blockDateRangeLabel}
         exerciseTrendSummary={exerciseTrendSummary}
         trainerizeHistory={trainerizeHistory}
@@ -339,7 +333,6 @@ export function ClientRecordShell({
         flaggedSessionIds={flaggedSessionIds}
         activeProgramId={activeProgramId}
         clientId={client.id}
-        derivedStatusByBlock={derivedStatusByBlock}
       />
       <ClientDrawers
         client={client}

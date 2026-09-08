@@ -584,7 +584,6 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       client={client}
       blocks={blocks ?? []}
       sessions={(sessions ?? []) as DBSession[]}
-      blockSessionCounts={blockSessionCounts}
       blockCompletedCounts={blockCompletedCounts}
       blockDateRangeLabel={latestBlockDateRangeLabel}
       nextSession={nextSession ? (nextSession as DBSession) : null}
@@ -614,7 +613,6 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       exerciseTrendSummary={exerciseTrendSummary}
       missingBandSet={missingBandSet}
       latestBlock={latestBlock}
-      derivedStatusByBlock={derivedStatusByBlock}
       /* S0b drawer data */
       portalAccount={portalAccount}
       clientNotes={clientNotes}

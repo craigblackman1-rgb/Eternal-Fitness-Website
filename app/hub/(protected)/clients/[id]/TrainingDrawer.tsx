@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { DrawerShell, useDrawerManager } from "./DrawerManager";
@@ -9,10 +8,10 @@ import { SessionChooser } from "./SessionChooser";
 import { SessionMoveDialog } from "./SessionMoveDialog";
 import { ShiftScheduleDialog } from "./ShiftScheduleDialog";
 import { sessionWorkoutName } from "@/lib/session-display";
-import { blockNameOrSpan } from "@/lib/block-name";
+
 import { SupplementaryWorkoutsCard } from "@/components/hub/SupplementaryWorkoutsCard";
 import { ensureUids } from "@/lib/exercise-ref";
-import type { DBBlock, DBSession, SessionVersion, BlockStatus } from "@/types";
+import type { DBBlock, DBSession, SessionVersion } from "@/types";
 import type { DBProgramSlot, QueueState } from "@/lib/programs/types";
 import { isRepeat } from "@/lib/programs/resolve";
 import type {
@@ -149,7 +148,7 @@ interface TrainingDrawerProps {
   blockSessions: DBSession[];
   allBlocks: DBBlock[];
   allSessions: DBSession[];
-  blockSessionCounts: Record<number, number>;
+
   blockDateRangeLabel: string;
   exerciseTrendSummary?: {
     totalExercisesLogged: number;
@@ -168,7 +167,7 @@ interface TrainingDrawerProps {
   flaggedSessionIds: Set<string>;
   activeProgramId: string | null;
   clientId: string;
-  derivedStatusByBlock?: Map<string, BlockStatus>;
+
 }
 
 export function TrainingDrawer({
@@ -181,7 +180,7 @@ export function TrainingDrawer({
   blockSessions,
   allBlocks,
   allSessions,
-  blockSessionCounts,
+
   blockDateRangeLabel,
   exerciseTrendSummary,
   trainerizeHistory,
@@ -194,7 +193,7 @@ export function TrainingDrawer({
   flaggedSessionIds,
   activeProgramId,
   clientId,
-  derivedStatusByBlock,
+
 }: TrainingDrawerProps) {
   const { openWorkoutDrawer } = useDrawerManager();
   const router = useRouter();
@@ -525,18 +524,8 @@ export function TrainingDrawer({
         programState
           ? `${programState.program.name} · ${totalSessions != null ? `${remaining} of ${totalSessions} paid sessions remaining` : "Ongoing"}`
           : latestBlock
-            ? (
-              <span>
-                <Link
-                  href={`/hub/clients/${clientNumber}/blocks/${latestBlock.id}`}
-                  className="text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:underline underline-offset-2"
-                >
-                  Block {latestBlock.block_number}
-                </Link>
-                {" "}&middot; {blockSessionCounts[latestBlock.block_number] ?? blockSessions.length} sessions
-              </span>
-            )
-            : allBlocks.length > 0 ? `${allBlocks.length} blocks` : "No training yet"
+            ? `${blockSessions.length} sessions`
+            : allBlocks.length > 0 ? `${allBlocks.length} training periods` : "No training yet"
       }
       width="lg"
     >
@@ -794,12 +783,6 @@ export function TrainingDrawer({
                     </span>
                   )}
                 </span>
-                <Link
-                  href={`/hub/clients/${clientNumber}/blocks/${s.block_id}/sessions/${s.session_number}`}
-                  className="shrink-0 text-[12px] font-semibold text-[var(--color-rose)] hover:underline underline-offset-2"
-                >
-                  View
-                </Link>
               </div>
             ))}
             {completedSessions.length > 5 && !showAllCompleted && (
@@ -860,51 +843,6 @@ export function TrainingDrawer({
             <p className="miss mt-1.5 mb-0">
               Both apply to every slot. Either one that bites the next session is named on it.
             </p>
-          </div>
-        </div>
-      )}
-
-      {/* ═══ BLOCKS ═══ */}
-      {allBlocks.length > 0 && (
-        <div className="fcard">
-          <div className="fcard-h">
-            <span>Blocks</span>
-            <span className="sub ml-2.5 normal-case tracking-normal font-medium text-[12px] text-[var(--color-body)]">
-              {allBlocks.length} total
-            </span>
-          </div>
-          <div className="fcard-b" style={{ padding: 0 }}>
-            {allBlocks.map((b) => {
-              const isLatest = latestBlock?.id === b.id;
-              const sessionCount = blockSessionCounts[b.block_number] ?? 0;
-              const status = derivedStatusByBlock?.get(b.id);
-              return (
-                <Link
-                  key={b.id}
-                  href={`/hub/clients/${clientNumber}/blocks/${b.id}`}
-                  className="flex items-center gap-2.5 py-2 px-3 border-b border-[var(--hub-border)] last:border-b-0 no-underline hover:bg-[var(--hub-hover)] transition-colors rounded-nested"
-                >
-                  <span className="flex-1 min-w-0 text-[13px] text-[var(--color-ink)]">
-                    <span className="font-semibold">{blockNameOrSpan(b, b.scheduled_start ? [{ scheduled_at: b.scheduled_start }] : [])}</span>
-                    <small className="text-[11.5px] font-normal text-[var(--color-body)] ml-1.5">
-                      {b.scheduled_start ? fmtShortDate(b.scheduled_start) : "Not scheduled"}
-                      {" · "}
-                      {sessionCount} session{sessionCount !== 1 ? "s" : ""}
-                    </small>
-                  </span>
-                  {isLatest && (
-                    <span className="shrink-0 inline-flex items-center h-[18px] px-1.5 rounded-pill text-[10.5px] font-semibold bg-[var(--status-primary-bg)] text-[var(--status-primary-text)] border border-[var(--status-primary-border)]">
-                      Current
-                    </span>
-                  )}
-                  {status && (
-                    <span className="shrink-0 inline-flex items-center h-[18px] px-1.5 rounded-pill text-[10.5px] font-semibold bg-[var(--hub-hover)] text-[var(--color-muted)] border border-[var(--hub-border)]">
-                      {status}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
           </div>
         </div>
       )}

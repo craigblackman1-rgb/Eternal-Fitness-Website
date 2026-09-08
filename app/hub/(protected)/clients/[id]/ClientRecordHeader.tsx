@@ -68,7 +68,6 @@ function buildSubline(client: DBClient): string {
 export function ClientRecordHeader({
   client,
   status,
-  activeBlockId,
   sessionsRemaining,
   sessionsUsed,
   sessionsPurchased,
@@ -78,7 +77,6 @@ export function ClientRecordHeader({
 }: {
   client: DBClient;
   status: string | null;
-  activeBlockId?: string | null;
   sessionsRemaining: number | null;
   sessionsUsed: number | null;
   sessionsPurchased: number | null;
@@ -190,14 +188,6 @@ export function ClientRecordHeader({
               <IconPencil className="w-4 h-4" /> Edit Client
             </Button>
           </Link>
-          {/* BUG-EF-126 — direct route to the active block page */}
-          {activeBlockId && (
-            <Link href={`/hub/clients/${client.client_number}/blocks/${activeBlockId}`}>
-              <Button variant="outline" className="bg-white border-[var(--hub-field-border)] hover:bg-[var(--hub-hover)] text-foreground rounded-control px-3.5 py-1.5 h-auto text-sm font-semibold gap-1.5">
-                Current block
-              </Button>
-            </Link>
-          )}
           {/* The review flow existed with no link anywhere in the app. */}
           <Link href={`/hub/clients/${client.client_number}/review`}>
             <Button variant="outline" className="bg-white border-[var(--hub-field-border)] hover:bg-[var(--hub-hover)] text-foreground rounded-control px-3.5 py-1.5 h-auto text-sm font-semibold gap-1.5">
@@ -214,7 +204,7 @@ export function ClientRecordHeader({
               </Button>
             </Link>
           ) : (
-            <Link href={activeBlockId ? `/hub/clients/${client.client_number}/blocks/${activeBlockId}` : "/hub/schedule"}>
+            <Link href="/hub/schedule">
               <Button className="bg-rose hover:bg-rose/90 text-white rounded-lg px-3.5 py-1.5 h-auto text-sm font-semibold gap-1.5">
                 <IconCalendar className="w-4 h-4" /> Book session
               </Button>

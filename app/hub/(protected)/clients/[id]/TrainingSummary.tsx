@@ -120,15 +120,6 @@ export function TrainingSummary({
           </span>
         )}
         <div className="ml-auto flex gap-1.5">
-          {/* BUG-EF-126 — link the block info to the block page when available */}
-          {latestBlock && !programState && (
-            <Link
-              href={`/hub/clients/${clientNumber}/blocks/${latestBlock.id}`}
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-white hover:bg-[var(--hub-hover)] text-foreground px-2.5 py-1 min-h-[30px] font-[inherit] text-xs font-semibold cursor-pointer transition-colors no-underline"
-            >
-              Block {latestBlock.block_number}
-            </Link>
-          )}
           <button
             onClick={(e) => openDrawer("dw-training", e.currentTarget)}
             className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-white hover:bg-[var(--hub-hover)] text-foreground px-2.5 py-1 min-h-[30px] font-[inherit] text-xs font-semibold cursor-pointer transition-colors"
