@@ -8,6 +8,7 @@ import EternalFitnessLogo from "@/components/EternalFitnessLogo";
 import {
   IconBarChart3,
   IconCalendar,
+  IconCheckSquare,
   IconClipboardList,
   IconDumbbell,
   IconFileSignature,
@@ -35,6 +36,7 @@ const navStructure: NavGroup[] = [
       { href: "/hub", label: "Today", icon: IconLayoutDashboard },
       { href: "/hub/schedule", label: "Schedule", icon: IconCalendar },
       { href: "/hub/clients", label: "Clients", icon: IconUsers },
+      { href: "/hub/tasks", label: "Tasks", icon: IconCheckSquare },
     ],
   },
   {
