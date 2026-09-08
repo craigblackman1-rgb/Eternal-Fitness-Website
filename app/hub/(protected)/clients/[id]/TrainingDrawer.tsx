@@ -11,6 +11,7 @@ import {
   sessionWorkoutName,
   sessionHasNoExercises,
   isOutlookPlaceholder,
+  isTrainerizeImported,
 } from "@/lib/session-display";
 import type { DBBlock, DBSession, SessionVersion } from "@/types";
 import type { QueueState } from "@/lib/programs/types";
@@ -231,7 +232,7 @@ export function TrainingDrawer({
 
   // Count sessions with nothing applied
   const nothingAppliedCount = scheduledSessions.filter((s) => {
-    return isOutlookPlaceholder(s) || sessionHasNoExercises(s.data);
+    return isOutlookPlaceholder(s) || sessionHasNoExercises(s.data) || isTrainerizeImported(s);
   }).length;
 
   // ── Programme map derivation ──
@@ -506,14 +507,14 @@ export function TrainingDrawer({
               {/* Dates with nothing applied first, then dates with workouts */}
               {[
                 ...scheduledSessions.filter(
-                  (s) => isOutlookPlaceholder(s) || sessionHasNoExercises(s.data),
+                  (s) => isOutlookPlaceholder(s) || sessionHasNoExercises(s.data) || isTrainerizeImported(s),
                 ),
                 ...scheduledSessions.filter(
-                  (s) => !isOutlookPlaceholder(s) && !sessionHasNoExercises(s.data),
+                  (s) => !isOutlookPlaceholder(s) && !sessionHasNoExercises(s.data) && !isTrainerizeImported(s),
                 ),
               ].map((s) => {
                 const hasWorkout =
-                  !isOutlookPlaceholder(s) && !sessionHasNoExercises(s.data);
+                  !isOutlookPlaceholder(s) && !sessionHasNoExercises(s.data) && !isTrainerizeImported(s);
                 const workoutName = sessionWorkoutName(s, "");
                 const dateStr = s.scheduled_at!;
                 const d = new Date(dateStr);
