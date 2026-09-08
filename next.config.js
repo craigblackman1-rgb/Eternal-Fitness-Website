@@ -170,6 +170,14 @@ const nextConfig = {
       { source: "/hub/agreements", destination: "/hub/documents", permanent: false },
       { source: "/hub/agreements/:path*", destination: "/hub/documents", permanent: false },
 
+      // --- Schedule triage (CR-EF-136, u2): six exception queues merged into /hub/schedule/triage ---
+      { source: "/hub/schedule/outlook", destination: "/hub/schedule/triage?filter=bookings", permanent: false },
+      { source: "/hub/schedule/outlook/duplicates", destination: "/hub/schedule/triage?filter=duplicates", permanent: false },
+      { source: "/hub/schedule/outlook/unassigned", destination: "/hub/schedule/triage?filter=unassigned", permanent: false },
+      { source: "/hub/schedule/outlook/pending-deletions", destination: "/hub/schedule/triage?filter=pending-deletions", permanent: false },
+      { source: "/hub/sessions/review", destination: "/hub/schedule/triage?filter=cancellations", permanent: false },
+      { source: "/hub/sessions/lapse-review", destination: "/hub/schedule/triage?filter=lapses", permanent: false },
+
       // --- Content re-gated 2026-08-17: only Blind & Partially Sighted was
       // ever cleared for launch under the 2026-08-10 specialisms restructure;
       // Cancer Rehabilitation, Strength/Balance & Falls and the Blog were live

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import { cn } from "@/lib/utils";
 import EternalFitnessLogo from "@/components/EternalFitnessLogo";
+import { useTriageTotalCount } from "@/components/hub";
 import {
   IconBarChart3,
   IconCalendar,
@@ -66,6 +67,7 @@ export function HubSidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+  const triageTotal = useTriageTotalCount();
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -108,6 +110,11 @@ export function HubSidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                   )}
                   <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-rose" : "text-white/45")} />
                   {item.label}
+                  {item.href === "/hub/schedule" && triageTotal !== null && triageTotal > 0 && (
+                    <span className="ml-auto inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-pill bg-rose text-white text-[10px] font-bold px-1">
+                      {triageTotal}
+                    </span>
+                  )}
                 </Link>
               );
             })}
