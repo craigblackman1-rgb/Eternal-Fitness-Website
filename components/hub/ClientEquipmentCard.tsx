@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { IconDumbbell, IconCopy, IconTrash2, IconCheck } from "@/components/icons";
-import { HubCard, HubCardHeader } from "@/components/hub";
+import { HubAccordion, HubAccordionItem, HubCard, HubCardHeader } from "@/components/hub";
 import type { ClientEquipmentEntry, StudioEquipment } from "@/types";
 
 interface ClientEquipmentCardProps {
@@ -225,23 +225,25 @@ export function ClientEquipmentCard({ value, onChange, clientFirstName, showCopy
     ? <><b>An empty list that is not marked bodyweight only</b> is saved as nothing decided. Tick Bodyweight only if that is what you mean.</>
     : <>The plan agent reads these <b>{list.length} items</b> and their detail when it builds {clientFirstName}&apos;s next block. Detail tells it how far a load can go.</>;
 
-  const bodyContent = (
-    <div className="flex flex-col min-w-0">
-      {/* Bodyweight only checkbox */}
-      <div className="flex items-start gap-3 pb-4 mb-4 border-b border-[var(--hub-border)]">
-        <label htmlFor="bw-only" className="relative shrink-0 w-5 h-5 mt-0.5 cursor-pointer">
-          <input type="checkbox" id="bw-only" checked={bw} onChange={toggleBw} className="sr-only peer" />
-          <span className={`absolute inset-0 rounded-control-sm border cursor-pointer transition-colors grid place-items-center peer-checked:bg-rose peer-checked:border-rose bg-[var(--hub-card)] border-[var(--color-muted-text)]`}>
-            {bw && <IconCheck className="w-3.5 h-3.5 text-white" />}
-          </span>
-        </label>
-        <div className="min-w-0">
-          <p className="text-[13px] font-semibold text-foreground cursor-pointer" onClick={toggleBw}>Bodyweight only</p>
-          <p className="text-xs text-muted-foreground mt-0.5">No equipment at all. Saved as an empty list, so the plan agent knows it was decided rather than never filled in.</p>
-        </div>
+  // ── Top section: bodyweight checkbox (always visible) ──
+  const topSection = (
+    <div className="flex items-start gap-3 pb-4 mb-4 border-b border-[var(--hub-border)]">
+      <label htmlFor="bw-only" className="relative shrink-0 w-5 h-5 mt-0.5 cursor-pointer">
+        <input type="checkbox" id="bw-only" checked={bw} onChange={toggleBw} className="sr-only peer" />
+        <span className={`absolute inset-0 rounded-control-sm border cursor-pointer transition-colors grid place-items-center peer-checked:bg-rose peer-checked:border-rose bg-[var(--hub-card)] border-[var(--color-muted-text)]`}>
+          {bw && <IconCheck className="w-3.5 h-3.5 text-white" />}
+        </span>
+      </label>
+      <div className="min-w-0">
+        <p className="text-[13px] font-semibold text-foreground cursor-pointer" onClick={toggleBw}>Bodyweight only</p>
+        <p className="text-xs text-muted-foreground mt-0.5">No equipment at all. Saved as an empty list, so the plan agent knows it was decided rather than never filled in.</p>
       </div>
+    </div>
+  );
 
-      {/* Bulk bar */}
+  // ── Rows section: bulk bar + equipment list + empty states (accordion panel when embedded) ──
+  const rowsSection = (
+    <>
       {selected.size > 0 && (
         <div className="flex items-center gap-2.5 mb-3 px-3 py-2 rounded-nested bg-rose/10 border border-rose/20 text-[12.5px] text-foreground">
           <span><b>{selected.size}</b> selected</span>
@@ -249,8 +251,6 @@ export function ClientEquipmentCard({ value, onChange, clientFirstName, showCopy
           <button type="button" onClick={removeSelected} className="text-xs font-medium border border-[var(--color-muted-text)] rounded-lg px-2.5 py-1 hover:bg-[var(--hub-hover)] transition-colors">Remove selected</button>
         </div>
       )}
-
-      {/* Equipment list */}
       <div ref={listRef} className="flex flex-col gap-2">
         {!bw && list && list.map((entry, idx) => {
           const fromCat = catalogue.some((c) => c.name.toLowerCase() === entry.name.toLowerCase());
@@ -275,8 +275,6 @@ export function ClientEquipmentCard({ value, onChange, clientFirstName, showCopy
           );
         })}
       </div>
-
-      {/* Empty state lines */}
       {!bw && list === null && (
         <p className="text-[13px] text-muted-foreground py-1.5 px-0.5">Equipment not set yet — the plan agent is not being constrained.</p>
       )}
@@ -286,8 +284,12 @@ export function ClientEquipmentCard({ value, onChange, clientFirstName, showCopy
       {bw && (
         <p className="text-[13px] text-muted-foreground py-1.5 px-0.5">No equipment — bodyweight only. The plan agent will only pick bodyweight exercises.</p>
       )}
+    </>
+  );
 
-      {/* Add equipment */}
+  // ── Bottom section: add equipment + foot (always visible) ──
+  const bottomSection = (
+    <>
       {!bw && (
         <div className="relative mt-3.5 eq-add-area">
           <label className="text-xs font-semibold text-foreground mb-1.5 block">Add equipment</label>
@@ -339,16 +341,30 @@ export function ClientEquipmentCard({ value, onChange, clientFirstName, showCopy
           )}
         </div>
       )}
-
-      {/* Foot */}
       <div className="flex items-start gap-2 mt-4 pt-3 border-t border-[var(--hub-border)] bg-[var(--hub-hover)] rounded-b-surface px-5 py-3 -mx-5 -mb-5 text-[12px] text-muted-foreground leading-relaxed" style={{ margin: "24px -20px -20px", padding: "12px 20px" }}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0 mt-0.5 text-rose"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M12 8V4M8 4h8"/><circle cx="8.5" cy="14" r="1"/><circle cx="15.5" cy="14" r="1"/></svg>
         <span>{footText}</span>
       </div>
+    </>
+  );
+
+  const bodyContent = (
+    <div className="flex flex-col min-w-0">
+      {topSection}
+      {rowsSection}
+      {bottomSection}
     </div>
   );
 
   if (embedded) {
+    const summaryText = bw
+      ? "Equipment — bodyweight only"
+      : list === null
+      ? "Equipment — not set"
+      : catalogue.length > 0
+      ? `Equipment — ${list.length} of ${catalogue.length} items`
+      : `Equipment — ${list.length} items`;
+
     return (
       <div>
         <div className="flex items-center gap-2 mb-3">
@@ -360,7 +376,15 @@ export function ClientEquipmentCard({ value, onChange, clientFirstName, showCopy
             </button>
           )}
         </div>
-        {bodyContent}
+        <div className="flex flex-col min-w-0">
+          {topSection}
+          <HubAccordion>
+            <HubAccordionItem defaultOpen={false} panel={rowsSection}>
+              <span className="flex-1 min-w-0">{summaryText}</span>
+            </HubAccordionItem>
+          </HubAccordion>
+          {bottomSection}
+        </div>
       </div>
     );
   }
