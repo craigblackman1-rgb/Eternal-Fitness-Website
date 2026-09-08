@@ -674,10 +674,10 @@ export function TasksManager({ initialTasks, initialBuckets, currentUserName, cl
       </Dialog>
 
       {buckets.length > 0 && (
-        <div className="inline-flex w-full max-w-full justify-start gap-0.5 flex-wrap rounded-control border border-[var(--hub-border)] bg-[var(--hub-card)] p-1 shadow-sm sm:w-auto">
+        <div className="inline-flex w-full max-w-full justify-start gap-0.5 flex-wrap rounded-nested border border-[var(--hub-border)] bg-[var(--hub-card)] p-1 shadow-sm sm:w-auto">
           <button
             onClick={() => setBucketFilter(null)}
-            className={`inline-flex items-center gap-2 rounded-lg border-0 px-3.5 py-2 text-sm font-medium transition-colors ${
+            className={`inline-flex items-center gap-2 rounded-control-sm border-0 px-3.5 py-2 text-sm font-medium transition-colors ${
               bucketFilter === null
                 ? "bg-[var(--hub-sidebar-active)] font-semibold text-foreground shadow-none"
                 : "bg-transparent text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
@@ -727,7 +727,7 @@ export function TasksManager({ initialTasks, initialBuckets, currentUserName, cl
               <div key={b.id} className="group inline-flex items-center rounded-lg">
                 <button
                   onClick={() => setBucketFilter(isActive ? null : b.id)}
-                  className={`inline-flex items-center gap-2 rounded-lg border-0 px-3.5 py-2 text-sm font-medium transition-colors ${
+                  className={`inline-flex items-center gap-2 rounded-control-sm border-0 px-3.5 py-2 text-sm font-medium transition-colors ${
                     isActive
                       ? "bg-[var(--hub-sidebar-active)] font-semibold text-foreground shadow-none"
                       : "bg-transparent text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
@@ -766,7 +766,7 @@ export function TasksManager({ initialTasks, initialBuckets, currentUserName, cl
 
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="inline-flex items-center gap-3 flex-wrap">
-          <div className="inline-flex w-full max-w-full flex-wrap gap-0.5 rounded-control border border-[var(--hub-border)] bg-[var(--hub-card)] p-1 shadow-sm sm:w-auto">
+          <div className="inline-flex w-full max-w-full flex-wrap gap-0.5 rounded-nested border border-[var(--hub-border)] bg-[var(--hub-card)] p-1 shadow-sm sm:w-auto">
             {DUE_FILTER_OPTIONS.map((opt) => {
               const isActive = dueFilter === opt.key;
               const count = bucketScopedTasks.filter((t) => matchesDueFilter(t, opt.key)).length;
@@ -774,7 +774,7 @@ export function TasksManager({ initialTasks, initialBuckets, currentUserName, cl
                 <button
                   key={opt.key}
                   onClick={() => setDueFilter(isActive && opt.key !== "all" ? "all" : opt.key)}
-                  className={`inline-flex items-center gap-2 rounded-lg border-0 px-3 py-1.5 text-sm font-medium transition-colors ${
+                  className={`inline-flex items-center gap-2 rounded-control-sm border-0 px-3 py-1.5 text-sm font-medium transition-colors ${
                     isActive
                       ? "bg-[var(--hub-sidebar-active)] font-semibold text-foreground shadow-none"
                       : "bg-transparent text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"

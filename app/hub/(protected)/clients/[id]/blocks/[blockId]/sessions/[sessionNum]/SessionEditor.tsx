@@ -1053,7 +1053,7 @@ export function SessionEditor({
           }
         }}
       >
-        <DialogContent className="max-w-md bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-nested shadow-lg">
+        <DialogContent className="max-w-md bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-surface shadow-lg">
           <DialogHeader>
             <DialogTitle className="text-[var(--color-ink)]">Swap exercise</DialogTitle>
           </DialogHeader>
@@ -1072,7 +1072,7 @@ export function SessionEditor({
       </Dialog>
 
       <Dialog open={showTemplatePicker} onOpenChange={setShowTemplatePicker}>
-        <DialogContent className="max-w-lg bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-nested shadow-lg">
+        <DialogContent className="max-w-lg bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-surface shadow-lg">
           <DialogHeader>
             <DialogTitle className="text-[var(--color-ink)]">Apply Workout Template</DialogTitle>
           </DialogHeader>

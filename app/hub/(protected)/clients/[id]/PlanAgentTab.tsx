@@ -324,7 +324,7 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
           placeholder="Ask about this client's programme, or describe what you want to build..."
           rows={2}
           disabled={streaming}
-          className="flex-1 resize-none rounded-nested border border-[var(--hub-border)] bg-[var(--hub-card)] px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-rose/30 focus:border-rose/40 disabled:opacity-50 transition-colors"
+          className="flex-1 resize-none rounded-surface border border-[var(--hub-border)] bg-[var(--hub-card)] px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-rose/30 focus:border-rose/40 disabled:opacity-50 transition-colors"
         />
         <Button
           onClick={() => sendMessage(input)}

@@ -318,7 +318,7 @@ export function TemplatePasteClient({ startBlank = false }: { startBlank?: boole
       {saveOpen && (
         <div className="fixed inset-0 z-50 grid place-items-center p-6">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={() => !saving && setSaveOpen(false)} />
-          <div className="relative w-full max-w-md rounded-nested border border-[var(--hub-border)] bg-[var(--hub-card)] p-6 shadow-xl">
+          <div className="relative w-full max-w-md rounded-surface border border-[var(--hub-border)] bg-[var(--hub-card)] p-6 shadow-xl">
             <h3 className="text-lg font-bold text-[var(--color-ink)]">Save as template</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               This saves a new reusable template in workout_templates — the reviewed structure above is what gets stored.
