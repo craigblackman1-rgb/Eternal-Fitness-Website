@@ -189,7 +189,7 @@ export function SessionRow({
                   onClick={() => onReschedule?.(sessionId)}
                   className="inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground transition-colors"
                 >
-                  Schedule
+                  Move
                 </button>
               </>
             )}
@@ -216,8 +216,17 @@ export function SessionRow({
                   onClick={() => onReschedule?.(sessionId)}
                   className="inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground transition-colors"
                 >
-                  Reschedule
+                  Move
                 </button>
+                {!isEmpty && (
+                  <button
+                    type="button"
+                    onClick={() => onAssignWorkout(sessionId)}
+                    className="inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground transition-colors"
+                  >
+                    Swap workout
+                  </button>
+                )}
               </>
             )}
             {(onCancel || onAddSupplementary) && status !== "completed" && status !== "cancelled" && (
