@@ -35,7 +35,7 @@ export function DeleteBlockButton({
         const err = await res.json();
         throw new Error(err.error || "Failed to delete");
       }
-      toast.success("Block deleted");
+      toast.success("Training deleted");
       router.push(`/hub/clients/${clientId}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");

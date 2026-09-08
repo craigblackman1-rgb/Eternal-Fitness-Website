@@ -175,7 +175,7 @@ export function SessionStatusPill({ status, unconfirmed, offDay, outOfSequence, 
         <FlagPill icon={WARNING_ICON} label="Off-day" title="Completed on a different day than booked" />
       )}
       {outOfSequence && (
-        <FlagPill icon={SEQ_ICON} label="Out of sequence" title="Completed after a later session in the same block" />
+        <FlagPill icon={SEQ_ICON} label="Out of sequence" title="Completed after a later session in the same training" />
       )}
     </span>
   );

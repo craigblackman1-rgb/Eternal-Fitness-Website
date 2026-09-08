@@ -119,7 +119,7 @@ export function PrescriptionTable({ version, className }: PrescriptionTableProps
         )}
         {mainGroups.map((group, gi) => (
           <Fragment key={`main-group-${gi}`}>
-            <SectionHeaderRow label={group.label || "Main Block"} count={group.items.length} isGroup={group.type === "group"} />
+            <SectionHeaderRow label={group.label || "Main workout"} count={group.items.length} isGroup={group.type === "group"} />
             {group.items.map((ex, i) => (
               <ExerciseRows key={`main-${gi}-${i}`} ex={ex} superset={group.type === "group"} />
             ))}

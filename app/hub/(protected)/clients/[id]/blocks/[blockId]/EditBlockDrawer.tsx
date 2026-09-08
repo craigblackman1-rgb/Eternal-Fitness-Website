@@ -91,7 +91,7 @@ export function EditBlockDrawer({ open, onOpenChange, block, sessionCount, compl
         }
       }
 
-      toast.success("Block saved");
+      toast.success("Training saved");
       router.refresh();
       onOpenChange(false);
     } catch (err) {

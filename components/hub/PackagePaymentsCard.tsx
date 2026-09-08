@@ -188,7 +188,7 @@ export function PackagePaymentsCard({ clientId, initial }: PackagePaymentsCardPr
             )}
             <ReadField label="Session length" value={initial.session_duration ? `${initial.session_duration} min` : "—"} />
             <ReadField label="Client rate" value={initial.client_rate != null ? `£${initial.client_rate.toFixed(2)}` : "Standard"} />
-            <ReadField label="Block expiry" value={formatDate(initial.block_expiry_date)} />
+            <ReadField label="Training expiry" value={formatDate(initial.block_expiry_date)} />
             <ReadField label="Payment method" value={initial.payment_method ?? "—"} />
             <div>
               <span className="text-xs text-muted-foreground block mb-0.5">Payment status</span>

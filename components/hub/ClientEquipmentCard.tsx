@@ -223,7 +223,7 @@ export function ClientEquipmentCard({ value, onChange, clientFirstName, showCopy
     ? <><b>Nothing saved yet.</b> Until this is set, the plan agent may pick any exercise in the library — including ones {clientFirstName} cannot do at home.</>
     : list.length === 0
     ? <><b>An empty list that is not marked bodyweight only</b> is saved as nothing decided. Tick Bodyweight only if that is what you mean.</>
-    : <>The plan agent reads these <b>{list.length} items</b> and their detail when it builds {clientFirstName}&apos;s next block. Detail tells it how far a load can go.</>;
+    : <>The plan agent reads these <b>{list.length} items</b> and their detail when it builds {clientFirstName}&apos;s next training plan. Detail tells it how far a load can go.</>;
 
   // ── Top section: bodyweight checkbox (always visible) ──
   const topSection = (

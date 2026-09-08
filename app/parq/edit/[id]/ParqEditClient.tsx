@@ -499,7 +499,7 @@ export default function ParqEditClient({
 
             {/* Section 2 — Cardiovascular */}
             <HubCard padded={false}>
-              <HubCardHeader icon={<IconHeart className="w-4 h-4" />} title="Section 2 — Cardiovascular &amp; general health" subtitle="A YES here is discussed before the next block is planned, not treated as a block" color="rose" />
+              <HubCardHeader icon={<IconHeart className="w-4 h-4" />} title="Section 2 — Cardiovascular &amp; general health" subtitle="A YES here is discussed before the next training is planned, not treated as a barrier" color="rose" />
               <div className="px-5 pb-5">
                 <div className="flex flex-col">
                   {section2Questions.map(({ q, text, note }) => (
@@ -592,7 +592,7 @@ export default function ParqEditClient({
               <div className="px-5 pb-5">
                 <p className="text-sm text-[var(--color-body)] mb-4 leading-relaxed italic">
                   {hasAnyYes
-                    ? "The client has answered YES to some questions in Sections 2, 3 or 4 — assess whether written GP or consultant clearance is required before their next block. No sessions should run until that clearance is on file, where it is needed."
+                    ? "The client has answered YES to some questions in Sections 2, 3 or 4 — assess whether written GP or consultant clearance is required before their next training. No sessions should run until that clearance is on file, where it is needed."
                     : "No YES answers in Sections 2, 3 or 4 — no medical clearance assessment required."}
                 </p>
                 <div className="flex items-baseline justify-between gap-3 py-2.5 border-t border-[var(--hub-border)] text-[13px]">

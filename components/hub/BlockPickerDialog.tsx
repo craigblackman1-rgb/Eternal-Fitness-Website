@@ -41,7 +41,7 @@ function formatTime(iso: string) {
 }
 
 /**
- * Shared confirm dialog for attaching an Outlook booking to a training block.
+ * Shared confirm dialog for attaching an Outlook booking to a training.
  * Extracted from ClientBookingPanel and OutlookBookingsQueue to prevent
  * wording drift (CR-EF-137).
  */
@@ -97,18 +97,18 @@ export function BlockPickerDialog({
         </DialogHeader>
         <p className="text-[12.5px] text-muted-foreground">
           {blocks.length > 0 && allActive
-            ? "Pick which active block this Outlook booking belongs to."
+            ? "Pick which active training this Outlook booking belongs to."
             : blocks.length > 0
-              ? "Pick which block this Outlook booking belongs to."
+              ? "Pick which training this Outlook booking belongs to."
               : ""}
         </p>
         {blocksLoading ? (
-          <p className="text-sm text-muted-foreground">Loading blocks…</p>
+          <p className="text-sm text-muted-foreground">Loading training plans…</p>
         ) : blocks.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             {allBlocks && allBlocks.length > 0
-              ? `${clientName} has no open block — all ${allBlocks.length} block${allBlocks.length === 1 ? "" : "s"} ${allBlocks.length === 1 ? "is" : "are"} complete. Create a new block first.`
-              : `${clientName} has no blocks yet — create one first.`}
+              ? `${clientName} has no open training — all ${allBlocks.length} training plan${allBlocks.length === 1 ? "" : "s"} ${allBlocks.length === 1 ? "is" : "are"} complete. Create a new one first.`
+              : `${clientName} has no training plans yet — create one first.`}
           </p>
         ) : (
           <ul className="space-y-2 mt-1">
@@ -125,7 +125,7 @@ export function BlockPickerDialog({
                   )}
                 >
                   <span className="font-bold text-sm text-foreground">
-                    Block {b.block_number}
+                    Training {b.block_number}
                     {b.status !== "active" && (
                       <span className="font-normal text-muted-foreground"> · {b.status}</span>
                     )}

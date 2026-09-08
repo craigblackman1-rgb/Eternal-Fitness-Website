@@ -18,8 +18,8 @@ import type { AttendanceFacts, PbFact, BelowBestFact } from "@/lib/block-review-
    see page.tsx and lib/block-review-facts.ts. */
 
 const DECISIONS: { key: ReviewDecision; title: string; sub: string }[] = [
-  { key: "continue", title: "Continue", sub: "Block 3 runs as planned" },
-  { key: "adjust", title: "Adjust", sub: "Next block needs changes first" },
+  { key: "continue", title: "Continue", sub: "Training 3 runs as planned" },
+  { key: "adjust", title: "Adjust", sub: "Next training needs changes first" },
   { key: "restart", title: "Restart", sub: "Go back to an earlier point" },
 ];
 
@@ -237,7 +237,7 @@ export function BlockReviewClient({
           <span className="text-xs text-[var(--color-muted-text)]">Internal only · {firstName(clientName)} never sees this</span>
         </div>
         <div className="p-4 space-y-3">
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label="Block decision">
+          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label="Training decision">
             {DECISIONS.map((d) => {
               const selected = decision === d.key;
               return (

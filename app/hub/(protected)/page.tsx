@@ -195,7 +195,7 @@ export default async function HubTodayPage() {
     alerts.push({
       id: "drafts",
       dot: "warn",
-      headline: `${draftRows.length} block${draftRows.length === 1 ? "" : "s"} ${draftRows.length === 1 ? "is" : "are"} still draft`,
+      headline: `${draftRows.length} training plan${draftRows.length === 1 ? "" : "s"} ${draftRows.length === 1 ? "is" : "are"} still draft`,
       subline: `None can run until you approve ${draftRows.length === 1 ? "it" : "them"}.`,
       actionLabel: "Review",
       href: "/hub/clients?filter=draft-block",

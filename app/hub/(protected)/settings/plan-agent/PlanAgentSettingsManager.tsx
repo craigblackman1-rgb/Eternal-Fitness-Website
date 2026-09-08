@@ -39,14 +39,14 @@ interface PaceModesValue {
 
 const SECTION_COLORS: Record<string, "rose" | "teal" | "navy" | "slate" | "amber"> = {
   "Pace Modes": "teal",
-  "Block Planning": "navy",
+  "Training Planning": "navy",
   "Archetypes": "amber",
   "General": "slate",
 };
 
 const SECTION_ICONS: Record<string, React.ReactNode> = {
   "Pace Modes": <IconClipboardList className="w-4 h-4" />,
-  "Block Planning": <IconFileText className="w-4 h-4" />,
+  "Training Planning": <IconFileText className="w-4 h-4" />,
   "Archetypes": <IconClipboardCheck className="w-4 h-4" />,
   "General": <IconBot className="w-4 h-4" />,
 };

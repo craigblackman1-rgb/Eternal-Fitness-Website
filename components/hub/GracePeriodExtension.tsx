@@ -67,7 +67,7 @@ export function GracePeriodExtension({ clientId, currentExpiry, extensions }: Gr
         toast.error(err.error || "Failed to extend expiry");
         return;
       }
-      toast.success(`Block expiry extended to ${formatDate(newDate)}`);
+      toast.success(`Training expiry extended to ${formatDate(newDate)}`);
       setEditing(false);
       setReason("");
       router.refresh();
@@ -79,7 +79,7 @@ export function GracePeriodExtension({ clientId, currentExpiry, extensions }: Gr
   return (
     <div className="fcard">
       <div className="fcard-h">
-        <span>Block expiry</span>
+        <span>Training expiry</span>
         {!editing && currentExpiry && (
           <button
             onClick={() => {

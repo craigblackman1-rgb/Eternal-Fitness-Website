@@ -172,7 +172,7 @@ export function PlanScheduleTable({ data }: { data: BlockWithClient[] }) {
     },
     {
       key: "block",
-      header: "Block",
+      header: "Training",
       sortable: true,
       sortValue: (row: BlockWithClient) => row.block_number,
       className: "min-w-[140px]",

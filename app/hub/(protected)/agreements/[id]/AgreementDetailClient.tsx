@@ -599,7 +599,7 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
             <Field label="Sessions" value={data.sessions_purchased ? `${data.sessions_purchased} × ${data.session_duration || 60}min` : null} />
             <Field label="Payment" value={data.payment_status ? data.payment_status.charAt(0).toUpperCase() + data.payment_status.slice(1) : null} />
             <Field label="Sessions used / remaining" value={data.sessions_used !== null && data.sessions_used !== undefined ? `${data.sessions_used} / ${data.sessions_remaining ?? "?"}` : null} />
-            <Field label="Block expiry" value={formatDate(data.block_expiry_date)} />
+            <Field label="Training expiry" value={formatDate(data.block_expiry_date)} />
             <Field label="Risk level" value={data.risk_level ? data.risk_level.charAt(0).toUpperCase() + data.risk_level.slice(1) : null} />
             <Field label="Client status" value={data.client_status ? data.client_status.charAt(0).toUpperCase() + data.client_status.slice(1) : null} />
             <Field label="Referral source" value={data.referral_source} />
