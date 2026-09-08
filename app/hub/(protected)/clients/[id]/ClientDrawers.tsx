@@ -1542,6 +1542,7 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
   clientNumber: number;
   client: any;
 }) {
+  const { closeDrawer } = useDrawerManager();
   // ── Shared: main sessions only (exclude sub-sessions, Outlook placeholders, Trainerize imports) ──
   const mainSessions = sessions.filter(
     (s) => !s.parent_session_id && !isOutlookPlaceholder(s) && !isTrainerizeImported(s),
@@ -1572,9 +1573,17 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
 
   // ── 1. How it's going ──
   const sessionsCompleted = completedSessions.length;
-  const totalBooked = mainSessions.length;
-  const attendanceRate = totalBooked > 0 ? Math.round((sessionsCompleted / totalBooked) * 100) : null;
-  const totalSetsLogged = exerciseTrendSummary?.totalExercisesLogged ?? 0;
+  // Attendance denominator: only resolved sessions (completed + cancelled), not future/planned
+  const resolvedSessions = mainSessions.filter(
+    (s) => s.status === "completed" || s.completed_at || s.status === "cancelled",
+  );
+  const totalResolved = resolvedSessions.length;
+  const attendanceRate = totalResolved > 0 ? Math.round((sessionsCompleted / totalResolved) * 100) : null;
+  // Real set count from exercise trends
+  const totalSetsLogged = exerciseTrends.reduce(
+    (sum, trend) => sum + trend.points.reduce((s, pt) => s + (pt.completedSets ?? 0), 0),
+    0,
+  );
   const sessionsWithNoLog = completedSessions.filter(
     (s) => (sessionSetCounts.get(s.id) ?? 0) === 0,
   ).length;
@@ -1637,10 +1646,72 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
     })
     .filter((r) => r.delta !== null);
 
+  // ── 3b. Load progression rows (last / best / trend) ──
+  const loadRows = exerciseTrends
+    .filter((t) => t.points && t.points.length > 0)
+    .map((trend) => {
+      const pts = trend.points;
+      const last = pts[pts.length - 1];
+      let best = last;
+      for (const p of pts) {
+        if (trend.metric === "weight" && (p.topWeightKg ?? 0) > (best.topWeightKg ?? 0)) best = p;
+        else if (trend.metric === "reps" && (p.maxReps ?? 0) > (best.maxReps ?? 0)) best = p;
+        else if (trend.metric === "duration" && (p.maxDurationSeconds ?? 0) > (best.maxDurationSeconds ?? 0)) best = p;
+      }
+      const formatValue = (pt: any) => {
+        if (trend.metric === "weight" && pt.topWeightKg != null) return `${pt.topWeightKg} kg`;
+        if (trend.metric === "reps" && pt.maxReps != null) return `${pt.maxReps} reps`;
+        if (trend.metric === "duration" && pt.maxDurationSeconds != null) return `${Math.round(pt.maxDurationSeconds)}s`;
+        return "\u2014";
+      };
+      let trendDir: "up" | "flat" | "down" = "flat";
+      if (pts.length >= 2) {
+        const prev = pts[pts.length - 2];
+        if (trend.metric === "weight") {
+          trendDir = (last.topWeightKg ?? 0) > (prev.topWeightKg ?? 0) ? "up" : (last.topWeightKg ?? 0) < (prev.topWeightKg ?? 0) ? "down" : "flat";
+        } else if (trend.metric === "reps") {
+          trendDir = (last.maxReps ?? 0) > (prev.maxReps ?? 0) ? "up" : (last.maxReps ?? 0) < (prev.maxReps ?? 0) ? "down" : "flat";
+        } else if (trend.metric === "duration") {
+          trendDir = (last.maxDurationSeconds ?? 0) > (prev.maxDurationSeconds ?? 0) ? "up" : (last.maxDurationSeconds ?? 0) < (prev.maxDurationSeconds ?? 0) ? "down" : "flat";
+        }
+      }
+      return {
+        name: trend.exerciseName,
+        lastValue: formatValue(last),
+        bestValue: formatValue(best),
+        isBest: last === best || (trend.metric === "weight" && last.topWeightKg === best.topWeightKg && last.repsAtTopWeight === best.repsAtTopWeight),
+        trendDir,
+        lastDate: fmtShortDate(last.loggedAt),
+      };
+    }).filter(Boolean);
+
+  // ── 3c. RPE mini-trend ──
+  const rpeData = sessions
+    .filter((s: any) => s.data?.session_log?.rpe != null && s.status === "completed")
+    .sort((a: any, b: any) => {
+      const aDate = a.data?.session_log?.completed_at ?? a.scheduled_at ?? "";
+      const bDate = b.data?.session_log?.completed_at ?? b.scheduled_at ?? "";
+      return aDate.localeCompare(bDate);
+    })
+    .slice(-8)
+    .map((s: any) => ({
+      rpe: s.data.session_log.rpe as number,
+      date: fmtShortDate(s.data?.session_log?.completed_at ?? s.scheduled_at),
+    }));
+
+  const rpeColor = (rpe: number) =>
+    rpe <= 4 ? "bg-[var(--status-success-bg)] text-[var(--status-success-text)]"
+    : rpe <= 7 ? "bg-[var(--status-warning-bg)] text-[var(--amber-text)]"
+    : "bg-[var(--status-primary-bg)] text-[var(--rose-text)]";
+
+  // ── 3d. Physical baseline + goals ──
+  const profile = client?.profile as Record<string, any> | undefined;
+  const baseline = profile?.physical_baseline as Record<string, any> | undefined;
+  const goals = profile?.goals as Record<string, any> | undefined;
+  const milestones = Array.isArray(goals?.milestones) ? goals.milestones : [];
+  const hasBaseline = baseline && (baseline.fitness_level || baseline.strength_baseline);
+
   // ── 4. Attendance ──
-  const rescheduled = mainSessions.filter(
-    (s) => s.status === "cancelled" && s.charged_free === "free",
-  ).length;
   const cancelledNotCharged = mainSessions.filter(
     (s) => s.status === "cancelled" && (s.charged_free === "free" || s.charged_free == null),
   ).length;
@@ -1698,6 +1769,29 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
       title="Progress"
       subtitle={`${client?.name ?? ""} \u00b7 ${programmeLabel} \u00b7 ${sessionsCompleted} sessions completed`}
       width="lg"
+      footer={
+        <>
+          <button
+            type="button"
+            onClick={closeDrawer}
+            className="inline-flex items-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1.5 min-h-[30px] font-[inherit] text-[12.5px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
+          >
+            Close
+          </button>
+          <span className="flex-1" />
+          {sortedBlocks.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href = `/hub/clients/${clientNumber}/updates/block-review/${sortedBlocks[0].id}`;
+              }}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--color-rose)] text-white px-4 py-1.5 min-h-[30px] font-[inherit] text-[12.5px] font-semibold cursor-pointer hover:bg-[var(--color-rose)]/90 transition-colors"
+            >
+              Write a review
+            </button>
+          )}
+        </>
+      }
     >
       {/* 1 ── How it is going */}
       <div className="fcard acc-teal">
@@ -1862,21 +1956,139 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
         </div>
       </div>
 
+      {/* 3b ── Load progression */}
+      {loadRows.length > 0 && (
+        <div className="fcard acc-teal">
+          <div className="fcard-h">Load progression</div>
+          <div className="fcard-b" style={{ padding: 0 }}>
+            <div className="ptab-wrap">
+              <table className="ptab">
+                <thead>
+                  <tr>
+                    <th>Exercise</th>
+                    <th>Last</th>
+                    <th>Best</th>
+                    <th>Trend</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loadRows.map((row, i) => (
+                    <tr key={i}>
+                      <td>{row!.name}</td>
+                      <td className="n">{row!.lastValue}</td>
+                      <td className="n">
+                        {row!.bestValue}
+                        {row!.isBest && <span className="pb ml-1.5">PB</span>}
+                      </td>
+                      <td>
+                        <span className={`trend ${row!.trendDir}`}>
+                          {row!.trendDir === "up" ? "\u2191" : row!.trendDir === "down" ? "\u2193" : "\u2192"}
+                        </span>
+                      </td>
+                      <td className="n w">{row!.lastDate}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3c ── Session RPE */}
+      <div className="fcard">
+        <div className="fcard-h">Session RPE</div>
+        <div className="fcard-b">
+          {rpeData.length > 0 ? (
+            <>
+              <div className="rpe-row">
+                {rpeData.map((d, i) => (
+                  <div key={i} className="rpe-cell">
+                    <div className={`rpe-box ${rpeColor(d.rpe)}`}>{d.rpe}</div>
+                    <span className="rpe-date">{d.date}</span>
+                  </div>
+                ))}
+              </div>
+              <p style={{ margin: "10px 0 0", fontSize: 12, color: "var(--muted)" }}>
+                Session effort on a 1\u201310 scale.
+              </p>
+            </>
+          ) : (
+            <p className="miss" style={{ margin: 0 }}>
+              No session RPE recorded yet. RPE is logged when a session is completed in the trainer hub or client portal.
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* 3d ── Baseline & goals */}
+      <div className="fcard acc-rose">
+        <div className="fcard-h">Baseline &amp; goals</div>
+        <div className="fcard-b">
+          {hasBaseline ? (
+            <>
+              <div className="bl-row">
+                <span className="bl-k">Fitness level</span>
+                <span className="bl-v">{baseline.fitness_level ?? "\u2014"} / 5</span>
+              </div>
+              {baseline.strength_baseline && (
+                <>
+                  <div className="bl-row">
+                    <span className="bl-k">Lower body</span>
+                    <span className="bl-v">{baseline.strength_baseline.lower_body ?? "\u2014"}</span>
+                  </div>
+                  <div className="bl-row">
+                    <span className="bl-k">Upper body</span>
+                    <span className="bl-v">{baseline.strength_baseline.upper_body ?? "\u2014"}</span>
+                  </div>
+                  <div className="bl-row">
+                    <span className="bl-k">Core</span>
+                    <span className="bl-v">{baseline.strength_baseline.core ?? "\u2014"}</span>
+                  </div>
+                </>
+              )}
+            </>
+          ) : (
+            <div className="miss">
+              No baseline recorded \u00b7 <Link href={`/hub/clients/${clientNumber}/edit`} className="text-[var(--color-rose)] hover:underline">Add on Edit</Link>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="fcard acc-rose">
+        <div className="fcard-h">Goal milestones</div>
+        <div className="fcard-b">
+          {milestones.length > 0 ? (
+            milestones.map((m: string, i: number) => (
+              <div key={i} className="goal-row">
+                <span className="goal-icon">{m.charAt(0).toUpperCase()}</span>
+                {m}
+              </div>
+            ))
+          ) : (
+            <div className="miss">
+              No milestones set \u00b7 <Link href={`/hub/clients/${clientNumber}/edit`} className="text-[var(--color-rose)] hover:underline">Add on Edit</Link>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* 4 ── Attendance */}
       <div className="fcard acc-ink">
         <div className="fcard-h">
           Attendance
-          <span className="sub">Across {totalBooked} booked session{totalBooked !== 1 ? "s" : ""}</span>
+          <span className="sub">Across {totalResolved} resolved session{totalResolved !== 1 ? "s" : ""}</span>
         </div>
         <div className="fcard-b">
           <div className="att">
             <span>Completed<b>{sessionsCompleted}</b></span>
-            <span>Rescheduled<b>{rescheduled}</b></span>
             <span>Cancelled, not charged<b>{cancelledNotCharged}</b></span>
             <span>Cancelled, charged<b>{cancelledCharged}</b></span>
           </div>
           <p className="miss" style={{ marginTop: 12 }}>
-            Only the {sessionsCompleted} completed took a session from the pot. The reschedule{rescheduled !== 1 ? "s" : ""} and the free cancellation{cancelledNotCharged !== 1 ? "s" : ""} took none \u2014 the rule is unchanged.
+            Only the {sessionsCompleted} completed took a session from the pot. The free cancellation{cancelledNotCharged !== 1 ? "s" : ""} took none \u2014 the rule is unchanged.
           </p>
         </div>
       </div>
@@ -1897,7 +2109,6 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
                 (s) => s.status === "completed" || s.completed_at,
               ).length;
               const totalInBlock = blockSessionsForCount.length;
-              const hasReview = !!(block as any).summary;
               const isCurrent = block.id === client?.block_id;
 
               return (
@@ -1907,25 +2118,15 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
                     <span className="hrow2-n">{block.title || `Block ${block.block_number}`}</span>
                     <span className="hrow2-s">
                       {isCurrent ? "Current" : "Complete"} \u00b7 {completedInBlock} of {totalInBlock}
-                      {hasReview ? " \u00b7 reviewed" : " \u00b7 no review yet"}
                     </span>
                   </span>
                   <span className="hrow2-a">
-                    {hasReview ? (
-                      <Link
-                        href={`/hub/clients/${clientNumber}/blocks/${block.id}`}
-                        className="inline-flex items-center justify-center h-[var(--h-control-sm)] px-2.5 rounded-control-sm border-0 bg-transparent text-[var(--color-body)] text-[12.5px] font-semibold cursor-pointer font-[inherit] hover:bg-[var(--hub-hover)] hover:text-[var(--color-ink)] transition-colors"
-                      >
-                        Read
-                      </Link>
-                    ) : (
-                      <Link
-                        href={`/hub/clients/${clientNumber}/blocks/${block.id}`}
-                        className="inline-flex items-center justify-center h-[var(--h-control-sm)] px-2.5 rounded-control-sm border border-[var(--hub-border)] bg-white text-[var(--color-body)] text-[12.5px] font-semibold cursor-pointer font-[inherit] hover:bg-[var(--hub-hover)] hover:border-[var(--hub-field-border)] transition-colors"
-                      >
-                        Write a review
-                      </Link>
-                    )}
+                    <Link
+                      href={`/hub/clients/${clientNumber}/updates/block-review/${block.id}`}
+                      className="inline-flex items-center justify-center h-[var(--h-control-sm)] px-2.5 rounded-control-sm border border-[var(--hub-border)] bg-white text-[var(--color-body)] text-[12.5px] font-semibold cursor-pointer font-[inherit] hover:bg-[var(--hub-hover)] hover:border-[var(--hub-field-border)] transition-colors"
+                    >
+                      Open review
+                    </Link>
                   </span>
                 </div>
               );

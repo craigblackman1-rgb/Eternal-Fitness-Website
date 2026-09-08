@@ -127,24 +127,58 @@ export function TrainingDrawer({
   const [chooserBusy, setChooserBusy] = useState(false);
 
   // ── Available programmes for Section 3 ──
-  const [otherProgrammes, setOtherProgrammes] = useState<{ id: string; name: string; weeks: number; slot_count?: number }[]>([]);
+  const [libraryProgrammes, setLibraryProgrammes] = useState<{ id: string; name: string; weeks: number }[]>([]);
+  const [allOtherProgrammes, setAllOtherProgrammes] = useState<{ id: string; name: string; weeks: number; clientNumber: string | null; clientName: string | null }[]>([]);
   const [applyingProgramId, setApplyingProgramId] = useState<string | null>(null);
+  const [showCopySearch, setShowCopySearch] = useState(false);
+  const [copySearchQuery, setCopySearchQuery] = useState("");
+  const [selectedCopyClient, setSelectedCopyClient] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     fetch("/api/programs")
       .then((r) => r.json())
-      .then((rows: { id: string; name: string; weeks: number; client_id: string | null; status: string; clients?: { client_number: string | null } | null }[]) => {
+      .then((rows: { id: string; name: string; weeks: number; client_id: string | null; status: string; clients?: { client_number: string | null; name?: string | null } | null }[]) => {
         if (cancelled) return;
         const currentId = programState?.program?.id;
-        const filtered = rows
-          .filter((p) => p.status !== "archived" && p.id !== currentId)
-          .filter((p) => !p.clients || p.clients?.client_number === String(clientNumber));
-        setOtherProgrammes(filtered.map((p) => ({ id: p.id, name: p.name, weeks: p.weeks })));
+        const active = rows.filter((p) => p.status !== "archived" && p.id !== currentId);
+        // Library = no client_id (unbound templates)
+        setLibraryProgrammes(
+          active.filter((p) => !p.client_id).map((p) => ({ id: p.id, name: p.name, weeks: p.weeks }))
+        );
+        // Other clients' programmes for the copy search
+        setAllOtherProgrammes(
+          active
+            .filter((p) => p.client_id && p.clients?.client_number !== String(clientNumber))
+            .map((p) => ({
+              id: p.id,
+              name: p.name,
+              weeks: p.weeks,
+              clientNumber: p.clients?.client_number ?? null,
+              clientName: p.clients?.name ?? null,
+            }))
+        );
       })
       .catch(() => {});
     return () => { cancelled = true; };
   }, [programState?.program?.id, clientNumber]);
+
+  // Derived: other clients' programmes grouped by client, filtered by search
+  const copyClientGroups = useMemo(() => {
+    const groups = new Map<string, { clientName: string; programmes: typeof allOtherProgrammes }>();
+    const q = copySearchQuery.toLowerCase();
+    for (const p of allOtherProgrammes) {
+      if (!p.clientNumber) continue;
+      if (q && !p.name.toLowerCase().includes(q) && !(p.clientName ?? "").toLowerCase().includes(q)) continue;
+      const existing = groups.get(p.clientNumber);
+      if (existing) {
+        existing.programmes.push(p);
+      } else {
+        groups.set(p.clientNumber, { clientName: p.clientName ?? `Client ${p.clientNumber}`, programmes: [p] });
+      }
+    }
+    return [...groups.entries()];
+  }, [allOtherProgrammes, copySearchQuery]);
 
   async function handleApplyProgramme(programId: string) {
     setApplyingProgramId(programId);
@@ -672,7 +706,7 @@ export function TrainingDrawer({
       <div className="fcard acc-teal">
         <div className="fcard-h">
           Start or replace the programme
-          <span className="sub">Copies in — never links, so editing hers changes nobody else&apos;s</span>
+          <span className="sub">Copies in \u2014 never links, so editing hers changes nobody else&apos;s</span>
         </div>
         <div className="fcard-b">
           {programState && (
@@ -680,7 +714,7 @@ export function TrainingDrawer({
               <span className="pick-m">
                 <span className="pick-t">{programmeName}</span>
                 <span className="pick-s">
-                  {totalQueueSlots} workouts · currently hers
+                  {totalQueueSlots} workouts \u00b7 currently hers
                 </span>
               </span>
               <span className="pick-a">
@@ -690,7 +724,7 @@ export function TrainingDrawer({
               </span>
             </div>
           )}
-          {otherProgrammes.length > 0 && otherProgrammes.map((p) => (
+          {libraryProgrammes.length > 0 && libraryProgrammes.map((p) => (
             <div className="pick" key={p.id}>
               <span className="pick-m">
                 <span className="pick-t">{p.name}</span>
@@ -703,11 +737,90 @@ export function TrainingDrawer({
                   onClick={() => handleApplyProgramme(p.id)}
                   className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--color-rose)] text-white px-3 py-1 min-h-[28px] font-[inherit] text-[11.5px] font-semibold cursor-pointer hover:bg-[var(--color-rose)]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {applyingProgramId === p.id ? "Applying…" : "Apply"}
+                  {applyingProgramId === p.id ? "Applying\u2026" : "Apply"}
                 </button>
               </span>
             </div>
           ))}
+          {libraryProgrammes.length === 0 && (
+            <p className="miss" style={{ margin: "0 0 8px" }}>No library programmes yet. Build one first, then apply it here.</p>
+          )}
+
+          {/* Copy from another client */}
+          <div style={{ marginTop: 12, borderTop: "1px solid var(--hub-border)", paddingTop: 10 }}>
+            {!showCopySearch ? (
+              <button
+                type="button"
+                onClick={() => setShowCopySearch(true)}
+                className="inline-flex items-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1.5 min-h-[28px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
+              >
+                Copy from another client\u2026
+              </button>
+            ) : (
+              <div>
+                <input
+                  className="fld"
+                  placeholder="Search by programme or client name\u2026"
+                  value={copySearchQuery}
+                  onChange={(e) => { setCopySearchQuery(e.target.value); setSelectedCopyClient(null); }}
+                  style={{ marginBottom: 8 }}
+                />
+                {selectedCopyClient ? (
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCopyClient(null)}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-rose)] hover:underline mb-2 bg-transparent border-0 p-0 cursor-pointer font-[inherit]"
+                    >
+                      \u2039 Back to search
+                    </button>
+                    {copyClientGroups.find(([id]) => id === selectedCopyClient)?.[1].programmes.map((p) => (
+                      <div className="pick" key={p.id}>
+                        <span className="pick-m">
+                          <span className="pick-t">{p.name}</span>
+                          <span className="pick-s">{p.weeks} weeks</span>
+                        </span>
+                        <span className="pick-a">
+                          <button
+                            type="button"
+                            disabled={applyingProgramId === p.id}
+                            onClick={() => handleApplyProgramme(p.id)}
+                            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--color-rose)] text-white px-3 py-1 min-h-[28px] font-[inherit] text-[11.5px] font-semibold cursor-pointer hover:bg-[var(--color-rose)]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {applyingProgramId === p.id ? "Applying\u2026" : "Apply"}
+                          </button>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div>
+                    {copyClientGroups.length > 0 ? copyClientGroups.map(([clientId, group]) => (
+                      <button
+                        key={clientId}
+                        type="button"
+                        onClick={() => setSelectedCopyClient(clientId)}
+                        className="w-full text-left px-3 py-2 rounded-control border border-[var(--hub-border)] bg-white mb-1.5 cursor-pointer hover:bg-[var(--hub-hover)] transition-colors font-[inherit]"
+                      >
+                        <span className="text-[13px] font-semibold text-[var(--color-ink)]">{group.clientName}</span>
+                        <span className="text-[12px] text-[var(--color-muted)] ml-1.5">{group.programmes.length} programme{group.programmes.length !== 1 ? "s" : ""}</span>
+                      </button>
+                    )) : (
+                      <p className="miss" style={{ margin: 0 }}>No other clients&apos; programmes found.</p>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => { setShowCopySearch(false); setCopySearchQuery(""); }}
+                      className="inline-flex items-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1.5 min-h-[28px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors mt-1"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           <div className="flex gap-2 mt-3">
             <button
               type="button"
@@ -771,13 +884,28 @@ export function TrainingDrawer({
         </div>
         <div className="fcard-b">
           {standingRules.length > 0 ? (
-            <div className="tags">
-              {standingRules.map((r) => (
-                <span className="tag" key={r.id}>
-                  {r.label ? `${r.label}: ` : ""}
-                  {r.detail}
-                </span>
-              ))}
+            <div className="space-y-3">
+              {(() => {
+                const groups = new Map<string, typeof standingRules>();
+                for (const r of standingRules) {
+                  const cat = r.label || "General";
+                  const existing = groups.get(cat);
+                  if (existing) existing.push(r);
+                  else groups.set(cat, [r]);
+                }
+                return [...groups.entries()].map(([cat, rules]) => (
+                  <div key={cat}>
+                    <div className="text-[11px] uppercase tracking-wider font-semibold mb-1.5" style={{ color: "var(--color-muted)" }}>
+                      {cat}
+                    </div>
+                    {rules.map((r) => (
+                      <p key={r.id} className="text-[13px] text-[var(--color-ink)] m-0 mb-1.5" style={{ whiteSpace: "pre-wrap" }}>
+                        {r.detail}
+                      </p>
+                    ))}
+                  </div>
+                ));
+              })()}
             </div>
           ) : (
             <p className="miss">

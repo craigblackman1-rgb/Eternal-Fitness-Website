@@ -204,20 +204,22 @@ export function TrainingSection({
             <>
               <b className="g-prog">{programmeName}</b>
               <span className="g-prog-s">
-                Position {nextItem?.position ?? completedCount + 1} of {queue.length || "?"}
                 {nextItem ? (
-                  <> · next up <b style={{ color: "var(--color-ink)" }}>{nextItem.label}</b></>
-                ) : null}
+                  <>Position {nextItem.position} of {queue.length || "?"} · next up <b style={{ color: "var(--color-ink)" }}>{nextItem.label}</b></>
+                ) : (
+                  <>Programme complete · {completedCount} of {queue.length || "?"}</>
+                )}
               </span>
             </>
           ) : queue.length > 0 ? (
             <>
               <b className="g-prog">{clientName.split(" ")[0]}&apos;s programme</b>
               <span className="g-prog-s">
-                Position {nextItem?.position ?? completedCount + 1} of {queue.length}
                 {nextItem ? (
-                  <> · next up <b style={{ color: "var(--color-ink)" }}>{nextItem.label}</b></>
-                ) : null}
+                  <>Position {nextItem.position} of {queue.length} · next up <b style={{ color: "var(--color-ink)" }}>{nextItem.label}</b></>
+                ) : (
+                  <>Programme complete · {completedCount} of {queue.length}</>
+                )}
               </span>
             </>
           ) : (
