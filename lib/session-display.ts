@@ -9,6 +9,19 @@
 import { DEFAULT_ARCHETYPE_FOCUS_LABELS } from "@/lib/planAgentPrompt";
 
 const OUTLOOK_BOOKING_PREFIX = "Outlook booking — ";
+const TRAINERIZE_IMPORT_PREFIX = "Imported from Trainerize";
+
+/**
+ * Detect a session originally imported from Trainerize.
+ * These sessions stay in the database untouched but must not present as
+ * hub workouts — a client whose only pending workouts are Trainerize
+ * imports reads as having an honest empty state ("No plan yet").
+ */
+export function isTrainerizeImported(session: {
+  data?: { coaching_notes?: string };
+}): boolean {
+  return (session.data?.coaching_notes ?? "").startsWith(TRAINERIZE_IMPORT_PREFIX);
+}
 
 /**
  * Detect an Outlook-auto-created session with no workout assigned.

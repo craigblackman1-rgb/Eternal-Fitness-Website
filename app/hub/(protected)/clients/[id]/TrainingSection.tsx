@@ -2,7 +2,7 @@
 
 import { useDrawerManager } from "./DrawerManager";
 import { deriveSessionPot } from "@/lib/session-pot";
-import { sessionWorkoutName, isOutlookPlaceholder } from "@/lib/session-display";
+import { sessionWorkoutName, isOutlookPlaceholder, isTrainerizeImported } from "@/lib/session-display";
 import type { DBBlock, DBSession } from "@/types";
 import type { QueueState } from "@/lib/programs/types";
 
@@ -124,7 +124,8 @@ export function TrainingSection({
             (s) =>
               !s.parent_session_id &&
               !s.cancelled_at &&
-              !isOutlookPlaceholder(s),
+              !isOutlookPlaceholder(s) &&
+              !isTrainerizeImported(s),
           )
           .sort((a, b) => (a.session_number ?? 0) - (b.session_number ?? 0));
 
