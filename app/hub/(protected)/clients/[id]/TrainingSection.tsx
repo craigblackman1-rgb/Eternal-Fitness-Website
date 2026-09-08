@@ -136,6 +136,7 @@ export function TrainingSection({
   const completedCount = queue.filter((q) => q.isCompleted).length;
   const pendingCount = queue.filter((q) => !q.isCompleted).length;
   const nextItem = queue.find((q) => q.isNext);
+  const pendingQueueItems = queue.filter((q) => !q.isCompleted);
 
   // ── Scheduled bookings (the only dated objects) ──
   const now = Date.now();
@@ -155,16 +156,16 @@ export function TrainingSection({
     .slice(0, 5);
 
   // ── Completed sessions count ──
-  const totalCompleted = allSessions.filter(
-    (s) => s.completed_at && !s.parent_session_id,
-  ).length;
-  const totalScheduled = allSessions.filter(
-    (s) => s.scheduled_at && !s.parent_session_id,
-  ).length;
+  // "Sessions done" counts all sessions consumed from the pot: baseline
+  // (pre-hub) + in-hub completions + charged cancellations. This matches
+  // the pot row's "used" figure so the two never disagree.
+  const sessionsDone = used;
+  // Attendance = in-hub completions / total sessions done (baseline +
+  // completions + charged). Omittable when no sessions have been consumed.
   const attendanceRate =
-    totalScheduled > 0
-      ? Math.round((totalCompleted / totalScheduled) * 100)
-      : 100;
+    sessionsDone > 0
+      ? Math.round((pot.completed / sessionsDone) * 100)
+      : null;
 
   // ── Pot history (from blocks) ──
   // BUG-EF-142: the current pot uses the same derived figures as the header
@@ -574,7 +575,7 @@ export function TrainingSection({
             No upcoming bookings.
           </p>
         ) : (
-          upcomingBookings.map((booking) => {
+          upcomingBookings.map((booking, idx) => {
             const scheduledDate = new Date(booking.scheduled_at!);
             const dayName = scheduledDate.toLocaleDateString("en-GB", {
               weekday: "short",
@@ -585,7 +586,7 @@ export function TrainingSection({
               minute: "2-digit",
             });
             const rel = relativeDay(booking.scheduled_at!);
-            const workoutName = sessionWorkoutName(booking);
+            const queueItem = pendingQueueItems[idx];
 
             return (
               <div
@@ -599,9 +600,9 @@ export function TrainingSection({
                   </span>
                 </span>
                 <span className="flex-1 min-w-0 text-xs text-[var(--color-body)]">
-                  {workoutName ? (
+                  {queueItem ? (
                     <>
-                      Will use <b className="text-ink font-semibold">{workoutName}</b>
+                      Will use <b className="text-ink font-semibold">#{queueItem.position} {queueItem.label}</b>
                     </>
                   ) : (
                     <span className="text-[var(--color-muted-text)] italic">
@@ -610,9 +611,24 @@ export function TrainingSection({
                   )}
                 </span>
                 <span className="shrink-0">
-                  <button className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-white hover:bg-[var(--hub-hover)] text-foreground px-2.5 py-1 min-h-[30px] font-[inherit] text-xs font-semibold cursor-pointer transition-colors">
-                    {workoutName ? "Open session" : "Assign a workout"}
-                  </button>
+                  {queueItem ? (
+                    <button
+                      onClick={(e) => {
+                        if ("sessionId" in queueItem && queueItem.sessionId) {
+                          openWorkoutDrawer(queueItem.sessionId as string, e.currentTarget);
+                        } else {
+                          openDrawer("dw-training", e.currentTarget);
+                        }
+                      }}
+                      className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-white hover:bg-[var(--hub-hover)] text-foreground px-2.5 py-1 min-h-[30px] font-[inherit] text-xs font-semibold cursor-pointer transition-colors"
+                    >
+                      Open session
+                    </button>
+                  ) : (
+                    <button className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-white hover:bg-[var(--hub-hover)] text-foreground px-2.5 py-1 min-h-[30px] font-[inherit] text-xs font-semibold cursor-pointer transition-colors">
+                      Assign a workout
+                    </button>
+                  )}
                 </span>
               </div>
             );
@@ -635,22 +651,24 @@ export function TrainingSection({
         <div className="flex gap-4 flex-wrap py-0.5 px-3 mb-1.5">
           <span className="text-xs text-[var(--color-body)]">
             <b className="block text-[17px] font-extrabold text-ink tracking-tight tabular-nums">
-              {totalCompleted}
+              {sessionsDone}
             </b>
             sessions done
           </span>
-          <span className="text-xs text-[var(--color-body)]">
-            <b
-              className={`block text-[17px] font-extrabold tracking-tight tabular-nums ${
-                attendanceRate >= 90
-                  ? "text-[var(--status-success-text)]"
-                  : "text-ink"
-              }`}
-            >
-              {attendanceRate}%
-            </b>
-            attendance
-          </span>
+          {attendanceRate !== null && (
+            <span className="text-xs text-[var(--color-body)]">
+              <b
+                className={`block text-[17px] font-extrabold tracking-tight tabular-nums ${
+                  attendanceRate >= 90
+                    ? "text-[var(--status-success-text)]"
+                    : "text-ink"
+                }`}
+              >
+                {attendanceRate}%
+              </b>
+              attendance
+            </span>
+          )}
           {exerciseTrendSummary && (
             <>
               {exerciseTrendSummary.personalBests > 0 && (
