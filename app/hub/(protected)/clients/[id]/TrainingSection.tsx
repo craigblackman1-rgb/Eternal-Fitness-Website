@@ -259,6 +259,9 @@ export function TrainingSection({
   }, [clientNumber]);
   useEffect(() => { fetchSupplementaryCount(); }, [fetchSupplementaryCount]);
 
+  // ── Segment wiring ──
+  const [activeSegment, setActiveSegment] = useState<"queue" | "booked" | "so-far">("queue");
+
   return (
     <HubCard padded={false}>
       {/* ── Section header ── */}
@@ -266,9 +269,24 @@ export function TrainingSection({
         <h2 className="t-section">Training</h2>
         <span className="t-meta">{queueSummary}</span>
         <div className="seg" role="group" aria-label="Training view">
-          <button className="seg-btn on" type="button" aria-pressed="true">Queue</button>
-          <button className="seg-btn" type="button" aria-pressed="false">Booked in</button>
-          <button className="seg-btn" type="button" aria-pressed="false">So far</button>
+          <button
+            className={`seg-btn${activeSegment === "queue" ? " on" : ""}`}
+            type="button"
+            aria-pressed={activeSegment === "queue"}
+            onClick={() => setActiveSegment("queue")}
+          >Queue</button>
+          <button
+            className={`seg-btn${activeSegment === "booked" ? " on" : ""}`}
+            type="button"
+            aria-pressed={activeSegment === "booked"}
+            onClick={() => setActiveSegment("booked")}
+          >Booked in</button>
+          <button
+            className={`seg-btn${activeSegment === "so-far" ? " on" : ""}`}
+            type="button"
+            aria-pressed={activeSegment === "so-far"}
+            onClick={() => setActiveSegment("so-far")}
+          >So far</button>
         </div>
         <button
           onClick={(e) => openDrawer("dw-training", e.currentTarget)}
@@ -278,387 +296,439 @@ export function TrainingSection({
         </button>
       </div>
 
-      <div className="h-card-bd">
-        {/* ── Duo: Sessions left + Next workout ── */}
-        <div className="grid-2" style={{ marginBottom: 12 }}>
-          {/* Sessions left panel */}
-          <div>
-            <p className="t-micro" style={{ margin: "0 0 8px" }}>Sessions left</p>
-            {isOngoing ? (
-              <div className="pot">
-                <span className="pot-fig"><b>∞</b><span>left</span></span>
-                <div className="pot-r">
-                  <p className="pot-s">Ongoing package — no session cap.</p>
-                </div>
-              </div>
-            ) : (
-              <div className="pot">
-                <span className="pot-fig">
-                  <b style={isLow || isEmpty ? { color: "var(--status-danger)" } : undefined}>{remaining}</b>
-                  <span>left</span>
-                </span>
-                <div className="pot-r">
-                  <div className="pot-bar">
-                    <i style={{
-                      width: `${purchased ? ((purchased - remaining) / purchased) * 100 : 0}%`,
-                      background: isLow || isEmpty ? "var(--status-danger)" : "var(--color-rose)",
-                    }} />
+      {/* ── Queue segment ── */}
+      {activeSegment === "queue" && (
+        <>
+          <div className="h-card-bd">
+            {/* ── Duo: Sessions left + Next workout ── */}
+            <div className="grid-2" style={{ marginBottom: 12 }}>
+              {/* Sessions left panel */}
+              <div>
+                <p className="t-micro" style={{ margin: "0 0 8px" }}>Sessions left</p>
+                {isOngoing ? (
+                  <div className="pot">
+                    <span className="pot-fig"><b>∞</b><span>left</span></span>
+                    <div className="pot-r">
+                      <p className="pot-s">Ongoing package — no session cap.</p>
+                    </div>
                   </div>
-                  <p className="pot-s">{used} of {purchased ?? "?"} used. Only a completed workout takes one — nothing expires.</p>
+                ) : (
+                  <div className="pot">
+                    <span className="pot-fig">
+                      <b style={isLow || isEmpty ? { color: "var(--status-danger)" } : undefined}>{remaining}</b>
+                      <span>left</span>
+                    </span>
+                    <div className="pot-r">
+                      <div className="pot-bar">
+                        <i style={{
+                          width: `${purchased ? ((purchased - remaining) / purchased) * 100 : 0}%`,
+                          background: isLow || isEmpty ? "var(--status-danger)" : "var(--color-rose)",
+                        }} />
+                      </div>
+                      <p className="pot-s">{used} of {purchased ?? "?"} used. Only a completed workout takes one — nothing expires.</p>
+                    </div>
+                  </div>
+                )}
+                {/* Session balance link */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); openDrawer("dw-pot-ledger"); }}
+                  className="btn btn-link btn-sm"
+                  style={{ marginTop: 6 }}
+                >
+                  Session balance ›
+                </button>
+              </div>
+
+              {/* Next workout panel */}
+              <div>
+                <p className="t-micro" style={{ margin: "0 0 8px" }}>Next workout</p>
+                {nextItem ? (
+                  <>
+                    <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--color-ink)", letterSpacing: "-.01em" }}>
+                      #{nextItem.position} {nextItem.label}
+                    </p>
+                    <p style={{ margin: "3px 0 0", fontSize: 12.5, color: "var(--color-body)" }}>
+                      {nextItem.subtitle ||
+                        "It is next because the previous one was completed, not because a date arrived."}
+                    </p>
+                  </>
+                ) : queue.length > 0 ? (
+                  <p style={{ margin: 0, fontSize: 13, color: "var(--color-muted-text)", fontStyle: "italic" }}>
+                    All workouts completed
+                  </p>
+                ) : (
+                  <>
+                    <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "var(--color-ink)" }}>
+                      No plan yet
+                    </p>
+                    <p style={{ margin: "3px 0 0", fontSize: 12.5, color: "var(--color-body)" }}>
+                      {clientName} has no workouts assigned. Build a queue from scratch, or pour in one of the shared plans.
+                    </p>
+                  </>
+                )}
+                {/* Next workout footer */}
+                <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}>
+                  {nextItem ? (
+                    <button
+                      onClick={(e) => {
+                        if ("sessionId" in nextItem && nextItem.sessionId) {
+                          openWorkoutDrawer(nextItem.sessionId as string, e.currentTarget);
+                        } else {
+                          openDrawer("dw-training", e.currentTarget);
+                        }
+                      }}
+                      className="btn btn-link btn-sm"
+                    >
+                      See the workout ›
+                    </button>
+                  ) : (
+                    <>
+                      <span style={{ fontSize: 12.5, color: "var(--color-muted-text)" }}>Takes about a minute.</span>
+                      <button
+                        onClick={(e) => openDrawer("dw-training", e.currentTarget)}
+                        className="btn btn-link btn-sm"
+                      >
+                        Build her queue ›
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
-            )}
-          </div>
-
-          {/* Next workout panel */}
-          <div>
-            <p className="t-micro" style={{ margin: "0 0 8px" }}>Next workout</p>
-            {nextItem ? (
-              <>
-                <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--color-ink)", letterSpacing: "-.01em" }}>
-                  #{nextItem.position} {nextItem.label}
-                </p>
-                <p style={{ margin: "3px 0 0", fontSize: 12.5, color: "var(--color-body)" }}>
-                  {nextItem.subtitle ||
-                    "It is next because the previous one was completed, not because a date arrived."}
-                </p>
-              </>
-            ) : queue.length > 0 ? (
-              <p style={{ margin: 0, fontSize: 13, color: "var(--color-muted-text)", fontStyle: "italic" }}>
-                All workouts completed
-              </p>
-            ) : (
-              <>
-                <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "var(--color-ink)" }}>
-                  No plan yet
-                </p>
-                <p style={{ margin: "3px 0 0", fontSize: 12.5, color: "var(--color-body)" }}>
-                  {clientName} has no workouts assigned. Build a queue from scratch, or pour in one of the shared plans.
-                </p>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* ── Workout queue ── */}
-        <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 12, marginBottom: 6 }}>
-          <p className="t-micro" style={{ margin: 0 }}>Workout queue</p>
-          <span style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
-            {supplementaryCount > 0 && (
-              <button
-                onClick={(e) => openDrawer("dw-supplementary", e.currentTarget)}
-                className="btn btn-ghost btn-sm"
-              >
-                Supplementary · {supplementaryCount}
-              </button>
-            )}
-            {queue.length > 0 && (
-              <button
-                onClick={(e) => openDrawer("dw-training", e.currentTarget)}
-                className="btn btn-ghost btn-sm"
-              >
-                See all {queue.length}
-              </button>
-            )}
-          </span>
-        </div>
-
-        {queue.length === 0 ? (
-          /* ── Empty state: no workouts assigned ── */
-          <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", border: "1px dashed var(--hub-field-border)", borderRadius: "var(--r-nested)", background: "var(--field-fill, #FDFDFE)", marginBottom: 8 }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "var(--color-ink)" }}>
-                No workouts assigned yet
-              </p>
-              <p style={{ margin: "3px 0 0", fontSize: 12, color: "var(--color-body)" }}>
-                Nothing is queued for {clientName.split(" ")[0]}, so nothing is shown. Build a queue from scratch, or copy one of the shared plans into it.
-              </p>
             </div>
-            <div style={{ flexShrink: 0, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
-              <button
-                onClick={(e) => openDrawer("dw-training", e.currentTarget)}
-                className="btn btn-outline btn-sm"
-              >
-                Use a shared plan
-              </button>
-              <button
-                onClick={(e) => openDrawer("dw-training", e.currentTarget)}
-                className="btn btn-primary btn-sm"
-              >
-                Build a queue
-              </button>
-            </div>
-          </div>
-        ) : (
-          /* ── Populated queue rows ── */
-          <>
-            {/* Completed doorway row */}
-            {completedCount > 0 && (
-              <button
-                onClick={(e) => openDrawer("dw-training", e.currentTarget)}
-                style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", padding: "9px 16px", borderRadius: "var(--r-nested)", border: "1px dashed var(--hub-border)", background: "var(--field-fill, #FDFDFE)", fontFamily: "inherit", fontSize: 13, color: "var(--color-body)", textAlign: "left", cursor: "pointer", marginBottom: 6 }}
-              >
-                <span>
-                  <b style={{ color: "var(--color-ink)", fontWeight: 600 }}>
-                    #1 – #{completedCount} done
-                  </b>{" "}
-                  — the last was{" "}
-                  {queue[completedCount - 1]?.label ?? "a workout"}
-                  {queue[completedCount - 1]?.subtitle
-                    ? `, ${queue[completedCount - 1].subtitle.toLowerCase()}`
-                    : ""}
-                </span>
-                <span style={{ marginLeft: "auto", fontSize: 12, fontWeight: 600, color: "var(--color-rose)" }}>
-                  See history ›
-                </span>
-              </button>
-            )}
 
-            {/* Pending queue rows */}
-            {queue
-              .filter((q) => !q.isCompleted)
-              .slice(0, 4)
-              .map((item) => (
-                <button
-                  key={item.position}
-                  onClick={(e) => {
-                    if ("sessionId" in item && item.sessionId) {
-                      openWorkoutDrawer(item.sessionId as string, e.currentTarget);
-                    } else {
-                      openDrawer("dw-training", e.currentTarget);
-                    }
-                  }}
-                  className={`qrow${item.isNext ? " is-next" : ""}`}
-                >
-                  <span className="qrow-p">
-                    {item.position}
-                  </span>
-                  <span className="qrow-w">
-                    {item.label}
-                    {item.subtitle && (
-                      <small>{item.subtitle}</small>
-                    )}
-                  </span>
-                  {item.isNext && (
-                    <span className="badge b-primary">Next</span>
-                  )}
-                </button>
-              ))}
-
-            {/* Overflow row */}
-            {pendingCount > 4 && (
-              <button
-                onClick={(e) => openDrawer("dw-training", e.currentTarget)}
-                className="qrow"
-              >
-                <span className="qrow-p">
-                  +{pendingCount - 4}
-                </span>
-                <span className="qrow-w" style={{ fontWeight: 400, color: "var(--color-body)" }}>
-                  #{completedCount + 5} – #{queue.length} queued
-                </span>
-                <span style={{ flexShrink: 0, fontSize: 12, fontWeight: 600, color: "var(--color-rose)" }}>
-                  See all {queue.length} ›
-                </span>
-              </button>
-            )}
-
-            {/* Pager / reconciliation */}
-            <div className="pager">
-              <span className="pager-i">
-                <b style={{ color: "var(--color-ink)", fontWeight: 600 }}>
-                  {pendingCount} workout{pendingCount === 1 ? "" : "s"} queued ·{" "}
-                  {remaining} session{remaining === 1 ? "" : "s"} left
-                </b>
-                {" — "}
-                {pendingCount === remaining
-                  ? "The plan and the pot agree — she runs out of both at the same time."
-                  : pendingCount > remaining
-                    ? `The extra ${pendingCount - remaining} will need a new pot.`
-                    : pendingCount < remaining
-                      ? `She has ${remaining - pendingCount} more session${remaining - pendingCount === 1 ? "" : "s"} than workouts.`
-                      : ""}
+            {/* ── Workout queue ── */}
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 12, marginBottom: 6 }}>
+              <p className="t-micro" style={{ margin: 0 }}>Workout queue</p>
+              <span style={{ fontSize: 12, color: "var(--color-muted-text)" }}>
+                In order. One is used up each time a session is completed.
               </span>
-              <div className="pager-b">
+              {supplementaryCount > 0 && (
                 <button
-                  onClick={(e) => openDrawer("dw-training", e.currentTarget)}
-                  className="btn btn-outline btn-sm"
+                  onClick={(e) => openDrawer("dw-supplementary", e.currentTarget)}
+                  className="btn btn-ghost btn-sm"
+                  style={{ marginLeft: "auto" }}
                 >
-                  See all {queue.length}
+                  Supplementary · {supplementaryCount}
                 </button>
-              </div>
+              )}
             </div>
-          </>
-        )}
 
-        {/* Reconciliation for empty state */}
-        {queue.length === 0 && !isOngoing && (
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, padding: "7px 12px", borderRadius: "var(--r-nested)", fontSize: 12, background: "var(--status-warning-bg)", border: "1px solid var(--status-warning-border)", color: "var(--status-warning-text)" }}>
-            <span>
-              <b style={{ fontWeight: 600 }}>
-                0 workouts queued · {remaining} session
-                {remaining === 1 ? "" : "s"} left.
-              </b>{" "}
-              {remaining > 0
-                ? `She is booked in with nothing to do.`
-                : "The pot is empty."}
-            </span>
-          </div>
-        )}
-
-        {/* ── Booked in ── */}
-        <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 12, marginBottom: 6 }}>
-          <p className="t-micro" style={{ margin: 0 }}>Booked in</p>
-          <span style={{ marginLeft: "auto" }}>
-            <button className="btn btn-ghost btn-sm">
-              Book a session
-            </button>
-          </span>
-        </div>
-
-        {upcomingBookings.length === 0 ? (
-          <p style={{ margin: 0, fontSize: 12, color: "var(--color-muted-text)", padding: "8px 16px" }}>
-            No upcoming bookings.
-          </p>
-        ) : (
-          upcomingBookings.map((booking, idx) => {
-            const scheduledDate = new Date(booking.scheduled_at!);
-            const dayName = scheduledDate.toLocaleDateString("en-GB", {
-              weekday: "short",
-            });
-            const dateStr = fmtDateShort(booking.scheduled_at!);
-            const timeStr = scheduledDate.toLocaleTimeString("en-GB", {
-              hour: "2-digit",
-              minute: "2-digit",
-            });
-            const rel = relativeDay(booking.scheduled_at!);
-            const queueItem = pendingQueueItems[idx];
-
-            return (
-              <div
-                key={booking.id}
-                className="qrow"
-              >
-                <span style={{ flex: "0 0 150px", fontWeight: 600, color: "var(--color-ink)", fontVariantNumeric: "tabular-nums", fontSize: 13.5 }}>
-                  {dayName} {dateStr}, {timeStr}
-                  <span style={{ display: "block", fontSize: 11.5, fontWeight: 500, color: "var(--color-muted-text)" }}>
-                    {rel}
-                  </span>
-                </span>
-                <span className="qrow-w" style={{ fontWeight: 400, color: "var(--color-body)" }}>
-                  {queueItem ? (
-                    <>
-                      Will use <b style={{ color: "var(--color-ink)", fontWeight: 600 }}>#{queueItem.position} {queueItem.label}</b>
-                    </>
-                  ) : (
-                    <span style={{ color: "var(--color-muted-text)", fontStyle: "italic" }}>
-                      Nothing queued to use
-                    </span>
-                  )}
-                </span>
-                <span style={{ flexShrink: 0 }}>
+            {queue.length === 0 && (
+              /* ── Empty state: no workouts assigned ── */
+              <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", border: "1px dashed var(--hub-field-border)", borderRadius: "var(--r-nested)", background: "var(--field-fill, #FDFDFE)", marginBottom: 8 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "var(--color-ink)" }}>
+                    No workouts assigned yet
+                  </p>
+                  <p style={{ margin: "3px 0 0", fontSize: 12, color: "var(--color-body)" }}>
+                    Nothing is queued for {clientName.split(" ")[0]}, so nothing is shown. Build a queue from scratch, or copy one of the shared plans into it.
+                  </p>
+                </div>
+                <div style={{ flexShrink: 0, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
                   <button
-                    onClick={(e) => openWorkoutDrawer(booking.id, e.currentTarget)}
+                    onClick={(e) => openDrawer("dw-training", e.currentTarget)}
                     className="btn btn-outline btn-sm"
                   >
-                    {queueItem ? "Open session" : "Assign a workout"}
+                    Use a shared plan
                   </button>
-                </span>
+                  <button
+                    onClick={(e) => openDrawer("dw-training", e.currentTarget)}
+                    className="btn btn-primary btn-sm"
+                  >
+                    Build a queue
+                  </button>
+                </div>
               </div>
-            );
-          })
-        )}
+            )}
+          </div>
 
-        {/* ── So far ── */}
-        <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 12, marginBottom: 6 }}>
-          <p className="t-micro" style={{ margin: 0 }}>So far</p>
-        </div>
-
-        {/* Stats strip */}
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", padding: "2px 12px", marginBottom: 6 }}>
-          <span style={{ fontSize: 12, color: "var(--color-body)" }}>
-            <b style={{ display: "block", fontSize: 17, fontWeight: 800, color: "var(--color-ink)", letterSpacing: "-.01em", fontVariantNumeric: "tabular-nums" }}>
-              {sessionsDone}
-            </b>
-            sessions done
-          </span>
-          {attendanceRate !== null && (
-            <span style={{ fontSize: 12, color: "var(--color-body)" }}>
-              <b
-                style={{
-                  display: "block",
-                  fontSize: 17,
-                  fontWeight: 800,
-                  letterSpacing: "-.01em",
-                  fontVariantNumeric: "tabular-nums",
-                  color: attendanceRate >= 90 ? "var(--status-success-text)" : "var(--color-ink)",
-                }}
-              >
-                {attendanceRate}%
-              </b>
-              attendance
-            </span>
-          )}
-          {exerciseTrendSummary && (
+          {/* ── Full-bleed: queue rows + pager ── */}
+          {queue.length > 0 && (
             <>
-              {exerciseTrendSummary.personalBests > 0 && (
-                <span style={{ fontSize: 12, color: "var(--color-body)" }}>
-                  <b style={{ display: "block", fontSize: 17, fontWeight: 800, color: "var(--color-ink)", letterSpacing: "-.01em", fontVariantNumeric: "tabular-nums" }}>
-                    {exerciseTrendSummary.personalBests}
-                  </b>
-                  personal bests
-                </span>
+              {/* Completed doorway row */}
+              {completedCount > 0 && (
+                <button
+                  onClick={(e) => openDrawer("dw-training", e.currentTarget)}
+                  style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", padding: "9px 16px", borderRadius: "var(--r-nested)", border: "1px dashed var(--hub-border)", background: "var(--field-fill, #FDFDFE)", fontFamily: "inherit", fontSize: 13, color: "var(--color-body)", textAlign: "left", cursor: "pointer", marginBottom: 6 }}
+                >
+                  <span>
+                    <b style={{ color: "var(--color-ink)", fontWeight: 600 }}>
+                      #1 – #{completedCount} done
+                    </b>{" "}
+                    — the last was{" "}
+                    {queue[completedCount - 1]?.label ?? "a workout"}
+                    {queue[completedCount - 1]?.subtitle
+                      ? `, ${queue[completedCount - 1].subtitle.toLowerCase()}`
+                      : ""}
+                  </span>
+                  <span style={{ marginLeft: "auto", fontSize: 12, fontWeight: 600, color: "var(--color-rose)" }}>
+                    See history ›
+                  </span>
+                </button>
               )}
-              {exerciseTrendSummary.heaviestLift && (
-                <span style={{ fontSize: 12, color: "var(--color-body)" }}>
-                  <b style={{ display: "block", fontSize: 17, fontWeight: 800, color: "var(--color-ink)", letterSpacing: "-.01em", fontVariantNumeric: "tabular-nums" }}>
-                    {exerciseTrendSummary.heaviestLift}
-                  </b>
-                  heaviest lift
-                </span>
+
+              {/* Pending queue rows */}
+              {queue
+                .filter((q) => !q.isCompleted)
+                .slice(0, 4)
+                .map((item) => (
+                  <button
+                    key={item.position}
+                    onClick={(e) => {
+                      if ("sessionId" in item && item.sessionId) {
+                        openWorkoutDrawer(item.sessionId as string, e.currentTarget);
+                      } else {
+                        openDrawer("dw-training", e.currentTarget);
+                      }
+                    }}
+                    className={`qrow${item.isNext ? " is-next" : ""}`}
+                  >
+                    <span className="qrow-p">
+                      {item.position}
+                    </span>
+                    <span className="qrow-w">
+                      {item.label}
+                      {item.subtitle && (
+                        <small>{item.subtitle}</small>
+                      )}
+                    </span>
+                    {item.isNext && (
+                      <span className="badge b-primary">Next</span>
+                    )}
+                  </button>
+                ))}
+
+              {/* Overflow row */}
+              {pendingCount > 4 && (
+                <button
+                  onClick={(e) => openDrawer("dw-training", e.currentTarget)}
+                  className="qrow"
+                >
+                  <span className="qrow-p">
+                    +{pendingCount - 4}
+                  </span>
+                  <span className="qrow-w" style={{ fontWeight: 400, color: "var(--color-body)" }}>
+                    #{completedCount + 5} – #{queue.length} queued
+                  </span>
+                  <span style={{ flexShrink: 0, fontSize: 12, fontWeight: 600, color: "var(--color-rose)" }}>
+                    See all {queue.length} ›
+                  </span>
+                </button>
               )}
+
+              {/* Pager / reconciliation */}
+              <div className="pager">
+                <span className="pager-i">
+                  <b style={{ color: "var(--color-ink)", fontWeight: 600 }}>
+                    {pendingCount} workout{pendingCount === 1 ? "" : "s"} queued ·{" "}
+                    {remaining} session{remaining === 1 ? "" : "s"} left
+                  </b>
+                  {" — "}
+                  {pendingCount === remaining
+                    ? "The plan and the pot agree — she runs out of both at the same time."
+                    : pendingCount > remaining
+                      ? `The extra ${pendingCount - remaining} will need a new pot.`
+                      : pendingCount < remaining
+                        ? `She has ${remaining - pendingCount} more session${remaining - pendingCount === 1 ? "" : "s"} than workouts.`
+                        : ""}
+                </span>
+                <div className="pager-b">
+                  <button
+                    onClick={(e) => openDrawer("dw-training", e.currentTarget)}
+                    className="btn btn-outline btn-sm"
+                  >
+                    See all {queue.length}
+                  </button>
+                </div>
+              </div>
             </>
           )}
-        </div>
 
-        {/* Pot history rows */}
-        {potHistory.map((pot) => (
-          <button
-            key={pot.position}
-            onClick={(e) => openDrawer("dw-training", e.currentTarget)}
-            className="qrow"
-          >
-            <span
-              className="qrow-p"
-              style={pot.isFullyDone ? {
-                background: "var(--status-success-bg)",
-                color: "var(--status-success-text)",
-                borderColor: "var(--status-success-border)",
-              } : undefined}
+          {/* Reconciliation for empty state */}
+          {queue.length === 0 && !isOngoing && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, padding: "7px 12px", borderRadius: "var(--r-nested)", fontSize: 12, background: "var(--status-warning-bg)", border: "1px solid var(--status-warning-border)", color: "var(--status-warning-text)" }}>
+              <span>
+                <b style={{ fontWeight: 600 }}>
+                  0 workouts queued · {remaining} session
+                  {remaining === 1 ? "" : "s"} left.
+                </b>{" "}
+                {remaining > 0
+                  ? `She is booked in with nothing to do.`
+                  : "The pot is empty."}
+              </span>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ── Booked in segment ── */}
+      {activeSegment === "booked" && (
+        <div className="h-card-bd">
+          <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 6 }}>
+            <p className="t-micro" style={{ margin: 0 }}>Booked in</p>
+            <span style={{ fontSize: 12, color: "var(--color-muted-text)" }}>
+              The only dates here. A booking takes a session only once the workout is completed.
+            </span>
+            <span style={{ marginLeft: "auto" }}>
+              <button className="btn btn-ghost btn-sm">
+                Book a session
+              </button>
+            </span>
+          </div>
+
+          {upcomingBookings.length === 0 ? (
+            <p style={{ margin: 0, fontSize: 12, color: "var(--color-muted-text)", padding: "8px 16px" }}>
+              No upcoming bookings.
+            </p>
+          ) : (
+            upcomingBookings.map((booking, idx) => {
+              const scheduledDate = new Date(booking.scheduled_at!);
+              const dayName = scheduledDate.toLocaleDateString("en-GB", {
+                weekday: "short",
+              });
+              const dateStr = fmtDateShort(booking.scheduled_at!);
+              const timeStr = scheduledDate.toLocaleTimeString("en-GB", {
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+              const rel = relativeDay(booking.scheduled_at!);
+              const queueItem = pendingQueueItems[idx];
+
+              return (
+                <div
+                  key={booking.id}
+                  className="qrow"
+                >
+                  <span style={{ flex: "0 0 150px", fontWeight: 600, color: "var(--color-ink)", fontVariantNumeric: "tabular-nums", fontSize: 13.5 }}>
+                    {dayName} {dateStr}, {timeStr}
+                    <span style={{ display: "block", fontSize: 11.5, fontWeight: 500, color: "var(--color-muted-text)" }}>
+                      {rel}
+                    </span>
+                  </span>
+                  <span className="qrow-w" style={{ fontWeight: 400, color: "var(--color-body)" }}>
+                    {queueItem ? (
+                      <>
+                        Will use <b style={{ color: "var(--color-ink)", fontWeight: 600 }}>#{queueItem.position} {queueItem.label}</b>
+                      </>
+                    ) : (
+                      <span style={{ color: "var(--color-muted-text)", fontStyle: "italic" }}>
+                        Nothing queued to use
+                      </span>
+                    )}
+                  </span>
+                  <span style={{ flexShrink: 0 }}>
+                    <button
+                      onClick={(e) => openWorkoutDrawer(booking.id, e.currentTarget)}
+                      className="btn btn-outline btn-sm"
+                    >
+                      {queueItem ? "Open session" : "Assign a workout"}
+                    </button>
+                  </span>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {/* ── So far segment ── */}
+      {activeSegment === "so-far" && (
+        <div className="h-card-bd">
+          <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 6 }}>
+            <p className="t-micro" style={{ margin: 0 }}>So far</p>
+            <span style={{ fontSize: 12, color: "var(--color-muted-text)" }}>
+              {potHistory.length === 1
+                ? "One pot since she started."
+                : `${potHistory.length} pots since she started.`}
+            </span>
+          </div>
+
+          {/* Stats strip */}
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap", padding: "2px 12px", marginBottom: 6 }}>
+            <span style={{ fontSize: 12, color: "var(--color-body)" }}>
+              <b style={{ display: "block", fontSize: 17, fontWeight: 800, color: "var(--color-ink)", letterSpacing: "-.01em", fontVariantNumeric: "tabular-nums" }}>
+                {sessionsDone}
+              </b>
+              sessions done
+            </span>
+            {attendanceRate !== null && (
+              <span style={{ fontSize: 12, color: "var(--color-body)" }}>
+                <b
+                  style={{
+                    display: "block",
+                    fontSize: 17,
+                    fontWeight: 800,
+                    letterSpacing: "-.01em",
+                    fontVariantNumeric: "tabular-nums",
+                    color: attendanceRate >= 90 ? "var(--status-success-text)" : "var(--color-ink)",
+                  }}
+                >
+                  {attendanceRate}%
+                </b>
+                attendance
+              </span>
+            )}
+            {exerciseTrendSummary && (
+              <>
+                {exerciseTrendSummary.personalBests > 0 && (
+                  <span style={{ fontSize: 12, color: "var(--color-body)" }}>
+                    <b style={{ display: "block", fontSize: 17, fontWeight: 800, color: "var(--color-ink)", letterSpacing: "-.01em", fontVariantNumeric: "tabular-nums" }}>
+                      {exerciseTrendSummary.personalBests}
+                    </b>
+                    personal bests
+                  </span>
+                )}
+                {exerciseTrendSummary.heaviestLift && (
+                  <span style={{ fontSize: 12, color: "var(--color-body)" }}>
+                    <b style={{ display: "block", fontSize: 17, fontWeight: 800, color: "var(--color-ink)", letterSpacing: "-.01em", fontVariantNumeric: "tabular-nums" }}>
+                      {exerciseTrendSummary.heaviestLift}
+                    </b>
+                    heaviest lift
+                  </span>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Pot history rows */}
+          {potHistory.map((pot) => (
+            <button
+              key={pot.position}
+              onClick={(e) => openDrawer("dw-training", e.currentTarget)}
+              className="qrow"
             >
-              {pot.position}
-            </span>
-            <span className="qrow-w">
-              Pot of {pot.total}
-              <small>
-                {pot.done} done · {pot.remaining} left
-                {pot.isFullyDone ? " · fully used" : ""}
-              </small>
-            </span>
-            <span style={{ flexShrink: 0 }}>
-              {pot.isCurrent ? (
-                <span className="badge b-primary">
-                  Current
-                </span>
-              ) : (
-                <span className="badge" style={{ background: "var(--status-neutral-bg)", border: "1px solid var(--status-neutral-border)", color: "var(--color-muted-text)" }}>
-                  Finished
-                </span>
-              )}
-            </span>
-          </button>
-        ))}
-      </div>
+              <span
+                className="qrow-p"
+                style={pot.isFullyDone ? {
+                  background: "var(--status-success-bg)",
+                  color: "var(--status-success-text)",
+                  borderColor: "var(--status-success-border)",
+                } : undefined}
+              >
+                {pot.position}
+              </span>
+              <span className="qrow-w">
+                Pot of {pot.total}
+                <small>
+                  {pot.done} done · {pot.remaining} left
+                  {pot.isFullyDone ? " · fully used" : ""}
+                </small>
+              </span>
+              <span style={{ flexShrink: 0 }}>
+                {pot.isCurrent ? (
+                  <span className="badge b-primary">
+                    Current
+                  </span>
+                ) : (
+                  <span className="badge" style={{ background: "var(--status-neutral-bg)", border: "1px solid var(--status-neutral-border)", color: "var(--color-muted-text)" }}>
+                    Finished
+                  </span>
+                )}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
     </HubCard>
   );
 }
