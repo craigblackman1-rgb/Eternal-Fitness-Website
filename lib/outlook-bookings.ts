@@ -116,22 +116,6 @@ export interface SyncOutlookBookingsResult {
   skipped: string | null;
 }
 
-interface BlockRow {
-  id: string;
-  client_id: string;
-}
-
-/**
- * Auto-confirm only applies when the client has exactly one block to attach
- * the session to — more than one (which block?) or zero (nothing to attach
- * to) both stay ambiguous and fall through to the manual queue, same as an
- * unmatched name.
- */
-function resolveSingleBlock(clientId: string, blocks: BlockRow[]): string | null {
-  const owned = blocks.filter((b) => b.client_id === clientId);
-  return owned.length === 1 ? owned[0].id : null;
-}
-
 /**
  * The materialization shared by the automatic (sync) and manual (Confirm
  * button) paths: create the scheduled, content-empty session, adopt the
@@ -387,10 +371,6 @@ export async function syncOutlookBookings(): Promise<SyncOutlookBookingsResult> 
   if (clientsErr) throw new Error(`clients read failed: ${clientsErr.message}`);
   const clientRows = (clients ?? []) as ClientRow[];
 
-  const { data: blocks, error: blocksErr } = await db.from("blocks").select("id, client_id");
-  if (blocksErr) throw new Error(`blocks read failed: ${blocksErr.message}`);
-  const blockRows = (blocks ?? []) as BlockRow[];
-
   // BUG-EF-102 — exclude events the app itself created via calendar-sync.
   // session_calendar_events records every Outlook event the app pushes;
   // re-ingesting those turns them into "new bookings" that duplicate
@@ -476,43 +456,14 @@ export async function syncOutlookBookings(): Promise<SyncOutlookBookingsResult> 
       result.created++;
     }
 
-    // CR-EF-090 — a name match to exactly one client with exactly one block
-    // is unambiguous: auto-materialize the scheduled session instead of
-    // leaving it for a manual click nobody was making (18 sat open against 1
-    // ever confirmed before this shipped). Anything else — no match, more
-    // than one candidate client, or more than one block — stays 'open' for
-    // Esther at /hub/schedule/outlook.
-    if (matched) {
-      const blockId = resolveSingleBlock(matched.id, blockRows);
-      if (blockId) {
-        try {
-          await materializeBookingSession(
-            db,
-            { id: bookingId, event_id: row.event_id, calendar_id: row.calendar_id, subject: row.subject, start_at: row.start_at },
-            matched.id,
-            blockId,
-            matched.name,
-          );
-          result.autoConfirmed++;
-        } catch (err) {
-          // If the block is full (18 sessions), resolve the booking as
-          // 'blocked' so the 15-min cron doesn't retry it every tick.
-          // Other errors stay 'open' for manual handling.
-          const isFull = err instanceof Error && err.message.includes("maximum of 18 sessions");
-          if (isFull) {
-            await db
-              .from("outlook_booking_events")
-              .update({
-                status: "blocked",
-                resolved_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-              })
-              .eq("id", bookingId);
-          }
-          console.error(`Outlook booking auto-confirm failed for ${bookingId}:`, err);
-        }
-      }
-    }
+    // CR-EF-090 (auto-confirm) was REVERSED by CR-EF-182: auto-materialising
+    // sessions from bookings created phantom sessions that got marked completed
+    // and consumed clients' paid session pots — 7 phantom completions across 6
+    // clients had to be cleared by hand (2026-09-08). Bookings now always stay
+    // status 'open' so they appear in the triage queue for Esther's manual
+    // confirmation. The match info (client_id, parsed_name) is stored on the
+    // booking row so the triage queue can pre-fill the suggestion — only the
+    // automatic session creation was removed.
   }
 
   return result;
