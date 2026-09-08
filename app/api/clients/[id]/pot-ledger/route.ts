@@ -209,7 +209,7 @@ export async function GET(
     return 0;
   });
 
-  let runningRemaining = purchased;
+  let runningRemaining = 0;
   const sorted: LedgerEntry[] = events.map((e) => {
     runningRemaining =
       e.delta !== null ? Math.max(0, runningRemaining + e.delta) : runningRemaining;
