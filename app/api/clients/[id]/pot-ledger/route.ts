@@ -29,7 +29,7 @@ export async function GET(
   // Fetch client — include pot_baseline_used for the pre-hub opening balance
   const { data: client, error: clientError } = await supabase
     .from("clients")
-    .select("id, sessions_purchased, sessions_remaining, block_expiry_date, block_expiry_extensions, pot_baseline_used, pot_baseline_note, pot_baseline_at")
+    .select("id, created_at, sessions_purchased, sessions_remaining, block_expiry_date, block_expiry_extensions, pot_baseline_used, pot_baseline_note, pot_baseline_at")
     .eq("client_number", parseInt(params.id))
     .single();
   if (clientError || !client) {
@@ -102,105 +102,157 @@ export async function GET(
     }
   }
 
-  // Build chronological ledger
-  const ledger: LedgerEntry[] = [];
-  let runningRemaining = purchased;
-
-  // Package start event (earliest session)
+  // ── Build all events without remaining ────────────────────────────
+  // Package start date: prefer clients.created_at (the real pot creation
+  // timestamp); fall back to earliest session scheduled_at.
   const firstSession = (sessions ?? [])[0];
-  let packageStartDate: string | null = null;
-  if (firstSession?.scheduled_at) {
-    packageStartDate = firstSession.scheduled_at;
-    ledger.push({
+  let packageStartDate: string | null =
+    (client as any).created_at ?? firstSession?.scheduled_at ?? null;
+
+  // If packageStartDate is in the future relative to the earliest real
+  // activity (completed session, charged cancel), pull it back.
+  const earliestActivity = [...(sessions ?? [])].find(
+    (s) =>
+      (s.status === "completed" && s.completed_at) ||
+      (s.status === "cancelled" && s.charged_free !== "free" && s.cancelled_at),
+  );
+  const earliestActivityDate =
+    earliestActivity?.completed_at ?? earliestActivity?.cancelled_at ?? null;
+  if (
+    packageStartDate &&
+    earliestActivityDate &&
+    new Date(packageStartDate).getTime() > new Date(earliestActivityDate).getTime()
+  ) {
+    packageStartDate = earliestActivityDate;
+  }
+
+  const events: { date: string; event: string; delta: number | null; tags: string[] }[] = [];
+
+  if (packageStartDate) {
+    events.push({
       date: packageStartDate,
       event: `Package started — ${purchased} sessions`,
       delta: purchased,
-      remaining: purchased,
       tags: [],
     });
-    runningRemaining = purchased;
   }
 
-  // Pre-hub baseline — dated 1ms after package start so it sorts directly
-  // below it in the desc display (baseline chronologically happened right
-  // after purchase, before all hub events).
+  // Pre-hub baseline — +1ms after package start so it sorts right after it
   if (baselineUsed > 0) {
     const baselineDate = packageStartDate
       ? new Date(new Date(packageStartDate).getTime() + 1).toISOString()
-      : ((client as any).pot_baseline_at ?? new Date().toISOString());
-    runningRemaining = Math.max(0, runningRemaining - baselineUsed);
-    ledger.push({
+      : ((client as any).pot_baseline_at ?? new Date(0).toISOString());
+    events.push({
       date: baselineDate,
       event: `Before the hub — ${baselineUsed} sessions used (Trainerize)`,
       delta: -baselineUsed,
-      remaining: runningRemaining,
       tags: [],
     });
   }
 
   // Extension events
   for (const ext of extensions) {
-    const daysDiff = Math.round((new Date(ext.to).getTime() - new Date(ext.from).getTime()) / 86_400_000);
-    ledger.push({
+    events.push({
       date: ext.at,
       event: `Expiry extended ${ext.from} → ${ext.to}${ext.reason ? ` (${ext.reason})` : ""}`,
       delta: null,
-      remaining: runningRemaining,
       tags: [],
     });
   }
 
-  // Session events (completed, cancelled, no-show)
+  // Session events (only those on or after package start)
   for (const s of sessions ?? []) {
+    if (
+      packageStartDate &&
+      s.scheduled_at &&
+      new Date(s.scheduled_at).getTime() < new Date(packageStartDate).getTime()
+    ) {
+      continue; // skip sessions that predate the package
+    }
     if (s.status === "completed" && s.completed_at) {
-      runningRemaining = Math.max(0, runningRemaining - 1);
-      ledger.push({
+      events.push({
         date: s.completed_at,
         event: "Session completed",
         delta: -1,
-        remaining: runningRemaining,
         tags: [],
       });
     } else if (s.status === "cancelled" && s.cancelled_at) {
       const isFree = s.charged_free === "free";
-      const label = isFree ? "Free cancellation" : "Cancelled (charged)";
-      const tags = isFree ? ["Free"] : [];
-      if (isFree) {
-        // Free cancellation — doesn't touch the pot
-        ledger.push({
-          date: s.cancelled_at,
-          event: `Session cancelled${s.cancelled_at ? "" : ""}`,
-          delta: null,
-          remaining: runningRemaining,
-          tags,
-        });
-      } else {
-        // Charged cancellation — touches the pot
-        runningRemaining = Math.max(0, runningRemaining - 1);
-        ledger.push({
-          date: s.cancelled_at,
-          event: "Session cancelled (charged)",
-          delta: -1,
-          remaining: runningRemaining,
-          tags: [],
-        });
-      }
+      events.push({
+        date: s.cancelled_at,
+        event: isFree ? "Session cancelled (free)" : "Session cancelled (charged)",
+        delta: isFree ? null : -1,
+        tags: isFree ? ["Free"] : [],
+      });
     }
   }
 
   // Package expiry event
   if (client.block_expiry_date) {
-    ledger.push({
+    events.push({
       date: client.block_expiry_date,
       event: "Package expired",
       delta: null,
-      remaining: runningRemaining,
       tags: [],
     });
   }
 
-  // Sort ledger by date descending (newest first)
-  ledger.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  // ── Sort ascending, walk computing remaining ──────────────────────
+  // Tie-break: package-started before baseline at the same instant so
+  // ascending reads naturally (purchase → baseline → activity).
+  events.sort((a, b) => {
+    const diff = new Date(a.date).getTime() - new Date(b.date).getTime();
+    if (diff !== 0) return diff;
+    if (a.event.startsWith("Package started")) return -1;
+    if (b.event.startsWith("Package started")) return 1;
+    return 0;
+  });
+
+  let runningRemaining = purchased;
+  const sorted: LedgerEntry[] = events.map((e) => {
+    runningRemaining =
+      e.delta !== null ? Math.max(0, runningRemaining + e.delta) : runningRemaining;
+    return { date: e.date, event: e.event, delta: e.delta, remaining: runningRemaining, tags: e.tags };
+  });
+
+  // ── Collapse consecutive free-cancel no-ops ───────────────────────
+  const collapsed: LedgerEntry[] = [];
+  let i = 0;
+  while (i < sorted.length) {
+    if (
+      sorted[i].delta === null &&
+      sorted[i].tags.includes("Free") &&
+      sorted[i].event.startsWith("Session cancelled")
+    ) {
+      let count = 1;
+      let lastDate = sorted[i].date;
+      let j = i + 1;
+      while (
+        j < sorted.length &&
+        sorted[j].delta === null &&
+        sorted[j].tags.includes("Free") &&
+        sorted[j].event.startsWith("Session cancelled")
+      ) {
+        count++;
+        lastDate = sorted[j].date;
+        j++;
+      }
+      collapsed.push({
+        date: lastDate,
+        event: count === 1 ? "Session cancelled (free)" : `${count} sessions cancelled`,
+        delta: null,
+        remaining: sorted[i].remaining,
+        tags: ["Free"],
+      });
+      i = j;
+    } else {
+      collapsed.push(sorted[i]);
+      i++;
+    }
+  }
+
+  // Reverse for newest-first display
+  const ledger = collapsed.reverse();
 
   const consumption = {
     completed,
