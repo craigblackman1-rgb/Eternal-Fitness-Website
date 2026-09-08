@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useDrawerManager } from "./DrawerManager";
+import { HubCard } from "@/components/hub";
 import { deriveSessionPot } from "@/lib/session-pot";
 import { sessionWorkoutName, isOutlookPlaceholder, isTrainerizeImported } from "@/lib/session-display";
 import type { DBBlock, DBSession } from "@/types";
@@ -259,180 +260,94 @@ export function TrainingSection({
   useEffect(() => { fetchSupplementaryCount(); }, [fetchSupplementaryCount]);
 
   return (
-    <div className="bg-white border border-[var(--hub-border)] rounded-surface shadow-sm overflow-hidden">
+    <HubCard padded={false}>
       {/* ── Section header ── */}
-      <div className="flex items-center gap-2.5 py-2.5 px-4">
-        <h2 className="m-0 text-[15px] font-bold text-ink tracking-tight">
-          Training
-        </h2>
-        <span className="text-xs text-[var(--color-muted-text)]">{queueSummary}</span>
-        <div className="ml-auto flex gap-1.5">
-          <button
-            onClick={(e) => openDrawer("dw-training", e.currentTarget)}
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-white hover:bg-[var(--hub-hover)] text-foreground px-2.5 py-1 min-h-[30px] font-[inherit] text-xs font-semibold cursor-pointer transition-colors"
-          >
-            Open training
-          </button>
+      <div className="h-card-hd">
+        <h2 className="t-section">Training</h2>
+        <span className="t-meta">{queueSummary}</span>
+        <div className="seg" role="group" aria-label="Training view">
+          <button className="seg-btn on" type="button" aria-pressed="true">Queue</button>
+          <button className="seg-btn" type="button" aria-pressed="false">Booked in</button>
+          <button className="seg-btn" type="button" aria-pressed="false">So far</button>
         </div>
+        <button
+          onClick={(e) => openDrawer("dw-training", e.currentTarget)}
+          className="btn btn-outline btn-sm"
+        >
+          Open training
+        </button>
       </div>
 
-      <div className="px-4 pb-3">
+      <div className="h-card-bd">
         {/* ── Duo: Sessions left + Next workout ── */}
-        <div className="grid grid-cols-2 gap-2.5 mb-3 max-[1080px]:grid-cols-1">
-          {/* Sessions left panel (rose) */}
-          <div className="border border-[var(--hub-border)] rounded-nested bg-white overflow-hidden flex flex-col">
-            <div className="flex items-baseline gap-2.5 py-[7px] px-3 border-b border-[var(--hub-border)] border-t-[3px] border-t-rose bg-[var(--status-primary-bg)]">
-              <span className="text-[10.5px] font-extrabold uppercase tracking-[.08em] text-[var(--status-primary-text)]">
-                Sessions left
-              </span>
-              <span className="ml-auto text-xs font-semibold text-[var(--color-body)] tabular-nums">
-                {isOngoing
-                  ? "Ongoing"
-                  : `Pot of ${purchased ?? "?"}`}
-              </span>
-            </div>
-            <div className="flex-1 py-2 px-3">
-              {isOngoing ? (
-                <div className="flex items-center gap-3.5">
-                  <span className="text-[22px] font-bold text-ink leading-none">
-                    ∞
-                  </span>
-                  <span className="text-xs text-[var(--color-body)]">
-                    Ongoing package — no session cap
-                  </span>
+        <div className="grid-2" style={{ marginBottom: 12 }}>
+          {/* Sessions left panel */}
+          <div>
+            <p className="t-micro" style={{ margin: "0 0 8px" }}>Sessions left</p>
+            {isOngoing ? (
+              <div className="pot">
+                <span className="pot-fig"><b>∞</b><span>left</span></span>
+                <div className="pot-r">
+                  <p className="pot-s">Ongoing package — no session cap.</p>
                 </div>
-              ) : (
-                <div className="flex items-center gap-3.5">
-                  <span
-                    className={`text-[34px] font-extrabold leading-none tracking-tight tabular-nums ${
-                      isLow || isEmpty
-                        ? "text-[var(--status-danger)]"
-                        : "text-ink"
-                    }`}
-                  >
-                    {remaining}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-xs font-semibold text-[var(--color-body)]">
-                      left
-                    </div>
-                    {/* Progress bar */}
-                    <div className="mt-1.5 h-2 rounded-pill overflow-hidden bg-[var(--hub-hover)] border border-[var(--hub-border)]">
-                      <div
-                        className="h-full rounded-pill"
-                        style={{
-                          width: `${purchased ? ((purchased - remaining) / purchased) * 100 : 0}%`,
-                          backgroundColor:
-                            isLow || isEmpty
-                              ? "var(--status-danger)"
-                              : "var(--status-primary)",
-                        }}
-                      />
-                    </div>
-                    <p className="m-0 mt-1 text-[12.5px] text-[var(--color-body)]">
-                      {used} used. Only a completed workout takes one —
-                      reschedules and cancellations don&apos;t.
-                    </p>
+              </div>
+            ) : (
+              <div className="pot">
+                <span className="pot-fig">
+                  <b style={isLow || isEmpty ? { color: "var(--status-danger)" } : undefined}>{remaining}</b>
+                  <span>left</span>
+                </span>
+                <div className="pot-r">
+                  <div className="pot-bar">
+                    <i style={{
+                      width: `${purchased ? ((purchased - remaining) / purchased) * 100 : 0}%`,
+                      background: isLow || isEmpty ? "var(--status-danger)" : "var(--color-rose)",
+                    }} />
                   </div>
+                  <p className="pot-s">{used} of {purchased ?? "?"} used. Only a completed workout takes one — nothing expires.</p>
                 </div>
-              )}
-            </div>
-            <div className="flex items-center gap-1.5 py-[7px] px-2.5 border-t border-[var(--hub-border)] bg-[var(--field-fill)]">
-              <span className="text-xs text-[var(--color-body)]">Nothing expires.</span>
-              <button
-                onClick={() => openDrawer("dw-pot-ledger")}
-                className="ml-auto text-xs font-semibold text-rose hover:underline underline-offset-2 bg-transparent border-0 p-0 cursor-pointer font-[inherit]"
-              >
-                Session balance ›
-              </button>
-            </div>
+              </div>
+            )}
           </div>
 
-          {/* Next workout panel (teal) */}
-          <div className="border border-[var(--hub-border)] rounded-nested bg-white overflow-hidden flex flex-col">
-            <div className="flex items-baseline gap-2.5 py-[7px] px-3 border-b border-[var(--hub-border)] border-t-[3px] border-t-[var(--status-success)] bg-[var(--status-success-bg)]">
-              <span className="text-[10.5px] font-extrabold uppercase tracking-[.08em] text-[var(--status-success-text)]">
-                Next workout
-              </span>
-              <span className="ml-auto text-xs font-semibold text-[var(--color-body)] tabular-nums">
-                {nextItem
-                  ? `#${nextItem.position} in the queue`
-                  : queue.length > 0
-                    ? "All done"
-                    : "Nothing queued"}
-              </span>
-            </div>
-            <div className="flex-1 py-2 px-3">
-              {nextItem ? (
-                <>
-                  <p className="m-0 text-[14.5px] font-bold text-ink tracking-tight">
-                    {nextItem.label}
-                  </p>
-                  <p className="m-0 mt-0.5 text-xs text-[var(--color-body)]">
-                    {nextItem.subtitle ||
-                      "It is next because the previous one was completed, not because a date arrived."}
-                  </p>
-                </>
-              ) : queue.length > 0 ? (
-                <p className="m-0 text-[13px] text-[var(--color-muted-text)] italic">
-                  All workouts completed
+          {/* Next workout panel */}
+          <div>
+            <p className="t-micro" style={{ margin: "0 0 8px" }}>Next workout</p>
+            {nextItem ? (
+              <>
+                <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--color-ink)", letterSpacing: "-.01em" }}>
+                  #{nextItem.position} {nextItem.label}
                 </p>
-              ) : (
-                <>
-                  <p className="m-0 text-[14px] font-bold text-ink">
-                    No plan yet
-                  </p>
-                  <p className="m-0 mt-0.5 text-xs text-[var(--color-body)]">
-                    {clientName} has no workouts assigned. Build a queue from
-                    scratch, or pour in one of the shared plans.
-                  </p>
-                </>
-              )}
-            </div>
-            <div className="flex gap-1.5 py-[7px] px-2.5 border-t border-[var(--hub-border)] bg-[var(--field-fill)]">
-              {nextItem ? (
-                <button
-                  onClick={(e) => {
-                    if ("sessionId" in nextItem && nextItem.sessionId) {
-                      openWorkoutDrawer(nextItem.sessionId as string, e.currentTarget);
-                    } else {
-                      openDrawer("dw-training", e.currentTarget);
-                    }
-                  }}
-                  className="ml-auto text-xs font-semibold text-rose hover:underline underline-offset-2 bg-transparent border-0 p-0 cursor-pointer font-[inherit]"
-                >
-                  See the workout ›
-                </button>
-              ) : (
-                <>
-                  <span className="text-xs text-[var(--color-body)]">Takes about a minute.</span>
-                  <button
-                    onClick={(e) =>
-                      openDrawer("dw-training", e.currentTarget)
-                    }
-                    className="ml-auto text-xs font-semibold text-rose hover:underline underline-offset-2 bg-transparent border-0 p-0 cursor-pointer font-[inherit]"
-                  >
-                    Build her queue ›
-                  </button>
-                </>
-              )}
-            </div>
+                <p style={{ margin: "3px 0 0", fontSize: 12.5, color: "var(--color-body)" }}>
+                  {nextItem.subtitle ||
+                    "It is next because the previous one was completed, not because a date arrived."}
+                </p>
+              </>
+            ) : queue.length > 0 ? (
+              <p style={{ margin: 0, fontSize: 13, color: "var(--color-muted-text)", fontStyle: "italic" }}>
+                All workouts completed
+              </p>
+            ) : (
+              <>
+                <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "var(--color-ink)" }}>
+                  No plan yet
+                </p>
+                <p style={{ margin: "3px 0 0", fontSize: 12.5, color: "var(--color-body)" }}>
+                  {clientName} has no workouts assigned. Build a queue from scratch, or pour in one of the shared plans.
+                </p>
+              </>
+            )}
           </div>
         </div>
 
         {/* ── Workout queue ── */}
-        <div className="flex items-baseline gap-2.5 mt-3 mb-1.5">
-          <h3 className="m-0 text-[11px] font-extrabold uppercase tracking-[.09em] text-ink">
-            Workout queue
-          </h3>
-          <p className="m-0 text-xs text-[var(--color-body)]">
-            In order. One is used up each time a session is completed.
-          </p>
-          <span className="ml-auto flex gap-1.5">
+        <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 12, marginBottom: 6 }}>
+          <p className="t-micro" style={{ margin: 0 }}>Workout queue</p>
+          <span style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
             {supplementaryCount > 0 && (
               <button
                 onClick={(e) => openDrawer("dw-supplementary", e.currentTarget)}
-                className="text-xs font-semibold text-[var(--color-muted-text)] hover:text-ink bg-transparent border-0 p-0 cursor-pointer font-[inherit]"
+                className="btn btn-ghost btn-sm"
               >
                 Supplementary · {supplementaryCount}
               </button>
@@ -440,7 +355,7 @@ export function TrainingSection({
             {queue.length > 0 && (
               <button
                 onClick={(e) => openDrawer("dw-training", e.currentTarget)}
-                className="text-xs font-semibold text-[var(--color-muted-text)] hover:text-ink bg-transparent border-0 p-0 cursor-pointer font-[inherit]"
+                className="btn btn-ghost btn-sm"
               >
                 See all {queue.length}
               </button>
@@ -450,27 +365,25 @@ export function TrainingSection({
 
         {queue.length === 0 ? (
           /* ── Empty state: no workouts assigned ── */
-          <div className="flex items-center gap-3.5 py-3.5 px-3.5 border border-dashed border-[var(--hub-field-border)] rounded-nested bg-[var(--field-fill)] mb-2">
-            <div className="flex-1 min-w-0">
-              <p className="m-0 text-sm font-bold text-ink">
+          <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", border: "1px dashed var(--hub-field-border)", borderRadius: "var(--r-nested)", background: "var(--field-fill, #FDFDFE)", marginBottom: 8 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "var(--color-ink)" }}>
                 No workouts assigned yet
               </p>
-              <p className="m-0 mt-0.5 text-xs text-[var(--color-body)]">
-                Nothing is queued for {clientName.split(" ")[0]}, so nothing is
-                shown. Build a queue from scratch, or copy one of the shared
-                plans into it.
+              <p style={{ margin: "3px 0 0", fontSize: 12, color: "var(--color-body)" }}>
+                Nothing is queued for {clientName.split(" ")[0]}, so nothing is shown. Build a queue from scratch, or copy one of the shared plans into it.
               </p>
             </div>
-            <div className="shrink-0 flex gap-2 items-center flex-wrap justify-end">
+            <div style={{ flexShrink: 0, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
               <button
                 onClick={(e) => openDrawer("dw-training", e.currentTarget)}
-                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-white hover:bg-[var(--hub-hover)] text-foreground px-2.5 py-1 min-h-[30px] font-[inherit] text-xs font-semibold cursor-pointer transition-colors"
+                className="btn btn-outline btn-sm"
               >
                 Use a shared plan
               </button>
               <button
                 onClick={(e) => openDrawer("dw-training", e.currentTarget)}
-                className="inline-flex items-center justify-center gap-1.5 rounded-control bg-rose text-white font-[inherit] text-xs font-semibold cursor-pointer px-3.5 py-1.5 hover:bg-[color-mix(in_oklab,var(--rose)_88%,var(--ink))] transition-colors"
+                className="btn btn-primary btn-sm"
               >
                 Build a queue
               </button>
@@ -483,10 +396,10 @@ export function TrainingSection({
             {completedCount > 0 && (
               <button
                 onClick={(e) => openDrawer("dw-training", e.currentTarget)}
-                className="flex items-center gap-3 w-full py-2 px-3 rounded-nested border border-dashed border-[var(--hub-border)] bg-[var(--field-fill)] font-[inherit] text-[13px] text-[var(--color-body)] text-left cursor-pointer mb-1.5 hover:bg-[var(--hub-hover)] hover:border-solid transition-colors"
+                style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", padding: "9px 16px", borderRadius: "var(--r-nested)", border: "1px dashed var(--hub-border)", background: "var(--field-fill, #FDFDFE)", fontFamily: "inherit", fontSize: 13, color: "var(--color-body)", textAlign: "left", cursor: "pointer", marginBottom: 6 }}
               >
                 <span>
-                  <b className="text-ink font-semibold">
+                  <b style={{ color: "var(--color-ink)", fontWeight: 600 }}>
                     #1 – #{completedCount} done
                   </b>{" "}
                   — the last was{" "}
@@ -495,7 +408,7 @@ export function TrainingSection({
                     ? `, ${queue[completedCount - 1].subtitle.toLowerCase()}`
                     : ""}
                 </span>
-                <span className="ml-auto text-xs font-semibold text-rose">
+                <span style={{ marginLeft: "auto", fontSize: 12, fontWeight: 600, color: "var(--color-rose)" }}>
                   See history ›
                 </span>
               </button>
@@ -515,37 +428,20 @@ export function TrainingSection({
                       openDrawer("dw-training", e.currentTarget);
                     }
                   }}
-                  className={`flex items-center gap-3 w-full py-2 px-3 rounded-nested border transition-colors font-[inherit] text-left cursor-pointer mb-0.5 ${
-                    item.isNext
-                      ? "bg-[var(--status-primary-bg)] border-[var(--status-primary-border)]"
-                      : "border-transparent hover:bg-[var(--hub-hover)] hover:border-[var(--hub-border)]"
-                  }`}
+                  className={`qrow${item.isNext ? " is-next" : ""}`}
                 >
-                  <span
-                    className={`flex-0-0 w-10 h-7 rounded-control-sm border grid place-items-center text-xs font-extrabold tabular-nums ${
-                      item.isNext
-                        ? "bg-white border-rose text-[var(--status-primary-text)]"
-                        : "bg-[var(--field-fill)] border-[var(--hub-border)] text-[var(--color-body)]"
-                    }`}
-                  >
+                  <span className="qrow-p">
                     {item.position}
                   </span>
-                  <span className="flex-1 min-w-0 text-[13.5px] font-medium text-ink">
+                  <span className="qrow-w">
                     {item.label}
                     {item.subtitle && (
-                      <span className="block text-xs font-normal text-[var(--color-muted-text)] mt-px">
-                        {item.subtitle}
-                      </span>
+                      <small>{item.subtitle}</small>
                     )}
                   </span>
                   {item.isNext && (
-                    <span className="shrink-0 inline-flex items-center h-[21px] px-2.5 rounded-pill text-[11.5px] font-semibold border border-transparent bg-[var(--status-primary-bg)] text-[var(--status-primary-text)] border-[var(--status-primary-border)]">
-                      Next
-                    </span>
+                    <span className="badge b-primary">Next</span>
                   )}
-                  <span className="shrink-0 text-xs font-semibold text-rose">
-                    Open ›
-                  </span>
                 </button>
               ))}
 
@@ -553,44 +449,53 @@ export function TrainingSection({
             {pendingCount > 4 && (
               <button
                 onClick={(e) => openDrawer("dw-training", e.currentTarget)}
-                className="flex items-center gap-3 w-full py-2 px-3 rounded-nested border border-transparent hover:bg-[var(--hub-hover)] hover:border-[var(--hub-border)] font-[inherit] text-left cursor-pointer mb-0.5 transition-colors"
+                className="qrow"
               >
-                <span className="flex-0-0 w-10 h-7 rounded-control-sm border grid place-items-center text-xs font-extrabold tabular-nums bg-[var(--field-fill)] border-[var(--hub-border)] text-[var(--color-body)]">
+                <span className="qrow-p">
                   +{pendingCount - 4}
                 </span>
-                <span className="flex-1 min-w-0 text-[13.5px] text-[var(--color-body)]">
+                <span className="qrow-w" style={{ fontWeight: 400, color: "var(--color-body)" }}>
                   #{completedCount + 5} – #{queue.length} queued
                 </span>
-                <span className="shrink-0 text-xs font-semibold text-rose">
+                <span style={{ flexShrink: 0, fontSize: 12, fontWeight: 600, color: "var(--color-rose)" }}>
                   See all {queue.length} ›
                 </span>
               </button>
             )}
 
-            {/* Reconciliation */}
-            <div className="flex items-center gap-2 mt-2 py-[7px] px-3 rounded-nested text-xs bg-[var(--field-fill)] border border-[var(--hub-border)] text-[var(--color-body)]">
-              <span>
-                <b className="text-ink font-semibold">
+            {/* Pager / reconciliation */}
+            <div className="pager">
+              <span className="pager-i">
+                <b style={{ color: "var(--color-ink)", fontWeight: 600 }}>
                   {pendingCount} workout{pendingCount === 1 ? "" : "s"} queued ·{" "}
-                  {remaining} session{remaining === 1 ? "" : "s"} left.
-                </b>{" "}
+                  {remaining} session{remaining === 1 ? "" : "s"} left
+                </b>
+                {" — "}
                 {pendingCount === remaining
                   ? "The plan and the pot agree — she runs out of both at the same time."
                   : pendingCount > remaining
-                    ? `She has more workouts than sessions. The extra ${pendingCount - remaining} will need a new pot.`
+                    ? `The extra ${pendingCount - remaining} will need a new pot.`
                     : pendingCount < remaining
                       ? `She has ${remaining - pendingCount} more session${remaining - pendingCount === 1 ? "" : "s"} than workouts.`
                       : ""}
               </span>
+              <div className="pager-b">
+                <button
+                  onClick={(e) => openDrawer("dw-training", e.currentTarget)}
+                  className="btn btn-outline btn-sm"
+                >
+                  See all {queue.length}
+                </button>
+              </div>
             </div>
           </>
         )}
 
         {/* Reconciliation for empty state */}
         {queue.length === 0 && !isOngoing && (
-          <div className="flex items-center gap-2 mt-2 py-[7px] px-3 rounded-nested text-xs border bg-[var(--status-warning-bg)] border-[var(--status-warning-border)] text-[var(--status-warning-text)]">
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, padding: "7px 12px", borderRadius: "var(--r-nested)", fontSize: 12, background: "var(--status-warning-bg)", border: "1px solid var(--status-warning-border)", color: "var(--status-warning-text)" }}>
             <span>
-              <b className="font-semibold">
+              <b style={{ fontWeight: 600 }}>
                 0 workouts queued · {remaining} session
                 {remaining === 1 ? "" : "s"} left.
               </b>{" "}
@@ -602,23 +507,17 @@ export function TrainingSection({
         )}
 
         {/* ── Booked in ── */}
-        <div className="flex items-baseline gap-2.5 mt-3 mb-1.5">
-          <h3 className="m-0 text-[11px] font-extrabold uppercase tracking-[.09em] text-ink">
-            Booked in
-          </h3>
-          <p className="m-0 text-xs text-[var(--color-body)]">
-            The only dates here. A booking takes a session only once the
-            workout is completed.
-          </p>
-          <span className="ml-auto">
-            <button className="text-xs font-semibold text-[var(--color-muted-text)] hover:text-ink bg-transparent border-0 p-0 cursor-pointer font-[inherit]">
+        <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 12, marginBottom: 6 }}>
+          <p className="t-micro" style={{ margin: 0 }}>Booked in</p>
+          <span style={{ marginLeft: "auto" }}>
+            <button className="btn btn-ghost btn-sm">
               Book a session
             </button>
           </span>
         </div>
 
         {upcomingBookings.length === 0 ? (
-          <p className="m-0 text-xs text-[var(--color-muted-text)] py-2 px-3">
+          <p style={{ margin: 0, fontSize: 12, color: "var(--color-muted-text)", padding: "8px 16px" }}>
             No upcoming bookings.
           </p>
         ) : (
@@ -638,29 +537,29 @@ export function TrainingSection({
             return (
               <div
                 key={booking.id}
-                className="flex items-center gap-3 py-2 px-3 rounded-nested border border-transparent hover:bg-[var(--hub-hover)] hover:border-[var(--hub-border)] transition-colors"
+                className="qrow"
               >
-                <span className="flex-0-0 w-[150px] font-semibold text-ink tabular-nums text-[13.5px]">
+                <span style={{ flex: "0 0 150px", fontWeight: 600, color: "var(--color-ink)", fontVariantNumeric: "tabular-nums", fontSize: 13.5 }}>
                   {dayName} {dateStr}, {timeStr}
-                  <span className="block text-[11.5px] font-medium text-[var(--color-muted-text)]">
+                  <span style={{ display: "block", fontSize: 11.5, fontWeight: 500, color: "var(--color-muted-text)" }}>
                     {rel}
                   </span>
                 </span>
-                <span className="flex-1 min-w-0 text-xs text-[var(--color-body)]">
+                <span className="qrow-w" style={{ fontWeight: 400, color: "var(--color-body)" }}>
                   {queueItem ? (
                     <>
-                      Will use <b className="text-ink font-semibold">#{queueItem.position} {queueItem.label}</b>
+                      Will use <b style={{ color: "var(--color-ink)", fontWeight: 600 }}>#{queueItem.position} {queueItem.label}</b>
                     </>
                   ) : (
-                    <span className="text-[var(--color-muted-text)] italic">
+                    <span style={{ color: "var(--color-muted-text)", fontStyle: "italic" }}>
                       Nothing queued to use
                     </span>
                   )}
                 </span>
-                <span className="shrink-0">
+                <span style={{ flexShrink: 0 }}>
                   <button
                     onClick={(e) => openWorkoutDrawer(booking.id, e.currentTarget)}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-white hover:bg-[var(--hub-hover)] text-foreground px-2.5 py-1 min-h-[30px] font-[inherit] text-xs font-semibold cursor-pointer transition-colors"
+                    className="btn btn-outline btn-sm"
                   >
                     {queueItem ? "Open session" : "Assign a workout"}
                   </button>
@@ -671,33 +570,29 @@ export function TrainingSection({
         )}
 
         {/* ── So far ── */}
-        <div className="flex items-baseline gap-2.5 mt-3 mb-1.5">
-          <h3 className="m-0 text-[11px] font-extrabold uppercase tracking-[.09em] text-ink">
-            So far
-          </h3>
-          <p className="m-0 text-xs text-[var(--color-body)]">
-            {potHistory.length === 1
-              ? "One pot since she started."
-              : `${potHistory.length} pots since she started.`}
-          </p>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 12, marginBottom: 6 }}>
+          <p className="t-micro" style={{ margin: 0 }}>So far</p>
         </div>
 
         {/* Stats strip */}
-        <div className="flex gap-4 flex-wrap py-0.5 px-3 mb-1.5">
-          <span className="text-xs text-[var(--color-body)]">
-            <b className="block text-[17px] font-extrabold text-ink tracking-tight tabular-nums">
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", padding: "2px 12px", marginBottom: 6 }}>
+          <span style={{ fontSize: 12, color: "var(--color-body)" }}>
+            <b style={{ display: "block", fontSize: 17, fontWeight: 800, color: "var(--color-ink)", letterSpacing: "-.01em", fontVariantNumeric: "tabular-nums" }}>
               {sessionsDone}
             </b>
             sessions done
           </span>
           {attendanceRate !== null && (
-            <span className="text-xs text-[var(--color-body)]">
+            <span style={{ fontSize: 12, color: "var(--color-body)" }}>
               <b
-                className={`block text-[17px] font-extrabold tracking-tight tabular-nums ${
-                  attendanceRate >= 90
-                    ? "text-[var(--status-success-text)]"
-                    : "text-ink"
-                }`}
+                style={{
+                  display: "block",
+                  fontSize: 17,
+                  fontWeight: 800,
+                  letterSpacing: "-.01em",
+                  fontVariantNumeric: "tabular-nums",
+                  color: attendanceRate >= 90 ? "var(--status-success-text)" : "var(--color-ink)",
+                }}
               >
                 {attendanceRate}%
               </b>
@@ -707,16 +602,16 @@ export function TrainingSection({
           {exerciseTrendSummary && (
             <>
               {exerciseTrendSummary.personalBests > 0 && (
-                <span className="text-xs text-[var(--color-body)]">
-                  <b className="block text-[17px] font-extrabold text-ink tracking-tight tabular-nums">
+                <span style={{ fontSize: 12, color: "var(--color-body)" }}>
+                  <b style={{ display: "block", fontSize: 17, fontWeight: 800, color: "var(--color-ink)", letterSpacing: "-.01em", fontVariantNumeric: "tabular-nums" }}>
                     {exerciseTrendSummary.personalBests}
                   </b>
                   personal bests
                 </span>
               )}
               {exerciseTrendSummary.heaviestLift && (
-                <span className="text-xs text-[var(--color-body)]">
-                  <b className="block text-[17px] font-extrabold text-ink tracking-tight tabular-nums">
+                <span style={{ fontSize: 12, color: "var(--color-body)" }}>
+                  <b style={{ display: "block", fontSize: 17, fontWeight: 800, color: "var(--color-ink)", letterSpacing: "-.01em", fontVariantNumeric: "tabular-nums" }}>
                     {exerciseTrendSummary.heaviestLift}
                   </b>
                   heaviest lift
@@ -731,42 +626,40 @@ export function TrainingSection({
           <button
             key={pot.position}
             onClick={(e) => openDrawer("dw-training", e.currentTarget)}
-            className="flex items-center gap-2.5 w-full py-[7px] px-2.5 border border-transparent rounded-nested font-[inherit] text-left cursor-pointer hover:bg-[var(--hub-hover)] hover:border-[var(--hub-border)] transition-colors"
+            className="qrow"
           >
             <span
-              className={`w-[26px] h-[26px] rounded-control-sm grid place-items-center text-[11px] font-extrabold ${
-                pot.isFullyDone
-                  ? "bg-[var(--status-success-bg)] text-[var(--status-success-text)]"
-                  : "bg-[var(--neutral-bg)] text-navy"
-              }`}
+              className="qrow-p"
+              style={pot.isFullyDone ? {
+                background: "var(--status-success-bg)",
+                color: "var(--status-success-text)",
+                borderColor: "var(--status-success-border)",
+              } : undefined}
             >
               {pot.position}
             </span>
-            <span className="flex-1 min-w-0 text-[13.5px] font-semibold text-ink">
+            <span className="qrow-w">
               Pot of {pot.total}
-              <span className="text-xs font-normal text-[var(--color-body)] ml-2">
+              <small>
                 {pot.done} done · {pot.remaining} left
                 {pot.isFullyDone ? " · fully used" : ""}
-              </span>
+              </small>
             </span>
-            <span className="shrink-0">
+            <span style={{ flexShrink: 0 }}>
               {pot.isCurrent ? (
-                <span className="inline-flex items-center h-[21px] px-2.5 rounded-pill text-[11.5px] font-semibold border border-transparent bg-[var(--status-primary-bg)] text-[var(--status-primary-text)] border-[var(--status-primary-border)]">
+                <span className="badge b-primary">
                   Current
                 </span>
               ) : (
-                <span className="inline-flex items-center h-[21px] px-2.5 rounded-pill text-[11.5px] font-semibold border border-transparent bg-neutral-bg text-[var(--color-muted-text)] border-neutral-border">
+                <span className="badge" style={{ background: "var(--status-neutral-bg)", border: "1px solid var(--status-neutral-border)", color: "var(--color-muted-text)" }}>
                   Finished
                 </span>
               )}
             </span>
-            <span className="shrink-0 text-xs font-semibold text-rose">
-              Open ›
-            </span>
           </button>
         ))}
       </div>
-    </div>
+    </HubCard>
   );
 }
 
