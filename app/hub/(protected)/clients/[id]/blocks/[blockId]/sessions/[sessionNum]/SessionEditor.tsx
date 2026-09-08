@@ -766,7 +766,7 @@ export function SessionEditor({
               </div>
             )}
             <div
-              className={`space-y-2 p-3 rounded-[12px] transition-colors ${dragSection && dragSection !== sec.key ? "bg-[var(--hub-sidebar-active)] outline outline-2 outline-dashed outline-rose/20" : ""}`}
+              className={`space-y-2 p-3 rounded-nested transition-colors ${dragSection && dragSection !== sec.key ? "bg-[var(--hub-sidebar-active)] outline outline-2 outline-dashed outline-rose/20" : ""}`}
               onDragOver={(e) => {
                 if (dragSection && dragSection !== sec.key) e.preventDefault();
               }}
@@ -798,7 +798,7 @@ export function SessionEditor({
               }}
             >
               {blocks.length === 0 && (
-                <p className="rounded-[12px] border border-dashed border-[var(--hub-border)] py-4 text-center text-sm text-muted-foreground">
+                <p className="rounded-nested border border-dashed border-[var(--hub-border)] py-4 text-center text-sm text-muted-foreground">
                   No exercises in {sec.label.toLowerCase()} yet.
                 </p>
               )}
@@ -835,7 +835,7 @@ export function SessionEditor({
                       setDragSection(null);
                       setOverBlockKey(null);
                     }}
-                    className={`rounded-[12px] border-[1.5px] border-[var(--status-primary-border)] bg-[var(--status-primary-bg)] p-2.5 ${
+                    className={`rounded-nested border-[1.5px] border-[var(--status-primary-border)] bg-[var(--status-primary-bg)] p-2.5 ${
                       dragBlockKey === block.key ? "opacity-40" : ""
                     } ${overBlockKey === block.key && dragBlockKey !== block.key ? "ring-2 ring-rose/40" : ""}`}
                   >
@@ -933,7 +933,7 @@ export function SessionEditor({
                       setOverBlockKey(null);
                     }}
                     className={`${dragBlockKey === block.key ? "opacity-40" : ""} ${
-                      overBlockKey === block.key && dragBlockKey !== block.key ? "ring-2 ring-rose/40 rounded-[12px]" : ""
+                      overBlockKey === block.key && dragBlockKey !== block.key ? "ring-2 ring-rose/40 rounded-nested" : ""
                     }`}
                   >
                     <ExerciseRow
@@ -972,7 +972,7 @@ export function SessionEditor({
                     setAddSkeleton(null);
                     setAddTarget(sec.key);
                   }}
-                  className="flex flex-1 items-center justify-center gap-1.5 rounded-[12px] border-[1.5px] border-dashed border-[var(--hub-field-border)] py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:border-rose hover:bg-rose/5 hover:text-rose"
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-nested border-[1.5px] border-dashed border-[var(--hub-field-border)] py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:border-rose hover:bg-rose/5 hover:text-rose"
                 >
                   <IconPlus className="h-4 w-4" />
                   Add exercise to {sec.label}
@@ -981,7 +981,7 @@ export function SessionEditor({
                   <SkeletonMenuTrigger asChild>
                     <button
                       title="Add exercise using a preset volume skeleton (sets/reps/tempo/rest pre-filled)"
-                      className="flex shrink-0 items-center justify-center gap-1 rounded-[12px] border-[1.5px] border-dashed border-[var(--hub-field-border)] px-3 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:border-rose hover:bg-rose/5 hover:text-rose"
+                      className="flex shrink-0 items-center justify-center gap-1 rounded-nested border-[1.5px] border-dashed border-[var(--hub-field-border)] px-3 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:border-rose hover:bg-rose/5 hover:text-rose"
                     >
                       <IconDumbbell className="h-4 w-4" />
                       Skeleton
@@ -1053,7 +1053,7 @@ export function SessionEditor({
           }
         }}
       >
-        <DialogContent className="max-w-md bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-[12px] shadow-lg">
+        <DialogContent className="max-w-md bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-nested shadow-lg">
           <DialogHeader>
             <DialogTitle className="text-[var(--color-ink)]">Swap exercise</DialogTitle>
           </DialogHeader>
@@ -1072,7 +1072,7 @@ export function SessionEditor({
       </Dialog>
 
       <Dialog open={showTemplatePicker} onOpenChange={setShowTemplatePicker}>
-        <DialogContent className="max-w-lg bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-[12px] shadow-lg">
+        <DialogContent className="max-w-lg bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-nested shadow-lg">
           <DialogHeader>
             <DialogTitle className="text-[var(--color-ink)]">Apply Workout Template</DialogTitle>
           </DialogHeader>
@@ -1185,7 +1185,7 @@ function ExerciseRow({
   const [equipmentInput, setEquipmentInput] = useState("");
 
   return (
-    <div className="flex items-start gap-2.5 flex-wrap sm:flex-nowrap rounded-[12px] border border-[var(--hub-border)] bg-[var(--hub-card)] p-2.5">
+    <div className="flex items-start gap-2.5 flex-wrap sm:flex-nowrap rounded-nested border border-[var(--hub-border)] bg-[var(--hub-card)] p-2.5">
       {pickable && (
         <button
           type="button"

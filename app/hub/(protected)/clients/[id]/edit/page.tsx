@@ -690,7 +690,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
                     <p className="text-xs text-muted-foreground mt-0.5">Tick once the written clearance letter is on file.</p>
                   </div>
                 </div>
-                <div className="space-y-2 rounded-[12px] border border-[var(--hub-border)] p-3 my-3">
+                <div className="space-y-2 rounded-nested border border-[var(--hub-border)] p-3 my-3">
                   <div className="flex items-start gap-3">
                     <label htmlFor="parq_trainer_override" className="relative shrink-0 w-5 h-5 mt-px cursor-pointer">
                       <input type="checkbox" id="parq_trainer_override" checked={parqOverridden} onChange={(e) => { updateProfile("health", { parq_trainer_override: e.target.checked }); recordFieldChange(dirtySections, "parq_trainer_override"); }} className="sr-only" />

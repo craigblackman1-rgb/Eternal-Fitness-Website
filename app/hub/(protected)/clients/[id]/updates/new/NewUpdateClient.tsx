@@ -472,7 +472,7 @@ export function NewUpdateClient({
                 onCreateDraft={handleCreateDraft}
               />
               {kind.flexible && (
-                <div className="flex items-center justify-between rounded-[12px] border border-dashed border-[var(--hub-border)] p-4">
+                <div className="flex items-center justify-between rounded-nested border border-dashed border-[var(--hub-border)] p-4">
                   <p className="text-sm text-muted-foreground">
                     Or skip the chat and build the sections yourself below.
                   </p>
@@ -570,7 +570,7 @@ export function NewUpdateClient({
 
               {kind.flexible
                 ? flexSections.map((s, i) => (
-                    <div key={i} className="space-y-2 rounded-[12px] border border-[var(--hub-border)] p-4">
+                    <div key={i} className="space-y-2 rounded-nested border border-[var(--hub-border)] p-4">
                       <div className="flex items-end gap-3">
                         <div className="flex-1 space-y-2">
                           <Label htmlFor={`flex-heading-${i}`}>Section heading</Label>
@@ -645,7 +645,7 @@ export function NewUpdateClient({
               }
             />
             <CardContent className="p-0 pt-4 space-y-4">
-              <div className="border border-border/60 rounded-[12px] overflow-hidden bg-[#F5F5F5]">
+              <div className="border border-border/60 rounded-nested overflow-hidden bg-[#F5F5F5]">
                 <iframe srcDoc={html} title="Email preview" className="w-full" style={{ height: "640px", border: "none" }} />
               </div>
               {showRaw && <Textarea value={html} readOnly rows={16} className="font-mono text-xs" />}
@@ -679,7 +679,7 @@ export function NewUpdateClient({
               </div>
 
               {/* Schedule */}
-              <div className="rounded-[12px] border border-[var(--hub-border)] bg-background p-4 space-y-3">
+              <div className="rounded-nested border border-[var(--hub-border)] bg-background p-4 space-y-3">
                 <div className="flex items-center gap-2 text-sm font-medium text-foreground">
                   <IconClock className="h-4 w-4 text-teal" />
                   Schedule for later
@@ -711,7 +711,7 @@ export function NewUpdateClient({
               </div>
 
               {/* Test send */}
-              <div className="rounded-[12px] border border-[var(--hub-border)] bg-background p-4 space-y-3">
+              <div className="rounded-nested border border-[var(--hub-border)] bg-background p-4 space-y-3">
                 <div className="flex items-center gap-2 text-sm font-medium text-foreground">
                   <IconMail className="h-4 w-4 text-teal" />
                   Send a test first

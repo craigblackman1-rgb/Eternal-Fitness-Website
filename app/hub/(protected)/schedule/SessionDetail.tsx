@@ -118,8 +118,7 @@ export function SessionDetail({ entry, now, onComplete }: SessionDetailProps) {
         {/* Off-day warning */}
         {offDay && entry.completedAt && (
           <div
-            className="flex gap-2 p-2.5 text-[12px] leading-relaxed mb-3"
-            style={{ borderRadius: "var(--r-nested)", background: "rgba(138,78,99,.10)", border: "1px solid rgba(138,78,99,.28)", color: "#6B3A4B" }}
+            className="flex gap-2 p-2.5 text-[12px] leading-relaxed mb-3 rounded-nested" style={{ background: "rgba(138,78,99,.10)", border: "1px solid rgba(138,78,99,.28)", color: "#6B3A4B" }}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={14} height={14} className="shrink-0 mt-0.5" style={{ color: "#8A4E63" }}>
               <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" />
@@ -140,7 +139,7 @@ export function SessionDetail({ entry, now, onComplete }: SessionDetailProps) {
         )}
 
         {/* Timestamps */}
-        <ul className="list-none m-0 p-0 border border-[var(--hub-border)] overflow-hidden mb-3" style={{ borderRadius: "var(--r-nested)" }}>
+        <ul className="list-none m-0 p-0 border border-[var(--hub-border)] overflow-hidden mb-3 rounded-nested">
           <StampRow label="Booked for" value={formatStamp(entry.scheduledAt)} set={true} />
           <StampRow label="Started" value={entry.startedAt ? formatStamp(entry.startedAt) : null} set={!!entry.startedAt} />
           <StampRow label="Completed" value={entry.completedAt ? formatStamp(entry.completedAt) : null} set={!!entry.completedAt} />

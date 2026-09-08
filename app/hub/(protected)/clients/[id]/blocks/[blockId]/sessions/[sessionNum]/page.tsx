@@ -561,7 +561,7 @@ export default function SessionViewPage({
           </div>
         </div>
         {rescheduling && (
-          <div className="mt-3 flex flex-wrap items-center gap-2 rounded-[12px] border border-[var(--hub-border)] bg-[var(--hub-card)] px-3 py-2.5">
+          <div className="mt-3 flex flex-wrap items-center gap-2 rounded-nested border border-[var(--hub-border)] bg-[var(--hub-card)] px-3 py-2.5">
             <span className="text-xs font-medium text-muted-foreground">Move to</span>
             <input
               type="date"
@@ -586,7 +586,7 @@ export default function SessionViewPage({
       </div>
 
       {session.status === "completed" && (
-        <div className="flex items-start gap-3 rounded-[12px] border border-teal/20 bg-teal/10 px-4 py-3 text-[13px] leading-relaxed text-foreground">
+        <div className="flex items-start gap-3 rounded-nested border border-teal/20 bg-teal/10 px-4 py-3 text-[13px] leading-relaxed text-foreground">
           <span className="mt-0.5 flex-shrink-0 text-teal"><IconCheckCircle className="h-4 w-4" /></span>
           <div className="min-w-0 flex-1">
             <b>Session completed — read-only</b>
@@ -616,7 +616,7 @@ export default function SessionViewPage({
             role="tab"
             aria-selected={mode === "log"}
             onClick={() => setMode("log")}
-            className={`inline-flex items-center gap-1.5 rounded-[7px] px-4 py-1.5 text-[13px] font-semibold transition-colors ${mode === "log" ? "bg-[var(--hub-sidebar-active)] text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            className={`inline-flex items-center gap-1.5 rounded-control-sm px-4 py-1.5 text-[13px] font-semibold transition-colors ${mode === "log" ? "bg-[var(--hub-sidebar-active)] text-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
             <IconActivity className="h-3.5 w-3.5" />
             Log session
@@ -628,7 +628,7 @@ export default function SessionViewPage({
             onClick={() => setMode("edit")}
             disabled={session.status === "completed"}
             title={session.status === "completed" ? "Session is completed and read-only — reopen it first to edit the prescription." : undefined}
-            className={`inline-flex items-center gap-1.5 rounded-[7px] px-4 py-1.5 text-[13px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${mode === "edit" ? "bg-[var(--hub-sidebar-active)] text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            className={`inline-flex items-center gap-1.5 rounded-control-sm px-4 py-1.5 text-[13px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${mode === "edit" ? "bg-[var(--hub-sidebar-active)] text-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
             <IconEdit3 className="h-3.5 w-3.5" />
             Edit prescription

@@ -352,7 +352,7 @@ export function ProgramsListClient({
             <button
               key={key}
               onClick={() => setFilter(key)}
-              className={`rounded-[7px] px-3.5 py-1.5 text-sm font-medium transition-colors ${
+              className={`rounded-control-sm px-3.5 py-1.5 text-sm font-medium transition-colors ${
                 filter === key
                   ? "bg-[var(--hub-sidebar-active)] font-semibold text-foreground"
                   : "bg-transparent text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"

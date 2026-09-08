@@ -646,7 +646,7 @@ export function BlockOverviewClient({
 
       {/* ── Approve dialog ──────────────────────────────────────── */}
       <Dialog open={approveOpen} onOpenChange={setApproveOpen}>
-        <DialogContent className="bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-[12px] shadow-lg">
+        <DialogContent className="bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-surface shadow-lg">
           <DialogHeader>
             <DialogTitle className="text-[var(--color-ink)]">
               Approve Block {block.block_number}?

@@ -124,6 +124,13 @@ export default {
         "3xl": "32px",
         full: "999px",
       },
+      boxShadow: {
+        /* Wire shadow-sm to the hub's canonical --shadow-sm token so
+           hardcoded shadow-[...] literals can be replaced with the
+           utility. The old general --shadow-sm (0 1px 3px rgba(0,0,0,.08))
+           has been removed from globals.css; only the hub value remains. */
+        sm: "var(--shadow-sm)",
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },

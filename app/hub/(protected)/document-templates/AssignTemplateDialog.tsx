@@ -57,7 +57,7 @@ export function AssignTemplateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-[12px] shadow-lg">
+      <DialogContent className="max-w-md bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-surface shadow-lg">
         <DialogHeader>
           <DialogTitle className="text-[var(--color-ink)]">Assign to a client</DialogTitle>
         </DialogHeader>

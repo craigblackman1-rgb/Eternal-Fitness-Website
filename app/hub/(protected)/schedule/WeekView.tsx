@@ -96,7 +96,7 @@ export function WeekView({ entries, plannedEntries, unconfirmedCount, onSelectSe
     <>
       {/* Triage pointer */}
       {unconfirmedCount > 0 && (
-        <div className="border border-[var(--hub-border)] rounded-[var(--r-nested)] overflow-hidden mb-[var(--d-section-gap)]" style={{ background: "var(--hub-card)" }}>
+        <div className="border border-[var(--hub-border)] rounded-nested overflow-hidden mb-[var(--d-section-gap)]" style={{ background: "var(--hub-card)" }}>
           <div className="px-4 py-2">
             <div className="flex items-center gap-3 py-[var(--d-row-y)]">
               <span className="w-[7px] h-[7px] rounded-pill shrink-0" style={{ background: "var(--s-warning)" }} />
@@ -109,7 +109,7 @@ export function WeekView({ entries, plannedEntries, unconfirmedCount, onSelectSe
               <span className="shrink-0">
                 <Link
                   href="/hub/schedule/triage"
-                  className="inline-flex items-center justify-center gap-1.5 rounded-[var(--r-control)] px-3.5 py-1.5 min-h-[30px] font-[inherit] text-[12.5px] font-semibold cursor-pointer border border-[var(--muted)] bg-[var(--hub-card)] text-foreground hover:bg-[var(--hub-hover)] hover:border-foreground transition-colors"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-control px-3.5 py-1.5 min-h-[30px] font-[inherit] text-[12.5px] font-semibold cursor-pointer border border-[var(--muted)] bg-[var(--hub-card)] text-foreground hover:bg-[var(--hub-hover)] hover:border-foreground transition-colors"
                 >
                   Open triage
                 </Link>
@@ -133,7 +133,7 @@ export function WeekView({ entries, plannedEntries, unconfirmedCount, onSelectSe
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-3 mb-3">
-        <div className="inline-flex border border-[var(--hub-border)] rounded-[var(--r-control)] overflow-hidden" style={{ background: "var(--hub-card)" }} role="tablist" aria-label="Calendar view">
+        <div className="inline-flex border border-[var(--hub-border)] rounded-control overflow-hidden" style={{ background: "var(--hub-card)" }} role="tablist" aria-label="Calendar view">
           {(["week", "day"] as const).map((v) => (
             <button
               key={v}
@@ -156,7 +156,7 @@ export function WeekView({ entries, plannedEntries, unconfirmedCount, onSelectSe
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="w-[30px] h-[30px] rounded-[var(--r-control-sm)] border border-[var(--hub-border)] bg-[var(--hub-card)] text-body cursor-pointer grid place-items-center text-sm hover:bg-[var(--hub-hover)] hover:text-foreground transition-colors"
+            className="w-[30px] h-[30px] rounded-control-sm border border-[var(--hub-border)] bg-[var(--hub-card)] text-body cursor-pointer grid place-items-center text-sm hover:bg-[var(--hub-hover)] hover:text-foreground transition-colors"
             aria-label="Previous"
           >
             ‹
@@ -165,14 +165,14 @@ export function WeekView({ entries, plannedEntries, unconfirmedCount, onSelectSe
           <button
             type="button"
             onClick={goToday}
-            className="inline-flex items-center justify-center gap-1.5 rounded-[var(--r-control)] px-2.5 py-1 min-h-[30px] font-[inherit] text-[12.5px] font-semibold cursor-pointer border border-transparent bg-transparent text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground transition-colors"
+            className="inline-flex items-center justify-center gap-1.5 rounded-control px-2.5 py-1 min-h-[30px] font-[inherit] text-[12.5px] font-semibold cursor-pointer border border-transparent bg-transparent text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground transition-colors"
           >
             Today
           </button>
           <button
             type="button"
             onClick={() => navigate(1)}
-            className="w-[30px] h-[30px] rounded-[var(--r-control-sm)] border border-[var(--hub-border)] bg-[var(--hub-card)] text-body cursor-pointer grid place-items-center text-sm hover:bg-[var(--hub-hover)] hover:text-foreground transition-colors"
+            className="w-[30px] h-[30px] rounded-control-sm border border-[var(--hub-border)] bg-[var(--hub-card)] text-body cursor-pointer grid place-items-center text-sm hover:bg-[var(--hub-hover)] hover:text-foreground transition-colors"
             aria-label="Next"
           >
             ›
@@ -181,7 +181,7 @@ export function WeekView({ entries, plannedEntries, unconfirmedCount, onSelectSe
       </div>
 
       {/* Key */}
-      <div className="border border-[var(--hub-border)] rounded-[var(--r-nested)] overflow-hidden mb-[var(--d-section-gap)]" style={{ background: "var(--hub-card)" }}>
+      <div className="border border-[var(--hub-border)] rounded-nested overflow-hidden mb-[var(--d-section-gap)]" style={{ background: "var(--hub-card)" }}>
         <div className="px-4 py-2.5">
           <div className="flex gap-3.5 flex-wrap text-[11.5px] text-body">
             <span className="inline-flex items-center gap-1.5">
@@ -224,7 +224,7 @@ export function WeekView({ entries, plannedEntries, unconfirmedCount, onSelectSe
               {/* Day card */}
               <div
                 className={cn(
-                  "border rounded-[var(--r-nested)] overflow-hidden mb-2.5",
+                  "border rounded-nested overflow-hidden mb-2.5",
                   isToday ? "border-l-4" : "border-l-4",
                 )}
                 style={{
@@ -277,7 +277,7 @@ export function WeekView({ entries, plannedEntries, unconfirmedCount, onSelectSe
                             setSelectedId(entry.id);
                             onSelectSession(entry.id);
                           }}
-                          className="flex items-center gap-3 py-[var(--d-row-y)] w-full text-left font-[inherit] bg-transparent border-0 cursor-pointer rounded-[var(--r-control-sm)] transition-colors hover:bg-[var(--hub-hover)] focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_rgba(193,131,159,.3)]"
+                          className="flex items-center gap-3 py-[var(--d-row-y)] w-full text-left font-[inherit] bg-transparent border-0 cursor-pointer rounded-control-sm transition-colors hover:bg-[var(--hub-hover)] focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_rgba(193,131,159,.3)]"
                           style={{ borderBottom: "1px solid var(--hub-border)" }}
                           data-od-id={`session-${entry.id}`}
                         >
@@ -316,7 +316,7 @@ export function WeekView({ entries, plannedEntries, unconfirmedCount, onSelectSe
 
                           {/* Action */}
                           <span className="shrink-0 pr-1">
-                            <span className="inline-flex items-center justify-center gap-1.5 rounded-[var(--r-control)] px-2.5 py-1 min-h-[30px] font-[inherit] text-[12.5px] font-semibold cursor-pointer border border-transparent bg-transparent text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground transition-colors">
+                            <span className="inline-flex items-center justify-center gap-1.5 rounded-control px-2.5 py-1 min-h-[30px] font-[inherit] text-[12.5px] font-semibold cursor-pointer border border-transparent bg-transparent text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground transition-colors">
                               {entry.status === "completed" && sessionUrl(entry) ? "Open" : "Move"}
                             </span>
                           </span>

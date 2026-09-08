@@ -29,12 +29,11 @@ interface HubCardProps {
 export function HubCard({ children, className, padded = true, stretch = false }: HubCardProps) {
   return (
     <div
-      className={cn(
-        "flex flex-col bg-[var(--hub-card)] border border-[var(--hub-border)] shadow-sm",
-        stretch && "h-full",
-        className,
-      )}
-      style={{ borderRadius: "var(--r-surface)" }}
+        className={cn(
+          "flex flex-col bg-[var(--hub-card)] border border-[var(--hub-border)] shadow-sm rounded-surface",
+          stretch && "h-full",
+          className,
+        )}
     >
       {padded ? (
         <div className={cn("p-5", stretch && "flex-1 flex flex-col min-h-0")}>

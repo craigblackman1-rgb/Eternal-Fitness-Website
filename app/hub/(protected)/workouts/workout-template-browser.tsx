@@ -201,7 +201,7 @@ export function WorkoutTemplateBrowser({
               <IconChevronDown className="h-3.5 w-3.5" />
             </button>
             {menuOpen && (
-              <div className="absolute top-full right-0 mt-2 w-72 z-50 rounded-[12px] border border-[var(--hub-border)] bg-[var(--hub-card)] shadow-lg p-1.5">
+              <div className="absolute top-full right-0 mt-2 w-72 z-50 rounded-surface border border-[var(--hub-border)] bg-[var(--hub-card)] shadow-lg p-1.5">
                 <div className="px-2.5 pt-1.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   Create a template
                 </div>

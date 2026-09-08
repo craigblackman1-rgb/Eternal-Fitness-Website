@@ -143,7 +143,7 @@ export function BlockReviewClient({
       </div>
 
       {/* 1. This block, in facts */}
-      <section className="bg-white border border-[var(--hub-border)] rounded-surface shadow-[0_1px_2px_rgba(16,24,40,.04),0_1px_3px_rgba(16,24,40,.07)] overflow-hidden">
+      <section className="bg-white border border-[var(--hub-border)] rounded-surface shadow-sm overflow-hidden">
         <div className="flex items-center gap-2.5 py-2.5 px-4 border-b border-[var(--hub-border)]">
           <h2 className="m-0 text-[15px] font-bold text-[var(--color-ink)] tracking-tight">This block, in facts</h2>
           <span className="text-xs text-[var(--color-muted-text)]">Pulled from her sessions and set logs — nothing here is typed</span>
@@ -231,7 +231,7 @@ export function BlockReviewClient({
       </section>
 
       {/* 2. Your call */}
-      <section className="bg-white border border-[var(--hub-border)] rounded-surface shadow-[0_1px_2px_rgba(16,24,40,.04),0_1px_3px_rgba(16,24,40,.07)] overflow-hidden">
+      <section className="bg-white border border-[var(--hub-border)] rounded-surface shadow-sm overflow-hidden">
         <div className="flex items-center gap-2.5 py-2.5 px-4 border-b border-[var(--hub-border)]">
           <h2 className="m-0 text-[15px] font-bold text-[var(--color-ink)] tracking-tight">Your call</h2>
           <span className="text-xs text-[var(--color-muted-text)]">Internal only · {firstName(clientName)} never sees this</span>

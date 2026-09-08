@@ -973,7 +973,7 @@ function PreviewGrid({
           <div
             key={i}
             className={cn(
-              "rounded-[7px] border border-[var(--hub-border)] bg-[var(--hub-card)] py-1 px-0.5 text-center",
+              "rounded-control-sm border border-[var(--hub-border)] bg-[var(--hub-card)] py-1 px-0.5 text-center",
               d.state === "full" && "bg-[var(--status-primary-bg)] border-[var(--status-primary-border)]",
               d.state === "closed" && "bg-[var(--hub-hover)]",
               d.state === "leave" && "bg-[var(--status-warning-bg)] border-[var(--status-warning-border)]"

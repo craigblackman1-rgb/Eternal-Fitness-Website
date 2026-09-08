@@ -173,7 +173,7 @@ export const ClientTasksPanel = forwardRef<ClientTasksPanelHandle, Props>(functi
   return (
         <>
             {adding && (
-              <div className="flex flex-col gap-2 mb-3 p-3 rounded-[12px] border border-dashed border-[var(--hub-border)] bg-[var(--hub-canvas)]">
+              <div className="flex flex-col gap-2 mb-3 p-3 rounded-nested border border-dashed border-[var(--hub-border)] bg-[var(--hub-canvas)]">
                 <div className="flex items-center gap-2">
                   <input
                     autoFocus
@@ -251,7 +251,7 @@ export const ClientTasksPanel = forwardRef<ClientTasksPanelHandle, Props>(functi
             <div className="flex flex-col gap-2.5">
               {showDerived && (
                 <div
-                  className="flex items-start gap-3 p-[13px] rounded-[12px] border border-[var(--hub-border)]"
+                  className="flex items-start gap-3 p-[13px] rounded-nested border border-[var(--hub-border)]"
                   style={{ background: "rgba(var(--color-amber-rgb, 176, 138, 62), 0.04)" }}
                 >
                   <span
@@ -325,7 +325,7 @@ export const ClientTasksPanel = forwardRef<ClientTasksPanelHandle, Props>(functi
                   return (
                     <div
                       key={task.id}
-                      className="flex items-start gap-3 p-[13px] rounded-[12px] border border-[var(--hub-border)] group"
+                      className="flex items-start gap-3 p-[13px] rounded-nested border border-[var(--hub-border)] group"
                     >
                       <span className="inline-flex items-center justify-center w-7 h-7 rounded-pill shrink-0 bg-[var(--hub-hover)] text-muted-foreground">
                         <IconClipboardList className="w-[13px] h-[13px] stroke-[2.5]" />

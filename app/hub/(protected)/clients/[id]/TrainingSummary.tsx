@@ -102,7 +102,7 @@ export function TrainingSummary({
   const nonSupplementaryCount = allSessions.filter((s) => !s.parent_session_id).length;
 
   return (
-    <div className="bg-white border border-[var(--hub-border)] rounded-surface shadow-[0_1px_2px_rgba(16,24,40,.04),0_1px_3px_rgba(16,24,40,.07)] overflow-hidden">
+    <div className="bg-white border border-[var(--hub-border)] rounded-surface shadow-sm overflow-hidden">
 
       {/* ── Section header ── */}
       <div className="flex items-center gap-2.5 py-2.5 px-4">

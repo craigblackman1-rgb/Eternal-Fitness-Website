@@ -237,7 +237,7 @@ function PaceModesEditor({
                   <td className="py-2 px-1.5 text-center">
                     <Input
                       type="number"
-                      className="w-14 h-8 text-center text-[13px] rounded-[7px] border-[var(--hub-field-border)] bg-[var(--hub-card)] focus:border-[var(--color-rose)] [&:focus]:shadow-[0_0_0_3px_rgba(193,131,159,.3)]"
+                      className="w-14 h-8 text-center text-[13px] rounded-control-sm border-[var(--hub-field-border)] bg-[var(--hub-card)] focus:border-[var(--color-rose)] [&:focus]:shadow-[0_0_0_3px_rgba(193,131,159,.3)]"
                       value={draft[mode].superset_a}
                       onChange={(e) => updateField("superset_a", mode, e.target.value)}
                     />
@@ -245,7 +245,7 @@ function PaceModesEditor({
                   <td className="py-2 px-1.5 text-center">
                     <Input
                       type="number"
-                      className="w-14 h-8 text-center text-[13px] rounded-[7px] border-[var(--hub-field-border)] bg-[var(--hub-card)] focus:border-[var(--color-rose)] [&:focus]:shadow-[0_0_0_3px_rgba(193,131,159,.3)]"
+                      className="w-14 h-8 text-center text-[13px] rounded-control-sm border-[var(--hub-field-border)] bg-[var(--hub-card)] focus:border-[var(--color-rose)] [&:focus]:shadow-[0_0_0_3px_rgba(193,131,159,.3)]"
                       value={draft[mode].superset_b}
                       onChange={(e) => updateField("superset_b", mode, e.target.value)}
                     />
@@ -253,7 +253,7 @@ function PaceModesEditor({
                   <td className="py-2 px-1.5 text-center">
                     <Input
                       type="number"
-                      className="w-14 h-8 text-center text-[13px] rounded-[7px] border-[var(--hub-field-border)] bg-[var(--hub-card)] focus:border-[var(--color-rose)] [&:focus]:shadow-[0_0_0_3px_rgba(193,131,159,.3)]"
+                      className="w-14 h-8 text-center text-[13px] rounded-control-sm border-[var(--hub-field-border)] bg-[var(--hub-card)] focus:border-[var(--color-rose)] [&:focus]:shadow-[0_0_0_3px_rgba(193,131,159,.3)]"
                       value={draft[mode].arms_core}
                       onChange={(e) => updateField("arms_core", mode, e.target.value)}
                     />
@@ -261,7 +261,7 @@ function PaceModesEditor({
                   <td className="py-2 px-1.5 text-center">
                     <Input
                       type="number"
-                      className="w-14 h-8 text-center text-[13px] rounded-[7px] border-[var(--hub-field-border)] bg-[var(--hub-card)] focus:border-[var(--color-rose)] [&:focus]:shadow-[0_0_0_3px_rgba(193,131,159,.3)]"
+                      className="w-14 h-8 text-center text-[13px] rounded-control-sm border-[var(--hub-field-border)] bg-[var(--hub-card)] focus:border-[var(--color-rose)] [&:focus]:shadow-[0_0_0_3px_rgba(193,131,159,.3)]"
                       value={draft[mode].total}
                       onChange={(e) => updateField("total", mode, e.target.value)}
                     />

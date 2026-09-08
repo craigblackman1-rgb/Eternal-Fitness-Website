@@ -494,7 +494,7 @@ export function ExerciseHistoryDrawer({
             ref={closeRef}
             onClick={onClose}
             aria-label="Close"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--r-control)] border border-[var(--hub-border)] bg-[var(--hub-card)] text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-control border border-[var(--hub-border)] bg-[var(--hub-card)] text-muted-foreground hover:bg-[var(--hub-hover)] hover:text-foreground"
           >
             {ICO.close}
           </button>
@@ -508,14 +508,14 @@ export function ExerciseHistoryDrawer({
             <>
               {/* Current-best card */}
               {pb ? (
-                <div className="rounded-[var(--r-nested)] border border-[var(--s-warning-bd)] bg-[var(--s-warning-bg)] p-3.5">
+                <div className="rounded-nested border border-[var(--s-warning-bd)] bg-[var(--s-warning-bg)] p-3.5">
                   <div className="flex items-center gap-1.5 text-[9.5px] font-extrabold uppercase tracking-[.08em] text-[#6E551F]">
                     {ICO.star} Personal best
                   </div>
                   <div className="mt-0.5 text-[20px] font-extrabold text-foreground tracking-tight tabular-nums flex items-center gap-2 flex-wrap">
                     {vText(pb)}
                     {pb.source === "manual" && (
-                      <span className="inline-flex items-center text-[8.5px] font-extrabold tracking-[.06em] uppercase rounded-[var(--r-control-sm)] px-[5px] border border-black/18 bg-white/70 text-[#3F464C]">
+                      <span className="inline-flex items-center text-[8.5px] font-extrabold tracking-[.06em] uppercase rounded-control-sm px-[5px] border border-black/18 bg-white/70 text-[#3F464C]">
                         manual
                       </span>
                     )}
@@ -545,7 +545,7 @@ export function ExerciseHistoryDrawer({
                   </div>
                 </div>
               ) : (
-                <div className="rounded-[var(--r-nested)] border border-dashed border-[var(--hub-field-border)] p-3.5">
+                <div className="rounded-nested border border-dashed border-[var(--hub-field-border)] p-3.5">
                   <div className="text-[9.5px] font-extrabold uppercase tracking-[.08em] text-muted-foreground">
                     {ICO.star} Personal best
                   </div>
@@ -571,7 +571,7 @@ export function ExerciseHistoryDrawer({
 
               {/* Manual PB form */}
               {showForm && (
-                <div className="rounded-[var(--r-nested)] border border-[var(--s-primary-bd)] bg-[var(--hub-card)] p-3.5 flex flex-col gap-3">
+                <div className="rounded-nested border border-[var(--s-primary-bd)] bg-[var(--hub-card)] p-3.5 flex flex-col gap-3">
                   <p className="text-[13.5px] font-bold text-foreground">Add a personal best by hand</p>
 
                   {/* Exercise (readonly) */}
@@ -580,14 +580,14 @@ export function ExerciseHistoryDrawer({
                     <input
                       readOnly
                       value={exerciseName}
-                      className="w-full rounded-[var(--r-control)] border border-[var(--hub-field-border)] bg-[var(--hub-hover)] px-2.5 py-2 text-[13.5px] text-[var(--body)]"
+                      className="w-full rounded-control border border-[var(--hub-field-border)] bg-[var(--hub-hover)] px-2.5 py-2 text-[13.5px] text-[var(--body)]"
                     />
                   </div>
 
                   {/* Unit radiogroup */}
                   <div className="flex flex-col gap-1.5">
                     <span className="text-[11px] font-bold uppercase tracking-[.05em] text-muted-foreground">Unit</span>
-                    <div className="inline-flex gap-0.5 rounded-[var(--r-control)] border border-[var(--hub-border)] bg-[var(--hub-hover)] p-0.5" role="radiogroup" aria-label="Unit">
+                    <div className="inline-flex gap-0.5 rounded-control border border-[var(--hub-border)] bg-[var(--hub-hover)] p-0.5" role="radiogroup" aria-label="Unit">
                       {(["kg", "band", "reps", "time"] as const).map((u) => (
                         <button
                           key={u}
@@ -595,7 +595,7 @@ export function ExerciseHistoryDrawer({
                           role="radio"
                           aria-checked={unit === u}
                           onClick={() => { setUnit(u); setVal(""); setRepsVal(""); }}
-                          className={`rounded-[var(--r-control-sm)] px-2.5 py-[5px] text-[12.5px] font-semibold transition-colors ${
+                          className={`rounded-control-sm px-2.5 py-[5px] text-[12.5px] font-semibold transition-colors ${
                             unit === u
                               ? "bg-[var(--hub-card)] text-foreground shadow-[var(--shadow-sm)]"
                               : "text-muted-foreground hover:text-foreground"
@@ -620,7 +620,7 @@ export function ExerciseHistoryDrawer({
                             placeholder="e.g. 18"
                             value={val}
                             onChange={(e) => { setVal(e.target.value); setValErr(false); }}
-                            className={`w-full rounded-[var(--r-control)] border px-2.5 py-2 text-[13.5px] font-semibold tabular-nums bg-[var(--hub-card)] text-foreground focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30 ${valErr ? "border-[var(--s-danger)]" : "border-[var(--hub-field-border)]"}`}
+                            className={`w-full rounded-control border px-2.5 py-2 text-[13.5px] font-semibold tabular-nums bg-[var(--hub-card)] text-foreground focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30 ${valErr ? "border-[var(--s-danger)]" : "border-[var(--hub-field-border)]"}`}
                           />
                         </div>
                         <span className="pb-2 text-sm font-bold text-muted-foreground">×</span>
@@ -632,7 +632,7 @@ export function ExerciseHistoryDrawer({
                             placeholder="8"
                             value={repsVal}
                             onChange={(e) => setRepsVal(e.target.value)}
-                            className="w-full rounded-[var(--r-control)] border border-[var(--hub-field-border)] px-2.5 py-2 text-[13.5px] font-semibold tabular-nums bg-[var(--hub-card)] text-foreground focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30"
+                            className="w-full rounded-control border border-[var(--hub-field-border)] px-2.5 py-2 text-[13.5px] font-semibold tabular-nums bg-[var(--hub-card)] text-foreground focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30"
                           />
                         </div>
                       </>
@@ -644,7 +644,7 @@ export function ExerciseHistoryDrawer({
                           <select
                             value={val}
                             onChange={(e) => { setVal(e.target.value); setValErr(false); }}
-                            className={`w-full rounded-[var(--r-control)] border px-2.5 py-2 text-[13.5px] font-semibold bg-[var(--hub-card)] text-foreground focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30 ${valErr ? "border-[var(--s-danger)]" : "border-[var(--hub-field-border)]"}`}
+                            className={`w-full rounded-control border px-2.5 py-2 text-[13.5px] font-semibold bg-[var(--hub-card)] text-foreground focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30 ${valErr ? "border-[var(--s-danger)]" : "border-[var(--hub-field-border)]"}`}
                           >
                             <option value="">Choose…</option>
                             {bandOptions.map((b) => (
@@ -661,7 +661,7 @@ export function ExerciseHistoryDrawer({
                             placeholder="12"
                             value={repsVal}
                             onChange={(e) => setRepsVal(e.target.value)}
-                            className="w-full rounded-[var(--r-control)] border border-[var(--hub-field-border)] px-2.5 py-2 text-[13.5px] font-semibold tabular-nums bg-[var(--hub-card)] text-foreground focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30"
+                            className="w-full rounded-control border border-[var(--hub-field-border)] px-2.5 py-2 text-[13.5px] font-semibold tabular-nums bg-[var(--hub-card)] text-foreground focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30"
                           />
                         </div>
                       </>
@@ -675,7 +675,7 @@ export function ExerciseHistoryDrawer({
                           placeholder="e.g. 14"
                           value={val}
                           onChange={(e) => { setVal(e.target.value); setValErr(false); }}
-                          className={`w-full rounded-[var(--r-control)] border px-2.5 py-2 text-[13.5px] font-semibold tabular-nums bg-[var(--hub-card)] text-foreground focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30 ${valErr ? "border-[var(--s-danger)]" : "border-[var(--hub-field-border)]"}`}
+                          className={`w-full rounded-control border px-2.5 py-2 text-[13.5px] font-semibold tabular-nums bg-[var(--hub-card)] text-foreground focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30 ${valErr ? "border-[var(--s-danger)]" : "border-[var(--hub-field-border)]"}`}
                         />
                       </div>
                     )}
@@ -689,7 +689,7 @@ export function ExerciseHistoryDrawer({
                           placeholder="1:05"
                           value={val}
                           onChange={(e) => { setVal(e.target.value); setValErr(false); }}
-                          className={`w-full rounded-[var(--r-control)] border px-2.5 py-2 text-[13.5px] font-semibold tabular-nums bg-[var(--hub-card)] text-foreground focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30 ${valErr ? "border-[var(--s-danger)]" : "border-[var(--hub-field-border)]"}`}
+                          className={`w-full rounded-control border px-2.5 py-2 text-[13.5px] font-semibold tabular-nums bg-[var(--hub-card)] text-foreground focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30 ${valErr ? "border-[var(--s-danger)]" : "border-[var(--hub-field-border)]"}`}
                         />
                       </div>
                     )}
@@ -704,7 +704,7 @@ export function ExerciseHistoryDrawer({
                       value={dateVal}
                       max={today}
                       onChange={(e) => { setDateVal(e.target.value); setDateErr(false); }}
-                      className={`w-full rounded-[var(--r-control)] border px-2.5 py-2 text-[13.5px] bg-[var(--hub-card)] text-foreground focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30 ${dateErr ? "border-[var(--s-danger)]" : "border-[var(--hub-field-border)]"}`}
+                      className={`w-full rounded-control border px-2.5 py-2 text-[13.5px] bg-[var(--hub-card)] text-foreground focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30 ${dateErr ? "border-[var(--s-danger)]" : "border-[var(--hub-field-border)]"}`}
                     />
                     {dateErr && <p className="text-[12px] font-semibold text-[var(--s-danger)]">The date can&apos;t be in the future.</p>}
                   </div>
@@ -718,12 +718,12 @@ export function ExerciseHistoryDrawer({
                       placeholder="e.g. done at home, 1 May 2026"
                       value={noteVal}
                       onChange={(e) => setNoteVal(e.target.value)}
-                      className="min-h-[62px] w-full resize-y rounded-[var(--r-control)] border border-[var(--hub-field-border)] bg-[var(--hub-card)] p-2.5 text-[13.5px] leading-relaxed text-foreground focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30"
+                      className="min-h-[62px] w-full resize-y rounded-control border border-[var(--hub-field-border)] bg-[var(--hub-card)] p-2.5 text-[13.5px] leading-relaxed text-foreground focus:outline-none focus:border-rose focus:ring-[3px] focus:ring-rose/30"
                     />
                   </div>
 
                   {/* Source line */}
-                  <div className="flex items-center gap-2 rounded-[var(--r-control)] border border-dashed border-[var(--hub-field-border)] bg-[var(--hub-hover)] px-2.5 py-2.5 text-[12.5px] text-[var(--body)]">
+                  <div className="flex items-center gap-2 rounded-control border border-dashed border-[var(--hub-field-border)] bg-[var(--hub-hover)] px-2.5 py-2.5 text-[12.5px] text-[var(--body)]">
                     <span className="shrink-0 text-muted-foreground">{ICO.penLine}</span>
                     <span>Source: <b className="text-foreground">Recorded manually</b> by {userDisplayName} · will show as manual wherever it appears</span>
                   </div>
@@ -741,7 +741,7 @@ export function ExerciseHistoryDrawer({
                       type="button"
                       onClick={handleSave}
                       disabled={posting}
-                      className="inline-flex items-center gap-1.5 rounded-[var(--r-control)] bg-rose px-3.5 py-2 text-[13px] font-bold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 rounded-control bg-rose px-3.5 py-2 text-[13px] font-bold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {posting ? "Saving…" : "Save personal best"}
                     </button>
@@ -766,11 +766,11 @@ export function ExerciseHistoryDrawer({
                     return (
                       <div
                         key={r.key}
-                        className={`flex items-start gap-2.5 rounded-[var(--r-nested)] border bg-[var(--hub-card)] p-2.5 ${isPb ? "border-[var(--s-warning-bd)]" : "border-[var(--hub-border)]"}`}
+                        className={`flex items-start gap-2.5 rounded-nested border bg-[var(--hub-card)] p-2.5 ${isPb ? "border-[var(--s-warning-bd)]" : "border-[var(--hub-border)]"}`}
                       >
                         {/* Icon */}
                         <span
-                          className={`flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-[var(--r-control)] ${
+                          className={`flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-control ${
                             r.source === "manual"
                               ? "border border-[var(--hub-border)] bg-[var(--hub-hover)] text-[var(--body)]"
                               : "bg-[var(--s-success-bg)] text-teal"
@@ -784,7 +784,7 @@ export function ExerciseHistoryDrawer({
                           <div className="text-[13.5px] font-bold text-foreground tabular-nums flex items-center gap-[7px] flex-wrap">
                             {vText(r)}
                             {r.source === "manual" && (
-                              <span className="inline-flex items-center text-[8.5px] font-extrabold tracking-[.06em] uppercase rounded-[var(--r-control-sm)] px-[5px] border border-black/18 bg-white/70 text-[#3F464C]">
+                              <span className="inline-flex items-center text-[8.5px] font-extrabold tracking-[.06em] uppercase rounded-control-sm px-[5px] border border-black/18 bg-white/70 text-[#3F464C]">
                                 manual
                               </span>
                             )}

@@ -86,7 +86,7 @@ export function AddWorkoutDialog({ open, onOpenChange, blockId, weeks, parentSes
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-[12px] shadow-lg">
+      <DialogContent className="max-w-lg bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-surface shadow-lg">
         <DialogHeader>
           <DialogTitle className="text-[var(--color-ink)]">
             {parentSessionId ? "Add supplementary work" : "Add Workout from Template"}

@@ -9,7 +9,7 @@ function formatCurrency(amount: number): string {
 export function ForecastSection({ forecast }: { forecast: ForecastResult }) {
   if (!forecast.hasSettings) {
     return (
-      <div className="bg-white border border-[var(--hub-border)] rounded-surface shadow-[0_1px_2px_rgba(16,24,40,.04),0_1px_3px_rgba(16,24,40,.07)] overflow-hidden mb-3.5">
+      <div className="bg-white border border-[var(--hub-border)] rounded-surface shadow-sm overflow-hidden mb-3.5">
         <div className="flex items-center gap-2.5 py-2.5 px-4 border-b border-[var(--hub-border)]">
           <IconTrendUp className="w-4 h-4 text-[var(--color-teal)]" />
           <h2 className="m-0 text-[15px] font-bold text-[var(--color-ink)] tracking-tight">Forecast</h2>
@@ -29,7 +29,7 @@ export function ForecastSection({ forecast }: { forecast: ForecastResult }) {
   const hasNegative = forecast.projection.some((m) => m.closing < 0);
 
   return (
-    <div className="bg-white border border-[var(--hub-border)] rounded-surface shadow-[0_1px_2px_rgba(16,24,40,.04),0_1px_3px_rgba(16,24,40,.07)] overflow-hidden mb-3.5">
+    <div className="bg-white border border-[var(--hub-border)] rounded-surface shadow-sm overflow-hidden mb-3.5">
       <div className="flex items-center gap-2.5 py-2.5 px-4 border-b border-[var(--hub-border)]">
         <IconTrendUp className="w-4 h-4 text-[var(--color-teal)]" />
         <h2 className="m-0 text-[15px] font-bold text-[var(--color-ink)] tracking-tight">Forecast</h2>

@@ -96,7 +96,7 @@ export function CancelSessionDialog({
       <div className="absolute inset-0 bg-dark-navy/42 backdrop-blur-sm" onClick={handleClose} />
 
       {/* Dialog */}
-      <div className="relative w-full max-w-[560px] mx-4 bg-[var(--hub-canvas)] shadow-2xl flex flex-col max-h-[calc(100vh-48px)]" style={{ borderRadius: "var(--r-surface)" }}>
+      <div className="relative w-full max-w-[560px] mx-4 bg-[var(--hub-canvas)] shadow-2xl flex flex-col max-h-[calc(100vh-48px)] rounded-surface">
         {/* Header */}
         <div className="flex items-start gap-3 px-6 pt-5 pb-4 bg-[var(--hub-card)] border-b border-[var(--hub-border)]" style={{ borderRadius: "var(--r-surface) var(--r-surface) 0 0" }}>
           <div className="w-9 h-9 rounded-nested flex items-center justify-center bg-[var(--status-danger-bg)] text-[var(--status-danger)] shrink-0">

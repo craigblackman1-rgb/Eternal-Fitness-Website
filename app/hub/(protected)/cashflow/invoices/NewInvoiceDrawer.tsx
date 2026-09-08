@@ -331,7 +331,7 @@ export function NewInvoiceDrawer({ open, onClose, onCreated }: NewInvoiceDrawerP
                 <div
                   key={t.id}
                   className={cn(
-                    "border-[1.5px] rounded-[12px] p-[14px] cursor-pointer transition-colors group",
+                    "border-[1.5px] rounded-nested p-[14px] cursor-pointer transition-colors group",
                     selectedTemplateId === t.id
                       ? "border-[var(--color-rose)] bg-[var(--status-primary-bg)]"
                       : "border-[var(--hub-border)] hover:border-[var(--hub-field-border-hover)]"

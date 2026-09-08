@@ -28,7 +28,7 @@ export default function ResourcePreviewPage({ params }: { params: { key: string 
           <IconChevronLeft className="h-3.5 w-3.5" />
           Back to Portal Resources
         </Link>
-        <div className="flex items-start gap-2.5 rounded-[12px] border border-[var(--status-primary-border)] bg-[var(--status-primary-bg)] px-4 py-3">
+        <div className="flex items-start gap-2.5 rounded-nested border border-[var(--status-primary-border)] bg-[var(--status-primary-bg)] px-4 py-3">
           <IconEye className="h-4 w-4 mt-0.5 shrink-0 text-rose" />
           <p className="text-[13px] text-[var(--color-body)] leading-relaxed">
             <strong className="text-foreground">Staff preview</strong> — this is exactly what a

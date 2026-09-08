@@ -41,7 +41,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-white border border-[var(--hub-border)] rounded-surface shadow-[0_1px_2px_rgba(16,24,40,.04),0_1px_3px_rgba(16,24,40,.07)] overflow-hidden mb-3.5">
+    <div className="bg-white border border-[var(--hub-border)] rounded-surface shadow-sm overflow-hidden mb-3.5">
       <div className="flex items-center gap-2.5 py-2.5 px-4 border-b border-[var(--hub-border)]">
         <h2 className="m-0 text-[15px] font-bold text-[var(--color-ink)] tracking-tight">{title}</h2>
         {meta && <span className="text-xs text-[var(--color-muted)]">{meta}</span>}

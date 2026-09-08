@@ -474,7 +474,7 @@ export function MergedNotesPanel({
 
         {/* Save failure — text is never cleared */}
         {saveError && (
-          <div className="flex items-start gap-2.5 mt-2.5 p-3 rounded-[12px] bg-[rgba(239,68,68,0.06)] border border-[rgba(239,68,68,0.15)] text-[12.5px] leading-[1.55] text-foreground">
+          <div className="flex items-start gap-2.5 mt-2.5 p-3 rounded-nested bg-[rgba(239,68,68,0.06)] border border-[rgba(239,68,68,0.15)] text-[12.5px] leading-[1.55] text-foreground">
             <IconAlertTriangle className="w-[15px] h-[15px] shrink-0 text-[var(--status-danger)] mt-0.5" />
             <span>
               <b className="block text-foreground">Note not saved.</b>
@@ -664,7 +664,7 @@ function NoteTimeline({
         return (
           <details
             key={k}
-            className="border border-[var(--hub-border)] rounded-[12px] mt-2.5 overflow-hidden bg-[var(--hub-card)]"
+            className="border border-[var(--hub-border)] rounded-nested mt-2.5 overflow-hidden bg-[var(--hub-card)]"
             open={openDetails.has(k)}
             onToggle={(e) => {
               setOpenDetails((prev) => {

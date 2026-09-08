@@ -212,7 +212,7 @@ export function SupplementaryWorkoutsCard({ clientNumber, clientName, sessionsRe
             {rows.map((row) => (
               <div
                 key={row.id}
-                className="border border-[var(--hub-border)] rounded-[var(--r-nested)] bg-[var(--hub-card)] p-3.5 flex items-start gap-3.5 hover:bg-[var(--hub-hover)] transition-colors"
+                className="border border-[var(--hub-border)] rounded-nested bg-[var(--hub-card)] p-3.5 flex items-start gap-3.5 hover:bg-[var(--hub-hover)] transition-colors"
               >
                 <div className="w-[34px] h-[34px] rounded-lg flex items-center justify-center bg-rose/10 text-rose shrink-0">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={17} height={17}>
@@ -258,7 +258,7 @@ export function SupplementaryWorkoutsCard({ clientNumber, clientName, sessionsRe
 
           {/* Partial-apply error */}
           {addResult && addResult.failed.length > 0 && (
-            <div className="mt-3 border border-[var(--status-warning-border)] bg-[var(--status-warning-bg)] rounded-[var(--r-nested)] p-3 flex gap-2.5 items-start" role="alert">
+            <div className="mt-3 border border-[var(--status-warning-border)] bg-[var(--status-warning-bg)] rounded-nested p-3 flex gap-2.5 items-start" role="alert">
               <IconAlertTriangle className="w-4 h-4 text-[var(--status-warning-text)] shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <div className="text-[13px] font-bold text-foreground">{addResult.failed.length} scheduled session{addResult.failed.length === 1 ? "" : "s"} were not updated</div>
@@ -278,7 +278,7 @@ export function SupplementaryWorkoutsCard({ clientNumber, clientName, sessionsRe
 
           {/* Remove result */}
           {removeResult && (removeResult.detached > 0 || removeResult.kept_logged > 0 || removeResult.kept_delivered > 0) && (
-            <div className="mt-3 border border-[var(--status-success-border)] bg-[var(--status-success-bg)] rounded-[var(--r-nested)] p-3 flex gap-2.5 items-start">
+            <div className="mt-3 border border-[var(--status-success-border)] bg-[var(--status-success-bg)] rounded-nested p-3 flex gap-2.5 items-start">
               <IconCheckCircle className="w-4 h-4 text-[var(--status-success-text)] shrink-0 mt-0.5" />
               <div className="text-[12.5px] text-[var(--color-body)]">
                 {removeResult.detached > 0 && <span>Removed from <b className="text-foreground">{removeResult.detached}</b> session{removeResult.detached === 1 ? "" : "s"}.</span>}
@@ -290,7 +290,7 @@ export function SupplementaryWorkoutsCard({ clientNumber, clientName, sessionsRe
 
           {/* Pot rule */}
           {sessionsRemaining != null && (
-            <div className="mt-3 flex gap-2.5 items-start border border-[var(--status-success-border)] bg-[var(--status-success-bg)] rounded-[var(--r-nested)] p-3 text-[12.5px] text-[var(--color-body)]">
+            <div className="mt-3 flex gap-2.5 items-start border border-[var(--status-success-border)] bg-[var(--status-success-bg)] rounded-nested p-3 text-[12.5px] text-[var(--color-body)]">
               <IconCheckCircle className="w-[15px] h-[15px] shrink-0 mt-0.5 text-[var(--status-success-text)]" />
               <div>
                 Not counted, not numbered, not charged — {clientName} still has <b className="text-foreground">{sessionsRemaining} session{sessionsRemaining === 1 ? "" : "s"} remaining</b>.
@@ -316,7 +316,7 @@ export function SupplementaryWorkoutsCard({ clientNumber, clientName, sessionsRe
       {/* ── ADD DIALOG ─────────────────────────────────────────────── */}
       {addOpen && (
         <div className="fixed inset-0 z-50 grid place-items-center p-6" style={{ background: "rgba(19,19,19,0.45)" }}>
-          <div className="bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-[var(--r-surface)] shadow-[0_24px_60px_rgba(19,19,19,0.22)] w-[min(580px,100%)] max-h-[88vh] flex flex-col overflow-hidden">
+          <div className="bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-surface shadow-[0_24px_60px_rgba(19,19,19,0.22)] w-[min(580px,100%)] max-h-[88vh] flex flex-col overflow-hidden">
             <div className="flex items-center gap-2.5 px-5 py-4 border-b border-[var(--hub-border)]">
               <h2 className="flex-1 text-[15px] font-bold text-foreground">Add a supplementary workout</h2>
               <button type="button" onClick={() => setAddOpen(false)} className="w-8 h-8 rounded-lg grid place-items-center text-[var(--color-muted)] hover:bg-[var(--hub-hover)] hover:text-foreground transition-colors">
@@ -396,7 +396,7 @@ export function SupplementaryWorkoutsCard({ clientNumber, clientName, sessionsRe
               <div className="flex-1 overflow-y-auto px-5 py-4">
                 {selectedTemplate && (
                   <>
-                    <div className="flex items-center gap-2.5 border border-rose/34 bg-rose/8 rounded-[var(--r-nested)] p-3 mb-3.5">
+                    <div className="flex items-center gap-2.5 border border-rose/34 bg-rose/8 rounded-nested p-3 mb-3.5">
                       <div className="w-8 h-8 rounded-nested grid place-items-center bg-rose/12 text-rose shrink-0">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}>
                           <path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11" />
@@ -407,7 +407,7 @@ export function SupplementaryWorkoutsCard({ clientNumber, clientName, sessionsRe
                         <div className="text-[11.5px] text-[var(--color-body)]">{selectedTemplate.muscle_groups.length} exercises</div>
                       </div>
                     </div>
-                    <div className="border border-[var(--hub-border)] rounded-[var(--r-nested)] bg-[var(--hub-hover)] p-3.5">
+                    <div className="border border-[var(--hub-border)] rounded-nested bg-[var(--hub-hover)] p-3.5">
                       <p className="text-[12px] font-bold uppercase tracking-wide text-[var(--color-muted)] mb-2.5">What this changes</p>
                       <ul className="space-y-2.5">
                         <li className="flex gap-2.5 items-start text-[13px] text-[var(--color-body)] leading-relaxed">
@@ -468,7 +468,7 @@ export function SupplementaryWorkoutsCard({ clientNumber, clientName, sessionsRe
       {/* ── REMOVE CONFIRM DIALOG ──────────────────────────────────── */}
       {removeRow && (
         <div className="fixed inset-0 z-50 grid place-items-center p-6" style={{ background: "rgba(19,19,19,0.45)" }}>
-          <div className="bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-[var(--r-surface)] shadow-[0_24px_60px_rgba(19,19,19,0.22)] w-[min(520px,100%)] max-h-[88vh] flex flex-col overflow-hidden">
+          <div className="bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-surface shadow-[0_24px_60px_rgba(19,19,19,0.22)] w-[min(520px,100%)] max-h-[88vh] flex flex-col overflow-hidden">
             <div className="flex items-center gap-2.5 px-5 py-4 border-b border-[var(--hub-border)]">
               <h2 className="flex-1 text-[15px] font-bold text-foreground">Stop attaching {removeRow.template_name}?</h2>
               <button type="button" onClick={() => setRemoveRow(null)} className="w-8 h-8 rounded-lg grid place-items-center text-[var(--color-muted)] hover:bg-[var(--hub-hover)] hover:text-foreground transition-colors">
@@ -479,7 +479,7 @@ export function SupplementaryWorkoutsCard({ clientNumber, clientName, sessionsRe
               <p className="text-[13px] text-[var(--color-body)] leading-relaxed mb-3.5">
                 It will stop being attached to {clientName}&apos;s sessions from now on. Nothing already logged is deleted.
               </p>
-              <div className="border border-[var(--hub-border)] rounded-[var(--r-nested)] bg-[var(--hub-hover)] p-3.5">
+              <div className="border border-[var(--hub-border)] rounded-nested bg-[var(--hub-hover)] p-3.5">
                 <p className="text-[12px] font-bold uppercase tracking-wide text-[var(--color-muted)] mb-2.5">What happens to the sessions it is on</p>
                 <ul className="space-y-2.5">
                   <li className="flex gap-2.5 items-start text-[13px] text-[var(--color-body)] leading-relaxed">

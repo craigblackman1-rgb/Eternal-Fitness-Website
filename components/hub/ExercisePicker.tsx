@@ -158,7 +158,7 @@ export function ExercisePicker({
             )}
 
             {!loading && filtered.length === 0 && search && !showCustomInput && (
-              <p className="rounded-[12px] border border-dashed border-[var(--hub-border)] py-4 text-center text-sm text-muted-foreground">
+              <p className="rounded-nested border border-dashed border-[var(--hub-border)] py-4 text-center text-sm text-muted-foreground">
                 No exercises match &ldquo;{search}&rdquo;
               </p>
             )}
@@ -170,7 +170,7 @@ export function ExercisePicker({
             )}
 
             {showCustomInput && (
-              <div className="rounded-[12px] border border-dashed border-rose/30 bg-rose/5 p-3 space-y-2">
+              <div className="rounded-nested border border-dashed border-rose/30 bg-rose/5 p-3 space-y-2">
                 <p className="text-xs text-muted-foreground">
                   &ldquo;{search}&rdquo; isn&apos;t in the library yet.
                 </p>

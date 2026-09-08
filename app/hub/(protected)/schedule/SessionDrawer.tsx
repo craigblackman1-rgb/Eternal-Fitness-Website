@@ -103,7 +103,7 @@ export function SessionDrawer({ entry, onClose, onComplete }: SessionDrawerProps
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-[var(--r-control)] border-0 bg-transparent text-muted-foreground cursor-pointer grid place-items-center text-lg leading-none shrink-0 hover:bg-[var(--hub-hover)] hover:text-foreground"
+            className="w-8 h-8 rounded-control border-0 bg-transparent text-muted-foreground cursor-pointer grid place-items-center text-lg leading-none shrink-0 hover:bg-[var(--hub-hover)] hover:text-foreground"
             aria-label="Close"
           >
             &times;
@@ -132,8 +132,7 @@ export function SessionDrawer({ entry, onClose, onComplete }: SessionDrawerProps
           {/* Off-day warning */}
           {offDay && entry.completedAt && (
             <div
-              className="flex gap-2 p-2.5 text-[12px] leading-relaxed mt-3"
-              style={{ borderRadius: "var(--r-nested)", background: "rgba(138,78,99,.10)", border: "1px solid rgba(138,78,99,.28)", color: "#6B3A4B" }}
+              className="flex gap-2 p-2.5 text-[12px] leading-relaxed mt-3 rounded-nested" style={{ background: "rgba(138,78,99,.10)", border: "1px solid rgba(138,78,99,.28)", color: "#6B3A4B" }}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={14} height={14} className="shrink-0 mt-0.5" style={{ color: "#8A4E63" }}>
                 <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" />
@@ -153,7 +152,7 @@ export function SessionDrawer({ entry, onClose, onComplete }: SessionDrawerProps
 
           {/* Stored state */}
           <p className="m-0 mt-5 mb-2 text-[10.5px] font-bold uppercase tracking-[.08em] text-muted-foreground">Stored state</p>
-          <div className="border border-[var(--hub-border)] overflow-hidden" style={{ borderRadius: "var(--r-nested)" }}>
+          <div className="border border-[var(--hub-border)] overflow-hidden rounded-nested">
             <StampRow label="Booked for" value={formatStamp(entry.scheduledAt)} set />
             <StampRow label="Started" value={entry.startedAt ? formatStamp(entry.startedAt) : null} set={!!entry.startedAt} />
             <StampRow label="Completed" value={entry.completedAt ? formatStamp(entry.completedAt) : null} set={!!entry.completedAt} />
@@ -162,7 +161,7 @@ export function SessionDrawer({ entry, onClose, onComplete }: SessionDrawerProps
 
           {/* Workout */}
           <p className="m-0 mt-5 mb-2 text-[10.5px] font-bold uppercase tracking-[.08em] text-muted-foreground">Workout</p>
-          <div className="border border-[var(--hub-border)] overflow-hidden" style={{ borderRadius: "var(--r-nested)" }}>
+          <div className="border border-[var(--hub-border)] overflow-hidden rounded-nested">
             <div className="flex items-baseline gap-3.5 px-2.5 py-2 text-[13px]">
               <span className="flex-shrink-0 w-[100px] text-muted-foreground text-[12.5px]">Focus</span>
               <span className="flex-1 min-w-0 text-foreground font-medium">{entry.focusLabel}</span>
@@ -178,14 +177,14 @@ export function SessionDrawer({ entry, onClose, onComplete }: SessionDrawerProps
                 type="button"
                 disabled
                 title="Not available yet — use the Calendar view for now"
-                className="inline-flex items-center justify-center gap-1.5 rounded-[var(--r-control)] px-3.5 py-1.5 min-h-[30px] font-[inherit] text-[12.5px] font-semibold cursor-not-allowed border border-[var(--muted)] bg-[var(--hub-card)] text-muted-foreground opacity-50"
+                className="inline-flex items-center justify-center gap-1.5 rounded-control px-3.5 py-1.5 min-h-[30px] font-[inherit] text-[12.5px] font-semibold cursor-not-allowed border border-[var(--muted)] bg-[var(--hub-card)] text-muted-foreground opacity-50"
               >
                 Reschedule
               </button>
               <button
                 type="button"
                 onClick={() => onComplete?.(entry)}
-                className="inline-flex items-center justify-center gap-1.5 rounded-[var(--r-control)] px-3.5 py-1.5 min-h-[30px] font-[inherit] text-[12.5px] font-semibold cursor-pointer border border-[var(--muted)] bg-[var(--hub-card)] text-foreground hover:bg-[var(--hub-hover)] hover:border-foreground transition-colors"
+                className="inline-flex items-center justify-center gap-1.5 rounded-control px-3.5 py-1.5 min-h-[30px] font-[inherit] text-[12.5px] font-semibold cursor-pointer border border-[var(--muted)] bg-[var(--hub-card)] text-foreground hover:bg-[var(--hub-hover)] hover:border-foreground transition-colors"
               >
                 Mark completed
               </button>
@@ -193,7 +192,7 @@ export function SessionDrawer({ entry, onClose, onComplete }: SessionDrawerProps
                 type="button"
                 disabled
                 title="Not available yet — use the Calendar view for now"
-                className="inline-flex items-center justify-center gap-1.5 rounded-[var(--r-control)] px-3.5 py-1.5 min-h-[30px] font-[inherit] text-[12.5px] font-semibold cursor-not-allowed border border-transparent bg-transparent text-muted-foreground opacity-50"
+                className="inline-flex items-center justify-center gap-1.5 rounded-control px-3.5 py-1.5 min-h-[30px] font-[inherit] text-[12.5px] font-semibold cursor-not-allowed border border-transparent bg-transparent text-muted-foreground opacity-50"
               >
                 Cancel
               </button>
@@ -202,7 +201,7 @@ export function SessionDrawer({ entry, onClose, onComplete }: SessionDrawerProps
           {entry.status === "completed" && sessionUrl && (
             <Link
               href={sessionUrl}
-              className="inline-flex items-center justify-center gap-1.5 rounded-[var(--r-control)] px-3.5 py-1.5 min-h-[30px] font-[inherit] text-[12.5px] font-semibold cursor-pointer border border-[var(--muted)] bg-[var(--hub-card)] text-foreground hover:bg-[var(--hub-hover)] hover:border-foreground transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 rounded-control px-3.5 py-1.5 min-h-[30px] font-[inherit] text-[12.5px] font-semibold cursor-pointer border border-[var(--muted)] bg-[var(--hub-card)] text-foreground hover:bg-[var(--hub-hover)] hover:border-foreground transition-colors"
             >
               Open session
             </Link>

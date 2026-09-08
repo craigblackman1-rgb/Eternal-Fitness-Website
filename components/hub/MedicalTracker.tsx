@@ -418,7 +418,7 @@ export function MedicalTracker({ clients }: MedicalTrackerProps) {
 
       {/* ── DNT alert ───────────────────────────────── */}
       {dntClients.length > 0 && (
-        <div className="flex items-start gap-3 rounded-[12px] p-3.5 bg-[var(--status-danger-solid)] text-white" role="alert">
+        <div className="flex items-start gap-3 rounded-nested p-3.5 bg-[var(--status-danger-solid)] text-white" role="alert">
           <IconAlertTriangle className="w-[18px] h-[18px] shrink-0 mt-px" />
           <div>
             <p className="text-[13.5px] font-bold">Do Not Train — {dntClients.length} {dntClients.length === 1 ? "client" : "clients"}</p>
@@ -448,10 +448,10 @@ export function MedicalTracker({ clients }: MedicalTrackerProps) {
             <div className="text-[12.5px] text-muted-foreground">Derived from document dates — never set by hand</div>
           </div>
           <div className="inline-flex ml-auto bg-[var(--hub-canvas)] border border-[var(--hub-border)] rounded-nested p-[3px] gap-0.5" role="tablist" aria-label="Tracker view">
-            <button type="button" role="tab" aria-selected={view === "matrix"} className={cn("border-0 rounded-[7px] bg-transparent font-[inherit] text-[12.5px] font-semibold px-3.5 py-1.5 cursor-pointer transition-colors", view === "matrix" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")} onClick={() => { setView("matrix"); setSortKey("status"); setSortDir(1); setPage(0); }}>
+            <button type="button" role="tab" aria-selected={view === "matrix"} className={cn("border-0 rounded-control-sm bg-transparent font-[inherit] text-[12.5px] font-semibold px-3.5 py-1.5 cursor-pointer transition-colors", view === "matrix" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")} onClick={() => { setView("matrix"); setSortKey("status"); setSortDir(1); setPage(0); }}>
               By client
             </button>
-            <button type="button" role="tab" aria-selected={view === "register"} className={cn("border-0 rounded-[7px] bg-transparent font-[inherit] text-[12.5px] font-semibold px-3.5 py-1.5 cursor-pointer transition-colors", view === "register" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")} onClick={() => { setView("register"); setSortKey("st"); setSortDir(1); setPage(0); }}>
+            <button type="button" role="tab" aria-selected={view === "register"} className={cn("border-0 rounded-control-sm bg-transparent font-[inherit] text-[12.5px] font-semibold px-3.5 py-1.5 cursor-pointer transition-colors", view === "register" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")} onClick={() => { setView("register"); setSortKey("st"); setSortDir(1); setPage(0); }}>
               By document
             </button>
           </div>
