@@ -30,6 +30,7 @@ const crumbLabels: Record<string, string> = {
 const sectionRoutes: Record<string, string> = {
   "/hub/documents": "Documents",
   "/hub/document-templates": "Documents",
+  "/hub/cashflow": "Finance",
   "/hub/cashflow/invoices": "Finance",
   "/hub/cashflow/transactions": "Finance",
   "/hub/cashflow/forecast": "Finance",
