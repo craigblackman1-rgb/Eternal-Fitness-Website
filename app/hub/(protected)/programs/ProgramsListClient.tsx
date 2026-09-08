@@ -25,6 +25,11 @@ export interface ClientContext {
   active_program_id: string | null;
 }
 
+function formatDate(value: string | null | undefined) {
+  if (!value) return "\u2014";
+  return new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
 const statusConfig: Record<string, { token: StatusToken; label: string }> = {
   active: { token: "primary", label: "Active" },
   archived: { token: "neutral", label: "Archived" },
@@ -205,6 +210,24 @@ export function ProgramsListClient({
         return <TokenPill token={cfg.token} label={cfg.label} />;
       },
       className: "w-28",
+    },
+    {
+      key: "created_at",
+      header: "Created",
+      sortable: true,
+      sortValue: (row) => row.created_at ?? "",
+      render: (row) => (
+        <span className="tabular-nums">{formatDate(row.created_at)}</span>
+      ),
+    },
+    {
+      key: "updated_at",
+      header: "Updated",
+      sortable: true,
+      sortValue: (row) => row.updated_at ?? "",
+      render: (row) => (
+        <span className="tabular-nums">{formatDate(row.updated_at)}</span>
+      ),
     },
   ];
 
