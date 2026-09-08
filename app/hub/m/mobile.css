@@ -756,6 +756,65 @@
 .panel-tap .panel-h { padding-right: 12px; }
 .panel-chev { margin-left: auto; flex-shrink: 0; color: var(--muted); }
 
+/* ── CR-EF-u3: Unified Training model ────────────────────────────────
+   Pot hero, next workout, queue rows, booked-in, stats.
+   Replaces the old Sessions tab pot strip + block bar. */
+
+/* Pot hero — the answer to "how many sessions are left?" */
+.pot-hero { display: flex; align-items: flex-end; gap: 10px; }
+.pot-hero-fig { font-size: 46px; font-weight: 800; line-height: .92; letter-spacing: -.03em; color: var(--ink); font-variant-numeric: tabular-nums; }
+.pot-hero-label { font-size: 13px; font-weight: 600; color: var(--body); padding-bottom: 5px; }
+.pot-hero-of { margin-left: auto; font-size: 12.5px; color: var(--muted); padding-bottom: 5px; font-variant-numeric: tabular-nums; }
+.pot-hero-bar { height: 9px; border-radius: var(--r-pill); background: var(--hover); border: 1px solid var(--border); overflow: hidden; margin: 11px 0 8px; }
+.pot-hero-bar i { display: block; height: 100%; background: var(--rose); border-radius: var(--r-pill); }
+.pot-hero-s { display: block; margin: 0; font-size: 12.5px; color: var(--body); }
+.pot-hero.low .pot-hero-fig { color: var(--s-danger); }
+.pot-hero.low .pot-hero-bar i { background: var(--s-danger); }
+
+/* Next workout */
+.nw { display: flex; align-items: center; gap: 12px; }
+.nw-p { flex-shrink: 0; width: 44px; height: 44px; border-radius: var(--r-nested); background: var(--s-primary-bg); border: 1px solid var(--rose); color: var(--rose); display: grid; place-items: center; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.nw-m { display: block; min-width: 0; flex: 1; }
+.nw-t { display: block; font-size: 16px; font-weight: 800; color: var(--ink); letter-spacing: -.01em; }
+.nw-s { display: block; font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+/* Action bar — exactly two actions */
+.actbar-m { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.actbar-m .btn { width: 100%; }
+
+/* Queue row */
+.qrow-m { display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 0; border: 0; background: none; text-align: left; cursor: pointer; font-family: inherit; }
+.qrow-m + .qrow-m { border-top: 1px solid var(--border); }
+.qrow-m:hover { background: var(--hover); }
+.qrow-m-p { flex-shrink: 0; width: 34px; height: 28px; border-radius: var(--r-control-sm); border: 1px solid var(--border); background: var(--hover); display: grid; place-items: center; font-size: 12px; font-weight: 800; color: var(--body); font-variant-numeric: tabular-nums; }
+.qrow-m-w { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.qrow-m-w small { display: block; font-size: 11.5px; font-weight: 400; color: var(--muted); margin-top: 1px; }
+.qrow-m-c { flex-shrink: 0; color: var(--muted); }
+.qmore { display: block; width: 100%; padding: 11px 0 2px; border: 0; border-top: 1px solid var(--border); background: none; font-family: inherit; font-size: 12.5px; font-weight: 700; color: var(--rose); cursor: pointer; text-align: left; }
+
+/* Booking row */
+.brow-m { display: flex; align-items: center; gap: 11px; padding: 10px 0; }
+.brow-m + .brow-m { border-top: 1px solid var(--border); }
+.bdate-m { flex-shrink: 0; width: 54px; text-align: center; border-radius: 9px; border: 1px solid var(--border); background: var(--hover); padding: 5px 0; }
+.bdate-m b { display: block; font-size: 14px; font-weight: 800; color: var(--ink); line-height: 1.1; }
+.bdate-m span { font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.bmeta-m { min-width: 0; flex: 1; font-size: 13px; color: var(--body); }
+.bmeta-m b { display: block; color: var(--ink); font-size: 13.5px; font-weight: 700; }
+
+/* Empty state — no plan */
+.noplan-m { border: 1px dashed var(--field-border); border-radius: 12px; background: var(--hover); padding: 14px; text-align: left; }
+.noplan-m-t { margin: 0; font-size: 14px; font-weight: 700; color: var(--ink); }
+.noplan-m-s { margin: 4px 0 12px; font-size: 12.5px; color: var(--body); }
+.mrecon-m { display: flex; gap: 9px; border-radius: 12px; padding: 11px 12px; font-size: 12.5px; line-height: 1.5; border: 1px solid var(--s-warning-bd); background: var(--s-warning-bg); color: var(--status-warning-text); margin-top: 12px; }
+.mrecon-m b { color: var(--ink); }
+
+/* Stats */
+.stats-m { display: flex; gap: 18px; flex-wrap: wrap; }
+.stats-m span { font-size: 12px; color: var(--muted); }
+.stats-m b { display: block; font-size: 18px; font-weight: 800; color: var(--ink); letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+.stats-m b.up { color: var(--teal); }
+.stats-m b.dn { color: var(--s-danger); }
+
 /* ── CR-EF-113: Sessions pot strip ── */
 .mpot { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-surface); box-shadow: var(--shadow-sm); padding: 12px 14px; margin-bottom: 12px; }
 .mpot-row { display: flex; align-items: baseline; gap: 9px; }
