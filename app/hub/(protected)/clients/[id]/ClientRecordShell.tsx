@@ -5,7 +5,7 @@ import { DrawerManager } from "./DrawerManager";
 import { ClientRecordHeader } from "./ClientRecordHeader";
 import { ClientDrawerStrip } from "./ClientDrawerStrip";
 import { NeedsYouQueue, buildNeedsYouItems } from "./NeedsYouQueue";
-import { TrainingSummary } from "./TrainingSummary";
+import { TrainingSection } from "./TrainingSection";
 import { TrainingDrawer } from "./TrainingDrawer";
 import { ClientDrawers } from "./ClientDrawers";
 import { RenewalFlow } from "./RenewalFlow";
@@ -287,8 +287,8 @@ export function ClientRecordShell({
           <NeedsYouQueue {...needsYouInput} />
         </div>
 
-        {/* ── Section 2: Training (compact band) ── */}
-        <TrainingSummary
+        {/* ── Section 2: Training (unified model) ── */}
+        <TrainingSection
           clientNumber={client.client_number}
           clientName={client.name}
           preferredTime={client.profile?.logistics?.preferred_time ?? null}
@@ -296,16 +296,15 @@ export function ClientRecordShell({
           blockSessions={blockSessions}
           allBlocks={blocks}
           allSessions={sessions}
-          exerciseTrendSummary={exerciseTrendSummary}
           sessionsRemaining={sessionsRemaining}
           sessionsPurchased={sessionsPurchased}
+          baselineUsed={baselineUsed}
           paymentStatus={paymentStatus}
           packageType={packageType}
           programState={programState}
           flaggedSessionIds={flaggedSessionIds}
-          activeProgramId={activeProgramId}
           clientId={client.id}
-          serverNextSession={nextSession}
+          exerciseTrendSummary={exerciseTrendSummary}
         />
       </div>
 
