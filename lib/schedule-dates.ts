@@ -158,7 +158,7 @@ export function groupSessionsByWeek<T extends { scheduled_at: string | null; pro
     });
 
   [...planWeeks.entries()]
-    .sort(([a], [b]) => a - b)
+    .sort(([a], [b]) => (a == null ? 1 : b == null ? -1 : a - b))
     .forEach(([week, items]) => {
       groups.push({ key: `p${week}`, kind: "plan", planWeek: week, monday: null, sessions: items });
     });
