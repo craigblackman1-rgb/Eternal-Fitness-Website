@@ -169,6 +169,10 @@ export function TasksManager({ initialTasks, initialBuckets, currentUserName, cl
     () => !!currentUserName && ASSIGNEE_OPTIONS.includes(currentUserName),
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [showManageBuckets, setShowManageBuckets] = useState(false);
+  const [editingBucketId, setEditingBucketId] = useState<string | null>(null);
+  const [bucketNameDraft, setBucketNameDraft] = useState("");
+  const [bucketBusy, setBucketBusy] = useState(false);
 
   const blankForm = {
     title: "",
@@ -285,6 +289,68 @@ export function TasksManager({ initialTasks, initialBuckets, currentUserName, cl
     }
   }
 
+  function startEditBucket(bucket: TaskBucket) {
+    setEditingBucketId(bucket.id);
+    setBucketNameDraft(bucket.name);
+  }
+
+  function cancelEditBucket() {
+    setEditingBucketId(null);
+    setBucketNameDraft("");
+  }
+
+  async function saveBucketRename(bucket: TaskBucket) {
+    const name = bucketNameDraft.trim();
+    if (!name || name === bucket.name) {
+      cancelEditBucket();
+      return;
+    }
+    setBucketBusy(true);
+    try {
+      const res = await fetch(`/api/task-buckets/${bucket.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      if (!res.ok) {
+        const body = await res.json();
+        throw new Error(body.error ?? "Failed to rename bucket");
+      }
+      const updated = await res.json();
+      setBuckets((prev) =>
+        prev.map((b) => (b.id === bucket.id ? updated : b)).sort((a, b) => a.name.localeCompare(b.name)),
+      );
+      toast.success(`Renamed to "${updated.name}"`);
+      cancelEditBucket();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to rename bucket");
+    } finally {
+      setBucketBusy(false);
+    }
+  }
+
+  async function deleteBucket(bucket: TaskBucket) {
+    if (!confirm(`Delete bucket "${bucket.name}"? Tasks in it become unbucketed, not deleted.`)) return;
+    setBucketBusy(true);
+    try {
+      const res = await fetch(`/api/task-buckets/${bucket.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const body = await res.json();
+        throw new Error(body.error ?? "Failed to delete bucket");
+      }
+      setBuckets((prev) => prev.filter((b) => b.id !== bucket.id));
+      setTasks((prev) =>
+        prev.map((t) => (t.bucket_id === bucket.id ? { ...t, bucket_id: null } : t)),
+      );
+      if (bucketFilter === bucket.id) setBucketFilter(null);
+      toast.success(`Bucket "${bucket.name}" deleted`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete bucket");
+    } finally {
+      setBucketBusy(false);
+    }
+  }
+
   async function remove(task: Task) {
     if (!confirm(`Delete task "${task.title}"?`)) return;
     setTasks((prev) => prev.filter((t) => t.id !== task.id));
@@ -378,10 +444,13 @@ export function TasksManager({ initialTasks, initialBuckets, currentUserName, cl
             className={toolbarSelectClasses}
             aria-label="Filter by bucket"
           >
-            <option value="all">All buckets</option>
-            {buckets.map((b) => (
-              <option key={b.id} value={b.id}>{b.name}</option>
-            ))}
+            <option value="all">All buckets ({assigneeScopedTasks.length})</option>
+            {buckets.map((b) => {
+              const count = assigneeScopedTasks.filter((t) => t.bucket_id === b.id).length;
+              return (
+                <option key={b.id} value={b.id}>{b.name} ({count})</option>
+              );
+            })}
           </select>
         )}
         <select
@@ -390,9 +459,12 @@ export function TasksManager({ initialTasks, initialBuckets, currentUserName, cl
           className={toolbarSelectClasses}
           aria-label="Filter by due date"
         >
-          {DUE_FILTER_OPTIONS.map((opt) => (
-            <option key={opt.key} value={opt.key}>{opt.label}</option>
-          ))}
+          {DUE_FILTER_OPTIONS.map((opt) => {
+            const count = bucketScopedTasks.filter((t) => matchesDueFilter(t, opt.key)).length;
+            return (
+              <option key={opt.key} value={opt.key}>{opt.label} ({count})</option>
+            );
+          })}
         </select>
         {clients.length > 0 && (
           <select
@@ -402,9 +474,12 @@ export function TasksManager({ initialTasks, initialBuckets, currentUserName, cl
             aria-label="Filter by client"
           >
             <option value="">All clients</option>
-            {clients.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
+            {clients.map((c) => {
+              const count = bucketScopedTasks.filter((t) => t.client_id === c.id).length;
+              return (
+                <option key={c.id} value={c.id}>{c.name} ({count})</option>
+              );
+            })}
           </select>
         )}
         <select
@@ -431,6 +506,16 @@ export function TasksManager({ initialTasks, initialBuckets, currentUserName, cl
             <IconChevronDown className="h-3.5 w-3.5" />
           )}
         </Button>
+        {buckets.length > 0 && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="gap-1.5 rounded-lg"
+            onClick={() => setShowManageBuckets(true)}
+          >
+            Manage buckets
+          </Button>
+        )}
         <Button
           size="sm"
           className="gap-1.5 rounded-lg bg-rose text-white hover:bg-rose/90"
@@ -660,6 +745,83 @@ export function TasksManager({ initialTasks, initialBuckets, currentUserName, cl
                 {editing ? "Save changes" : "Create task"}
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={showManageBuckets}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowManageBuckets(false);
+            cancelEditBucket();
+          }
+        }}
+      >
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Manage buckets</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-1">
+            {buckets.length === 0 && (
+              <p className="text-sm text-muted-foreground py-4 text-center">No buckets yet</p>
+            )}
+            {buckets.map((b) => {
+              if (editingBucketId === b.id) {
+                return (
+                  <div key={b.id} className="flex items-center gap-2 rounded-lg bg-[var(--hub-hover)] px-3 py-2">
+                    <input
+                      autoFocus
+                      value={bucketNameDraft}
+                      onChange={(e) => setBucketNameDraft(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") saveBucketRename(b);
+                        if (e.key === "Escape") cancelEditBucket();
+                      }}
+                      disabled={bucketBusy}
+                      className="flex-1 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] px-2 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-rose"
+                    />
+                    <button
+                      onClick={() => saveBucketRename(b)}
+                      disabled={bucketBusy}
+                      title="Save"
+                      className="rounded-nested p-1 text-muted-foreground hover:bg-[var(--hub-card)] hover:text-foreground"
+                    >
+                      <IconCheck className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={cancelEditBucket}
+                      disabled={bucketBusy}
+                      title="Cancel"
+                      className="rounded-nested p-1 text-muted-foreground hover:bg-[var(--hub-card)] hover:text-foreground"
+                    >
+                      <IconX className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                );
+              }
+              return (
+                <div key={b.id} className="group flex items-center justify-between rounded-lg px-3 py-2 hover:bg-[var(--hub-hover)]">
+                  <span className="text-sm font-medium truncate">{b.name}</span>
+                  <div className="flex gap-0.5 shrink-0">
+                    <button
+                      onClick={() => startEditBucket(b)}
+                      title={`Rename "${b.name}"`}
+                      className="rounded-nested p-1.5 text-muted-foreground opacity-0 transition-opacity hover:bg-[var(--hub-card)] hover:text-foreground group-hover:opacity-100 focus-visible:opacity-100"
+                    >
+                      <IconPencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={() => deleteBucket(b)}
+                      title={`Delete "${b.name}"`}
+                      className="rounded-nested p-1.5 text-muted-foreground opacity-0 transition-opacity hover:bg-[var(--hub-card)] hover:text-[var(--status-danger)] group-hover:opacity-100 focus-visible:opacity-100"
+                    >
+                      <IconTrash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </DialogContent>
       </Dialog>
