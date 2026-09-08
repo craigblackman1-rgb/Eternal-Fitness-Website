@@ -707,7 +707,7 @@ export function TrainingDrawer({
       <div className="fcard acc-teal">
         <div className="fcard-h">
           Start or replace the programme
-          <span className="sub">Copies in \u2014 never links, so editing hers changes nobody else&apos;s</span>
+          <span className="sub">Copies in — never links, so editing hers changes nobody else&apos;s</span>
         </div>
         <div className="fcard-b">
           {programState && (
@@ -715,7 +715,7 @@ export function TrainingDrawer({
               <span className="prow-m">
                 <span className="prow-t">{programmeName}</span>
                 <span className="prow-s">
-                  {totalQueueSlots} workouts \u00b7 currently hers
+                  {totalQueueSlots} workouts · currently hers
                 </span>
               </span>
               <span className="prow-a">
@@ -738,7 +738,7 @@ export function TrainingDrawer({
                   onClick={() => handleApplyProgramme(p.id)}
                   className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--color-rose)] text-white px-3 py-1 min-h-[28px] font-[inherit] text-[11.5px] font-semibold cursor-pointer hover:bg-[var(--color-rose)]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {applyingProgramId === p.id ? "Applying\u2026" : "Apply"}
+                  {applyingProgramId === p.id ? "Applying…" : "Apply"}
                 </button>
               </span>
             </div>
@@ -755,13 +755,13 @@ export function TrainingDrawer({
                 onClick={() => setShowCopySearch(true)}
                 className="inline-flex items-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1.5 min-h-[28px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
               >
-                Copy from another client\u2026
+                Copy from another client…
               </button>
             ) : (
               <div>
                 <input
                   className="fld"
-                  placeholder="Search by programme or client name\u2026"
+                  placeholder="Search by programme or client name…"
                   value={copySearchQuery}
                   onChange={(e) => { setCopySearchQuery(e.target.value); setSelectedCopyClient(null); }}
                   style={{ marginBottom: 8 }}
@@ -773,7 +773,7 @@ export function TrainingDrawer({
                       onClick={() => setSelectedCopyClient(null)}
                       className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-rose)] hover:underline mb-2 bg-transparent border-0 p-0 cursor-pointer font-[inherit]"
                     >
-                      \u2039 Back to search
+                      ‹ Back to search
                     </button>
                     {copyClientGroups.find(([id]) => id === selectedCopyClient)?.[1].programmes.map((p) => (
                       <div className="prow" key={p.id}>
@@ -788,7 +788,7 @@ export function TrainingDrawer({
                             onClick={() => handleApplyProgramme(p.id)}
                             className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--color-rose)] text-white px-3 py-1 min-h-[28px] font-[inherit] text-[11.5px] font-semibold cursor-pointer hover:bg-[var(--color-rose)]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            {applyingProgramId === p.id ? "Applying\u2026" : "Apply"}
+                            {applyingProgramId === p.id ? "Applying…" : "Apply"}
                           </button>
                         </span>
                       </div>
