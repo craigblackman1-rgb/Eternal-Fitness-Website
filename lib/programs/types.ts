@@ -71,6 +71,7 @@ export interface DBProgram {
   weeks: number;
   notes: string | null;
   status: 'active' | 'archived';
+  source: 'hub' | 'trainerize_import';
   created_at: string;
   updated_at: string;
 }

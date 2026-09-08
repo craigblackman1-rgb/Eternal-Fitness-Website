@@ -148,7 +148,12 @@ export function ProgramsListClient({
       sortable: true,
       sortValue: (row) => row.name,
       render: (row) => (
-        <span className="font-medium text-foreground">{row.name}</span>
+        <span className="font-medium text-foreground">
+          {row.name}
+          {row.source === "trainerize_import" && (
+            <TokenPill token="neutral" label="Trainerize clone" className="ml-2" />
+          )}
+        </span>
       ),
     },
     {

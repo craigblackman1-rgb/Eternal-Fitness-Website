@@ -925,6 +925,9 @@ export function ProgramBuilderClient({
           <span className="flex items-center gap-2.5 flex-wrap">
             {name || "Untitled program"}
             <TokenPill token={statusCfg.token} label={statusCfg.label} />
+            {program.source === "trainerize_import" && (
+              <TokenPill token="neutral" label="Trainerize clone" />
+            )}
             <span className="text-sm font-normal text-muted-foreground">
               {weeks} weeks
             </span>
