@@ -551,7 +551,7 @@ export function TrainingDrawer({
             <button
               type="button"
               className="btn-link ml-auto"
-              onClick={() => router.push(`/hub/clients/${clientNumber}/programs/${programState.program.id}`)}
+              onClick={() => router.push(`/hub/programs/${programState.program.id}`)}
             >
               Open in builder
             </button>
@@ -1019,7 +1019,7 @@ export function TrainingDrawer({
       <div className="flex gap-2 mt-1.5">
         <button
           type="button"
-          onClick={() => router.push(`/hub/clients/${clientNumber}/programs`)}
+          onClick={() => router.push(`/hub/programs?client=${clientNumber}`)}
           className="inline-flex items-center justify-center gap-1.5 rounded-control border border-[var(--hub-field-border)] bg-white px-3 py-[5px] min-h-[32px] font-[inherit] text-[12.5px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
         >
           See all workouts
