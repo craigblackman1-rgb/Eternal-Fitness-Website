@@ -1726,13 +1726,13 @@ table.eb-table { width: 100%; border-collapse: collapse; font-size: 14px; min-wi
 .map-key i.next { background: var(--status-primary-bg); border-color: var(--color-rose); }
 .map-key i.beyond { background: var(--hub-hover); border-style: dashed; }
 
-/* Pick: choosable item — shared programme or workout in picker */
-.pick { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--hub-border); }
-.pick:last-child { border-bottom: 0; }
-.pick-m { flex: 1; min-width: 0; }
-.pick-t { display: block; font-size: 13.5px; font-weight: 600; color: var(--color-ink); }
-.pick-s { display: block; font-size: 12px; color: var(--color-body); margin-top: 1px; }
-.pick-a { flex-shrink: 0; }
+/* Prow: choosable item — shared programme or workout in picker */
+.prow { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--hub-border); }
+.prow:last-child { border-bottom: 0; }
+.prow-m { flex: 1; min-width: 0; }
+.prow-t { display: block; font-size: 13.5px; font-weight: 600; color: var(--color-ink); }
+.prow-s { display: block; font-size: 12px; color: var(--color-body); margin-top: 1px; }
+.prow-a { flex-shrink: 0; }
 
 /* ── CR-EF-186 Progress drawer (REVIEW rung) ──────────────────────────────
     Session log rows, personal best rows, attendance figures, programme

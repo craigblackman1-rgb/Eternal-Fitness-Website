@@ -710,14 +710,14 @@ export function TrainingDrawer({
         </div>
         <div className="fcard-b">
           {programState && (
-            <div className="pick">
-              <span className="pick-m">
-                <span className="pick-t">{programmeName}</span>
-                <span className="pick-s">
+            <div className="prow">
+              <span className="prow-m">
+                <span className="prow-t">{programmeName}</span>
+                <span className="prow-s">
                   {totalQueueSlots} workouts \u00b7 currently hers
                 </span>
               </span>
-              <span className="pick-a">
+              <span className="prow-a">
                 <span className="inline-flex items-center rounded-pill border border-[var(--hub-border)] bg-[var(--hub-hover)] px-2 py-0.5 text-[11px] font-semibold text-[var(--color-body)]">
                   In use
                 </span>
@@ -725,12 +725,12 @@ export function TrainingDrawer({
             </div>
           )}
           {libraryProgrammes.length > 0 && libraryProgrammes.map((p) => (
-            <div className="pick" key={p.id}>
-              <span className="pick-m">
-                <span className="pick-t">{p.name}</span>
-                <span className="pick-s">{p.weeks} weeks</span>
+            <div className="prow" key={p.id}>
+              <span className="prow-m">
+                <span className="prow-t">{p.name}</span>
+                <span className="prow-s">{p.weeks} weeks</span>
               </span>
-              <span className="pick-a">
+              <span className="prow-a">
                 <button
                   type="button"
                   disabled={applyingProgramId === p.id}
@@ -775,12 +775,12 @@ export function TrainingDrawer({
                       \u2039 Back to search
                     </button>
                     {copyClientGroups.find(([id]) => id === selectedCopyClient)?.[1].programmes.map((p) => (
-                      <div className="pick" key={p.id}>
-                        <span className="pick-m">
-                          <span className="pick-t">{p.name}</span>
-                          <span className="pick-s">{p.weeks} weeks</span>
+                      <div className="prow" key={p.id}>
+                        <span className="prow-m">
+                          <span className="prow-t">{p.name}</span>
+                          <span className="prow-s">{p.weeks} weeks</span>
                         </span>
-                        <span className="pick-a">
+                        <span className="prow-a">
                           <button
                             type="button"
                             disabled={applyingProgramId === p.id}

@@ -1573,9 +1573,10 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
 
   // ── 1. How it's going ──
   const sessionsCompleted = completedSessions.length;
-  // Attendance denominator: only resolved sessions (completed + cancelled), not future/planned
+  // Attendance denominator: only resolved sessions (completed, cancelled, or derived no-shows), not future/planned
   const resolvedSessions = mainSessions.filter(
-    (s) => s.status === "completed" || s.completed_at || s.status === "cancelled",
+    (s) => s.status === "completed" || s.completed_at || s.status === "cancelled" ||
+      (s.status === "scheduled" && s.scheduled_at && new Date(s.scheduled_at) < new Date() && !s.completed_at),
   );
   const totalResolved = resolvedSessions.length;
   const attendanceRate = totalResolved > 0 ? Math.round((sessionsCompleted / totalResolved) * 100) : null;
@@ -1620,7 +1621,7 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
         else if (trend.metric === "duration" && (p.maxDurationSeconds ?? 0) > (best.maxDurationSeconds ?? 0)) best = p;
       }
       const formatValue = (pt: any) => {
-        if (trend.metric === "weight" && pt.topWeightKg != null) return `${pt.topWeightKg} kg`;
+        if (trend.metric === "weight" && pt.topWeightKg != null) return `${pt.topWeightKg} kg × ${pt.repsAtTopWeight ?? "?"}`;
         if (trend.metric === "reps" && pt.maxReps != null) return `${pt.maxReps} reps`;
         if (trend.metric === "duration" && pt.maxDurationSeconds != null) return `${Math.round(pt.maxDurationSeconds)}s`;
         return "\u2014";
@@ -1659,7 +1660,7 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
         else if (trend.metric === "duration" && (p.maxDurationSeconds ?? 0) > (best.maxDurationSeconds ?? 0)) best = p;
       }
       const formatValue = (pt: any) => {
-        if (trend.metric === "weight" && pt.topWeightKg != null) return `${pt.topWeightKg} kg`;
+        if (trend.metric === "weight" && pt.topWeightKg != null) return `${pt.topWeightKg} kg × ${pt.repsAtTopWeight ?? "?"}`;
         if (trend.metric === "reps" && pt.maxReps != null) return `${pt.maxReps} reps`;
         if (trend.metric === "duration" && pt.maxDurationSeconds != null) return `${Math.round(pt.maxDurationSeconds)}s`;
         return "\u2014";
