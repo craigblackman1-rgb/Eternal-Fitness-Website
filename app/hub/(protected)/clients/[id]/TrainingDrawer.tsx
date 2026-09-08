@@ -6,9 +6,10 @@ import { toast } from "sonner";
 import { DrawerShell } from "./DrawerManager";
 import { SessionChooser } from "./SessionChooser";
 import { SessionMoveDialog } from "./SessionMoveDialog";
-
-import type { DBBlock, DBSession } from "@/types";
+import { ensureUids } from "@/lib/exercise-ref";
+import type { DBBlock, DBSession, SessionVersion } from "@/types";
 import type { QueueState } from "@/lib/programs/types";
+import { isRepeat } from "@/lib/programs/resolve";
 import type {
   TrainerizeHistoryData,
   TrainerizePerformedWorkoutSummary,
