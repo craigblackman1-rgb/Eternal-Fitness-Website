@@ -175,8 +175,8 @@ export function TrainingSection({
         (s) => s.block_id === block.id && !s.parent_session_id,
       );
       const done = blockSess.filter((s) => s.completed_at).length;
-      const total = blockSess.length || sessionsPurchased || 0;
       const isCurrent = latestBlock?.id === block.id;
+      const total = isCurrent ? (sessionsPurchased ?? blockSess.length) : blockSess.length;
       return {
         position: allBlocks.length - idx,
         total,
