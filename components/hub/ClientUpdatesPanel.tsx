@@ -84,7 +84,7 @@ export function ClientUpdatesPanel({
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-foreground">{u.subject}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {u.block_number > 0 ? `Training ${u.block_number} · ` : ""}
+                    {u.block_number > 0 ? `Programme ${u.block_number} · ` : ""}
                     {timeLabel}
                   </p>
                 </div>

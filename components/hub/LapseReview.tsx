@@ -145,7 +145,7 @@ export function LapseReview({ clients: initialClients }: LapseReviewProps) {
                           {session.workoutLabel || `Session ${session.sessionNumber}`}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          Training {session.blockNumber} · Session {session.sessionNumber}
+                          Programme {session.blockNumber} · Session {session.sessionNumber}
                         </span>
                         {session.scheduledAt && (
                           <span className="text-xs text-muted-foreground">

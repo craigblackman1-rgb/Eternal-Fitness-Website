@@ -184,7 +184,7 @@ export function DayAgenda({
                   {scope === "trainer" && (
                     <span className="dsess-client">
                       {s.clientName}
-                      {s.blockNumber != null && ` · Training ${s.blockNumber}`}
+                      {s.blockNumber != null && ` · Programme ${s.blockNumber}`}
                     </span>
                   )}
                 </Link>

@@ -125,7 +125,7 @@ export function BlockPickerDialog({
                   )}
                 >
                   <span className="font-bold text-sm text-foreground">
-                    Training {b.block_number}
+                    Programme {b.block_number}
                     {b.status !== "active" && (
                       <span className="font-normal text-muted-foreground"> · {b.status}</span>
                     )}

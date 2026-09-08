@@ -222,7 +222,7 @@ export function CancellationReview({ clients: initialClients }: CancellationRevi
                             {session.focusLabel || `Session ${session.sessionNumber}`}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            Training {session.blockNumber} · Session {session.sessionNumber}
+                            Programme {session.blockNumber} · Session {session.sessionNumber}
                           </span>
                           {session.scheduledAt && (
                             <span className="text-xs text-muted-foreground">

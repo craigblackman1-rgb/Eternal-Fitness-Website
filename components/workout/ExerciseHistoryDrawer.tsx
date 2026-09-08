@@ -810,7 +810,7 @@ export function ExerciseHistoryDrawer({
                                     Logged · Session {r.session_number}
                                   </a>
                                   <span className="text-[var(--hub-field-border)]">·</span>
-                                   <span>Training {r.block_number}</span>
+                                   <span>Programme {r.block_number}</span>
                                   <span className="text-[var(--hub-field-border)]">·</span>
                                   <span>{fmtShort(r.achieved_at)}</span>
                                 </>

@@ -18,7 +18,7 @@ import type { AttendanceFacts, PbFact, BelowBestFact } from "@/lib/block-review-
    see page.tsx and lib/block-review-facts.ts. */
 
 const DECISIONS: { key: ReviewDecision; title: string; sub: string }[] = [
-  { key: "continue", title: "Continue", sub: "Training 3 runs as planned" },
+  { key: "continue", title: "Continue", sub: "Programme 3 runs as planned" },
   { key: "adjust", title: "Adjust", sub: "Next training needs changes first" },
   { key: "restart", title: "Restart", sub: "Go back to an earlier point" },
 ];
