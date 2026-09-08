@@ -1750,6 +1750,39 @@ table.eb-table { width: 100%; border-collapse: collapse; font-size: 14px; min-wi
 }
 .edit-save-bar.dirty { transform: translateY(0); }
 
+/* ══ TABLE CONTRACT (§6 hub-uniform) ════════════════════════════════════
+   Column sizing is the flagship fix. Every column is content-sized through
+   an explicit <col>; EXACTLY ONE column may be width:auto and it must be the
+   identity column. No unconstrained flex-grow text column in the middle. */
+.tbl-wrap { overflow-x: auto; }
+table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+table.tbl thead th { text-align: left; height: 40px; padding: 0 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--color-muted-text); background: var(--hub-hover); border-bottom: 1px solid var(--hub-border); white-space: nowrap; }
+table.tbl tbody td { padding: 11px 16px; border-bottom: 1px solid var(--hub-border); color: var(--color-body); vertical-align: middle; }
+table.tbl tbody tr:last-child td { border-bottom: 0; }
+table.tbl tbody tr { transition: background-color 100ms; }
+table.tbl tbody tr.row-link { cursor: pointer; }
+table.tbl tbody tr.row-link:hover { background: var(--hub-hover); }
+table.tbl tbody tr.row-link:focus-within { background: var(--hub-hover); }
+
+/* Numeric column — right-aligned, tabular, NEVER wrapped */
+th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.num b { color: var(--color-ink); font-weight: 700; }
+td.num small { color: var(--color-muted-text); font-weight: 500; font-size: 12px; }
+td.num.low b, td.num.low small { color: var(--status-danger); }
+
+/* Identity cell — the one auto-width column */
+.cl-id { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.cl-id .cl-nm { min-width: 0; font-weight: 600; color: var(--color-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cl-id .cl-nm small { display: block; font-weight: 400; font-size: 12px; color: var(--color-muted-text); }
+.dim { color: var(--color-muted-text); }
+.trunc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Column widths — one auto, rest content-sized */
+.col-id    { width: auto; min-width: 220px; }
+.col-train { width: 250px; }
+.col-left  { width: 120px; }
+.col-needs { width: 250px; }
+
 /* Sub-card divider inside fcard */
 .edit-sub-hd {
   font-size: 10.5px;

@@ -207,76 +207,84 @@ export function ClientsScreen({
 
       {/* ── Everyone ── */}
       <div className="bg-white border border-[var(--hub-border)] rounded-surface shadow-sm overflow-hidden">
-        <div className="flex items-center gap-2.5 py-2.5 px-4 border-b border-[var(--hub-border)]">
+        {/* §5 toolbar — above the data, inside the card */}
+        <div className="flex items-center gap-2 py-3 px-4 border-b border-[var(--hub-border)]">
           <h2 className="m-0 text-[15px] font-bold text-[var(--color-ink)] tracking-tight">Everyone</h2>
-          <span className="text-xs text-[var(--color-muted)]">{visible.length} in the list</span>
+          <span className="text-xs text-[var(--color-muted-text)]">{visible.length} in the list</span>
           <div className="ml-auto flex items-center gap-2">
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Find a client…"
-              aria-label="Find a client"
-              className="h-8 w-[180px] rounded-lg border border-[var(--hub-field-border)] px-2.5 text-[13px] bg-white"
+              placeholder="Filter this list by name"
+              aria-label="Filter this list by name"
+              className="h-9 flex-1 min-w-[200px] max-w-[360px] rounded-[var(--r-control)] border border-[var(--hub-field-border)] px-3 text-[13px] bg-white"
             />
             <Link
               href="/hub/clients/new"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-white hover:bg-[var(--hub-hover)] text-foreground px-2.5 py-1 min-h-[30px] text-xs font-semibold no-underline transition-colors"
+              className="btn btn-outline btn-sm"
             >
               <IconUserPlus className="w-4 h-4" /> Add a client
             </Link>
           </div>
         </div>
 
-        <div>
-          {/* Column header — matches the mockup's .clist-h */}
-          <div className="flex items-center gap-3 px-4 pb-1.5 pt-0 text-[10.5px] font-bold uppercase tracking-[.07em] text-[var(--color-muted)]" aria-hidden="true">
-            <span className="w-[7px] shrink-0" />
-            <span className="w-[190px] shrink-0">Client</span>
-            <span className="flex-1 min-w-0">How they train</span>
-            <span className="shrink-0 w-[96px] text-right">Sessions left</span>
-            <span className="shrink-0">Needs</span>
-          </div>
-          {visible.map((r) => (
-            <Link
-              key={r.id}
-              href={`/hub/clients/${r.clientNumber}`}
-              className={`flex items-center gap-3 py-2 px-4 border-t border-[var(--hub-border)] first:border-t-0 no-underline transition-colors hover:bg-[var(--hub-hover)] ${r.archived ? "opacity-60" : ""}`}
-            >
-              <span className={`w-[7px] h-[7px] rounded-pill shrink-0 ${DOT[r.dot]}`} />
-              <span className="w-[190px] shrink-0 text-[13.5px] font-semibold text-[var(--color-ink)] truncate">
-                {r.name}
-                {r.archived && <span className="ml-1.5 text-[11px] font-normal text-[var(--color-muted)]">archived</span>}
-              </span>
-              <span className="flex-1 min-w-0 text-xs text-[var(--color-muted)] truncate">{facts(r)}</span>
-              {r.sessionsPurchased != null ? (
-                <span
-                  className={`shrink-0 w-[96px] text-right text-[13.5px] font-bold tabular-nums ${
-                    r.sessionsRemaining != null && r.sessionsRemaining <= 2
-                      ? "text-[var(--status-danger)]"
-                      : "text-[var(--color-ink)]"
-                  }`}
+        {/* §6 table contract — fixed layout, one auto column, rest content-sized */}
+        <div className="tbl-wrap">
+          <table className="tbl">
+            <colgroup>
+              <col className="col-id" />
+              <col className="col-train" />
+              <col className="col-left" />
+              <col className="col-needs" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>How they train</th>
+                <th className="num">Sessions left</th>
+                <th>Needs</th>
+              </tr>
+            </thead>
+            <tbody>
+              {visible.map((r) => (
+                <tr
+                  key={r.id}
+                  className={`row-link ${r.archived ? "opacity-60" : ""}`}
+                  tabIndex={0}
+                  onClick={() => router.push(`/hub/clients/${r.clientNumber}`)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(`/hub/clients/${r.clientNumber}`); } }}
                 >
-                  {r.sessionsRemaining}
-                  <small className="block text-[11px] font-medium tracking-[0.02em] text-[var(--color-muted)]">of {r.sessionsPurchased}</small>
-                </span>
-              ) : (
-                <span className="shrink-0 w-[96px] text-right text-[12.5px] font-medium text-[var(--color-muted)]">Not set up</span>
+                  <td>
+                    <div className="cl-id">
+                      <span className={`w-[7px] h-[7px] rounded-pill shrink-0 ${DOT[r.dot]}`} />
+                      <span className="cl-nm">
+                        {r.name}
+                        {r.archived && <small>archived</small>}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="dim trunc">{facts(r)}</td>
+                  {r.sessionsPurchased != null ? (
+                    <td className={`num${r.sessionsRemaining != null && r.sessionsRemaining <= 2 ? " low" : ""}`}>
+                      <b>{r.sessionsRemaining}</b> <small>of {r.sessionsPurchased}</small>
+                    </td>
+                  ) : (
+                    <td className="num dim">Not set up</td>
+                  )}
+                  <td className={`trunc${r.hot ? " font-semibold text-[var(--color-ink)]" : ""}`}>
+                    {r.reason ?? ""}
+                  </td>
+                </tr>
+              ))}
+              {visible.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="text-center py-8 text-[13px] text-[var(--color-muted-text)]">
+                    {search.trim() ? "No client matches that name." : "No clients yet."}
+                  </td>
+                </tr>
               )}
-              {r.reason && (
-                <span
-                  className={`shrink-0 text-xs ${r.hot ? "font-semibold text-[var(--color-ink)]" : "text-[var(--color-muted)]"}`}
-                >
-                  {r.reason}
-                </span>
-              )}
-            </Link>
-          ))}
-
-          {visible.length === 0 && (
-            <p className="m-0 py-8 text-center text-[13px] text-[var(--color-muted)]">
-              {search.trim() ? "No client matches that name." : "No clients yet."}
-            </p>
-          )}
+            </tbody>
+          </table>
         </div>
 
         {archivedCount > 0 && (
