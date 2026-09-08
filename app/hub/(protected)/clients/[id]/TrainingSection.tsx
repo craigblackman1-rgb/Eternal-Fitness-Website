@@ -339,14 +339,6 @@ export function TrainingSection({
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>
           Progress
         </button>
-        <button
-          onClick={(e) => openDrawer("dw-supplementary", e.currentTarget)}
-          className="btn-link t-meta"
-          type="button"
-          style={{ alignSelf: "center" }}
-        >
-          Supplementary
-        </button>
         <span className="spacer" />
         <span className="t-meta" style={{ alignSelf: "center" }}>Manage training applies workouts and programmes · Progress shows results and logs</span>
       </div>

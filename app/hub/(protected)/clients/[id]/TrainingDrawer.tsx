@@ -1,25 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { DrawerShell } from "./DrawerManager";
+import { DrawerShell, useDrawerManager } from "./DrawerManager";
 import { SessionChooser } from "./SessionChooser";
-import { SessionMoveDialog } from "./SessionMoveDialog";
+import { SupplementaryWorkoutsCard } from "@/components/hub/SupplementaryWorkoutsCard";
 import { ensureUids } from "@/lib/exercise-ref";
+import {
+  sessionWorkoutName,
+  sessionHasNoExercises,
+  isOutlookPlaceholder,
+} from "@/lib/session-display";
 import type { DBBlock, DBSession, SessionVersion } from "@/types";
 import type { QueueState } from "@/lib/programs/types";
-import { isRepeat } from "@/lib/programs/resolve";
-import type {
-  TrainerizeHistoryData,
-  TrainerizePerformedWorkoutSummary,
-  TrainerizePerformedExerciseDetail,
-} from "@/components/hub";
 
-/* ── TrainingDrawer — the workout queue drawer.
-   The record owns every count and date; this drawer owns the full contents
-   of the queue (including pre-app imported history) and the supplementary
-   section. Standing rules stay on the page per Craig's override. ────── */
+/* ── TrainingDrawer — the Manage training drawer (DO rung).
+   Five sections in mockup order:
+     1. Apply a workout to a date
+     2. Her programme
+     3. Start or replace
+     4. Supplementary
+     5. Standing rules
+   Handlers/API calls unchanged — this is chrome + arrangement. ────── */
 
 function fmtShortDate(iso: string | null): string {
   if (!iso) return "";
@@ -28,79 +31,47 @@ function fmtShortDate(iso: string | null): string {
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
-function sourceLabel(source: string): string {
-  switch (source) {
-    case "message": return "Message";
-    case "attention": return "Attention flag";
-    case "program_instruction": return "Program note";
-    case "workout_instruction": return "Workout note";
-    default: return source;
-  }
+function fmtDayDate(iso: string): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  const today = new Date();
+  const isToday =
+    d.getFullYear() === today.getFullYear() &&
+    d.getMonth() === today.getMonth() &&
+    d.getDate() === today.getDate();
+  const dayStr = d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  return isToday ? `Today, ${dayStr}` : dayStr;
 }
 
-/** Collapsed row for a Trainerize-performed workout, expanding on click. */
-function PerformedWorkoutRow({
-  workout,
-  clientNumber,
-  isOpen,
-  onToggle,
-  detail,
-}: {
-  workout: TrainerizePerformedWorkoutSummary;
-  clientNumber: number;
-  isOpen: boolean;
-  onToggle: () => void;
-  detail: TrainerizePerformedExerciseDetail[] | "loading" | "error" | undefined;
-}) {
-  const exerciseCount = workout.exercises.length;
-  return (
-    <div>
-      <button type="button" className="srow" style={{ paddingLeft: 30 }} onClick={onToggle}>
-        <span className="srow-d" style={{ width: 18, fontSize: 12 }}>{isOpen ? "\u25be" : "\u25b8"}</span>
-        <span className="srow-w">
-          {workout.workoutName || "Workout"}
-          <small>
-            {fmtShortDate(workout.performedDate)} · {exerciseCount} exercise{exerciseCount !== 1 ? "s" : ""} · {workout.setCount} set{workout.setCount !== 1 ? "s" : ""}
-          </small>
-        </span>
-      </button>
-      {isOpen && (
-        <div className="border border-[var(--hub-border)] rounded-nested bg-[var(--hub-hover)] mt-1 ml-[18px]">
-          {detail === "loading" && <p className="text-[12.5px] text-[var(--color-muted)] px-2.5 py-2">Loading sets…</p>}
-          {detail === "error" && <p className="text-[12.5px] text-[var(--color-muted)] px-2.5 py-2">Couldn't load this workout's sets.</p>}
-          {Array.isArray(detail) && detail.length === 0 && (
-            <p className="text-[12.5px] text-[var(--color-muted)] px-2.5 py-2">No sets recorded for this workout.</p>
-          )}
-          {Array.isArray(detail) && detail.map((ex, i) => {
-            const reps = ex.sets.map((s) => s.reps).filter((r): r is number => r != null);
-            const hasWeight = ex.sets.some((s) => s.weightKg != null);
-            const weights = ex.sets.map((s) => s.weightKg).filter((w): w is number => w != null);
-            const hasDuration = ex.sets.some((s) => s.durationSeconds != null);
-            const durations = ex.sets.map((s) => s.durationSeconds).filter((d): d is number => d != null);
-            const rpes = ex.sets.map((s) => s.rpe).filter((r): r is number => r != null);
-            const nonPlaceholderRpes = rpes.filter((r) => r > 1);
+function fmtTime(iso: string): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false });
+}
 
-            const unique = <T,>(arr: T[]) => arr.length > 0 && new Set(arr).size === 1;
-            const range = (arr: number[]) =>
-              unique(arr) ? String(arr[0]) : `${Math.min(...arr)}\u2013${Math.max(...arr)}`;
+function daysFromNow(iso: string): string {
+  const d = new Date(iso);
+  const now = new Date();
+  const diffMs = d.getTime() - now.getTime();
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) return "today";
+  if (diffDays === 1) return "tomorrow";
+  if (diffDays > 0) return `in ${diffDays} days`;
+  return `${Math.abs(diffDays)} days ago`;
+}
 
-            const parts: string[] = [`${ex.sets.length} sets`];
-            if (reps.length > 0) parts.push(`${range(reps)} reps`);
-            else if (hasDuration) parts.push(unique(durations) ? `${durations[0]}s` : `${Math.min(...durations)}\u2013${Math.max(...durations)}s`);
-            if (weights.length > 0) parts.push(`${range(weights)}kg`);
-            if (nonPlaceholderRpes.length > 0) parts.push(`RPE ${range(nonPlaceholderRpes)}`);
-
-            return (
-              <div key={i} className={`flex items-baseline gap-1.5 px-2.5 py-1.5 ${i < detail.length - 1 ? "border-b border-[var(--hub-border)]" : ""}`}>
-                <span className="text-[12.5px] font-semibold text-[var(--color-ink)] shrink-0">{ex.name}</span>
-                <span className="text-[12px] text-[var(--color-muted)]">{parts.join(" \u00b7 ")}</span>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
+function slotLabel(slot: { label?: string | null; position: number }): string {
+  const label = slot.label?.trim();
+  if (label) {
+    const stripped = label.replace(/^(?:Workout|Warm[\s-]*up)\s+/i, "");
+    const match = stripped.match(/^([A-Za-z0-9]+)/);
+    if (match) {
+      const prefix = /^workout\s/i.test(label) ? "W" : "";
+      return prefix + match[1];
+    }
+    return stripped.slice(0, 3);
+  }
+  return String.fromCharCode(64 + slot.position);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
@@ -123,7 +94,6 @@ interface TrainingDrawerProps {
     belowBestCount: number;
     recentNotes: string | null;
   };
-  trainerizeHistory: TrainerizeHistoryData;
   standingRules?: { id: string; label: string | null; detail: string }[];
   sessionsRemaining: number | null;
   sessionsPurchased: number | null;
@@ -142,117 +112,165 @@ export function TrainingDrawer({
   blockSessions,
   allBlocks,
   allSessions: _allSessions,
-  trainerizeHistory,
   standingRules = [],
   sessionsRemaining,
   sessionsPurchased,
   packageType,
   programState,
-  flaggedSessionIds,
   clientId,
 }: TrainingDrawerProps) {
   const router = useRouter();
+  const { closeDrawer, openDrawer } = useDrawerManager();
 
   // ── Dialog state ──
   const [chooserSessionId, setChooserSessionId] = useState<string | null>(null);
   const [chooserBusy, setChooserBusy] = useState(false);
-  const [moveSession, setMoveSession] = useState<DBSession | null>(null);
-  const [notesOpen, setNotesOpen] = useState(false);
 
   // ── Paid-pot computation ──
   const isOngoing = !sessionsPurchased || packageType === "ongoing";
   const totalSessions = isOngoing ? null : sessionsPurchased;
   const remaining = sessionsRemaining ?? 0;
 
-  // ── Program queue derivation ──
+  // ── Programme queue derivation ──
   const slots = programState?.slots ?? [];
   const totalQueueSlots = programState?.totalSlots ?? 0;
   const completedCount = programState?.completedCount ?? 0;
-  const slotCount = slots.length;
+  const slotCount = programState?.slotCount ?? slots.length;
+  const programmeWeeks = programState?.program?.weeks ?? 1;
+  const programmeName = programState?.program?.name ?? "";
+  const nextPosition = programState?.nextPosition ?? 1;
 
-  // Scheduled sessions by queue position (for the queue list display)
-  const scheduledByPosition: Record<number, { scheduledAt: string | null }> = {};
-  const programSessions = blockSessions.filter(
-    (s) => s.program_id && s.program_slot_id && !s.parent_session_id
-  );
+  // ── Scheduled sessions for "Apply a workout to a date" ──
+  const scheduledSessions = useMemo(() => {
+    return blockSessions
+      .filter(
+        (s) =>
+          s.scheduled_at &&
+          !s.completed_at &&
+          !s.cancelled_at &&
+          !s.parent_session_id,
+      )
+      .sort(
+        (a, b) =>
+          new Date(a.scheduled_at!).getTime() -
+          new Date(b.scheduled_at!).getTime(),
+      );
+  }, [blockSessions]);
 
-  // Completed program-consuming sessions (ascending by completed_at) for queue position dates.
-  const completedAscending = blockSessions
-    .filter((s) => s.completed_at && !s.cancelled_at && !s.parent_session_id && !isRepeat((s.data as unknown as Record<string, unknown>)?.program_repeat))
-    .sort((a, b) => new Date(a.completed_at!).getTime() - new Date(b.completed_at!).getTime());
-  for (let i = 0; i < completedAscending.length && i < completedCount; i++) {
-    const s = completedAscending[i];
-    scheduledByPosition[i + 1] = { scheduledAt: s.scheduled_at ?? s.completed_at };
-  }
-  const scheduledSessions = blockSessions
-    .filter((s) => s.scheduled_at && !s.completed_at && !s.cancelled_at && !s.parent_session_id)
-    .sort((a, b) => new Date(a.scheduled_at!).getTime() - new Date(b.scheduled_at!).getTime());
-  for (let i = 0; i < scheduledSessions.length; i++) {
-    const s = scheduledSessions[i];
-    const slot = s.program_slot_id ? slots.find((sl) => sl.id === s.program_slot_id) : null;
-    if (slot && s.week) {
-      const pos = (s.week - 1) * slotCount + slot.position;
-      if (pos > 0 && pos <= totalQueueSlots) {
-        scheduledByPosition[pos] = { scheduledAt: s.scheduled_at };
-        continue;
+  // Count sessions with nothing applied
+  const nothingAppliedCount = scheduledSessions.filter((s) => {
+    return isOutlookPlaceholder(s) || sessionHasNoExercises(s.data);
+  }).length;
+
+  // ── Programme map derivation ──
+  const mapData = useMemo(() => {
+    if (!programState) return null;
+
+    const weeks: {
+      label: string;
+      cells: {
+        position: number;
+        label: string;
+        dateLabel: string;
+        state: "done" | "flag" | "next" | "beyond" | "applied" | "empty";
+      }[];
+    }[] = [];
+
+    // Build position-to-scheduled-date lookup
+    const posToDate: Record<number, string> = {};
+    // Completed sessions (ascending by completed_at) map to positions 1..completedCount
+    const completedAscending = blockSessions
+      .filter(
+        (s) =>
+          s.completed_at &&
+          !s.cancelled_at &&
+          !s.parent_session_id &&
+          !(
+            (s.data as unknown as Record<string, unknown>)?.program_repeat
+          ),
+      )
+      .sort(
+        (a, b) =>
+          new Date(a.completed_at!).getTime() -
+          new Date(b.completed_at!).getTime(),
+      );
+    for (let i = 0; i < completedAscending.length && i < completedCount; i++) {
+      const s = completedAscending[i];
+      posToDate[i + 1] = s.scheduled_at ?? s.completed_at!;
+    }
+    // Scheduled (not completed) sessions
+    const schedAsc = blockSessions
+      .filter(
+        (s) =>
+          s.scheduled_at &&
+          !s.completed_at &&
+          !s.cancelled_at &&
+          !s.parent_session_id,
+      )
+      .sort(
+        (a, b) =>
+          new Date(a.scheduled_at!).getTime() -
+          new Date(b.scheduled_at!).getTime(),
+      );
+    for (const s of schedAsc) {
+      const slot = s.program_slot_id
+        ? slots.find((sl) => sl.id === s.program_slot_id)
+        : null;
+      if (slot && s.week) {
+        const pos = (s.week - 1) * slotCount + slot.position;
+        if (pos > 0 && pos <= totalQueueSlots) {
+          posToDate[pos] = s.scheduled_at!;
+          continue;
+        }
       }
     }
-    const pos = completedCount + i + 1;
-    if (pos > totalQueueSlots) break;
-    scheduledByPosition[pos] = { scheduledAt: s.scheduled_at };
-  }
 
-  // Trainerize history summary
-  const tBlocks = trainerizeHistory.blocks ?? [];
-  const unmatched = trainerizeHistory.unmatchedPerformedWorkouts ?? [];
-  const notes = trainerizeHistory.notes ?? [];
-  const tzTotalSessions = tBlocks.reduce(
-    (sum: number, b: any) => sum + (b.performedWorkouts?.length ?? 0), 0
-  ) + unmatched.length;
-  const hasHistory = tBlocks.length > 0 || unmatched.length > 0 || notes.length > 0;
+    for (let w = 1; w <= programmeWeeks; w++) {
+      const cells: (typeof weeks)[0]["cells"] = [];
+      for (let p = 0; p < slotCount; p++) {
+        const pos = (w - 1) * slotCount + p + 1;
+        const slot = slots[p];
+        const slotLbl = slot ? slotLabel(slot) : String.fromCharCode(65 + p);
+        const dateStr = posToDate[pos];
+        const dateLabel = dateStr ? fmtShortDate(dateStr) : "";
 
-  const allDates: string[] = [];
-  for (const b of tBlocks) {
-    if (b.start_date) allDates.push(b.start_date);
-    if (b.end_date) allDates.push(b.end_date);
-  }
-  for (const w of unmatched) if (w.performedDate) allDates.push(w.performedDate);
-  const sortedDates = allDates.sort();
-  const periodStart = sortedDates.length > 0 ? sortedDates[0] : null;
-  const periodEnd = sortedDates.length > 0 ? sortedDates[sortedDates.length - 1] : null;
+        let state: (typeof cells)[0]["state"] = "empty";
+        if (pos <= completedCount) {
+          // NOTE: Distinguishing "completed with sets" (done) from "completed,
+          // no sets logged" (flag) requires set_logs data not available in
+          // drawer props. Treating all completed as done for now; flag state
+          // needs a dedicated set-log count prop from the server.
+          state = "done";
+        } else if (pos === nextPosition) {
+          state = "next";
+        } else if (pos > totalQueueSlots - (totalSessions ? Math.max(0, remaining - (totalQueueSlots - completedCount)) : 0) && totalSessions) {
+          state = "beyond";
+        } else if (dateStr) {
+          state = "applied";
+        }
 
-  const [expandedBlockId, setExpandedBlockId] = useState<string | null>(null);
-  const [expandedWorkoutId, setExpandedWorkoutId] = useState<string | null>(null);
-  const [detailCache, setDetailCache] = useState<Record<string, TrainerizePerformedExerciseDetail[] | "loading" | "error">>({});
-
-  const toggleWorkout = (workoutId: string) => {
-    if (expandedWorkoutId === workoutId) {
-      setExpandedWorkoutId(null);
-      return;
+        cells.push({ position: pos, label: slotLbl, dateLabel, state });
+      }
+      weeks.push({ label: `Week ${w}`, cells });
     }
-    setExpandedWorkoutId(workoutId);
-    if (detailCache[workoutId]) return;
-    setDetailCache((c) => ({ ...c, [workoutId]: "loading" }));
-    fetch(`/api/clients/${clientNumber}/trainerize-workout/${workoutId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`status ${res.status}`);
-        return res.json();
-      })
-      .then((json) => setDetailCache((c) => ({ ...c, [workoutId]: json.exercises ?? [] })))
-      .catch(() => setDetailCache((c) => ({ ...c, [workoutId]: "error" })));
-  };
 
-  const renderPerformedList = (workouts: TrainerizePerformedWorkoutSummary[]) =>
-    workouts.map((w) => (
-      <PerformedWorkoutRow
-        key={w.id}
-        workout={w}
-        clientNumber={clientNumber}
-        isOpen={expandedWorkoutId === w.id}
-        onToggle={() => toggleWorkout(w.id)}
-        detail={detailCache[w.id]}
-      />
-    ));
+    return { weeks, slotLabels: slots.map(slotLabel) };
+  }, [
+    programState,
+    blockSessions,
+    completedCount,
+    slotCount,
+    programmeWeeks,
+    totalQueueSlots,
+    totalSessions,
+    remaining,
+    slots,
+  ]);
+
+  // Beyond-paid count
+  const beyondPaidCount = totalSessions
+    ? Math.max(0, remaining - (totalQueueSlots - completedCount))
+    : 0;
 
   // ── Reassign handler ──
   async function handleReassignProgram(sessionId: string, slotId: string) {
@@ -270,7 +288,7 @@ export function TrainingDrawer({
         const data = await res.json();
         throw new Error(data.error || "Failed to reassign");
       }
-      toast.success("Session reassigned to program slot");
+      toast.success("Session reassigned to programme slot");
       setChooserSessionId(null);
       router.refresh();
     } catch (err) {
@@ -280,12 +298,17 @@ export function TrainingDrawer({
     }
   }
 
-  async function handleReassignTemplate(sessionId: string, templateId: string, templateName: string) {
+  async function handleReassignTemplate(
+    sessionId: string,
+    templateId: string,
+    templateName: string,
+  ) {
     setChooserBusy(true);
     try {
       const tplRes = await fetch("/api/workout-templates");
       if (!tplRes.ok) throw new Error("Could not load template data");
-      const tplList: { id: string; name: string; data: SessionVersion }[] = await tplRes.json();
+      const tplList: { id: string; name: string; data: SessionVersion }[] =
+        await tplRes.json();
       const tpl = tplList.find((t) => t.id === templateId);
       if (!tpl) throw new Error("Template not found");
 
@@ -324,7 +347,9 @@ export function TrainingDrawer({
       setChooserSessionId(null);
       router.refresh();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to assign template");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to assign template",
+      );
     } finally {
       setChooserBusy(false);
     }
@@ -335,148 +360,369 @@ export function TrainingDrawer({
     router.push(`/hub/clients/${clientNumber}/add-workout?view=chooser`);
   }
 
-  // Beyond-paid count for the note
-  const beyondPaidCount = totalSessions
-    ? Math.max(0, remaining - (totalQueueSlots - completedCount))
-    : 0;
+  // ── Footer ──
+  const footer = (
+    <>
+      <button
+        type="button"
+        onClick={closeDrawer}
+        className="inline-flex items-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1.5 min-h-[30px] font-[inherit] text-[12.5px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
+      >
+        Close
+      </button>
+      <span className="flex-1" />
+      <button
+        type="button"
+        onClick={() => router.push(`/hub/clients/${clientNumber}/programs/new`)}
+        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] px-3 py-1.5 min-h-[30px] font-[inherit] text-[12.5px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
+      >
+        Plan the next programme
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          // Open the first unapplied session's chooser, or just show info
+          if (scheduledSessions.length > 0) {
+            const firstEmpty = scheduledSessions.find(
+              (s) => isOutlookPlaceholder(s) || sessionHasNoExercises(s.data),
+            );
+            if (firstEmpty) {
+              setChooserSessionId(firstEmpty.id);
+            }
+          }
+        }}
+        className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--color-rose)] text-white px-4 py-1.5 min-h-[30px] font-[inherit] text-[12.5px] font-semibold cursor-pointer hover:bg-[var(--color-rose)]/90 transition-colors"
+      >
+        Apply a workout
+      </button>
+    </>
+  );
 
   return (
     <DrawerShell
       id="dw-training"
-      title="Training"
+      title="Manage training"
       subtitle={
-        programState
-          ? `${programState.program.name} · ${totalSessions != null ? `${remaining} of ${totalSessions} sessions remaining` : "Ongoing"}`
-          : latestBlock
-            ? `${blockSessions.length} sessions`
-            : allBlocks.length > 0 ? `${allBlocks.length} training periods` : "No training yet"
+        <>
+          {clientName}
+          {programmeName && <> · {programmeName}</>}
+          {totalSessions != null
+            ? <> · {remaining} of {totalSessions} sessions left</>
+            : <> · Ongoing</>}
+        </>
       }
       width="lg"
+      footer={footer}
     >
-      {/* ═══ STANDING RULES — stays on the page per Craig's override ═══ */}
+      {/* ═══ 1. APPLY A WORKOUT TO A DATE ═══ */}
+      <div className="fcard acc-rose">
+        <div className="fcard-h">
+          Apply a workout to a date
+          {scheduledSessions.length > 0 && (
+            <span className="sub">
+              {nothingAppliedCount > 0
+                ? `${nothingAppliedCount} of ${scheduledSessions.length} booked date${scheduledSessions.length === 1 ? "" : "s"} have nothing applied`
+                : `All ${scheduledSessions.length} booked date${scheduledSessions.length === 1 ? "" : "s"} have a workout`}
+            </span>
+          )}
+        </div>
+        <div className="fcard-b">
+          {scheduledSessions.length === 0 ? (
+            <p className="miss">No booked dates in this training period.</p>
+          ) : (
+            <>
+              {/* Dates with nothing applied first, then dates with workouts */}
+              {[
+                ...scheduledSessions.filter(
+                  (s) => isOutlookPlaceholder(s) || sessionHasNoExercises(s.data),
+                ),
+                ...scheduledSessions.filter(
+                  (s) => !isOutlookPlaceholder(s) && !sessionHasNoExercises(s.data),
+                ),
+              ].map((s) => {
+                const hasWorkout =
+                  !isOutlookPlaceholder(s) && !sessionHasNoExercises(s.data);
+                const workoutName = sessionWorkoutName(s, "");
+                const dateStr = s.scheduled_at!;
+                const d = new Date(dateStr);
+                const dayName = d.toLocaleDateString("en-GB", { weekday: "short" });
+                const dateNum = d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+                const time = fmtTime(dateStr);
+                const isToday =
+                  d.getFullYear() === new Date().getFullYear() &&
+                  d.getMonth() === new Date().getMonth() &&
+                  d.getDate() === new Date().getDate();
+                const dateLabel = isToday
+                  ? `Today, ${dayName} ${dateNum}`
+                  : `${dayName} ${dateNum}`;
+                const relativeDays = daysFromNow(dateStr);
+                // Exercise count for sessions with workouts
+                const v = s.data?.versions?.studio;
+                const exCount = v
+                  ? (v.warm_up?.length ?? 0) +
+                    (v.main_block?.length ?? 0) +
+                    (v.cooldown?.length ?? 0)
+                  : 0;
+                const estMin = s.data?.estimated_minutes;
 
-      {/* ═══ BEFORE THE APP — tail of the workout-queue drawer ═══ */}
-      {hasHistory && (
-        <div className="fcard acc-ink">
-          <div className="fcard-h">
-            <span>Before the app</span>
-          </div>
-          <div className="fcard-b">
-            {/* ── Summary stat strip ── */}
-            <div className="grid grid-cols-4 gap-0 border border-[var(--hub-border)] rounded-nested bg-[var(--field-fill)] mb-2">
-              <div className="flex flex-col items-center py-2 px-1.5 border-r border-[var(--hub-border)]">
-                <span className="text-[13px] font-bold text-[var(--color-ink)] tabular-nums">{periodStart && periodEnd ? `${fmtShortDate(periodStart)} – ${fmtShortDate(periodEnd)}` : "—"}</span>
-                <span className="text-[9.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mt-0.5">Period</span>
-              </div>
-              <div className="flex flex-col items-center py-2 px-1.5 border-r border-[var(--hub-border)]">
-                <span className="text-[13px] font-bold text-[var(--color-ink)] tabular-nums">{tBlocks.length}</span>
-                <span className="text-[9.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mt-0.5">Blocks</span>
-              </div>
-              <div className="flex flex-col items-center py-2 px-1.5 border-r border-[var(--hub-border)]">
-                <span className="text-[13px] font-bold text-[var(--color-ink)] tabular-nums">{tzTotalSessions}</span>
-                <span className="text-[9.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mt-0.5">Sessions</span>
-              </div>
-              <div className="flex flex-col items-center py-2 px-1.5">
-                <span className="text-[13px] font-bold text-[var(--color-ink)] tabular-nums">{notes.length}</span>
-                <span className="text-[9.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mt-0.5">Notes</span>
-              </div>
-            </div>
-
-            {tBlocks.length > 0 && (
-              <>
-                <p className="text-[10.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mb-1">Training history — tap to see sessions</p>
-                {tBlocks.map((b) => {
-                  const isOpen = expandedBlockId === b.id;
-                  const performed = b.performedWorkouts ?? [];
-                  return (
-                    <div key={b.id}>
+                return (
+                  <div className="arow2" key={s.id}>
+                    <span className="arow2-d">
+                      {dateLabel}
+                      <small>
+                        {time}
+                        {relativeDays !== "today" && <> · {relativeDays}</>}
+                      </small>
+                    </span>
+                    {hasWorkout ? (
+                      <span className="arow2-w">
+                        {workoutName}
+                        <small>
+                          {exCount > 0 && `${exCount} exercise${exCount !== 1 ? "s" : ""}`}
+                          {exCount > 0 && estMin && " · "}
+                          {estMin && `${estMin} min`}
+                          {s.program_slot_id && (() => {
+                            const slot = slots.find((sl) => sl.id === s.program_slot_id);
+                            return slot ? <> · position {slot.position}</> : null;
+                          })()}
+                        </small>
+                      </span>
+                    ) : (
+                      <span className="arow2-w none">
+                        Nothing applied
+                        <small style={{ color: "var(--color-muted-text)", fontWeight: 400 }}>
+                          {programState && nextPosition <= totalQueueSlots
+                            ? `Position ${nextPosition} is next in her programme`
+                            : "No programme position available"}
+                        </small>
+                      </span>
+                    )}
+                    <span className="arow2-a">
                       <button
                         type="button"
-                        className="flex items-center gap-2.5 w-full py-1.5 border-b border-[var(--hub-border)] last:border-b-0 bg-transparent border-x-0 border-t-0 cursor-pointer font-[inherit] text-left"
-                        onClick={() => setExpandedBlockId(isOpen ? null : b.id)}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--color-rose)] text-white px-3 py-1 min-h-[30px] font-[inherit] text-[12px] font-semibold cursor-pointer hover:bg-[var(--color-rose)]/90 transition-colors"
+                        onClick={() => setChooserSessionId(s.id)}
                       >
-                        <span className="w-[16px] shrink-0 text-[12px] text-[var(--color-muted)] text-center">{isOpen ? "▾" : "▸"}</span>
-                        <span className="flex-1 min-w-0 text-[13px] text-[var(--color-ink)] font-semibold">
-                          {b.phase_name || "Program"}
-                          <small className="text-[11.5px] font-normal text-[var(--color-body)] ml-1.5">
-                            {b.start_date && b.end_date
-                              ? `${fmtShortDate(b.start_date)} – ${fmtShortDate(b.end_date)}`
-                              : b.start_date
-                                ? `From ${fmtShortDate(b.start_date)}`
-                                : "Not dated"}
-                            {" · "}
-                            {performed.length > 0 ? `${performed.length} session${performed.length !== 1 ? "s" : ""} performed` : "no sessions logged"}
-                          </small>
-                        </span>
+                        Choose a workout
                       </button>
-                      {isOpen && (
-                        performed.length > 0
-                          ? <div className="ml-[16px]">{renderPerformedList(performed)}</div>
-                          : <p className="text-[12px] text-[var(--color-muted)] py-1.5 ml-[16px]">No logged sessions fell inside this program&apos;s dates.</p>
-                      )}
-                    </div>
-                  );
-                })}
-              </>
-            )}
-
-            {unmatched.length > 0 && (
-              <>
-                <p className="text-[10.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mb-1 mt-2">Outside any program</p>
-                <p className="text-[12px] text-[var(--color-muted)] mb-1">
-                  {unmatched.length} logged session{unmatched.length !== 1 ? "s" : ""} from before this client&apos;s first imported program.
-                </p>
-                {renderPerformedList(unmatched)}
-              </>
-            )}
-
-            <button
-              type="button"
-              className="flex items-center gap-1.5 w-full py-1.5 border-b border-[var(--hub-border)] last:border-b-0 bg-transparent border-x-0 border-t-0 cursor-pointer font-[inherit] text-left mt-0.5"
-              onClick={() => setNotesOpen((v) => !v)}
-            >
-              <span className="w-[16px] shrink-0 text-[12px] text-[var(--color-muted)] text-center">{notesOpen ? "▾" : "▸"}</span>
-              <span className="text-[13px] font-semibold text-[var(--color-ink)]">Notes ({notes.length})</span>
-            </button>
-            {notesOpen && (
-              notes.length > 0 ? (
-                notes.map((n) => (
-                  <div key={n.id} className="flex items-start gap-2 w-full py-1.5 border-b border-[var(--hub-border)] last:border-b-0">
-                    <span className="flex-1 min-w-0 text-[12.5px] text-[var(--color-ink)]">
-                      <span className="font-semibold">{sourceLabel(n.source)}{n.sender_name ? ` · ${n.sender_name}` : ""}</span>
-                      <span className="block text-[12px] text-[var(--color-body)] mt-0.5 whitespace-pre-wrap">{n.content}</span>
                     </span>
-                    <span className="text-[11px] font-semibold text-[var(--color-muted)] shrink-0 tabular-nums">{fmtShortDate(n.source_date)}</span>
                   </div>
-                ))
-              ) : (
-                <p className="text-[12px] text-[var(--color-muted)] py-1.5">No notes or messages imported.</p>
-              )
-            )}
+                );
+              })}
+              <p className="miss" style={{ marginTop: 10 }}>
+                A workout can be applied on the day or ahead of time — the rule is unchanged. Applying one takes nothing from the pot; only completing it does.
+              </p>
+            </>
+          )}
+        </div>
+      </div>
 
-            <p className="text-[11.5px] text-[var(--color-muted)] mt-2">
-              Imported history cannot be edited and does not count toward the session balance.
-            </p>
+      {/* ═══ 2. HER PROGRAMME ═══ */}
+      {programState && mapData && (
+        <div className="fcard acc-teal">
+          <div className="fcard-h">
+            Her programme
+            <span className="sub">
+              {programmeName} · {slotCount}× per week · {totalQueueSlots} positions, {completedCount} reached
+            </span>
+            <button type="button" className="btn-link">
+              Reorder
+            </button>
+          </div>
+          <div className="fcard-b">
+            <div className="pmap">
+              {/* Legend: which slot label means which workout */}
+              <div className="pmap-legend">
+                {mapData.slotLabels.map((lbl, i) => (
+                  <span key={i}>
+                    <b>{lbl}</b>
+                    {slots[i]?.label?.trim() || `Workout ${lbl}`}
+                  </span>
+                ))}
+              </div>
+              {/* Week rows */}
+              {mapData.weeks.map((week) => (
+                <div className="pmap-week" key={week.label}>
+                  <span className="pmap-lbl">{week.label}</span>
+                  <span className="pmap-cells">
+                    {week.cells.map((cell) => (
+                      <button
+                        key={cell.position}
+                        type="button"
+                        className={`mcell ${cell.state}`}
+                        title={`Position ${cell.position}${
+                          cell.state === "done"
+                            ? " — completed"
+                            : cell.state === "flag"
+                              ? " — completed, no sets logged"
+                              : cell.state === "next"
+                                ? " — next up"
+                                : cell.state === "beyond"
+                                  ? ` — beyond the ${remaining} remaining paid sessions`
+                                  : cell.state === "applied"
+                                    ? " — applied"
+                                    : " — nothing applied"
+                        }`}
+                      >
+                        {cell.dateLabel && <small>{cell.dateLabel}</small>}
+                        <b>{cell.label}</b>
+                      </button>
+                    ))}
+                  </span>
+                </div>
+              ))}
+              {/* Map key */}
+              <div className="map-key">
+                <span>
+                  <i className="done" />Completed
+                </span>
+                <span>
+                  <i className="flag" />Completed, no sets logged
+                </span>
+                <span>
+                  <i className="next" />Next up
+                </span>
+                {totalSessions && (
+                  <span>
+                    <i className="beyond" />Beyond the {remaining} paid sessions
+                  </span>
+                )}
+                <span>Plain cells are applied and to come</span>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-3">
+              <button
+                type="button"
+                onClick={() => router.push(`/hub/clients/${clientNumber}/programs/${programState.program.id}`)}
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] px-3 py-1.5 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
+              >
+                Add workouts
+              </button>
+              <button
+                type="button"
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] px-3 py-1.5 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
+              >
+                Move one later
+              </button>
+              <span className="flex-1" />
+              <button
+                type="button"
+                className="inline-flex items-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1.5 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
+              >
+                Manage the pot
+              </button>
+            </div>
+            {beyondPaidCount > 0 && (
+              <p className="miss mt-2.5">
+                <b style={{ color: "var(--color-amber-text)" }}>
+                  {beyondPaidCount} position{beyondPaidCount === 1 ? "" : "s"} run{beyondPaidCount === 1 ? "s" : ""} past the pot.
+                </b>{" "}
+                {clientName} needs a renewal, or those sessions have nothing to bill against.
+              </p>
+            )}
           </div>
         </div>
       )}
 
-      {/* ═══ FOOTER ═══ */}
-      <div className="flex gap-2 mt-1.5">
-        <button
-          type="button"
-          onClick={() => router.push(`/hub/programs?client=${clientNumber}`)}
-          className="inline-flex items-center justify-center gap-1.5 rounded-control border border-[var(--hub-field-border)] bg-white px-3 py-[5px] min-h-[32px] font-[inherit] text-[12.5px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
-        >
-          See all workouts
-        </button>
-        <button
-          type="button"
-          onClick={() => router.push(`/hub/clients/${clientNumber}/programs/new`)}
-          className="inline-flex items-center justify-center gap-1.5 rounded-control border border-transparent bg-[var(--color-rose)] text-white px-4 py-[5px] min-h-[32px] font-[inherit] text-[12.5px] font-semibold cursor-pointer hover:bg-[var(--color-rose)]/90 transition-colors ml-auto"
-        >
-          Plan next program
-        </button>
+      {/* ═══ 3. START OR REPLACE ═══ */}
+      <div className="fcard acc-teal">
+        <div className="fcard-h">
+          Start or replace the programme
+          <span className="sub">Copies in — never links, so editing hers changes nobody else&apos;s</span>
+        </div>
+        <div className="fcard-b">
+          {programState && (
+            <div className="pick">
+              <span className="pick-m">
+                <span className="pick-t">{programmeName}</span>
+                <span className="pick-s">
+                  {totalQueueSlots} workouts · currently hers
+                </span>
+              </span>
+              <span className="pick-a">
+                <span className="inline-flex items-center rounded-pill border border-[var(--hub-border)] bg-[var(--hub-hover)] px-2 py-0.5 text-[11px] font-semibold text-[var(--color-body)]">
+                  In use
+                </span>
+              </span>
+            </div>
+          )}
+          <div className="flex gap-2 mt-3">
+            <button
+              type="button"
+              onClick={() => router.push(`/hub/clients/${clientNumber}/programs/new`)}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] px-3 py-1.5 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
+            >
+              Build from scratch
+            </button>
+            <span className="flex-1" />
+            <button
+              type="button"
+              onClick={() => router.push(`/hub/programs?client=${clientNumber}`)}
+              className="inline-flex items-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1.5 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
+            >
+              All programmes
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push("/hub/workouts")}
+              className="inline-flex items-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1.5 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
+            >
+              Workout library
+            </button>
+          </div>
+          <p className="miss mt-2.5">
+            Applying a different programme replaces what is not yet completed. Positions already done stay on her record.
+          </p>
+        </div>
+      </div>
+
+      {/* ═══ 4. SUPPLEMENTARY ═══ */}
+      <div className="fcard">
+        <div className="fcard-h">
+          Supplementary
+          <span className="sub">Runs alongside · never uses a session</span>
+        </div>
+        <div className="fcard-b">
+          <SupplementaryWorkoutsCard
+            clientNumber={clientNumber}
+            clientName={clientName}
+            sessionsRemaining={sessionsRemaining}
+          />
+        </div>
+      </div>
+
+      {/* ═══ 5. STANDING RULES ═══ */}
+      <div className="fcard acc-amber">
+        <div className="fcard-h">
+          Standing rules
+          <span className="sub">Apply to everything applied above</span>
+          <button
+            type="button"
+            className="btn-link"
+            onClick={() => {
+              closeDrawer();
+              setTimeout(() => openDrawer("dw-arrangement"), 300);
+            }}
+          >
+            Edit rules
+          </button>
+        </div>
+        <div className="fcard-b">
+          {standingRules.length > 0 ? (
+            <div className="tags">
+              {standingRules.map((r) => (
+                <span className="tag" key={r.id}>
+                  {r.label ? `${r.label}: ` : ""}
+                  {r.detail}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="miss">
+              No standing rules for {clientName} yet.
+            </p>
+          )}
+        </div>
       </div>
 
       {/* ═══ SESSION CHOOSER DIALOG ═══ */}
@@ -502,31 +748,33 @@ export function TrainingDrawer({
                 sessionsRemaining={remaining}
                 programName={programState.program?.name ?? ""}
                 clientNumber={clientNumber}
-                onConfirmProgram={(slotId) => handleReassignProgram(chooserSessionId, slotId)}
-                onConfirmTemplate={(templateId, templateName) => handleReassignTemplate(chooserSessionId, templateId, templateName)}
-                onConfirmOneOff={() => handleReassignOneOff(chooserSessionId)}
-                onCancel={() => !chooserBusy && setChooserSessionId(null)}
+                onConfirmProgram={(slotId) =>
+                  handleReassignProgram(chooserSessionId, slotId)
+                }
+                onConfirmTemplate={(templateId, templateName) =>
+                  handleReassignTemplate(
+                    chooserSessionId,
+                    templateId,
+                    templateName,
+                  )
+                }
+                onConfirmOneOff={() =>
+                  handleReassignOneOff(chooserSessionId)
+                }
+                onCancel={() =>
+                  !chooserBusy && setChooserSessionId(null)
+                }
               />
             </div>
             {chooserBusy && (
               <div className="absolute inset-0 bg-white/60 rounded-surface flex items-center justify-center pointer-events-none">
-                <span className="text-[13px] font-semibold text-[var(--color-muted)]">Saving…</span>
+                <span className="text-[13px] font-semibold text-[var(--color-muted)]">
+                  Saving…
+                </span>
               </div>
             )}
           </div>
         </div>
-      )}
-
-      {/* ═══ SESSION MOVE/CANCEL DIALOG ═══ */}
-      {moveSession && (
-        <SessionMoveDialog
-          session={moveSession}
-          clientNumber={clientNumber}
-          clientName={clientName}
-          preferredTime={null}
-          sessionsRemaining={sessionsRemaining}
-          onClose={() => setMoveSession(null)}
-        />
       )}
     </DrawerShell>
   );

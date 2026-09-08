@@ -122,6 +122,7 @@
     --hub-field-border: #C7CCD4;
     --hub-field-border-hover: #AFB5C0;
     --hub-section-border: #D7DBE1;
+    --field-fill: #FDFDFE;
 
     /* ===== SEMANTIC TAILWIND COLORS ===== */
     --background: 0 0% 100%;
@@ -1579,7 +1580,9 @@ table.eb-table { width: 100%; border-collapse: collapse; font-size: 14px; min-wi
 
 /* Fcard: bordered card with coloured top accent */
 .fcard { border: 1px solid var(--hub-border); border-radius: var(--r-nested); background: var(--hub-card); overflow: hidden; margin-bottom: 12px; }
-.fcard-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 14px; font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--color-ink); background: var(--hub-hover); }
+.fcard-h { display: flex; align-items: center; gap: 8px; padding: 10px 14px; font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--color-ink); background: var(--hub-hover); }
+.fcard-h .sub { margin-left: 6px; text-transform: none; letter-spacing: 0; font-weight: 500; font-size: 12px; color: var(--color-body); }
+.fcard-h .btn-link { margin-left: auto; text-transform: none; letter-spacing: 0; font-size: 12px; }
 .fcard-b { padding: 10px 14px; }
 .fcard-b.pad { padding: 14px; }
 
@@ -1679,6 +1682,57 @@ table.eb-table { width: 100%; border-collapse: collapse; font-size: 14px; min-wi
 /* Link-style button */
 .btn-link { background: none; border: 0; padding: 0; font: inherit; font-size: inherit; color: var(--rose-text); cursor: pointer; text-decoration: underline; text-decoration-color: transparent; transition: text-decoration-color 150ms; }
 .btn-link:hover { text-decoration-color: var(--rose-text); }
+
+/* ── CR-EF-186 Training drawer (DO rung) ──────────────────────────────────
+   Date rows, programme map, and pick list — ported from hub-uniform.css
+   §12/§12b, namespaced to the hub token set. */
+
+/* Arow2: date row with workout info — one row per scheduled session */
+.arow2 { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--hub-border); }
+.arow2:last-child { border-bottom: 0; }
+.arow2-d { flex: 0 0 128px; font-size: 13px; font-weight: 600; color: var(--color-ink); font-variant-numeric: tabular-nums; }
+.arow2-d small { display: block; font-size: 11.5px; font-weight: 500; color: var(--color-muted-text); }
+.arow2-w { flex: 1; min-width: 0; font-size: 13.5px; color: var(--color-ink); }
+.arow2-w small { display: block; font-size: 12px; color: var(--color-body); }
+.arow2-w.none { color: var(--color-amber-text); font-weight: 600; }
+.arow2-a { flex-shrink: 0; display: flex; gap: 6px; }
+
+/* Pmap: programme map grouped by week */
+.pmap { border: 1px solid var(--hub-border); border-radius: var(--r-nested); background: var(--field-fill); padding: 10px 12px; }
+.pmap-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--color-body); margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--hub-border); }
+.pmap-legend b { color: var(--color-ink); font-weight: 700; margin-right: 4px; }
+.pmap-week { display: flex; align-items: center; gap: 12px; padding: 5px 0; }
+.pmap-week + .pmap-week { border-top: 1px solid var(--hub-border); }
+.pmap-lbl { width: 84px; flex-shrink: 0; font-size: 11.5px; font-weight: 700; color: var(--color-muted-text); }
+.pmap-cells { display: flex; gap: 6px; }
+.mcell { width: 92px; height: 44px; flex-shrink: 0; border: 1px solid var(--hub-border); border-radius: var(--r-control); background: var(--hub-card); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; font-family: inherit; padding: 0; transition: border-color .12s, box-shadow .12s; }
+.mcell small { font-size: 10.5px; font-weight: 600; color: var(--color-body); font-variant-numeric: tabular-nums; }
+.mcell b { font-size: 13px; font-weight: 800; line-height: 1; color: var(--color-ink); }
+.mcell:hover { border-color: var(--color-rose); box-shadow: 0 0 0 1px var(--color-rose); }
+.mcell.done { background: var(--status-success-bg); border-color: var(--status-success-border); }
+.mcell.done b, .mcell.done small { color: var(--status-success-text); }
+.mcell.flag { background: var(--status-warning-bg); border-color: var(--status-warning); }
+.mcell.flag b, .mcell.flag small { color: var(--color-amber-text); }
+.mcell.next { background: var(--status-primary-bg); border-color: var(--color-rose); box-shadow: inset 0 0 0 1px var(--color-rose); }
+.mcell.next b, .mcell.next small { color: var(--rose-text); }
+.mcell.beyond { background: var(--hub-hover); border-style: dashed; cursor: default; }
+.mcell.beyond:hover { border-color: var(--hub-border); box-shadow: none; }
+.mcell.beyond b, .mcell.beyond small { color: var(--color-muted-text); }
+.map-key { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--hub-border); font-size: 11.5px; color: var(--color-body); }
+.map-key span { display: inline-flex; align-items: center; gap: 6px; }
+.map-key i { width: 11px; height: 11px; border-radius: var(--r-control-sm); border: 1px solid var(--hub-border); background: var(--hub-card); flex-shrink: 0; font-style: normal; }
+.map-key i.done { background: var(--status-success-bg); border-color: var(--status-success-border); }
+.map-key i.flag { background: var(--status-warning-bg); border-color: var(--status-warning); }
+.map-key i.next { background: var(--status-primary-bg); border-color: var(--color-rose); }
+.map-key i.beyond { background: var(--hub-hover); border-style: dashed; }
+
+/* Pick: choosable item — shared programme or workout in picker */
+.pick { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--hub-border); }
+.pick:last-child { border-bottom: 0; }
+.pick-m { flex: 1; min-width: 0; }
+.pick-t { display: block; font-size: 13.5px; font-weight: 600; color: var(--color-ink); }
+.pick-s { display: block; font-size: 12px; color: var(--color-body); margin-top: 1px; }
+.pick-a { flex-shrink: 0; }
 
 /* ── S7 Documents additions ──────────────────────────────────────────────
    New, appended per RULES.md's Output rule. Two of these (.fld, and the

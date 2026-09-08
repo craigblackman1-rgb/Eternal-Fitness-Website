@@ -7,7 +7,6 @@ import { ClientDrawerStrip } from "./ClientDrawerStrip";
 import { NeedsYouQueue, buildNeedsYouItems } from "./NeedsYouQueue";
 import { TrainingSection } from "./TrainingSection";
 import { TrainingDrawer } from "./TrainingDrawer";
-import { SupplementaryDrawer } from "./SupplementaryDrawer";
 import { ClientDrawers } from "./ClientDrawers";
 import { RenewalFlow } from "./RenewalFlow";
 import type { DBBlock, DBSession } from "@/types";
@@ -316,7 +315,6 @@ export function ClientRecordShell({
         allSessions={sessions}
         blockDateRangeLabel={blockDateRangeLabel}
         exerciseTrendSummary={exerciseTrendSummary}
-        trainerizeHistory={trainerizeHistory}
         standingRules={
           isHomeTraining
             ? (trainingRules ?? []).map((r) => ({
@@ -334,11 +332,6 @@ export function ClientRecordShell({
         flaggedSessionIds={flaggedSessionIds}
         activeProgramId={activeProgramId}
         clientId={client.id}
-      />
-      <SupplementaryDrawer
-        clientNumber={client.client_number}
-        clientName={client.name}
-        sessionsRemaining={sessionsRemaining}
       />
       <ClientDrawers
         client={client}

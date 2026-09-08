@@ -157,11 +157,12 @@ interface DrawerShellProps {
   subtitle?: React.ReactNode;
   width?: "sm" | "md" | "lg";
   children: React.ReactNode;
+  footer?: React.ReactNode;
 }
 
 const WIDTHS = { sm: "w-[420px]", md: "w-[560px]", lg: "w-[720px]" };
 
-export function DrawerShell({ id, title, subtitle, width = "md", children }: DrawerShellProps) {
+export function DrawerShell({ id, title, subtitle, width = "md", children, footer }: DrawerShellProps) {
   const { activeDrawer, parentId, closeDrawer } = useDrawerManager();
   const isActive = activeDrawer === id;
   const isParent = parentId === id && activeDrawer !== null;
@@ -226,6 +227,13 @@ export function DrawerShell({ id, title, subtitle, width = "md", children }: Dra
       <div className="flex-1 overflow-y-auto px-4 py-4">
         {children}
       </div>
+
+      {/* Footer */}
+      {footer && (
+        <div className="flex items-center gap-2 px-4 py-3 border-t border-[var(--hub-border)] bg-[var(--field-fill,#FDFDFE)] shrink-0">
+          {footer}
+        </div>
+      )}
     </aside>
   );
 }
