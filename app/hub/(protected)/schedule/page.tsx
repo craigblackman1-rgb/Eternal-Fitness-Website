@@ -3,7 +3,7 @@ import { HubPageHeader, HubQuickActions } from "@/components/hub";
 import { IconUserPlus, IconFileText, IconUsers, IconCalendar } from "@/components/icons";
 import { sessionDurationMinutes } from "@/lib/scheduling";
 import { deriveSessionStatus } from "@/lib/session-status";
-import { sessionWorkoutName } from "@/lib/session-display";
+import { sessionWorkoutName, isTrainerizeImported, isOutlookPlaceholder } from "@/lib/session-display";
 import type { Session, TimeTier } from "@/types";
 import type { ScheduledEntry } from "./ScheduleCalendar";
 import type { UnconfirmedBooking } from "./ScheduleCalendar";
@@ -64,7 +64,7 @@ export default async function SchedulePage() {
     archetype: string;
     data: Session | null;
     status: string | null;
-  }> = plannedRows ?? [];
+  }> = (plannedRows ?? []).filter((s) => !isTrainerizeImported(s) && !isOutlookPlaceholder(s));
 
   // 3. Sub-session counts — how many supplementary sessions attach to each parent
   const allSessionIds = [...new Set([...sessions.map((s) => s.id), ...plannedSessions.map((s) => s.id)])];
