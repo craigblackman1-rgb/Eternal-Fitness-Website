@@ -4,15 +4,12 @@ import { useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { BlockActions } from "./BlockActions";
 import { BlockSchedulePanel } from "./BlockSchedulePanel";
 import { EditBlockDrawer } from "./EditBlockDrawer";
 import { AddWorkoutDialog } from "./AddWorkoutDialog";
 import { CarryOverDialog } from "./CarryOverDialog";
 import { SessionList } from "./SessionList";
 import { StatusBadge } from "@/components/hub/StatusBadge";
-import { SessionPotCounter } from "@/components/hub/SessionPotCounter";
-import { deriveSessionPot } from "@/lib/session-pot";
 import { isoToLocalTime, shiftDay } from "@/lib/schedule-dates";
 import { deriveSessionStatus } from "@/lib/session-status";
 import type { Weekday } from "@/lib/scheduling";
@@ -244,6 +241,12 @@ export function BlockOverviewClient({
 
   const completedCount = displaySessions.filter((s) => sessionStatus(s) === "completed").length;
 
+  // First incomplete session for the archetype chip strip "next up" marker
+  const firstIncompleteProjected = displaySessions.find((s) => {
+    const st = sessionStatus(s);
+    return st !== "completed" && st !== "cancelled";
+  });
+
   const blockDescriptor = clientCondition
     ? `Block ${block.block_number} of ${totalBlockCount} · ${clientCondition}`
     : `Block ${block.block_number} of ${totalBlockCount}`;
@@ -314,23 +317,41 @@ export function BlockOverviewClient({
                 <StatusBadge status={blockStatusState} />
               </div>
               <p className="text-[12.5px] text-[var(--body)] mt-0.5">
-                {totalSessions} sessions · {blockDateSpanLabel}
+                {totalSessions} sessions
                 {weekdays.length > 0 && (
-                  <> · {weekdays.map((w) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][w]).join(", ")}</>
+                  <> · {weekdays.map((w) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][w]).join(", & ")}</>
+                )}
+                {' · '}
+                {blockDateSpanLabel}
+                {block.block_number > 0 && totalBlockCount > 1 && (
+                  <> · {totalBlockCount}-week band block</>
                 )}
               </p>
               <div className="flex items-center gap-1 mt-2.5 flex-wrap">
-                {archetypes.map(([arch, count]) => (
-                  <span
-                    key={arch}
-                    className="w-[24px] h-[24px] rounded-control-sm flex items-center justify-center text-[11.5px] font-bold bg-[var(--hub-card)] border border-[var(--hub-border)] text-[var(--muted)]"
-                  >
-                    {arch}
+                {displaySessions.map((s, i) => {
+                  const arch = s.archetype ?? "?";
+                  const isFirstIncomplete = firstIncompleteProjected?.id === s.id;
+                  return (
+                    <span
+                      key={s.id}
+                      className={`w-[24px] h-[24px] rounded-control-sm flex items-center justify-center text-[11.5px] font-bold border ${
+                        isFirstIncomplete
+                          ? "bg-[var(--s-primary-bg)] text-[var(--rose-text)] border-[var(--rose)] shadow-[inset_0_0_0_1px_var(--rose)]"
+                          : "bg-[var(--hub-card)] border-[var(--hub-border)] text-[var(--muted)]"
+                      }`}
+                    >
+                      {arch}
+                    </span>
+                  );
+                })}
+                {firstIncompleteProjected && (
+                  <span className="text-[11.5px] text-[var(--muted)] ml-1.5">
+                    next up: {firstIncompleteProjected.archetype ?? "?"},{" "}
+                    {firstIncompleteProjected.scheduled_at
+                      ? new Date(firstIncompleteProjected.scheduled_at).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })
+                      : "not scheduled"}
                   </span>
-                ))}
-                <span className="text-[11.5px] text-[var(--muted)] ml-1.5">
-                  {archetypes.map(([arch, count]) => `${arch}×${count}`).join(" · ")}
-                </span>
+                )}
               </div>
             </div>
             <div className="flex gap-1.5 shrink-0">
@@ -354,33 +375,7 @@ export function BlockOverviewClient({
         </div>
       </section>
 
-      {/* ── Actions bar ────────────────────────────────────────── */}
-      <BlockActions
-        onEditBlock={() => setDrawerOpen(true)}
-        onAddWorkout={() => setAddWorkoutOpen(true)}
-        onSchedule={() => setScheduleOpen(true)}
-        onCarryOver={() => setCarryOverOpen(true)}
-        clientId={clientId}
-        blockId={blockId}
-        blockNumber={block.block_number}
-        clientName={clientName}
-        hasRemaining={remainingCount > 0}
-      />
-
-      {/* ── Session pot ──────────────────────────────────────────────
-          Kept visible (Craig, 4 Sep) but ONLY the pot. The rest of
-          BlockPoolView -- the sequence ribbon, Booked slots and Planned
-          workouts -- listed the same 18 sessions a second and third time and
-          made this the hardest page in the hub to drive. Its two unique
-          actions (Cancel, Add supplementary) now live on the session row. */}
-      <SessionPotCounter
-        pot={deriveSessionPot(sessions as any, sessionsPurchased)}
-        blockExpiryDate={blockExpiryDate}
-        extended={blockExpiryExtensions.length > 0}
-        originalExpiry={blockExpiryExtensions.length > 0 ? blockExpiryExtensions[0].from : null}
-      />
-
-      {/* ── Sessions, grouped into real Mon–Sun weeks ──────────────
+      {/* ── Sessions ──────────────────────────────────────────────
           CR-EF-032 / CR-EF-145: weeks are DERIVED from dates, never the
           stored `week` ordinal, and unbooked sessions carry a projected
           date so they group with the week they will fall in. */}
@@ -440,12 +435,8 @@ export function BlockOverviewClient({
                   : "Not scheduled";
 
             return (
-              <details
-                key={group.key}
-                open={group.key === targetWeekKey}
-                className="rounded-nested border border-[var(--hub-border)] bg-[var(--field-fill,#FDFDFE)] overflow-hidden group"
-              >
-                <summary className="list-none cursor-pointer flex items-center gap-3 px-3.5 py-2.5 hover:bg-[var(--hub-hover)] transition-colors">
+              <div key={group.key} className="rounded-nested border border-[var(--hub-border)] overflow-hidden">
+                <div className="flex items-center gap-3 px-3.5 py-2.5 bg-[var(--hub-hover)]">
                   <span
                     className={`w-[26px] h-[26px] rounded-control-sm flex items-center justify-center text-[12px] font-extrabold shrink-0 ${
                       isScheduled
@@ -460,19 +451,7 @@ export function BlockOverviewClient({
                   <span className="text-[13.5px] font-bold text-[var(--color-ink)]">{title}</span>
                   {sub && <span className="text-[12px] text-[var(--muted)]">{sub}</span>}
                   <span className="ml-auto text-[12px] text-[var(--muted)]">{progress}</span>
-                  <svg
-                    width="15"
-                    height="15"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    className="text-[var(--muted)] transition-transform duration-200 group-open:rotate-90 shrink-0"
-                  >
-                    <path d="m9 18 6-6-6-6" />
-                  </svg>
-                </summary>
+                </div>
                 <div className="border-t border-[var(--hub-border)] bg-[var(--hub-card)]">
                   <SessionList
                     sessions={group.sessions}
@@ -492,7 +471,7 @@ export function BlockOverviewClient({
                     lastUsedMap={lastUsedMap}
                   />
                 </div>
-              </details>
+              </div>
             );
           })}
 
