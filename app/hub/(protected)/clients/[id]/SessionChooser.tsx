@@ -120,7 +120,7 @@ export function SessionChooser({
             Slot {slotPosition} of {totalSlots} in {programName}.
           </p>
           <p className="mt-2.5 pt-2.5 border-t border-[var(--hub-border)] text-xs text-[var(--color-body)]">
-            Uses <b className="text-[var(--color-ink)]">1 of {remaining}</b> remaining paid sessions · advances the queue to <b className="text-[var(--color-ink)]">slot {slotPosition + 1}</b>
+            Uses <b className="text-[var(--color-ink)]">1 of {remaining}</b> remaining paid sessions · advances the programme to <b className="text-[var(--color-ink)]">slot {slotPosition + 1}</b>
           </p>
         </button>
 
@@ -148,7 +148,7 @@ export function SessionChooser({
             A one-off from the shared exercise library, outside this program.
           </p>
           <p className="mt-2.5 pt-2.5 border-t border-[var(--hub-border)] text-xs text-[var(--color-body)]">
-            Uses <b className="text-[var(--color-ink)]">1 of {remaining}</b> remaining paid sessions · <b className="text-[var(--color-ink)]">does not</b> move the queue
+            Uses <b className="text-[var(--color-ink)]">1 of {remaining}</b> remaining paid sessions · <b className="text-[var(--color-ink)]">does not</b> move the programme
           </p>
         </button>
 
@@ -176,7 +176,7 @@ export function SessionChooser({
             Not saved as reusable content — build it from scratch for this session.
           </p>
           <p className="mt-2.5 pt-2.5 border-t border-[var(--hub-border)] text-xs text-[var(--color-body)]">
-            Uses <b className="text-[var(--color-ink)]">1 of {remaining}</b> remaining paid sessions · <b className="text-[var(--color-ink)]">does not</b> move the queue
+            Uses <b className="text-[var(--color-ink)]">1 of {remaining}</b> remaining paid sessions · <b className="text-[var(--color-ink)]">does not</b> move the programme
           </p>
         </button>
       </div>

@@ -1497,6 +1497,28 @@ table.eb-table { width: 100%; border-collapse: collapse; font-size: 14px; min-wi
 /* ══ BADGE — compact status label (CR-EF-185) ══════════════════════════ */
 .badge { display: inline-flex; align-items: center; height: 21px; padding: 0 8px; border-radius: var(--r-pill); font-size: 11.5px; font-weight: 600; white-space: nowrap; }
 .badge.b-primary { background: var(--status-primary-bg); border: 1px solid var(--status-primary-border); color: var(--status-primary-text); }
+.badge.b-neutral { background: var(--hub-hover); border: 1px solid var(--hub-border); color: var(--color-body); }
+.badge.b-warning { background: var(--status-warning-bg); border: 1px solid var(--status-warning-border); color: var(--status-warning-text); }
+
+/* ══ GLANCE CARD — read-only training summary (CR-EF-186 u1) ════════════
+   Ported from hub-client-detail-v3.html. Namespaced under .glance to avoid
+   collision with the pre-existing .drow rule at line 1605 which uses a
+   different layout (border-bottom, no padding override). */
+.glance { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.glance > div { padding: 14px 16px; }
+.glance > div + div { border-left: 1px solid var(--hub-border); }
+.g-prog { display: block; font-size: 17px; font-weight: 800; color: var(--color-ink); letter-spacing: -.015em; }
+.g-prog-s { display: block; font-size: 12.5px; color: var(--color-body); margin-top: 3px; }
+.glance .drow { border-top: 1px solid var(--hub-border); border-bottom: 0; padding: 10px 16px; }
+.glance .drow-d { flex: 0 0 132px; font-size: 13px; font-weight: 600; color: var(--color-ink); font-variant-numeric: tabular-nums; }
+.glance .drow-d small { display: block; font-size: 11.5px; font-weight: 500; color: var(--color-muted-text); }
+.glance .drow-w { flex: 1; min-width: 0; font-size: 13.5px; color: var(--color-ink); }
+.glance .drow-w small { display: block; font-size: 12px; color: var(--color-muted-text); }
+.glance .drow-w.none { color: var(--color-amber-text); font-weight: 600; }
+.glance .drow-s { display: block; flex-shrink: 0; }
+.rungs { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--hub-border); background: var(--field-fill, #FDFDFE); }
+.rungs .btn { flex: 0 0 auto; }
+.rungs .spacer { flex: 1; }
 
 /* ══ GRID-2 — two-column layout (CR-EF-185) ════════════════════════════ */
 .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }

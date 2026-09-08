@@ -329,10 +329,10 @@ export function RenewalFlow({ client, sessionsRemaining, sessionsPurchased, onCl
                 </div>
               </div>
 
-              {/* Queue */}
+              {/* Programme */}
               <div className="border border-[var(--status-success-border)] rounded-nested overflow-hidden mb-3">
                 <div className="flex items-center gap-2 px-3 py-2 bg-[var(--status-success-bg)] border-t-[3px] border-[var(--color-teal)] border-b border-[var(--status-success-border)] text-[10.5px] font-extrabold uppercase tracking-[.08em] text-[var(--color-teal-text)]">
-                  Queue
+                  Programme
                 </div>
                 <div className="p-3">
                   <div className="flex items-baseline gap-3.5 py-2 text-[13px]">

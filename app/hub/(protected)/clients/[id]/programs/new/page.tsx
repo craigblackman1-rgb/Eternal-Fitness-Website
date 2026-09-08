@@ -324,7 +324,7 @@ export default async function PlanNewProgrammePage({
                 <div className="pn-process-num">3</div>
                 <div className="pn-process-label">Apply</div>
                 <div className="pn-process-desc">
-                  The programme lands on {client.name}&apos;s record. The queue
+                  The programme lands on {client.name}&apos;s record. The programme
                   takes over &mdash; next session, next slot.
                 </div>
               </div>

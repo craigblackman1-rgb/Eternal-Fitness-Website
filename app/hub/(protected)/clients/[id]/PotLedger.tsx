@@ -100,7 +100,7 @@ export function PotLedger({ clientNumber, clientName }: PotLedgerProps) {
                 <CounterRow count={c.remaining} label="remaining" />
               </div>
               <p className="mt-3 mb-0 text-xs text-[var(--color-muted)]">
-                Queue advances on completed sessions only. Cancelled and rescheduled sessions don&apos;t use a session.
+                Programme advances on completed sessions only. Cancelled and rescheduled sessions don&apos;t use a session.
               </p>
             </div>
           </div>

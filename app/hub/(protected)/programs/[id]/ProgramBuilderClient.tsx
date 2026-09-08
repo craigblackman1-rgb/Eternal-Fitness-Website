@@ -1033,11 +1033,11 @@ export function ProgramBuilderClient({
         </div>
       </HubCard>
 
-      {/* Slot queue */}
+      {/* Slot programme */}
       <HubCard>
         <div className="p-4">
           <div className="flex items-center gap-2.5 mb-3">
-            <h2 className="text-[15px] font-bold text-foreground">Slot queue</h2>
+            <h2 className="text-[15px] font-bold text-foreground">Slot programme</h2>
             <span className="text-[12.5px] text-muted-foreground">Rotates A → B → A → B… as sessions complete</span>
             <div className="ml-auto">
               <Button variant="ghost" size="sm" onClick={handleAddSlot} className="gap-1 text-xs">
