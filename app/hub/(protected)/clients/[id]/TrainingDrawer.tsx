@@ -557,12 +557,12 @@ export function TrainingDrawer({
             </button>
           </div>
           <div className="fcard-b">
-            {/* Queue map legend */}
+            {/* Queue map legend — compact single-line */}
             {slotCount > 0 && (
-              <div className="flex gap-4 flex-wrap text-[12px] text-[var(--color-body)] mb-2.5 pb-2.5 border-b border-[var(--hub-border)]">
+              <div className="flex gap-3 flex-wrap text-[11.5px] text-[var(--color-body)] mb-2 pb-2 border-b border-[var(--hub-border)]">
                 {slots.map((sl) => (
-                  <span key={sl.id}>
-                    <b className="text-[var(--color-ink)] font-bold mr-1">{slotLetter(sl)}</b>
+                  <span key={sl.id} className="whitespace-nowrap">
+                    <b className="text-[var(--color-ink)] font-bold mr-0.5">{slotLetter(sl)}</b>
                     {sl.label?.trim() || `Slot ${sl.position}`}
                   </span>
                 ))}
@@ -570,16 +570,16 @@ export function TrainingDrawer({
             )}
 
             {/* Week-grouped queue map */}
-            <div className="border border-[var(--hub-border)] rounded-nested bg-[var(--field-fill)] p-3">
+            <div className="border border-[var(--hub-border)] rounded-nested bg-[var(--field-fill)] p-2.5">
               {weeks.map((week, wi) => (
-                <div key={wi} className={`flex items-center gap-3 py-1.5 ${wi > 0 ? "border-t border-[var(--hub-border)]" : ""}`}>
-                  <span className="w-[88px] shrink-0 text-[11.5px] font-bold text-[var(--color-muted)]">
+                <div key={wi} className={`flex items-center gap-2.5 py-1 ${wi > 0 ? "border-t border-[var(--hub-border)]" : ""}`}>
+                  <span className="w-[80px] shrink-0 text-[11px] font-bold text-[var(--color-muted)]">
                     {week.label}
                     {week.dateRange && (
-                      <span className="block text-[10px] font-normal normal-case tracking-normal">{week.dateRange}</span>
+                      <span className="block text-[9.5px] font-normal normal-case tracking-normal">{week.dateRange}</span>
                     )}
                   </span>
-                  <div className="flex gap-1.5">
+                  <div className="flex gap-1">
                     {week.cells.map((cell) => {
                       const isNext = cell.state === "next";
                       const isDone = cell.state === "done";
@@ -599,9 +599,9 @@ export function TrainingDrawer({
                             if (sessionForCell) openWorkoutDrawer(sessionForCell.id);
                           }}
                           className={`
-                            min-w-[90px] shrink-0 border rounded-control
+                            min-w-[80px] shrink-0 border rounded-control
                             flex flex-col items-start justify-center
-                            font-[inherit] px-2 py-1.5 transition-[border-color,box-shadow] duration-[120ms]
+                            font-[inherit] px-1.5 py-1 transition-[border-color,box-shadow] duration-[120ms]
                             ${isBeyond
                               ? "bg-[var(--hub-hover)] border-dashed border-[var(--hub-border)] cursor-default hover:border-[var(--hub-border)] hover:shadow-none"
                               : isDone
@@ -614,7 +614,7 @@ export function TrainingDrawer({
                             }
                           `}
                         >
-                          <span className={`text-[11px] leading-tight ${
+                          <span className={`text-[10.5px] leading-tight ${
                             isBeyond
                               ? "text-[var(--color-muted)]"
                               : isDone || isFlag
@@ -625,7 +625,7 @@ export function TrainingDrawer({
                           } ${cell.dayLabel ? "font-semibold tabular-nums" : isDone || isFlag || isBeyond ? "" : "italic"}`}>
                             {(isDone || isFlag) ? (cell.dayLabel || "done") : isBeyond ? "unscheduled" : (cell.dayLabel || "not booked")}
                           </span>
-                          <span className={`text-[11px] leading-tight font-semibold truncate max-w-[120px] ${
+                          <span className={`text-[10.5px] leading-tight font-semibold truncate max-w-[110px] ${
                             isBeyond
                               ? "text-[var(--color-muted)]"
                               : isDone || isFlag
@@ -639,8 +639,8 @@ export function TrainingDrawer({
                               return label.length > 16 ? label.slice(0, 16) + "\u2026" : label;
                             })()}
                           </span>
-                          <span className="text-[10px] leading-tight text-[var(--color-muted)]">
-                            Session {cell.queueIndex} of {totalQueueSlots}
+                          <span className="text-[9.5px] leading-tight text-[var(--color-muted)]">
+                            {cell.queueIndex}/{totalQueueSlots}
                           </span>
                         </button>
                       );
@@ -650,38 +650,38 @@ export function TrainingDrawer({
               ))}
 
               {/* Map key */}
-              <div className="flex gap-3.5 flex-wrap mt-2.5 pt-2.5 border-t border-[var(--hub-border)] text-[11.5px] text-[var(--color-body)]">
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="w-[11px] h-[11px] rounded-[3px] border border-[var(--status-success-border)] bg-[var(--status-success-bg)] shrink-0" />
-                  Completed
+              <div className="flex gap-3 flex-wrap mt-2 pt-2 border-t border-[var(--hub-border)] text-[11px] text-[var(--color-muted)]">
+                <span className="inline-flex items-center gap-1">
+                  <span className="w-[9px] h-[9px] rounded-[2px] border border-[var(--status-success-border)] bg-[var(--status-success-bg)] shrink-0" />
+                  Done
                 </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="w-[11px] h-[11px] rounded-[3px] border border-[var(--status-warning)] bg-[var(--status-warning-bg)] shrink-0" />
-                  Completed, no sets logged
+                <span className="inline-flex items-center gap-1">
+                  <span className="w-[9px] h-[9px] rounded-[2px] border border-[var(--status-warning)] bg-[var(--status-warning-bg)] shrink-0" />
+                  Done, no sets
                 </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="w-[11px] h-[11px] rounded-[3px] border border-[var(--color-rose)] bg-[var(--status-primary-bg)] shrink-0" />
-                  Next up
+                <span className="inline-flex items-center gap-1">
+                  <span className="w-[9px] h-[9px] rounded-[2px] border border-[var(--color-rose)] bg-[var(--status-primary-bg)] shrink-0" />
+                  Next
                 </span>
-                <span>Plain cells are scheduled</span>
+                <span>Scheduled</span>
                 {totalSessions && (
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="w-[11px] h-[11px] rounded-[3px] border border-dashed border-[var(--hub-border)] bg-[var(--hub-hover)] shrink-0" />
-                    Beyond the {remaining} remaining paid sessions
+                  <span className="inline-flex items-center gap-1">
+                    <span className="w-[9px] h-[9px] rounded-[2px] border border-dashed border-[var(--hub-border)] bg-[var(--hub-hover)] shrink-0" />
+                    Unpaid
                   </span>
                 )}
               </div>
 
               {/* Round-advance legend */}
-              <p className="text-[11px] text-[var(--color-muted)] mt-2 m-0">
-                Rounds advance when sessions are completed — not by the calendar.
+              <p className="text-[11px] text-[var(--color-muted)] mt-2 mb-0">
+                Rounds advance on completion, not by calendar.
               </p>
             </div>
 
             {/* Beyond-paid note */}
             {beyondPaidCount > 0 && (
-              <div className="flex items-center gap-2.5 mt-2.5 text-[13px] text-[var(--color-muted)]">
-                <span className="w-[7px] h-[7px] rounded-full shrink-0 bg-[var(--color-muted)]" />
+              <div className="flex items-center gap-2 mt-2 text-[12.5px] text-[var(--color-muted)]">
+                <span className="w-[6px] h-[6px] rounded-full shrink-0 bg-[var(--color-muted)]" />
                 <span>
                   {beyondPaidCount} slot{beyondPaidCount === 1 ? "" : "s"} run past what&rsquo;s currently paid for.{" "}
                   {clientName} needs a session renewal, or those sessions have nowhere to bill against.{" "}
@@ -689,7 +689,7 @@ export function TrainingDrawer({
                     type="button"
                     disabled={extending}
                     onClick={() => handleExtendProgram(2)}
-                    className="inline font-[inherit] text-xs font-semibold text-[var(--color-rose)] hover:underline underline-offset-2 bg-transparent border-0 p-0 cursor-pointer disabled:opacity-50"
+                    className="inline font-[inherit] text-[11.5px] font-semibold text-[var(--color-rose)] hover:underline underline-offset-2 bg-transparent border-0 p-0 cursor-pointer disabled:opacity-50"
                   >
                     {extending ? "Extending\u2026" : "Manage the balance"}
                   </button>
@@ -704,9 +704,9 @@ export function TrainingDrawer({
       {scheduledSessions.length > 0 && (
         <div className="fcard acc-teal">
           <div className="fcard-h">
-            <span>Scheduled sessions</span>
+            <span>Scheduled</span>
             <span className="sub ml-2.5 normal-case tracking-normal font-medium text-[12px] text-[var(--color-body)]">
-              {scheduledSessions.length} booked · {preferredTime ? preferredTime : ""}
+              {scheduledSessions.length} booked{preferredTime ? ` · ${preferredTime}` : ""}
             </span>
             <button
               type="button"
@@ -717,49 +717,49 @@ export function TrainingDrawer({
             </button>
           </div>
           <div className="fcard-b">
-            {(showAllSessions ? scheduledSessions : scheduledSessions.slice(0, 5)).map((s) => (
+            {(showAllSessions ? scheduledSessions : scheduledSessions.slice(0, 3)).map((s) => (
               <div
                 key={s.id}
-                className="flex items-center gap-3 py-[9px] border-b border-[var(--hub-border)] last:border-b-0"
+                className="flex items-center gap-2.5 py-2 border-b border-[var(--hub-border)] last:border-b-0"
               >
-                <span className="w-[130px] shrink-0 text-[13px] font-semibold text-[var(--color-ink)]">
+                <span className="w-[110px] shrink-0 text-[13px] font-semibold text-[var(--color-ink)] leading-tight">
                   {fmtShortDate(s.scheduled_at!)}
-                  <small className="block text-[11.5px] font-medium text-[var(--color-muted)]">
-                    {preferredTime ?? ""}
-                  </small>
+                  {preferredTime && (
+                    <small className="block text-[11px] font-medium text-[var(--color-muted)]">{preferredTime}</small>
+                  )}
                 </span>
-                <span className="flex-1 min-w-0 text-[13.5px] text-[var(--color-ink)]">
+                <span className="flex-1 min-w-0 text-[13px] text-[var(--color-ink)]">
                   {sessionWorkoutName(s)}
                 </span>
                 <span className="flex gap-1 shrink-0">
                   {programState && (
                     <button
                       onClick={() => setChooserSessionId(s.id)}
-                      className="inline-flex items-center justify-center gap-1.5 rounded-control border border-[var(--hub-field-border)] bg-white px-2.5 py-1 min-h-[30px] font-[inherit] text-xs font-semibold cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
+                      className="inline-flex items-center justify-center rounded-control border border-[var(--hub-field-border)] bg-white px-2 py-0.5 min-h-[26px] font-[inherit] text-[11.5px] font-semibold cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
                     >
                       Reassign
                     </button>
                   )}
                   <button
                     onClick={() => setMoveSession(s)}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-control border border-[var(--hub-field-border)] bg-white px-2.5 py-1 min-h-[30px] font-[inherit] text-xs font-semibold cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
+                    className="inline-flex items-center justify-center rounded-control border border-[var(--hub-field-border)] bg-white px-2 py-0.5 min-h-[26px] font-[inherit] text-[11.5px] font-semibold cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
                   >
                     Move
                   </button>
                   <button
                     onClick={() => setMoveSession(s)}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-control border border-[var(--hub-field-border)] bg-white px-2.5 py-1 min-h-[30px] font-[inherit] text-xs font-semibold cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
+                    className="inline-flex items-center justify-center rounded-control border border-[var(--hub-field-border)] bg-white px-2 py-0.5 min-h-[26px] font-[inherit] text-[11.5px] font-semibold cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
                   >
                     Cancel
                   </button>
                 </span>
               </div>
             ))}
-            {scheduledSessions.length > 5 && !showAllSessions && (
+            {scheduledSessions.length > 3 && !showAllSessions && (
               <button
                 type="button"
                 onClick={() => setShowAllSessions(true)}
-                className="w-full py-2 mt-1 text-xs font-semibold text-[var(--color-rose)] hover:underline underline-offset-2 bg-transparent border-0 p-0 cursor-pointer text-left font-[inherit]"
+                className="w-full py-1.5 mt-1 text-[11.5px] font-semibold text-[var(--color-rose)] hover:underline underline-offset-2 bg-transparent border-0 p-0 cursor-pointer text-left font-[inherit]"
               >
                 Show all {scheduledSessions.length} sessions
               </button>
@@ -772,7 +772,7 @@ export function TrainingDrawer({
       {completedSessions.length > 0 && (
         <div className="fcard acc-teal">
           <div className="fcard-h">
-            <span>Session history</span>
+            <span>History</span>
             <span className="sub ml-2.5 normal-case tracking-normal font-medium text-[12px] text-[var(--color-body)]">
               {completedSessions.length} completed
             </span>
@@ -781,22 +781,22 @@ export function TrainingDrawer({
             {(showAllCompleted ? completedSessions : completedSessions.slice(0, 5)).map((s) => (
               <div
                 key={s.id}
-                className="flex items-center gap-3 py-[9px] border-b border-[var(--hub-border)] last:border-b-0"
+                className="flex items-center gap-2.5 py-2 border-b border-[var(--hub-border)] last:border-b-0"
               >
-                <span className="w-[130px] shrink-0 text-[13px] font-semibold text-[var(--color-ink)]">
+                <span className="w-[110px] shrink-0 text-[13px] font-semibold text-[var(--color-ink)] leading-tight">
                   {fmtDate(s.completed_at!)}
                 </span>
-                <span className="flex-1 min-w-0 text-[13.5px] text-[var(--color-ink)]">
+                <span className="flex-1 min-w-0 text-[13px] text-[var(--color-ink)]">
                   {sessionWorkoutName(s)}
                   {blockTitleById.get(s.block_id) && (
-                    <span className="ml-2 inline-block rounded-pill border border-[var(--hub-border)] bg-[var(--hub-hover)] px-2 py-[1px] text-[11px] font-medium text-[var(--color-muted)] leading-snug align-middle">
+                    <span className="ml-1.5 inline-block rounded-pill border border-[var(--hub-border)] bg-[var(--hub-hover)] px-1.5 py-[1px] text-[10.5px] font-medium text-[var(--color-muted)] leading-snug align-middle">
                       {blockTitleById.get(s.block_id)}
                     </span>
                   )}
                 </span>
                 <Link
                   href={`/hub/clients/${clientNumber}/blocks/${s.block_id}/sessions/${s.session_number}`}
-                  className="shrink-0 text-[12.5px] font-semibold text-[var(--color-rose)] hover:underline underline-offset-2"
+                  className="shrink-0 text-[12px] font-semibold text-[var(--color-rose)] hover:underline underline-offset-2"
                 >
                   View
                 </Link>
@@ -806,7 +806,7 @@ export function TrainingDrawer({
               <button
                 type="button"
                 onClick={() => setShowAllCompleted(true)}
-                className="w-full py-2 mt-1 text-xs font-semibold text-[var(--color-rose)] hover:underline underline-offset-2 bg-transparent border-0 p-0 cursor-pointer text-left font-[inherit]"
+                className="w-full py-1.5 mt-1 text-[11.5px] font-semibold text-[var(--color-rose)] hover:underline underline-offset-2 bg-transparent border-0 p-0 cursor-pointer text-left font-[inherit]"
               >
                 Show all {completedSessions.length} sessions
               </button>
@@ -820,7 +820,7 @@ export function TrainingDrawer({
         <div className="fcard-h">
           <span>Supplementary</span>
           <span className="sub ml-2.5 normal-case tracking-normal font-medium text-[12px] text-[var(--color-body)]">
-            runs alongside the program · never uses a slot or a paid session
+            alongside the program · never uses a slot or paid session
           </span>
         </div>
         <div className="fcard-b">
@@ -846,18 +846,18 @@ export function TrainingDrawer({
             </button>
           </div>
           <div className="fcard-b">
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1">
               {standingRules.map((rule) => (
                 <span
                   key={rule.id}
-                  className="inline-flex items-center h-[25px] px-2.5 rounded-pill bg-[var(--hub-hover)] border border-[var(--hub-border)] text-[12.5px] text-[var(--color-ink)]"
+                  className="inline-flex items-center h-[23px] px-2 rounded-pill bg-[var(--hub-hover)] border border-[var(--hub-border)] text-[12px] text-[var(--color-ink)]"
                 >
                   {rule.label && <span className="font-semibold">{rule.label} — </span>}
                   {rule.detail}
                 </span>
               ))}
             </div>
-            <p className="miss mt-2 mb-0">
+            <p className="miss mt-1.5 mb-0">
               Both apply to every slot. Either one that bites the next session is named on it.
             </p>
           </div>
@@ -882,25 +882,23 @@ export function TrainingDrawer({
                 <Link
                   key={b.id}
                   href={`/hub/clients/${clientNumber}/blocks/${b.id}`}
-                  className="flex items-center gap-3 py-[9px] px-3 border-b border-[var(--hub-border)] last:border-b-0 no-underline hover:bg-[var(--hub-hover)] transition-colors rounded-nested"
+                  className="flex items-center gap-2.5 py-2 px-3 border-b border-[var(--hub-border)] last:border-b-0 no-underline hover:bg-[var(--hub-hover)] transition-colors rounded-nested"
                 >
-                  <span className="flex-1 min-w-0 text-[13.5px] text-[var(--color-ink)]">
+                  <span className="flex-1 min-w-0 text-[13px] text-[var(--color-ink)]">
                     <span className="font-semibold">{blockNameOrSpan(b, b.scheduled_start ? [{ scheduled_at: b.scheduled_start }] : [])}</span>
-                    <small className="text-xs font-normal text-[var(--color-body)] ml-2">
-                      {b.scheduled_start
-                        ? fmtShortDate(b.scheduled_start)
-                        : "Not scheduled"}
+                    <small className="text-[11.5px] font-normal text-[var(--color-body)] ml-1.5">
+                      {b.scheduled_start ? fmtShortDate(b.scheduled_start) : "Not scheduled"}
                       {" · "}
                       {sessionCount} session{sessionCount !== 1 ? "s" : ""}
                     </small>
                   </span>
                   {isLatest && (
-                    <span className="shrink-0 inline-flex items-center h-[20px] px-2 rounded-pill text-[11px] font-semibold bg-[var(--status-primary-bg)] text-[var(--status-primary-text)] border border-[var(--status-primary-border)]">
+                    <span className="shrink-0 inline-flex items-center h-[18px] px-1.5 rounded-pill text-[10.5px] font-semibold bg-[var(--status-primary-bg)] text-[var(--status-primary-text)] border border-[var(--status-primary-border)]">
                       Current
                     </span>
                   )}
                   {status && (
-                    <span className="shrink-0 inline-flex items-center h-[20px] px-2 rounded-pill text-[11px] font-semibold bg-[var(--hub-hover)] text-[var(--color-muted)] border border-[var(--hub-border)]">
+                    <span className="shrink-0 inline-flex items-center h-[18px] px-1.5 rounded-pill text-[10.5px] font-semibold bg-[var(--hub-hover)] text-[var(--color-muted)] border border-[var(--hub-border)]">
                       {status}
                     </span>
                   )}
@@ -919,28 +917,28 @@ export function TrainingDrawer({
           </div>
           <div className="fcard-b">
             {/* ── Summary stat strip ── */}
-            <div className="grid grid-cols-4 gap-0 border border-[var(--hub-border)] rounded-nested bg-[var(--field-fill)] mb-3">
-              <div className="flex flex-col items-center py-2.5 px-2 border-r border-[var(--hub-border)]">
-                <span className="text-[15px] font-bold text-[var(--color-ink)] tabular-nums">{periodStart && periodEnd ? `${fmtShortDate(periodStart)} – ${fmtShortDate(periodEnd)}` : "—"}</span>
-                <span className="text-[10.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mt-0.5">Period</span>
+            <div className="grid grid-cols-4 gap-0 border border-[var(--hub-border)] rounded-nested bg-[var(--field-fill)] mb-2">
+              <div className="flex flex-col items-center py-2 px-1.5 border-r border-[var(--hub-border)]">
+                <span className="text-[13px] font-bold text-[var(--color-ink)] tabular-nums">{periodStart && periodEnd ? `${fmtShortDate(periodStart)} – ${fmtShortDate(periodEnd)}` : "—"}</span>
+                <span className="text-[9.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mt-0.5">Period</span>
               </div>
-              <div className="flex flex-col items-center py-2.5 px-2 border-r border-[var(--hub-border)]">
-                <span className="text-[15px] font-bold text-[var(--color-ink)] tabular-nums">{tBlocks.length}</span>
-                <span className="text-[10.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mt-0.5">Blocks</span>
+              <div className="flex flex-col items-center py-2 px-1.5 border-r border-[var(--hub-border)]">
+                <span className="text-[13px] font-bold text-[var(--color-ink)] tabular-nums">{tBlocks.length}</span>
+                <span className="text-[9.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mt-0.5">Blocks</span>
               </div>
-              <div className="flex flex-col items-center py-2.5 px-2 border-r border-[var(--hub-border)]">
-                <span className="text-[15px] font-bold text-[var(--color-ink)] tabular-nums">{tzTotalSessions}</span>
-                <span className="text-[10.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mt-0.5">Sessions</span>
+              <div className="flex flex-col items-center py-2 px-1.5 border-r border-[var(--hub-border)]">
+                <span className="text-[13px] font-bold text-[var(--color-ink)] tabular-nums">{tzTotalSessions}</span>
+                <span className="text-[9.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mt-0.5">Sessions</span>
               </div>
-              <div className="flex flex-col items-center py-2.5 px-2">
-                <span className="text-[15px] font-bold text-[var(--color-ink)] tabular-nums">{notes.length}</span>
-                <span className="text-[10.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mt-0.5">Notes</span>
+              <div className="flex flex-col items-center py-2 px-1.5">
+                <span className="text-[13px] font-bold text-[var(--color-ink)] tabular-nums">{notes.length}</span>
+                <span className="text-[9.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mt-0.5">Notes</span>
               </div>
             </div>
 
             {tBlocks.length > 0 && (
               <>
-                <p className="text-[10.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mb-1.5">Training history — tap to see sessions</p>
+                <p className="text-[10.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mb-1">Training history — tap to see sessions</p>
                 {tBlocks.map((b) => {
                   const isOpen = expandedBlockId === b.id;
                   const performed = b.performedWorkouts ?? [];
@@ -948,13 +946,13 @@ export function TrainingDrawer({
                     <div key={b.id}>
                       <button
                         type="button"
-                        className="flex items-center gap-[11px] w-full py-[8px] border-b border-[var(--hub-border)] last:border-b-0 bg-transparent border-x-0 border-t-0 cursor-pointer font-[inherit] text-left"
+                        className="flex items-center gap-2.5 w-full py-1.5 border-b border-[var(--hub-border)] last:border-b-0 bg-transparent border-x-0 border-t-0 cursor-pointer font-[inherit] text-left"
                         onClick={() => setExpandedBlockId(isOpen ? null : b.id)}
                       >
-                        <span className="w-[18px] shrink-0 text-[13px] text-[var(--color-muted)] text-center">{isOpen ? "▾" : "▸"}</span>
-                        <span className="flex-1 min-w-0 text-[13.5px] text-[var(--color-ink)] font-semibold">
+                        <span className="w-[16px] shrink-0 text-[12px] text-[var(--color-muted)] text-center">{isOpen ? "▾" : "▸"}</span>
+                        <span className="flex-1 min-w-0 text-[13px] text-[var(--color-ink)] font-semibold">
                           {b.phase_name || "Program"}
-                          <small className="text-xs font-normal text-[var(--color-body)] ml-2">
+                          <small className="text-[11.5px] font-normal text-[var(--color-body)] ml-1.5">
                             {b.start_date && b.end_date
                               ? `${fmtShortDate(b.start_date)} – ${fmtShortDate(b.end_date)}`
                               : b.start_date
@@ -967,8 +965,8 @@ export function TrainingDrawer({
                       </button>
                       {isOpen && (
                         performed.length > 0
-                          ? <div className="ml-[18px]">{renderPerformedList(performed)}</div>
-                          : <p className="text-[12.5px] text-[var(--color-muted)] py-2 ml-[18px]">No logged sessions fell inside this program's dates.</p>
+                          ? <div className="ml-[16px]">{renderPerformedList(performed)}</div>
+                          : <p className="text-[12px] text-[var(--color-muted)] py-1.5 ml-[16px]">No logged sessions fell inside this program&apos;s dates.</p>
                       )}
                     </div>
                   );
@@ -978,9 +976,9 @@ export function TrainingDrawer({
 
             {unmatched.length > 0 && (
               <>
-                <p className="text-[10.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mb-1.5 mt-3">Outside any program</p>
-                <p className="text-[12.5px] text-[var(--color-muted)] mb-1.5">
-                  {unmatched.length} logged session{unmatched.length !== 1 ? "s" : ""} from before this client's first imported program.
+                <p className="text-[10.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mb-1 mt-2">Outside any program</p>
+                <p className="text-[12px] text-[var(--color-muted)] mb-1">
+                  {unmatched.length} logged session{unmatched.length !== 1 ? "s" : ""} from before this client&apos;s first imported program.
                 </p>
                 {renderPerformedList(unmatched)}
               </>
@@ -988,29 +986,29 @@ export function TrainingDrawer({
 
             <button
               type="button"
-              className="flex items-center gap-1.5 w-full py-[8px] border-b border-[var(--hub-border)] last:border-b-0 bg-transparent border-x-0 border-t-0 cursor-pointer font-[inherit] text-left mt-1"
+              className="flex items-center gap-1.5 w-full py-1.5 border-b border-[var(--hub-border)] last:border-b-0 bg-transparent border-x-0 border-t-0 cursor-pointer font-[inherit] text-left mt-0.5"
               onClick={() => setNotesOpen((v) => !v)}
             >
-              <span className="w-[18px] shrink-0 text-[13px] text-[var(--color-muted)] text-center">{notesOpen ? "▾" : "▸"}</span>
-              <span className="text-[13.5px] font-semibold text-[var(--color-ink)]">Notes ({notes.length})</span>
+              <span className="w-[16px] shrink-0 text-[12px] text-[var(--color-muted)] text-center">{notesOpen ? "▾" : "▸"}</span>
+              <span className="text-[13px] font-semibold text-[var(--color-ink)]">Notes ({notes.length})</span>
             </button>
             {notesOpen && (
               notes.length > 0 ? (
                 notes.map((n) => (
-                  <div key={n.id} className="flex items-start gap-[11px] w-full py-[8px] border-b border-[var(--hub-border)] last:border-b-0">
-                    <span className="flex-1 min-w-0 text-[13px] text-[var(--color-ink)]">
+                  <div key={n.id} className="flex items-start gap-2 w-full py-1.5 border-b border-[var(--hub-border)] last:border-b-0">
+                    <span className="flex-1 min-w-0 text-[12.5px] text-[var(--color-ink)]">
                       <span className="font-semibold">{sourceLabel(n.source)}{n.sender_name ? ` · ${n.sender_name}` : ""}</span>
-                      <span className="block text-[12.5px] text-[var(--color-body)] mt-0.5 whitespace-pre-wrap">{n.content}</span>
+                      <span className="block text-[12px] text-[var(--color-body)] mt-0.5 whitespace-pre-wrap">{n.content}</span>
                     </span>
-                    <span className="text-xs font-semibold text-[var(--color-muted)] shrink-0 tabular-nums">{fmtShortDate(n.source_date)}</span>
+                    <span className="text-[11px] font-semibold text-[var(--color-muted)] shrink-0 tabular-nums">{fmtShortDate(n.source_date)}</span>
                   </div>
                 ))
               ) : (
-                <p className="text-[12.5px] text-[var(--color-muted)] py-2">No notes or messages imported.</p>
+                <p className="text-[12px] text-[var(--color-muted)] py-1.5">No notes or messages imported.</p>
               )
             )}
 
-            <p className="text-[12.5px] text-[var(--color-muted)] mt-3">
+            <p className="text-[11.5px] text-[var(--color-muted)] mt-2">
               Imported history cannot be edited and does not count toward the session balance.
             </p>
           </div>
@@ -1018,18 +1016,18 @@ export function TrainingDrawer({
       )}
 
       {/* ═══ FOOTER ═══ */}
-      <div className="flex gap-2 mt-2">
+      <div className="flex gap-2 mt-1.5">
         <button
           type="button"
           onClick={() => router.push(`/hub/clients/${clientNumber}/programs`)}
-          className="inline-flex items-center justify-center gap-1.5 rounded-control border border-[var(--hub-field-border)] bg-white px-3.5 py-[7px] min-h-[36px] font-[inherit] text-[13px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
+          className="inline-flex items-center justify-center gap-1.5 rounded-control border border-[var(--hub-field-border)] bg-white px-3 py-[5px] min-h-[32px] font-[inherit] text-[12.5px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
         >
           See all workouts
         </button>
         <button
           type="button"
           onClick={() => router.push(`/hub/clients/${clientNumber}/programs/new`)}
-          className="inline-flex items-center justify-center gap-1.5 rounded-control border border-transparent bg-[var(--color-rose)] text-white px-5 py-[7px] min-h-[36px] font-[inherit] text-[13px] font-semibold cursor-pointer hover:bg-[var(--color-rose)]/90 transition-colors ml-auto"
+          className="inline-flex items-center justify-center gap-1.5 rounded-control border border-transparent bg-[var(--color-rose)] text-white px-4 py-[5px] min-h-[32px] font-[inherit] text-[12.5px] font-semibold cursor-pointer hover:bg-[var(--color-rose)]/90 transition-colors ml-auto"
         >
           Plan next program
         </button>
