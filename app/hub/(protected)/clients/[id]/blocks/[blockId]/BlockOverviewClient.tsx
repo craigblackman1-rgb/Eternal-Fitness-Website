@@ -5,13 +5,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { BlockSchedulePanel } from "./BlockSchedulePanel";
+import { BlockScheduler } from "./review/BlockScheduler";
 import { EditBlockDrawer } from "./EditBlockDrawer";
 import { AddWorkoutDialog } from "./AddWorkoutDialog";
 import { CarryOverDialog } from "./CarryOverDialog";
 import { SessionList } from "./SessionList";
 import { StatusBadge } from "@/components/hub/StatusBadge";
-import { isoToLocalTime, shiftDay } from "@/lib/schedule-dates";
+import { isoToLocalTime, shiftDay, derivedWeekLabel } from "@/lib/schedule-dates";
 import { deriveSessionStatus } from "@/lib/session-status";
+import { sessionWorkoutName } from "@/lib/session-display";
 import type { Weekday } from "@/lib/scheduling";
 import type { SessionStatus, DBSession, BlockStatus } from "@/types";
 import type { QueueState } from "@/lib/programs/types";
@@ -482,6 +484,83 @@ export function BlockOverviewClient({
           )}
         </div>
       </section>
+
+      {/* ── Review & approve (draft blocks only) ─────────────────
+          CR-EF-136 u6 — exercise overview and scheduling folded from
+          the old /review route into the block page per v3 mockup. */}
+      {blockStatusState === "draft" && (
+        <section
+          className="bg-[var(--hub-card)] border border-[var(--hub-border)] rounded-surface shadow-sm overflow-hidden"
+          style={{ marginBottom: "var(--d-section-gap, 14px)" }}
+        >
+          <div className="flex items-center gap-2.5 px-4 py-2.5 border-b border-[var(--hub-border)]">
+            <h2 className="text-[15px] font-bold text-[var(--color-ink)]">Review &amp; approve</h2>
+          </div>
+          <div className="p-4 space-y-5">
+            <BlockScheduler sessions={sessions} onChanged={() => router.refresh()} />
+
+            <div>
+              <h3 className="text-[13px] font-bold text-[var(--color-ink)] mb-2">Session overview</h3>
+              <div className="overflow-x-auto rounded-nested border border-[var(--hub-border)]">
+                <table className="w-full text-[13px]">
+                  <thead>
+                    <tr className="border-b border-[var(--hub-border)]">
+                      <th className="text-left text-[10.5px] font-bold uppercase tracking-wider text-[var(--muted)] bg-[var(--hub-hover)] px-3 py-2">#</th>
+                      <th className="text-left text-[10.5px] font-bold uppercase tracking-wider text-[var(--muted)] bg-[var(--hub-hover)] px-3 py-2">Type</th>
+                      <th className="text-left text-[10.5px] font-bold uppercase tracking-wider text-[var(--muted)] bg-[var(--hub-hover)] px-3 py-2">Week</th>
+                      <th className="text-left text-[10.5px] font-bold uppercase tracking-wider text-[var(--muted)] bg-[var(--hub-hover)] px-3 py-2">Phase</th>
+                      <th className="text-left text-[10.5px] font-bold uppercase tracking-wider text-[var(--muted)] bg-[var(--hub-hover)] px-3 py-2">Exercises (Studio)</th>
+                      <th className="text-left text-[10.5px] font-bold uppercase tracking-wider text-[var(--muted)] bg-[var(--hub-hover)] px-3 py-2">Exercises (Home)</th>
+                      <th className="w-16 text-right text-[10.5px] font-bold uppercase tracking-wider text-[var(--muted)] bg-[var(--hub-hover)] px-3 py-2"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sessions.map((session) => {
+                      const studioCount =
+                        (session.data?.versions?.studio?.warm_up?.length || 0) +
+                        (session.data?.versions?.studio?.main_block?.length || 0) +
+                        (session.data?.versions?.studio?.cooldown?.length || 0);
+                      const homeCount =
+                        (session.data?.versions?.home?.warm_up?.length || 0) +
+                        (session.data?.versions?.home?.main_block?.length || 0) +
+                        (session.data?.versions?.home?.cooldown?.length || 0);
+                      return (
+                        <tr
+                          key={session.id}
+                          className="border-b border-[var(--hub-border)] last:border-b-0 hover:bg-[var(--hub-hover)] transition-colors"
+                        >
+                          <td className="px-3 py-2 font-medium">{sessionWorkoutName(session, `Session ${session.session_number}`)}</td>
+                          <td className="px-3 py-2">
+                            <span className={`inline-flex items-center rounded-pill px-2 py-0.5 text-[11px] font-semibold ${
+                              session.archetype === "A" ? "bg-[var(--s-success-bg)] text-[var(--teal-text)]" :
+                              session.archetype === "B" ? "bg-[var(--s-primary-bg)] text-[var(--rose-text)]" :
+                              "bg-[var(--s-neutral-bg)] text-[var(--s-neutral)]"
+                            }`}>
+                              {session.archetype}
+                            </span>
+                          </td>
+                          <td className="px-3 py-2">{derivedWeekLabel(session.scheduled_at ?? null, session.week)}</td>
+                          <td className="px-3 py-2 capitalize">{session.phase}</td>
+                          <td className="px-3 py-2">{studioCount} exercises</td>
+                          <td className="px-3 py-2">{homeCount} exercises</td>
+                          <td className="px-3 py-2 text-right">
+                            <Link
+                              href={`/hub/clients/${clientId}/blocks/${blockId}/sessions/${session.session_number}${session.parent_session_id ? `?session=${session.id}` : ""}`}
+                              className="text-[12.5px] font-semibold text-[var(--rose-text)] hover:underline underline-offset-2"
+                            >
+                              View
+                            </Link>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
 
       {/* ── Previous blocks ─────────────────────────────────────── */}
