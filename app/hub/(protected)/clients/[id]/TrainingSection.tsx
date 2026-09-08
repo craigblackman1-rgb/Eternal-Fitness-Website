@@ -206,7 +206,7 @@ export function TrainingSection({
         <h2 className="m-0 text-[15px] font-bold text-ink tracking-tight">
           Training
         </h2>
-        <span className="text-xs text-muted">{queueSummary}</span>
+        <span className="text-xs text-[var(--color-muted-text)]">{queueSummary}</span>
         <div className="ml-auto flex gap-1.5">
           <button
             onClick={(e) => openDrawer("dw-training", e.currentTarget)}
@@ -226,7 +226,7 @@ export function TrainingSection({
               <span className="text-[10.5px] font-extrabold uppercase tracking-[.08em] text-[var(--status-primary-text)]">
                 Sessions left
               </span>
-              <span className="ml-auto text-xs font-semibold text-body tabular-nums">
+              <span className="ml-auto text-xs font-semibold text-[var(--color-body)] tabular-nums">
                 {isOngoing
                   ? "Ongoing"
                   : `Pot of ${purchased ?? "?"}`}
@@ -238,7 +238,7 @@ export function TrainingSection({
                   <span className="text-[22px] font-bold text-ink leading-none">
                     ∞
                   </span>
-                  <span className="text-xs text-body">
+                  <span className="text-xs text-[var(--color-body)]">
                     Ongoing package — no session cap
                   </span>
                 </div>
@@ -254,7 +254,7 @@ export function TrainingSection({
                     {remaining}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-semibold text-body">
+                    <div className="text-xs font-semibold text-[var(--color-body)]">
                       left
                     </div>
                     {/* Progress bar */}
@@ -270,7 +270,7 @@ export function TrainingSection({
                         }}
                       />
                     </div>
-                    <p className="m-0 mt-1 text-[12.5px] text-body">
+                    <p className="m-0 mt-1 text-[12.5px] text-[var(--color-body)]">
                       {used} used. Only a completed workout takes one —
                       reschedules and cancellations don&apos;t.
                     </p>
@@ -279,7 +279,7 @@ export function TrainingSection({
               )}
             </div>
             <div className="flex items-center gap-1.5 py-[7px] px-2.5 border-t border-[var(--hub-border)] bg-[var(--field-fill)]">
-              <span className="text-xs text-body">Nothing expires.</span>
+              <span className="text-xs text-[var(--color-body)]">Nothing expires.</span>
               <button
                 onClick={() => openDrawer("dw-pot-ledger")}
                 className="ml-auto text-xs font-semibold text-rose hover:underline underline-offset-2 bg-transparent border-0 p-0 cursor-pointer font-[inherit]"
@@ -295,7 +295,7 @@ export function TrainingSection({
               <span className="text-[10.5px] font-extrabold uppercase tracking-[.08em] text-[var(--status-success-text)]">
                 Next workout
               </span>
-              <span className="ml-auto text-xs font-semibold text-body tabular-nums">
+              <span className="ml-auto text-xs font-semibold text-[var(--color-body)] tabular-nums">
                 {nextItem
                   ? `#${nextItem.position} in the queue`
                   : queue.length > 0
@@ -309,13 +309,13 @@ export function TrainingSection({
                   <p className="m-0 text-[14.5px] font-bold text-ink tracking-tight">
                     {nextItem.label}
                   </p>
-                  <p className="m-0 mt-0.5 text-xs text-body">
+                  <p className="m-0 mt-0.5 text-xs text-[var(--color-body)]">
                     {nextItem.subtitle ||
                       "It is next because the previous one was completed, not because a date arrived."}
                   </p>
                 </>
               ) : queue.length > 0 ? (
-                <p className="m-0 text-[13px] text-muted italic">
+                <p className="m-0 text-[13px] text-[var(--color-muted-text)] italic">
                   All workouts completed
                 </p>
               ) : (
@@ -323,7 +323,7 @@ export function TrainingSection({
                   <p className="m-0 text-[14px] font-bold text-ink">
                     No plan yet
                   </p>
-                  <p className="m-0 mt-0.5 text-xs text-body">
+                  <p className="m-0 mt-0.5 text-xs text-[var(--color-body)]">
                     {clientName} has no workouts assigned. Build a queue from
                     scratch, or pour in one of the shared plans.
                   </p>
@@ -346,7 +346,7 @@ export function TrainingSection({
                 </button>
               ) : (
                 <>
-                  <span className="text-xs text-body">Takes about a minute.</span>
+                  <span className="text-xs text-[var(--color-body)]">Takes about a minute.</span>
                   <button
                     onClick={(e) =>
                       openDrawer("dw-training", e.currentTarget)
@@ -366,14 +366,14 @@ export function TrainingSection({
           <h3 className="m-0 text-[11px] font-extrabold uppercase tracking-[.09em] text-ink">
             Workout queue
           </h3>
-          <p className="m-0 text-xs text-body">
+          <p className="m-0 text-xs text-[var(--color-body)]">
             In order. One is used up each time a session is completed.
           </p>
           {queue.length > 0 && (
             <span className="ml-auto flex gap-1.5">
               <button
                 onClick={(e) => openDrawer("dw-training", e.currentTarget)}
-                className="text-xs font-semibold text-muted hover:text-ink bg-transparent border-0 p-0 cursor-pointer font-[inherit]"
+                className="text-xs font-semibold text-[var(--color-muted-text)] hover:text-ink bg-transparent border-0 p-0 cursor-pointer font-[inherit]"
               >
                 See all {queue.length}
               </button>
@@ -388,7 +388,7 @@ export function TrainingSection({
               <p className="m-0 text-sm font-bold text-ink">
                 No workouts assigned yet
               </p>
-              <p className="m-0 mt-0.5 text-xs text-body">
+              <p className="m-0 mt-0.5 text-xs text-[var(--color-body)]">
                 Nothing is queued for {clientName.split(" ")[0]}, so nothing is
                 shown. Build a queue from scratch, or copy one of the shared
                 plans into it.
@@ -416,7 +416,7 @@ export function TrainingSection({
             {completedCount > 0 && (
               <button
                 onClick={(e) => openDrawer("dw-training", e.currentTarget)}
-                className="flex items-center gap-3 w-full py-2 px-3 rounded-nested border border-dashed border-[var(--hub-border)] bg-[var(--field-fill)] font-[inherit] text-[13px] text-body text-left cursor-pointer mb-1.5 hover:bg-[var(--hub-hover)] hover:border-solid transition-colors"
+                className="flex items-center gap-3 w-full py-2 px-3 rounded-nested border border-dashed border-[var(--hub-border)] bg-[var(--field-fill)] font-[inherit] text-[13px] text-[var(--color-body)] text-left cursor-pointer mb-1.5 hover:bg-[var(--hub-hover)] hover:border-solid transition-colors"
               >
                 <span>
                   <b className="text-ink font-semibold">
@@ -458,7 +458,7 @@ export function TrainingSection({
                     className={`flex-0-0 w-10 h-7 rounded-control-sm border grid place-items-center text-xs font-extrabold tabular-nums ${
                       item.isNext
                         ? "bg-white border-rose text-[var(--status-primary-text)]"
-                        : "bg-[var(--field-fill)] border-[var(--hub-border)] text-body"
+                        : "bg-[var(--field-fill)] border-[var(--hub-border)] text-[var(--color-body)]"
                     }`}
                   >
                     {item.position}
@@ -466,7 +466,7 @@ export function TrainingSection({
                   <span className="flex-1 min-w-0 text-[13.5px] font-medium text-ink">
                     {item.label}
                     {item.subtitle && (
-                      <span className="block text-xs font-normal text-muted mt-px">
+                      <span className="block text-xs font-normal text-[var(--color-muted-text)] mt-px">
                         {item.subtitle}
                       </span>
                     )}
@@ -488,10 +488,10 @@ export function TrainingSection({
                 onClick={(e) => openDrawer("dw-training", e.currentTarget)}
                 className="flex items-center gap-3 w-full py-2 px-3 rounded-nested border border-transparent hover:bg-[var(--hub-hover)] hover:border-[var(--hub-border)] font-[inherit] text-left cursor-pointer mb-0.5 transition-colors"
               >
-                <span className="flex-0-0 w-10 h-7 rounded-control-sm border grid place-items-center text-xs font-extrabold tabular-nums bg-[var(--field-fill)] border-[var(--hub-border)] text-body">
+                <span className="flex-0-0 w-10 h-7 rounded-control-sm border grid place-items-center text-xs font-extrabold tabular-nums bg-[var(--field-fill)] border-[var(--hub-border)] text-[var(--color-body)]">
                   +{pendingCount - 4}
                 </span>
-                <span className="flex-1 min-w-0 text-[13.5px] text-body">
+                <span className="flex-1 min-w-0 text-[13.5px] text-[var(--color-body)]">
                   #{completedCount + 5} – #{queue.length} queued
                 </span>
                 <span className="shrink-0 text-xs font-semibold text-rose">
@@ -501,7 +501,7 @@ export function TrainingSection({
             )}
 
             {/* Reconciliation */}
-            <div className="flex items-center gap-2 mt-2 py-[7px] px-3 rounded-nested text-xs bg-[var(--field-fill)] border border-[var(--hub-border)] text-body">
+            <div className="flex items-center gap-2 mt-2 py-[7px] px-3 rounded-nested text-xs bg-[var(--field-fill)] border border-[var(--hub-border)] text-[var(--color-body)]">
               <span>
                 <b className="text-ink font-semibold">
                   {pendingCount} workout{pendingCount === 1 ? "" : "s"} queued ·{" "}
@@ -539,19 +539,19 @@ export function TrainingSection({
           <h3 className="m-0 text-[11px] font-extrabold uppercase tracking-[.09em] text-ink">
             Booked in
           </h3>
-          <p className="m-0 text-xs text-body">
+          <p className="m-0 text-xs text-[var(--color-body)]">
             The only dates here. A booking takes a session only once the
             workout is completed.
           </p>
           <span className="ml-auto">
-            <button className="text-xs font-semibold text-muted hover:text-ink bg-transparent border-0 p-0 cursor-pointer font-[inherit]">
+            <button className="text-xs font-semibold text-[var(--color-muted-text)] hover:text-ink bg-transparent border-0 p-0 cursor-pointer font-[inherit]">
               Book a session
             </button>
           </span>
         </div>
 
         {upcomingBookings.length === 0 ? (
-          <p className="m-0 text-xs text-muted py-2 px-3">
+          <p className="m-0 text-xs text-[var(--color-muted-text)] py-2 px-3">
             No upcoming bookings.
           </p>
         ) : (
@@ -575,17 +575,17 @@ export function TrainingSection({
               >
                 <span className="flex-0-0 w-[150px] font-semibold text-ink tabular-nums text-[13.5px]">
                   {dayName} {dateStr}, {timeStr}
-                  <span className="block text-[11.5px] font-medium text-muted">
+                  <span className="block text-[11.5px] font-medium text-[var(--color-muted-text)]">
                     {rel}
                   </span>
                 </span>
-                <span className="flex-1 min-w-0 text-xs text-body">
+                <span className="flex-1 min-w-0 text-xs text-[var(--color-body)]">
                   {workoutName ? (
                     <>
                       Will use <b className="text-ink font-semibold">{workoutName}</b>
                     </>
                   ) : (
-                    <span className="text-muted italic">
+                    <span className="text-[var(--color-muted-text)] italic">
                       Nothing queued to use
                     </span>
                   )}
@@ -605,7 +605,7 @@ export function TrainingSection({
           <h3 className="m-0 text-[11px] font-extrabold uppercase tracking-[.09em] text-ink">
             So far
           </h3>
-          <p className="m-0 text-xs text-body">
+          <p className="m-0 text-xs text-[var(--color-body)]">
             {potHistory.length === 1
               ? "One pot since she started."
               : `${potHistory.length} pots since she started.`}
@@ -614,13 +614,13 @@ export function TrainingSection({
 
         {/* Stats strip */}
         <div className="flex gap-4 flex-wrap py-0.5 px-3 mb-1.5">
-          <span className="text-xs text-body">
+          <span className="text-xs text-[var(--color-body)]">
             <b className="block text-[17px] font-extrabold text-ink tracking-tight tabular-nums">
               {totalCompleted}
             </b>
             sessions done
           </span>
-          <span className="text-xs text-body">
+          <span className="text-xs text-[var(--color-body)]">
             <b
               className={`block text-[17px] font-extrabold tracking-tight tabular-nums ${
                 attendanceRate >= 90
@@ -635,7 +635,7 @@ export function TrainingSection({
           {exerciseTrendSummary && (
             <>
               {exerciseTrendSummary.personalBests > 0 && (
-                <span className="text-xs text-body">
+                <span className="text-xs text-[var(--color-body)]">
                   <b className="block text-[17px] font-extrabold text-ink tracking-tight tabular-nums">
                     {exerciseTrendSummary.personalBests}
                   </b>
@@ -643,7 +643,7 @@ export function TrainingSection({
                 </span>
               )}
               {exerciseTrendSummary.heaviestLift && (
-                <span className="text-xs text-body">
+                <span className="text-xs text-[var(--color-body)]">
                   <b className="block text-[17px] font-extrabold text-ink tracking-tight tabular-nums">
                     {exerciseTrendSummary.heaviestLift}
                   </b>
@@ -672,7 +672,7 @@ export function TrainingSection({
             </span>
             <span className="flex-1 min-w-0 text-[13.5px] font-semibold text-ink">
               Pot of {pot.total}
-              <span className="text-xs font-normal text-body ml-2">
+              <span className="text-xs font-normal text-[var(--color-body)] ml-2">
                 {pot.done} done · {pot.remaining} left
                 {pot.isFullyDone ? " · fully used" : ""}
               </span>
@@ -683,7 +683,7 @@ export function TrainingSection({
                   Current
                 </span>
               ) : (
-                <span className="inline-flex items-center h-[21px] px-2.5 rounded-pill text-[11.5px] font-semibold border border-transparent bg-neutral-bg text-muted border-neutral-border">
+                <span className="inline-flex items-center h-[21px] px-2.5 rounded-pill text-[11.5px] font-semibold border border-transparent bg-neutral-bg text-[var(--color-muted-text)] border-neutral-border">
                   Finished
                 </span>
               )}
