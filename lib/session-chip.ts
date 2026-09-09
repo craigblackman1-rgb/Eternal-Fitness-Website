@@ -47,6 +47,7 @@ export function deriveSessionChip(
   opts: {
     sessionLogStartedAt?: string | null;
     sessionLogCompletedAt?: string | null;
+    sessionLogHasSets?: boolean;
     completedAt?: string | null;
   } = {},
   isNextUpcoming: boolean = false,
@@ -65,8 +66,15 @@ export function deriveSessionChip(
     return { label: "Cancelled", variant: "cancelled" };
   }
 
-  // In progress (log started but not completed)
-  if (opts.sessionLogStartedAt && !opts.sessionLogCompletedAt) {
+  // In progress (log started but not completed) — requires real started
+  // evidence AND the session window has begun. Future sessions with log
+  // stubs from Trainerize imports or pre-created logs must never fire here.
+  if (
+    scheduledAt &&
+    (opts.sessionLogStartedAt || opts.sessionLogHasSets) &&
+    !opts.sessionLogCompletedAt &&
+    Date.now() >= new Date(scheduledAt).getTime()
+  ) {
     return { label: "In progress", variant: "in-progress" };
   }
 
