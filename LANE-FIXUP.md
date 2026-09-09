@@ -1,6 +1,0 @@
-# Fixup — 4 items from review. Commit; `npx tsc --noEmit` clean.
-
-1. **Pronoun gap in BlockReviewClient.tsx** (gender is already threaded; `pronouns(gender)` in scope): replace hardcoded copy at line ~154 "Pulled from her sessions and set logs" → possessive; ~192 "If she hit anything worth naming" → subject; ~242 `source="from her health record"` → possessive; ~323 comment "The update she'll receive" → subject. Sweep the rest of the file for any remaining \bher\b|\bshe\b in rendered strings.
-2. **Headline stat**: `BlockReviewClient.tsx:159` still shows "0 of {bookedCount} booked" for an unstarted block. When `pastSessionCount === 0 && bookedCount > 0` render the value as "Not started" (label "{bookedCount} booked, all to come"); otherwise show `{completedCount} of {pastSessionCount}` with label "of sessions so far" and keep a separate "+{futureCount} to come" note. Keep current behaviour when all sessions are past.
-3. **Dead code**: remove unused `exerciseTrends` computation in `review/page.tsx:133` (and its now-unused imports if any); drop `hasDeliveredSessions` from ProgressStep's props/signature and its caller (`ReviewFlowClient.tsx:456-470`, ~205).
-4. **Collapse unreachable ternary** in `lib/block-review-facts.ts:192-194` → `hasEnoughData ? "none" : "insufficient_data"`.
