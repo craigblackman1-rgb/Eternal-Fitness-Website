@@ -98,10 +98,10 @@ export function TagMultiSelect({ category, selected, onChange, placeholder }: Ta
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between rounded-lg border-[var(--color-muted-text)] font-normal text-muted-foreground"
+            className="w-full justify-between h-9 py-0 rounded-[8px] border-[var(--hub-field-border)] font-normal text-muted-foreground"
           >
-            {placeholder ?? "Select or add..."}
-            <IconChevronDown className="h-4 w-4 opacity-50" />
+            <span className="truncate min-w-0 text-left flex-1">{placeholder ?? "Select or add..."}</span>
+            <IconChevronDown className="h-4 w-4 shrink-0 opacity-50 ml-2" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
