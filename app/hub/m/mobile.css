@@ -375,6 +375,37 @@
 .add-set { width: 100%; height: 44px; border-radius: var(--r-nested); border: 1.5px dashed var(--field-border); background: transparent; color: var(--body); font-family: inherit; font-size: 12.5px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
 .add-set:hover { background: var(--hover); border-color: var(--rose); color: var(--rose); }
 
+/* ── Condensed set rows (CR-EF-194) ──────────────────────────── */
+.ex-hd { margin-bottom: 2px; }
+.ex-hd .nm { font-size: 15px; font-weight: 700; line-height: 1.25; display: flex; align-items: center; gap: 6px; }
+.c-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.c-eq { font-size: 10px; font-weight: 800; letter-spacing: .06em; color: var(--rose); background: var(--s-primary-bg); border-radius: var(--r-pill); padding: 2px 8px; text-transform: uppercase; }
+.c-tgt { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.c-sw { font-size: 12px; color: var(--teal); font-weight: 700; text-decoration: underline; margin-left: auto; cursor: pointer; background: none; border: 0; font-family: inherit; padding: 0; }
+.c-sw:hover { opacity: .8; }
+.c-cols { display: grid; grid-template-columns: 26px 1fr 1fr 96px; gap: 8px; align-items: center; padding: 8px 2px 4px; font-size: 10px; font-weight: 800; letter-spacing: .07em; color: var(--muted); text-transform: uppercase; }
+.c-cols > :last-child { text-align: right; }
+.c-set { display: grid; grid-template-columns: 26px 1fr 1fr 96px; gap: 8px; align-items: center; padding: 4px 2px; }
+.c-set.done { padding: 2px; }
+.c-sn { width: 24px; height: 24px; border-radius: 50%; background: var(--canvas); border: 1px solid var(--border); display: grid; place-items: center; font-size: 11.5px; font-weight: 700; color: var(--body); flex-shrink: 0; }
+.c-in { height: 44px; border: 1px solid var(--field-border); border-radius: 10px; background: var(--card); font-size: 16px; font-weight: 600; color: var(--ink); text-align: center; width: 100%; font-family: inherit; }
+.c-in::placeholder { color: var(--muted); font-weight: 500; }
+.c-in:focus { outline: none; border-color: var(--rose); box-shadow: 0 0 0 3px rgba(193,131,159,.3); }
+.c-in:disabled { opacity: .55; }
+.c-select { height: 44px; border: 1px solid var(--field-border); border-radius: 10px; background: var(--card); font-size: 14px; font-weight: 600; color: var(--ink); text-align: center; width: 100%; font-family: inherit; appearance: auto; }
+.c-select:focus { outline: none; border-color: var(--rose); box-shadow: 0 0 0 3px rgba(193,131,159,.3); }
+.c-acts { display: flex; gap: 8px; justify-content: flex-end; }
+.c-ok, .c-skip { width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center; font-size: 15px; cursor: pointer; font-family: inherit; border: 0; }
+.c-ok { border: 1px solid var(--s-primary-bd); background: var(--s-primary-bg); color: var(--rose); font-weight: 800; }
+.c-ok:hover { background: rgba(193,131,159,.18); }
+.c-skip { border: 1px solid var(--border); background: var(--card); color: var(--muted); }
+.c-skip:hover { background: var(--hover); }
+.c-receipt { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border-radius: 10px; font-size: 13px; font-weight: 600; }
+.c-receipt.done { background: var(--s-success-bg); border: 1px solid var(--s-success-bd); color: var(--teal); }
+.c-receipt.skipped { background: var(--canvas); border: 1px solid var(--border); color: var(--muted); }
+.c-edit { margin-left: auto; font-size: 12px; font-weight: 700; text-decoration: underline; color: var(--teal); cursor: pointer; background: none; border: 0; font-family: inherit; padding: 0; }
+.c-edit:hover { opacity: .8; }
+
 /* ── Rest control (one control, countdown/stopwatch mode switch) ─ */
 .rest { margin-top: 9px; }
 .rest-start { width: 100%; height: 46px; border-radius: var(--r-nested); border: 1px solid var(--s-success-bd); background: var(--s-success-bg); color: var(--teal); font-family: inherit; font-size: 13.5px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 7px; cursor: pointer; }

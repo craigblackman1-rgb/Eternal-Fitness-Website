@@ -1928,6 +1928,118 @@ function SetRow({
   );
 }
 
+function CondensedSetRow({
+  exercise,
+  set,
+  setIdx,
+  displayUnit,
+  onSetDone,
+  onSetSkip,
+  onSetField,
+  readOnly,
+}: {
+  exercise: Exercise;
+  set: SetState;
+  setIdx: number;
+  displayUnit: "kg" | "lb";
+  onSetDone: (uid: string, setIdx: number) => void;
+  onSetSkip: (uid: string, setIdx: number) => void;
+  onSetField: (uid: string, setIdx: number, field: "reps" | "weight" | "duration", value: string) => void;
+  readOnly?: boolean;
+}) {
+  const uid = exercise.uid ?? "";
+  const timeBased = isTimeBased(exercise.reps, exercise.log_type);
+  const isBand = isBandEquipment(exercise.equipment ?? []);
+
+  if (set.status === "done") {
+    return (
+      <div className="c-set done">
+        <div className="c-receipt done">
+          {"✓ Set "}{setIdx + 1}{" — "}{set.reps || "—"}{" reps · "}{set.weight || "BW"}
+          {!readOnly && (
+            <button className="c-edit" onClick={() => onSetDone(uid, setIdx)}>Edit</button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (set.status === "skipped") {
+    return (
+      <div className="c-set">
+        <div className="c-receipt skipped">
+          {"✕ Set "}{setIdx + 1}{" — skipped"}
+          {!readOnly && (
+            <button className="c-edit" onClick={() => onSetSkip(uid, setIdx)}>Edit</button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="c-set">
+      <span className="c-sn">{setIdx + 1}</span>
+      {timeBased ? (
+        <input
+          className="c-in"
+          type="text"
+          inputMode="numeric"
+          value={set.duration}
+          onChange={(e) => onSetField(uid, setIdx, "duration", e.target.value)}
+          placeholder={exercise.reps}
+          disabled={readOnly}
+        />
+      ) : (
+        <input
+          className="c-in"
+          type="number"
+          inputMode="numeric"
+          value={set.reps}
+          onChange={(e) => onSetField(uid, setIdx, "reps", e.target.value)}
+          placeholder={parsePrescribedReps(exercise.reps) != null ? String(parsePrescribedReps(exercise.reps)) : exercise.reps}
+          disabled={readOnly}
+        />
+      )}
+      {!timeBased && (
+        isBand ? (
+          <select
+            className="c-select"
+            value={snapBandLoadLb(set.weight) ?? ""}
+            onChange={(e) => onSetField(uid, setIdx, "weight", e.target.value)}
+            disabled={readOnly}
+          >
+            <option value="">—</option>
+            {bandLoadOptionsLb().map((lb) => (
+              <option key={lb} value={lb}>{lb} lb</option>
+            ))}
+          </select>
+        ) : (
+          <input
+            className="c-in"
+            type="text"
+            inputMode="decimal"
+            value={set.weight}
+            onChange={(e) => onSetField(uid, setIdx, "weight", e.target.value)}
+            placeholder="BW"
+            disabled={readOnly}
+          />
+        )
+      )}
+      {!readOnly && (
+        <div className="c-acts">
+          <button type="button" className="c-ok" onClick={() => onSetDone(uid, setIdx)}>
+            {ICO.checkSm}
+          </button>
+          <button type="button" className="c-skip" onClick={() => onSetSkip(uid, setIdx)}>
+            {ICO.skip}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function RestControl({
   timerKey,
   restSeconds,
@@ -2096,119 +2208,49 @@ function ExerciseCard({
 
   return (
     <div className={exCls}>
-      <div className="ex-top">
-        {inPick && (
-          <button
-            className="pick-box"
-            onClick={() => onPickToggle(uid)}
-            aria-pressed={isPicked}
-            aria-label={`Select ${exercise.exercise_name}`}
-          >
-            {ICO.checkSm}
-          </button>
-        )}
-        <Thumbnail exercise={exercise} />
-        <div className="ex-name-wrap">
-          <div className="ex-name-row">
-            {isComplete && <span className="ex-complete-ic">{ICO.check}</span>}
-            <span className="ex-name">{exercise.exercise_name}</span>
-            <span className={`log-badge ${timeBased ? "time" : "reps"}`}>
-              {timeBased ? <>{ICO.clock}Time</> : <>{ICO.reps}Reps &amp; weight</>}
-            </span>
-          </div>
-          <div className="ex-presc">Prescribed <b>{presc}</b></div>
-          {/* CR-EF-124: prescribed load chip — rose for prescribed values */}
-          {exercise.load && (() => {
-            const p = parseLoad(exercise.load);
-            if (!p) return null;
-            if (p.kind === "weight") return <div className="mt-1.5 inline-flex items-baseline gap-1 rounded-nested border border-rose/20 bg-rose/5 px-1.5 py-0.5 text-[11.5px] font-bold tabular-nums text-rose"><span className="text-[9px] font-extrabold uppercase tracking-wider text-rose/80">Load</span>{p.value}<span className="text-[10px] font-bold text-rose/80">{p.unit}</span></div>;
-            if (p.kind === "pair") return <div className="mt-1.5 inline-flex items-baseline gap-1 rounded-nested border border-rose/20 bg-rose/5 px-1.5 py-0.5 text-[11.5px] font-bold tabular-nums text-rose"><span className="text-[9px] font-extrabold uppercase tracking-wider text-rose/80">Load</span>{p.multiplier} × {p.value}<span className="text-[10px] font-bold text-rose/80">{p.unit}</span></div>;
-            if (p.kind === "token") return <div className="mt-1.5 inline-flex items-center gap-1 rounded-nested border border-rose/20 bg-rose/5 px-1.5 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-rose"><span className="text-[9px] font-extrabold tracking-wider text-rose/80">Load</span>{p.label}{p.sub && <span className="text-[10px] font-semibold normal-case tracking-normal text-rose/70">{p.sub}</span>}</div>;
-            if (p.kind === "band") return <div className="mt-1.5 inline-flex items-center gap-1 rounded-nested border border-rose/20 bg-rose/5 px-1.5 py-0.5 text-[11.5px] font-bold text-rose"><span className="text-[9px] font-extrabold uppercase tracking-wider text-rose/80">Load</span>{p.colour} band</div>;
-            return null;
-          })()}
-          {exercise.coaching_cue && <div className="ex-cue">{exercise.coaching_cue}</div>}
-          {exercise.modification && <div className="ex-mod">{exercise.modification}</div>}
-          {exercise.equipment && exercise.equipment.length > 0 && (
-            <div className="ex-tags">
-              {exercise.equipment.map((t) => (
-                <span key={t} className="ex-tag">{t}</span>
-              ))}
-            </div>
-          )}
+      <div className="ex-hd">
+        <div className="nm">
+          {isComplete && <span className="ex-complete-ic">{ICO.check}</span>}
+          {exercise.exercise_name}
         </div>
-        <div className="ex-acts">
-          {hasVideo ? (
-            <a
-              className="icon-btn video"
-              href={exercise.media!.video_url!}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Play demo video for ${exercise.exercise_name}`}
-            >
-              {ICO.video}
-            </a>
-          ) : (
-            <button
-              className="icon-btn"
-              disabled
-              aria-label={`No demo video for ${exercise.exercise_name}`}
-              title="No demo video on this exercise"
-            >
-              {ICO.video}
+        <div className="c-meta">
+          {exercise.equipment && exercise.equipment.length > 0 && (
+            <span className="c-eq">{exercise.equipment.join(", ")}</span>
+          )}
+          <span className="c-tgt">{exercise.sets ?? 1} sets × {exercise.reps || "—"}</span>
+          {!isBandEquipment(exercise.equipment ?? []) && (
+            <button className="c-sw" onClick={() => onSwapUnit(uid)}>
+              {displayUnit} ⇄
             </button>
           )}
-          <button
-            className={`icon-btn${note ? " has-note" : ""}`}
-            onClick={() => onNoteToggle(uid)}
-            aria-label={`Note on ${exercise.exercise_name}`}
-          >
-            {ICO.note}
-          </button>
-          <Link
-            className="icon-btn"
-            href={`/hub/m/train/${sessionId}/edit`}
-            aria-label={`Edit ${exercise.exercise_name}`}
-            title="Edit workout"
-          >
-            {ICO.edit}
-          </Link>
         </div>
       </div>
 
-      {noteOpen && (
-        <div className="ex-note-row">
-          <textarea
-            placeholder="Quick note about this exercise…"
-            value={note}
-            onChange={(e) => onNoteInput(uid, e.target.value)}
-          />
-        </div>
-      )}
-
-      <div className="sets">
-        {sets.map((set, sIdx) => (
-          <SetRow
-            key={sIdx}
-            exercise={exercise}
-            set={set}
-            setIdx={sIdx}
-            displayUnit={displayUnit}
-            onSetDone={onSetDone}
-            onSetSkip={onSetSkip}
-            onSetField={onSetField}
-            onSwapUnit={onSwapUnit}
-            readOnly={sessionCompleted}
-          />
-        ))}
+      <div className="c-cols">
+        <span>Set</span>
+        <span>{timeBased ? "Duration" : "Reps"}</span>
+        <span>{timeBased ? "" : `Weight (${displayUnit})`}</span>
+        <span>Log</span>
       </div>
+
+      {sets.map((set, sIdx) => (
+        <CondensedSetRow
+          key={sIdx}
+          exercise={exercise}
+          set={set}
+          setIdx={sIdx}
+          displayUnit={displayUnit}
+          onSetDone={onSetDone}
+          onSetSkip={onSetSkip}
+          onSetField={onSetField}
+          readOnly={sessionCompleted}
+        />
+      ))}
 
       {!sessionCompleted && (
-        <div style={{ marginTop: 8 }}>
-          <button className="add-set" onClick={() => onAddSet(uid)}>
-            {ICO.plus}Add set
-          </button>
-        </div>
+        <button className="add-set" onClick={() => onAddSet(uid)}>
+          {ICO.plus}Add set
+        </button>
       )}
 
       <RestControl
@@ -2406,20 +2448,25 @@ function SupersetBlock({
             }
             roundRows.push(
               <div key={`${uid}-${roundIdx}`} className="round-ex">
-                {/* CR-EF-124: exercise name + load on one line */}
-                <div className="round-ex-name flex flex-wrap items-center gap-1">
+                <div className="round-ex-name" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 4 }}>
                   {ex.exercise_name}
                   {ex.load && (() => {
                     const p = parseLoad(ex.load);
                     if (!p) return null;
-                    if (p.kind === "weight") return <span className="inline-flex items-baseline gap-0.5 rounded-nested border border-rose/20 bg-rose/5 px-1 py-px text-[10px] font-bold tabular-nums text-rose">{p.value}<span className="text-[9px] text-rose/80">{p.unit}</span></span>;
-                    if (p.kind === "pair") return <span className="inline-flex items-baseline gap-0.5 rounded-nested border border-rose/20 bg-rose/5 px-1 py-px text-[10px] font-bold tabular-nums text-rose">{p.multiplier}×{p.value}<span className="text-[9px] text-rose/80">{p.unit}</span></span>;
-                    if (p.kind === "token") return <span className="inline-flex items-center rounded-nested border border-rose/20 bg-rose/5 px-1 py-px text-[9px] font-bold uppercase tracking-wide text-rose">{p.label}</span>;
-                    if (p.kind === "band") return <span className="inline-flex items-center gap-0.5 rounded-nested border border-rose/20 bg-rose/5 px-1 py-px text-[10px] font-bold text-rose">{p.colour}</span>;
+                    if (p.kind === "weight") return <span style={{ display: "inline-flex", alignItems: "baseline", gap: 2, borderRadius: "var(--r-nested, 12px)", border: "1px solid rgba(193,131,159,.2)", background: "rgba(193,131,159,.05)", padding: "1px 4px", fontSize: 10, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: "var(--rose)" }}>{p.value}<span style={{ fontSize: 9, color: "rgba(193,131,159,.8)" }}>{p.unit}</span></span>;
+                    if (p.kind === "pair") return <span style={{ display: "inline-flex", alignItems: "baseline", gap: 2, borderRadius: "var(--r-nested, 12px)", border: "1px solid rgba(193,131,159,.2)", background: "rgba(193,131,159,.05)", padding: "1px 4px", fontSize: 10, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: "var(--rose)" }}>{p.multiplier}×{p.value}<span style={{ fontSize: 9, color: "rgba(193,131,159,.8)" }}>{p.unit}</span></span>;
+                    if (p.kind === "token") return <span style={{ display: "inline-flex", alignItems: "center", borderRadius: "var(--r-nested, 12px)", border: "1px solid rgba(193,131,159,.2)", background: "rgba(193,131,159,.05)", padding: "1px 4px", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".05em", color: "var(--rose)" }}>{p.label}</span>;
+                    if (p.kind === "band") return <span style={{ display: "inline-flex", alignItems: "center", gap: 2, borderRadius: "var(--r-nested, 12px)", border: "1px solid rgba(193,131,159,.2)", background: "rgba(193,131,159,.05)", padding: "1px 4px", fontSize: 10, fontWeight: 700, color: "var(--rose)" }}>{p.colour}</span>;
                     return null;
                   })()}
                 </div>
-                <SetRow
+                <div className="c-cols" style={{ paddingTop: 0 }}>
+                  <span></span>
+                  <span>{isTimeBased(ex.reps, ex.log_type) ? "Duration" : "Reps"}</span>
+                  <span>{isTimeBased(ex.reps, ex.log_type) ? "" : `Weight (${st?.displayUnit ?? "kg"})`}</span>
+                  <span>Log</span>
+                </div>
+                <CondensedSetRow
                   exercise={ex}
                   set={set}
                   setIdx={roundIdx}
@@ -2427,7 +2474,6 @@ function SupersetBlock({
                   onSetDone={onSetDone}
                   onSetSkip={onSetSkip}
                   onSetField={onSetField}
-                  onSwapUnit={onSwapUnit}
                   readOnly={sessionCompleted}
                 />
               </div>
