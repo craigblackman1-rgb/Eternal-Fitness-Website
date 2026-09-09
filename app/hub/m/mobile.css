@@ -956,6 +956,24 @@
 .inv-act-btn { width: 100%; }
 .inv-paid-note { font-size: 13px; color: var(--teal); font-weight: 600; text-align: center; padding: 12px; }
 
+/* ── Client essentials edit ──────────────────────────────────── */
+.edit-field-ic { display: flex; align-items: center; gap: 8px; }
+.edit-field-ic svg { flex-shrink: 0; color: var(--muted); }
+.edit-field-ic input { flex: 1; }
+.edit-tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.edit-tag { display: inline-flex; align-items: center; border-radius: var(--r-pill); padding: 4px 10px; font-size: 12.5px; font-weight: 600; background: var(--s-primary-bg); border: 1px solid var(--s-primary-bd); color: var(--rose); }
+.edit-med-list { display: flex; flex-direction: column; gap: 6px; }
+.edit-med-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; }
+.edit-med-row + .edit-med-row { border-top: 1px dashed var(--border); }
+.edit-med-name { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+.edit-med-detail { font-size: 12px; color: var(--muted); }
+.edit-health-link { display: flex; align-items: flex-start; gap: 8px; font-size: 12.5px; color: var(--s-warning); background: var(--s-warning-bg); border: 1px solid var(--s-warning-bd); border-radius: 12px; padding: 10px 12px; margin-top: 10px; line-height: 1.5; }
+.edit-health-link svg { flex-shrink: 0; margin-top: 1px; }
+.edit-health-link a { color: var(--teal); font-weight: 700; text-decoration: none; }
+.edit-health-link a:hover { text-decoration: underline; }
+.edit-save-bar { position: sticky; bottom: 0; background: rgba(255,255,255,.96); backdrop-filter: blur(10px); border-top: 1px solid var(--border); padding: 12px 16px; padding-bottom: max(12px, env(safe-area-inset-bottom)); margin: 20px -16px -14px; }
+.edit-save-bar .btn { width: 100%; }
+
 @media (prefers-reduced-motion: reduce) {
   .mobile-shell *, .mobile-shell *::before, .mobile-shell *::after {
     transition-duration: .01ms !important;
