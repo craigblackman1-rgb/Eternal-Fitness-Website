@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
-import { HubCard, HubCardHeader } from "@/components/hub";
+import { HubCard, HubCardHeader, HubPageHeader } from "@/components/hub";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -131,55 +131,61 @@ export function DocumentDetailClient({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Link href={`/hub/clients/${clientNumber}/documents`} className="text-muted-foreground hover:text-foreground">
-          <IconChevronLeft className="h-5 w-5" />
-        </Link>
-        <div className="flex-1">
-          <h1 className="text-xl font-semibold tracking-tight">{doc.title}</h1>
-          <div className="flex items-center gap-2 mt-0.5">
-            <StatusBadge status={doc.status} />
-            <Badge variant="outline" className="rounded-pill text-xs">v{doc.version}</Badge>
-            {doc.status === "sent" && doc.emailed === false && (
-              <Badge variant="outline" className="rounded-pill text-xs border-amber-300 bg-amber-50 text-amber-800">Not actually delivered</Badge>
+      <HubPageHeader
+        title={
+          <span className="flex items-center gap-1.5 flex-wrap">
+            <Link href={`/hub/clients/${clientNumber}/documents`} className="text-muted-foreground hover:text-foreground transition-colors">
+              <IconChevronLeft className="h-5 w-5" />
+            </Link>
+            <span className="flex items-center gap-2 flex-wrap">
+              {doc.title}
+              <StatusBadge status={doc.status} />
+              <Badge variant="outline" className="rounded-pill text-xs">v{doc.version}</Badge>
+              {doc.status === "sent" && doc.emailed === false && (
+                <Badge variant="outline" className="rounded-pill text-xs border-amber-300 bg-amber-50 text-amber-800">Not actually delivered</Badge>
+              )}
+              {doc.status === "sent" && (
+                <span className="flex items-center gap-1 text-xs text-teal">
+                  <IconEye className="h-3 w-3" />
+                  {(doc as any).opened_at ? (
+                    <>
+                      Opened {new Date((doc as any).opened_at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" })}
+                      {(doc as any).open_count > 1 && <span className="text-muted-foreground">&times;{(doc as any).open_count}</span>}
+                    </>
+                  ) : (
+                    <span className="text-muted-foreground italic">No open tracking</span>
+                  )}
+                </span>
+              )}
+            </span>
+          </span>
+        }
+        actions={
+          <>
+            {locked && (
+              <Button variant="outline" onClick={newVersion} disabled={busy !== null} className="rounded-lg gap-1.5">
+                <IconFileText className="h-4 w-4" />
+                {busy === "version" ? "…" : "New version"}
+              </Button>
             )}
-            {doc.status === "sent" && (
-              <span className="flex items-center gap-1 text-xs text-teal">
-                <IconEye className="h-3 w-3" />
-                {(doc as any).opened_at ? (
-                  <>
-                    Opened {new Date((doc as any).opened_at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" })}
-                    {(doc as any).open_count > 1 && <span className="text-muted-foreground">&times;{(doc as any).open_count}</span>}
-                  </>
-                ) : (
-                  <span className="text-muted-foreground italic">No open tracking</span>
-                )}
-              </span>
+            {doc.kind === "endurance_block" && (
+              <Button variant="outline" onClick={renewBlock} disabled={busy !== null} className="rounded-lg gap-1.5 text-teal hover:text-teal">
+                <IconRefreshCw className="h-4 w-4" />
+                {busy === "renew" ? "…" : "Renew — start next block"}
+              </Button>
             )}
-          </div>
-        </div>
-        {locked && (
-          <Button variant="outline" onClick={newVersion} disabled={busy !== null} className="rounded-lg gap-1.5">
-            <IconFileText className="h-4 w-4" />
-            {busy === "version" ? "…" : "New version"}
-          </Button>
-        )}
-        {doc.kind === "endurance_block" && (
-          <Button variant="outline" onClick={renewBlock} disabled={busy !== null} className="rounded-lg gap-1.5 text-teal hover:text-teal">
-            <IconRefreshCw className="h-4 w-4" />
-            {busy === "renew" ? "…" : "Renew — start next block"}
-          </Button>
-        )}
-        <Button
-          variant="outline"
-          onClick={deleteDoc}
-          disabled={busy !== null}
-          className="rounded-lg gap-1.5 text-muted-foreground hover:text-destructive"
-        >
-          <IconTrash2 className="h-4 w-4" />
-          {busy === "delete" ? "…" : "Delete"}
-        </Button>
-      </div>
+            <Button
+              variant="outline"
+              onClick={deleteDoc}
+              disabled={busy !== null}
+              className="rounded-lg gap-1.5 text-muted-foreground hover:text-destructive"
+            >
+              <IconTrash2 className="h-4 w-4" />
+              {busy === "delete" ? "…" : "Delete"}
+            </Button>
+          </>
+        }
+      />
 
       {doc.status === "draft" && (
         <p className="text-sm text-muted-foreground rounded-lg bg-[var(--hub-canvas)] border border-[var(--hub-border)] px-3 py-2">

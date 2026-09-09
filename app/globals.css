@@ -1484,6 +1484,14 @@ table.eb-table { width: 100%; border-collapse: collapse; font-size: 14px; min-wi
   .cr-header > :last-child { flex: 1 1 100%; justify-content: flex-start; flex-wrap: wrap; row-gap: 8px; }
 }
 
+/* ══ HUB PAGE HEADER — responsive actions wrap ═══════════════════════════
+   HubPageHeader stacks vertically below sm (640px) via Tailwind. But the
+   actions row needs flex-wrap at narrow widths so multiple buttons don't
+   clip or overflow. Applies to any header using .hub-header-acts. */
+@media (max-width: 700px) {
+  .hub-header-acts { flex-wrap: wrap; row-gap: 8px; }
+}
+
 /* ══ TRAINING CARD HEADER + FOOTER — responsive ══════════════════════════
    Card header: title and meta must not overlap at narrow widths.
    Rungs footer: caption drops below buttons instead of a crushed side column. */
