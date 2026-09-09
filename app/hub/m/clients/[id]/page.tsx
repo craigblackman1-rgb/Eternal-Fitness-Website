@@ -7,7 +7,7 @@ import { buildMedicalFlags, type ClientFlag } from "@/lib/mobile-client-flags";
 import { deriveSessionStatus } from "@/lib/session-status";
 import { deriveBlockStatus } from "@/lib/block-status";
 import { blockNameOrSpan } from "@/lib/block-name";
-import { sessionWorkoutName } from "@/lib/session-display";
+import { sessionWorkoutName, sessionHasNoExercises, isOutlookPlaceholder, isTrainerizeImported } from "@/lib/session-display";
 import { deriveChronologicalPositions } from "@/lib/session-chronological-order";
 import { deriveSessionPot } from "@/lib/session-pot";
 import { toIsoTimestamp } from "@/lib/pg-timestamp";
@@ -391,9 +391,10 @@ export default async function MobileClientModePage({ params }: { params: { id: s
     };
   });
 
-  /* ── CR-EF-113: Session pot view ── */
+  /* ── CR-EF-113: Session pot view (BUG-EF-159 — derive across ALL blocks,
+     matching desktop TrainingSection which also uses allSessions) ── */
   const pot = deriveSessionPot(
-    currentBlockSessions.map((s) => ({
+    sessions.map((s) => ({
       status: s.status as DBSession["status"],
       cancelled_at: s.cancelled_at,
       charged_free: s.charged_free,
