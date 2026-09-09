@@ -2225,6 +2225,7 @@ function ExerciseCard({
               {displayUnit} ⇄
             </button>
           )}
+          <button className="c-skip" onClick={() => onNoteToggle(uid)} aria-label={`Note on ${exercise.exercise_name}`}>💬</button>
         </div>
         {exercise.coaching_cue && <p className="ex-cue">{exercise.coaching_cue}</p>}
         {exercise.modification && <span className="ex-mod">Easier option: {exercise.modification}</span>}
