@@ -70,11 +70,12 @@ export async function GET(
     parent_session_id: string | null;
     block_id: string;
     session_number: number | null;
+    data: Record<string, unknown> | null;
   }[] = [];
   if (blockIds.length > 0) {
     const { data: sessionRows, error: sessionsError } = await supabase
       .from("sessions")
-      .select("id, status, cancelled_at, charged_free, scheduled_at, completed_at, parent_session_id, block_id, session_number")
+      .select("id, status, cancelled_at, charged_free, scheduled_at, completed_at, parent_session_id, block_id, session_number, data")
       .in("block_id", blockIds)
       .order("scheduled_at", { ascending: true });
     if (sessionsError) {
@@ -103,7 +104,7 @@ export async function GET(
 
   for (const s of sessions ?? []) {
     if (s.parent_session_id) continue; // CR-EF-101 — sub-sessions excluded
-    const sStatus = deriveSessionStatus(s);
+    const sStatus = deriveSessionStatus({ ...s, session_log: (s.data as Record<string, unknown> | null)?.session_log });
     if (sStatus === "completed") {
       completed++;
     } else if (sStatus === "cancelled") {
@@ -136,7 +137,7 @@ export async function GET(
   let earliestActivityDate: string | null = null;
   for (const s of sessions ?? []) {
     if (s.parent_session_id) continue;
-    const sStatus = deriveSessionStatus(s);
+    const sStatus = deriveSessionStatus({ ...s, session_log: (s.data as Record<string, unknown> | null)?.session_log });
     if (sStatus === "completed" && s.completed_at) {
       if (!earliestActivityDate || s.completed_at < earliestActivityDate) {
         earliestActivityDate = s.completed_at;
@@ -196,7 +197,7 @@ export async function GET(
   // All dates normalised through toIsoTimestamp at push time.
   for (const s of sessions ?? []) {
     if (s.parent_session_id) continue;
-    const sStatus = deriveSessionStatus(s);
+    const sStatus = deriveSessionStatus({ ...s, session_log: (s.data as Record<string, unknown> | null)?.session_log });
     if (sStatus === "completed" && s.completed_at) {
       events.push({
         date: toIsoTimestamp(s.completed_at) ?? s.completed_at,
