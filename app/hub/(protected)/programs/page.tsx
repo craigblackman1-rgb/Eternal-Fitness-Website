@@ -68,5 +68,22 @@ export default async function ProgramsPage({
     slot_count: slotCounts[p.id] || 0,
   }));
 
-  return <ProgramsListClient programs={programs} clientContext={clientContext} />;
+  // Fetch which programme ids are actually in use (someone's active_program_id)
+  const { data: activeClients } = await supabase
+    .from("clients")
+    .select("active_program_id")
+    .neq("active_program_id", null);
+  const inUseProgramIds = new Set(
+    (activeClients ?? [])
+      .map((c: { active_program_id: string | null }) => c.active_program_id)
+      .filter((id): id is string => id !== null),
+  );
+
+  return (
+    <ProgramsListClient
+      programs={programs}
+      clientContext={clientContext}
+      inUseProgramIds={inUseProgramIds}
+    />
+  );
 }

@@ -38,9 +38,11 @@ const statusConfig: Record<string, { token: StatusToken; label: string }> = {
 export function ProgramsListClient({
   programs,
   clientContext,
+  inUseProgramIds,
 }: {
   programs: ProgramRow[];
   clientContext?: ClientContext | null;
+  inUseProgramIds: Set<string>;
 }) {
   const router = useRouter();
   const [creating, setCreating] = useState(false);
@@ -54,11 +56,11 @@ export function ProgramsListClient({
   );
 
   const archivedCount = programs.filter((p) => p.status === "archived").length;
-  const assignedCount = programs.filter((p) => p.clients !== null && p.status !== "archived").length;
+  const inUseCount = programs.filter((p) => inUseProgramIds.has(p.id) && p.status !== "archived").length;
   const libraryCount = programs.filter((p) => p.clients === null && p.status !== "archived").length;
 
   let visiblePrograms = showArchived ? programs : programs.filter((p) => p.status !== "archived");
-  if (filter === "assigned") visiblePrograms = visiblePrograms.filter((p) => p.clients !== null);
+  if (filter === "assigned") visiblePrograms = visiblePrograms.filter((p) => inUseProgramIds.has(p.id));
   else if (filter === "library") visiblePrograms = visiblePrograms.filter((p) => p.clients === null);
 
   const handleArchive = async (program: ProgramRow) => {
@@ -163,6 +165,9 @@ export function ProgramsListClient({
       render: (row) => (
         <span className="font-medium text-foreground">
           {row.name}
+          {inUseProgramIds.has(row.id) && (
+            <TokenPill token="success" label="In use" className="ml-2" />
+          )}
           {row.source === "trainerize_import" && (
             <TokenPill token="neutral" label="Trainerize clone" className="ml-2" />
           )}
@@ -346,8 +351,8 @@ export function ProgramsListClient({
 
       <div className="inline-flex gap-0.5 rounded-nested border border-[var(--hub-border)] bg-[var(--hub-card)] p-[3px] shadow-sm">
         {(["assigned", "library", "all"] as const).map((key) => {
-          const label = key === "assigned" ? "Assigned" : key === "library" ? "Library" : "All";
-          const count = key === "assigned" ? assignedCount : key === "library" ? libraryCount : programs.length - (showArchived ? 0 : archivedCount);
+          const label = key === "assigned" ? "In use" : key === "library" ? "Library" : "All";
+          const count = key === "assigned" ? inUseCount : key === "library" ? libraryCount : programs.length - (showArchived ? 0 : archivedCount);
           return (
             <button
               key={key}
@@ -377,7 +382,7 @@ export function ProgramsListClient({
             icon={<IconTarget className="h-8 w-8" />}
             title={
               filter === "assigned"
-                ? "No assigned programmes"
+                ? "No programmes in use"
                 : filter === "library"
                   ? "No library programmes"
                   : showArchived
@@ -386,7 +391,7 @@ export function ProgramsListClient({
             }
             description={
               filter === "assigned"
-                ? "No programmes are currently assigned to a client."
+                ? "No programmes are currently in use by a client."
                 : filter === "library"
                   ? "All programmes are assigned to a client."
                   : showArchived
