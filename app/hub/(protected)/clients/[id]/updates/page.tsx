@@ -109,11 +109,17 @@ export default async function UpdatesHistoryPage({ params }: { params: { id: str
                         {update.send_error}
                       </span>
                     )}
-                    {update.status === "sent" && update.opened_at && (
-                      <span className="flex items-center gap-1 text-teal" title={`Opened ${formatUpdateTime(update.opened_at)}`}>
+                    {update.status === "sent" && (
+                      <span className="flex items-center gap-1 text-teal">
                         <IconEye className="h-3 w-3" />
-                        Opened
-                        {update.open_count > 1 && <span className="text-muted-foreground">({update.open_count})</span>}
+                        {update.opened_at ? (
+                          <>
+                            Opened {new Date(update.opened_at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" })}
+                            {update.open_count > 1 && <span className="text-muted-foreground">&times;{update.open_count}</span>}
+                          </>
+                        ) : (
+                          <span className="text-muted-foreground italic">No open tracking</span>
+                        )}
                       </span>
                     )}
                   </div>

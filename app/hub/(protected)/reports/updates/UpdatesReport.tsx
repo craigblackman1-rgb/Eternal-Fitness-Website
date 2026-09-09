@@ -391,11 +391,17 @@ export function UpdatesReport({ updates }: { updates: UpdateWithClient[] }) {
                         {u.status === "sent" && !u.emailed && (
                           <Badge variant="secondary" className="rounded-pill text-xs ml-2">Logged only</Badge>
                         )}
-                        {u.status === "sent" && u.opened_at && (
-                          <span className="flex items-center gap-1 text-teal mt-0.5" title={`Opened ${formatUpdateTime(u.opened_at)}`}>
+                        {u.status === "sent" && (
+                          <span className="flex items-center gap-1 text-teal mt-0.5">
                             <IconEye className="h-3 w-3" />
-                            Opened
-                            {u.open_count > 1 && <span className="text-muted-foreground">({u.open_count})</span>}
+                            {u.opened_at ? (
+                              <>
+                                Opened {new Date(u.opened_at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" })}
+                                {u.open_count > 1 && <span className="text-muted-foreground">&times;{u.open_count}</span>}
+                              </>
+                            ) : (
+                              <span className="text-muted-foreground italic">No open tracking</span>
+                            )}
                           </span>
                         )}
                         {u.status === "failed" && u.send_error && (

@@ -1433,11 +1433,13 @@ function CommsDrawer({
                 </div>
                 {/* Engagement summary */}
                 <div className="flex items-center gap-2 mt-1 text-[11.5px] text-[var(--color-muted)]">
-                  {u.opened_at && (
+                  {u.opened_at ? (
                     <span className="flex items-center gap-1">
-                      Opened
-                      {u.open_count > 1 && <span>({u.open_count})</span>}
+                      Opened {new Date(u.opened_at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" })}
+                      {u.open_count > 1 && <span>&times;{u.open_count}</span>}
                     </span>
+                  ) : (
+                    <span className="italic opacity-50">No open tracking</span>
                   )}
                   {u.click_count > 0 && (
                     <span>{u.click_count} click{u.click_count !== 1 ? "s" : ""}</span>
