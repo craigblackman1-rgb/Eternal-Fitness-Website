@@ -186,11 +186,12 @@ export function DrawerShell({ id, title, subtitle, width = "md", children, foote
       aria-modal={isActive}
       aria-labelledby={`${id}-heading`}
       className={cn(
-        "fixed top-0 right-0 h-full bg-white shadow-[-8px_0_32px_rgba(16,24,40,.10),_-2px_0_8px_rgba(16,24,40,.06)] flex flex-col z-50 [transition:transform_300ms_cubic-bezier(.32,.72,0,1),visibility_0ms]",
+        "fixed top-0 right-0 h-full bg-white shadow-[-8px_0_32px_rgba(16,24,40,.10),_-2px_0_8px_rgba(16,24,40,.06)] flex flex-col z-50 [transition:transform_300ms_cubic-bezier(.32,.72,0,1),visibility_0s_300ms]",
         WIDTHS[width],
         "max-w-[96vw]",
         isActive ? "translate-x-0" : isParent ? "-translate-x-6" : "translate-x-full",
-        !(isActive || isParent) && "invisible pointer-events-none"
+        !(isActive || isParent) && "invisible pointer-events-none",
+        (isActive || isParent) && "[transition:transform_300ms_cubic-bezier(.32,.72,0,1),visibility_0s]"
       )}
       style={{ zIndex: isActive ? 50 : 49 }}
     >
