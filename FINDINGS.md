@@ -19,3 +19,16 @@ When visiting each phase, the scraper iterates ALL captured API responses (from 
 
 ### programmes system not involved in direct import
 The `programs`/`program_slots` tables are created via the paste-parse UI, not via a Trainerize data import script. The `source: 'trainerize_import'` field exists in the TypeScript type but no code sets it on the `programs` table.
+
+## ROOT CAUSE IDENTIFIED
+
+**`import-trainerize-block-data.mjs:180-198` — phase-blind response assignment.**
+
+When visiting each training phase page, the scraper iterates ALL captured API responses (from ALL pages visited so far). The `trainingPlan/getWorkoutDefList` response from Phase A's page is re-processed when visiting Phase B:
+
+1. Visit Phase A: captures `getWorkoutDefList` with Phase A's 5 workouts. Stored under `planId: PhaseA.id`. ✅
+2. Visit Phase B: iterates ALL responses:
+   - Finds Phase A's response (5 workouts). Phase B has no existing entry → stores Phase A's 5 workouts under `planId: PhaseB.id`. ← BUG
+   - Finds Phase B's own response (5 workouts). Phase B now has 5 → `5 < 5` is false, no replacement. ← Phase B keeps Phase A's workouts!
+
+Result: Phase A has correct workouts, Phase B has Phase A's workouts (wrong), Phase C has Phase A's workouts (wrong). The archive import faithfully stores these incorrect mappings, and the promotion script creates sessions from them — producing fewer distinct workouts than the source.
