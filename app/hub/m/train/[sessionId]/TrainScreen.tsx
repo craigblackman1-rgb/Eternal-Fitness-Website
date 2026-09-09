@@ -2358,8 +2358,8 @@ function SupersetBlock({
 
           return (
             <div key={uid} className={`rx-row${isExpanded ? " expanded" : ""}`}>
-              <button type="button" className="rx-header" onClick={() => toggleAccordion(uid)} aria-expanded={isExpanded} style={{ width: "100%", textAlign: "left", border: "none", background: "none", font: "inherit" }}>
-                {inPick && (
+              {inPick ? (
+                <div className="rx-header" role="button" tabIndex={0} aria-expanded={isExpanded} onClick={() => toggleAccordion(uid)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleAccordion(uid); } }} style={{ width: "100%", textAlign: "left", border: "none", background: "none", font: "inherit", cursor: "pointer" }}>
                   <button
                     className="pick-box"
                     onClick={(e) => { e.stopPropagation(); onPickToggle(uid); }}
@@ -2368,16 +2368,27 @@ function SupersetBlock({
                   >
                     {ICO.checkSm}
                   </button>
-                )}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="rx-name">
-                    {complete && <span className="ex-complete-ic">{ICO.check}</span>}
-                    {ex.exercise_name}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="rx-name">
+                      {complete && <span className="ex-complete-ic">{ICO.check}</span>}
+                      {ex.exercise_name}
+                    </div>
+                    <div className="rx-sub">{presc}{ex.equipment && ex.equipment.length > 0 ? ` · ${ex.equipment[0]}` : ""}</div>
                   </div>
-                  <div className="rx-sub">{presc}{ex.equipment && ex.equipment.length > 0 ? ` · ${ex.equipment[0]}` : ""}</div>
+                  <span className="rx-chevron">{isExpanded ? "⌃" : "⌄"}</span>
                 </div>
-                <span className="rx-chevron">{isExpanded ? "⌃" : "⌄"}</span>
-              </button>
+              ) : (
+                <button type="button" className="rx-header" onClick={() => toggleAccordion(uid)} aria-expanded={isExpanded} style={{ width: "100%", textAlign: "left", border: "none", background: "none", font: "inherit" }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="rx-name">
+                      {complete && <span className="ex-complete-ic">{ICO.check}</span>}
+                      {ex.exercise_name}
+                    </div>
+                    <div className="rx-sub">{presc}{ex.equipment && ex.equipment.length > 0 ? ` · ${ex.equipment[0]}` : ""}</div>
+                  </div>
+                  <span className="rx-chevron">{isExpanded ? "⌃" : "⌄"}</span>
+                </button>
+              )}
               {isExpanded && (
                 <div className="rx-detail">
                   <span className="rx-chip">{timeBased ? "Time" : "Reps & weight"}</span>
