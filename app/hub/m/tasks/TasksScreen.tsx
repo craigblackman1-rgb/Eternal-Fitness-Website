@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import type { TaskListItem } from "./page";
 
 const ICO = {
@@ -86,11 +86,10 @@ export function TasksScreen({ tasks }: Props) {
 
   const filtered = seg === "open" ? openTasks : doneToday;
 
-  async function loadClients() {
-    if (clients.length > 0 || clientsLoading) return;
+  async function searchClients(q: string) {
     setClientsLoading(true);
     try {
-      const res = await fetch("/api/clients");
+      const res = await fetch(`/api/clients?search=${encodeURIComponent(q)}`);
       if (res.ok) {
         const data = await res.json();
         setClients(
@@ -105,20 +104,29 @@ export function TasksScreen({ tasks }: Props) {
     setClientsLoading(false);
   }
 
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!showAdd) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (!clientQuery.trim()) {
+      setClients([]);
+      return;
+    }
+    debounceRef.current = setTimeout(() => {
+      searchClients(clientQuery.trim());
+    }, 300);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [clientQuery, showAdd]);
+
   function openAddSheet() {
     setShowAdd(true);
     setNewTitle("");
     setNewDue("");
     setNewClientId(null);
     setClientQuery("");
-    loadClients();
+    setClients([]);
   }
-
-  const filteredClients = useMemo(() => {
-    if (!clientQuery.trim()) return clients;
-    const q = clientQuery.toLowerCase();
-    return clients.filter((c) => c.name.toLowerCase().includes(q));
-  }, [clients, clientQuery]);
 
   async function createTask() {
     if (!newTitle.trim()) return;
@@ -311,12 +319,11 @@ export function TasksScreen({ tasks }: Props) {
                     type="search"
                     value={clientQuery}
                     onChange={(e) => setClientQuery(e.target.value)}
-                    placeholder={clientsLoading ? "Loading clients…" : "Search clients…"}
-                    disabled={clientsLoading}
+                    placeholder={clientsLoading ? "Searching…" : "Type a name to search…"}
                   />
-                  {clientQuery && filteredClients.length > 0 && (
+                  {clientQuery && clients.length > 0 && (
                     <div className="task-client-pick">
-                      {filteredClients.slice(0, 5).map((c) => (
+                      {clients.slice(0, 5).map((c) => (
                         <button
                           key={c.id}
                           className="pick-item"
