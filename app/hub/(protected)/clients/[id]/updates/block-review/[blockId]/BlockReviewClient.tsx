@@ -3,11 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { IconChevronLeft, IconCheckCircle, IconTriangleAlert } from "@/components/icons";
+import { IconChevronLeft, IconCheckCircle, IconTriangleAlert, IconClipboardList, IconRefreshCw, IconClock } from "@/components/icons";
 import { NewUpdateClient } from "../../new/NewUpdateClient";
 import type { ReviewDecision } from "@/types";
 import type { AttendanceFacts, PbFact, BelowBestFact } from "@/lib/block-review-facts";
 import { pronouns } from "@/lib/pronouns";
+import { REVIEW_DECISIONS, consequenceTitle, consequenceBody, confirmationWhereText } from "@/lib/review-decisions";
 
 /* ── S8 — Block review & update client shell (design-systems v3/09-update-
    review.html). One scroll: facts, Esther's internal decision, the email —
@@ -17,12 +18,6 @@ import { pronouns } from "@/lib/pronouns";
    rule 2 ("queue before record") and the governing constraint, nothing here
    is a blank box: every fact panel is computed server-side and passed in —
    see page.tsx and lib/block-review-facts.ts. */
-
-const DECISIONS: { key: ReviewDecision; title: string; sub: string }[] = [
-  { key: "continue", title: "Continue", sub: "Programme 3 runs as planned" },
-  { key: "adjust", title: "Adjust", sub: "Next training needs changes first" },
-  { key: "restart", title: "Restart", sub: "Go back to an earlier point" },
-];
 
 interface NextBlockInfo {
   blockNumber: number;
@@ -270,11 +265,12 @@ export function BlockReviewClient({
         </div>
         <div className="p-4 space-y-3">
           <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label="Training decision">
-            {DECISIONS.map((d) => {
-              const selected = decision === d.key;
+            {(Object.keys(REVIEW_DECISIONS) as ReviewDecision[]).map((key) => {
+              const d = REVIEW_DECISIONS[key];
+              const selected = decision === key;
               return (
                 <label
-                  key={d.key}
+                  key={key}
                   className={cn(
                     "flex-1 min-w-[150px] flex items-center gap-2.5 p-3 rounded-nested border cursor-pointer transition-colors",
                     selected ? "border-rose bg-rose/5 shadow-[inset_0_0_0_1px_var(--color-rose)]" : "border-[var(--hub-border)] hover:bg-[var(--hub-hover)]",
@@ -283,19 +279,49 @@ export function BlockReviewClient({
                   <input
                     type="radio"
                     name="decision"
-                    value={d.key}
+                    value={key}
                     checked={selected}
-                    onChange={() => setDecision(d.key)}
+                    onChange={() => setDecision(key)}
                     className="accent-rose w-[15px] h-[15px] shrink-0"
                   />
                   <span>
-                    <span className={cn("block text-[13.5px] font-bold", selected ? "text-[var(--rose-text)]" : "text-[var(--color-ink)]")}>{d.title}</span>
-                    <span className="block text-xs text-[var(--color-muted-text)] mt-px">{d.sub}</span>
+                    <span className={cn("block text-[13.5px] font-bold", selected ? "text-[var(--rose-text)]" : "text-[var(--color-ink)]")}>{d.label}</span>
+                    <span className="block text-xs text-[var(--color-muted-text)] mt-px">{d.desc}</span>
                   </span>
                 </label>
               );
             })}
           </div>
+
+          {/* Consequence box */}
+          <div
+            className={cn(
+              "rounded-nested p-3.5 border flex gap-2.5",
+              decision === "continue"
+                ? "bg-[var(--status-success-bg)] border-[var(--status-success-border)]"
+                : decision === "adjust"
+                  ? "bg-rose/5 border-rose/20"
+                  : decision === "restart"
+                    ? "bg-amber/5 border-amber/20"
+                    : "bg-[var(--hub-hover)] border-[var(--hub-border)]",
+            )}
+          >
+            <div className="shrink-0">
+              {decision === "continue" && <IconCheckCircle className="w-4 h-4 text-[var(--status-success-text)]" />}
+              {decision === "adjust" && <IconClipboardList className="w-4 h-4 text-rose" />}
+              {decision === "restart" && <IconRefreshCw className="w-4 h-4 text-amber" />}
+              {!decision && <IconClock className="w-4 h-4 text-muted-foreground" />}
+            </div>
+            <div className="min-w-0">
+              <p className="text-[13px] font-bold text-foreground">
+                {consequenceTitle(decision)}
+              </p>
+              <p className="text-[12.5px] text-foreground/75 mt-0.5 leading-relaxed">
+                {consequenceBody(decision, firstName(clientName), block.blockNumber)}
+              </p>
+            </div>
+          </div>
+
           <div>
             <label htmlFor="review-note" className="block text-[13px] font-semibold text-[var(--color-ink)] mb-1.5">
               Why <span className="text-[var(--rose-text)] font-bold">*</span>
@@ -313,9 +339,14 @@ export function BlockReviewClient({
             </p>
           </div>
           {decisionSaved && (
-            <div className="flex items-center gap-2 text-[12.5px] text-[var(--status-success-text)]">
-              <IconCheckCircle className="w-4 h-4" />
-              Decision recorded.
+            <div className="rounded-nested p-3 border bg-[var(--status-success-bg)] border-[var(--status-success-border)]">
+              <div className="flex items-center gap-2 text-[12.5px] text-[var(--status-success-text)]">
+                <IconCheckCircle className="w-4 h-4" />
+                <span className="font-bold">Decision recorded.</span>
+              </div>
+              <p className="text-[12.5px] text-foreground/75 mt-1.5 leading-relaxed">
+                {decision && confirmationWhereText(decision, clientName, firstName(clientName))}
+              </p>
             </div>
           )}
           {decisionError && (
