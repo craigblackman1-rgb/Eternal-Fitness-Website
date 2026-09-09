@@ -161,7 +161,7 @@ export function CommsComposerClient({
           </div>
           <div className="flex-1 min-w-[180px]">
             <p className="text-[10.5px] font-extrabold uppercase tracking-[.08em] text-muted-foreground m-0 mb-1">2 · Preview</p>
-            <p className="text-[12.5px] text-muted-foreground m-0">Exactly what {name} receive{p.verb === "has" ? "s" : ""}, in the house wrapper. Nothing sends until you say so.</p>
+            <p className="text-[12.5px] text-muted-foreground m-0">Exactly what {name} receives, in the house wrapper. Nothing sends until you say so.</p>
           </div>
           <div className="flex-1 min-w-[180px]">
             <p className="text-[10.5px] font-extrabold uppercase tracking-[.08em] text-muted-foreground m-0 mb-1">3 · Send &amp; track</p>
