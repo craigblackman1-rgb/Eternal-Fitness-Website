@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { DrawerShell, useDrawerManager } from "./DrawerManager";
@@ -18,12 +18,11 @@ import type { DBBlock, DBSession, Gender, SessionVersion } from "@/types";
 import type { QueueState } from "@/lib/programs/types";
 
 /* ── TrainingDrawer — the Manage training drawer (DO rung).
-   Five sections in mockup order:
+   Four sections in mockup order (v4.1):
      1. Apply a workout to a date
-     2. Her programme
-     3. Start or replace
-     4. Supplementary
-     5. Standing rules
+     2. His programme
+     3. Supplementary
+     4. Standing rules
    Handlers/API calls unchanged — this is chrome + arrangement. ────── */
 
 function fmtShortDate(iso: string | null): string {
@@ -131,78 +130,6 @@ export function TrainingDrawer({
   const [chooserSessionId, setChooserSessionId] = useState<string | null>(null);
   const [chooserBusy, setChooserBusy] = useState(false);
 
-  // ── Available programmes for Section 3 ──
-  const [libraryProgrammes, setLibraryProgrammes] = useState<{ id: string; name: string; weeks: number }[]>([]);
-  const [allOtherProgrammes, setAllOtherProgrammes] = useState<{ id: string; name: string; weeks: number; clientNumber: string | null; clientName: string | null }[]>([]);
-  const [applyingProgramId, setApplyingProgramId] = useState<string | null>(null);
-  const [showCopySearch, setShowCopySearch] = useState(false);
-  const [copySearchQuery, setCopySearchQuery] = useState("");
-  const [selectedCopyClient, setSelectedCopyClient] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/programs")
-      .then((r) => r.json())
-      .then((rows: { id: string; name: string; weeks: number; client_id: string | null; status: string; clients?: { client_number: string | null; name?: string | null } | null }[]) => {
-        if (cancelled) return;
-        const currentId = programState?.program?.id;
-        const active = rows.filter((p) => p.status !== "archived" && p.id !== currentId);
-        // Library = no client_id (unbound templates)
-        setLibraryProgrammes(
-          active.filter((p) => !p.client_id).map((p) => ({ id: p.id, name: p.name, weeks: p.weeks }))
-        );
-        // Other clients' programmes for the copy search
-        setAllOtherProgrammes(
-          active
-            .filter((p) => p.client_id && p.clients?.client_number !== String(clientNumber))
-            .map((p) => ({
-              id: p.id,
-              name: p.name,
-              weeks: p.weeks,
-              clientNumber: p.clients?.client_number ?? null,
-              clientName: p.clients?.name ?? null,
-            }))
-        );
-      })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, [programState?.program?.id, clientNumber]);
-
-  // Derived: other clients' programmes grouped by client, filtered by search
-  const copyClientGroups = useMemo(() => {
-    const groups = new Map<string, { clientName: string; programmes: typeof allOtherProgrammes }>();
-    const q = copySearchQuery.toLowerCase();
-    for (const p of allOtherProgrammes) {
-      if (!p.clientNumber) continue;
-      if (q && !p.name.toLowerCase().includes(q) && !(p.clientName ?? "").toLowerCase().includes(q)) continue;
-      const existing = groups.get(p.clientNumber);
-      if (existing) {
-        existing.programmes.push(p);
-      } else {
-        groups.set(p.clientNumber, { clientName: p.clientName ?? `Client ${p.clientNumber}`, programmes: [p] });
-      }
-    }
-    return [...groups.entries()];
-  }, [allOtherProgrammes, copySearchQuery]);
-
-  async function handleApplyProgramme(programId: string) {
-    setApplyingProgramId(programId);
-    try {
-      const res = await fetch(`/api/clients/${clientId}/apply-program`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ program_id: programId }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "Failed to apply programme");
-      toast.success(data.cloned ? "Programme applied (copied to client)" : "Programme applied");
-      router.push(`/hub/clients/${clientNumber}`);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong");
-      setApplyingProgramId(null);
-    }
-  }
-
   // ── Paid-pot computation ──
   const isOngoing = !sessionsPurchased || packageType === "ongoing";
   const totalSessions = isOngoing ? null : sessionsPurchased;
@@ -218,11 +145,15 @@ export function TrainingDrawer({
   const nextPosition = programState?.nextPosition ?? 1;
 
   // ── Scheduled sessions for "Apply a workout to a date" ──
+  // Cut at start of today so overdue past bookings stop inflating the count
   const scheduledSessions = useMemo(() => {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
     return blockSessions
       .filter(
         (s) =>
           s.scheduled_at &&
+          new Date(s.scheduled_at).getTime() >= todayStart.getTime() &&
           !s.completed_at &&
           !s.cancelled_at &&
           !s.parent_session_id,
@@ -437,6 +368,35 @@ export function TrainingDrawer({
     router.push(`/hub/clients/${clientNumber}/add-workout?view=chooser`);
   }
 
+  // ── Clear a session back to Outlook placeholder ──
+  async function handleClearSession(sessionId: string) {
+    try {
+      const res = await fetch(`/api/sessions/${sessionId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          program_id: null,
+          program_slot_id: null,
+          data: {
+            versions: { studio: { warm_up: [], main_block: [], cooldown: [] }, home: { warm_up: [], main_block: [], cooldown: [] } },
+            focus_label: "Outlook booking — cleared",
+          },
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to clear session");
+      toast.success("Session cleared");
+      router.refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to clear session");
+    }
+  }
+
+  // ── Use next programme position directly ──
+  async function handleUsePosition(sessionId: string) {
+    if (!programState?.nextSlot) return;
+    await handleReassignProgram(sessionId, programState.nextSlot.id);
+  }
+
   // ── Footer ──
   const footer = (
     <>
@@ -448,29 +408,15 @@ export function TrainingDrawer({
         Close
       </button>
       <span className="flex-1" />
+      <span className="text-[12.5px] self-center" style={{ color: "var(--color-muted)" }}>
+        Opens the guided builder — Plan Agent · build your own · from templates
+      </span>
       <button
         type="button"
         onClick={() => router.push(`/hub/clients/${clientNumber}/programs/new`)}
-        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] px-3 py-1.5 min-h-[30px] font-[inherit] text-[12.5px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
-      >
-        Plan the next programme
-      </button>
-      <button
-        type="button"
-        onClick={() => {
-          // Open the first unapplied session's chooser, or just show info
-          if (scheduledSessions.length > 0) {
-            const firstEmpty = scheduledSessions.find(
-              (s) => isOutlookPlaceholder(s) || sessionHasNoExercises(s.data),
-            );
-            if (firstEmpty) {
-              setChooserSessionId(firstEmpty.id);
-            }
-          }
-        }}
         className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--color-rose)] text-white px-4 py-1.5 min-h-[30px] font-[inherit] text-[12.5px] font-semibold cursor-pointer hover:bg-[var(--color-rose)]/90 transition-colors"
       >
-        Apply a workout
+        Plan the next programme
       </button>
     </>
   );
@@ -483,6 +429,7 @@ export function TrainingDrawer({
         <>
           {clientName}
           {programmeName && <> · {programmeName}</>}
+          {slotCount > 0 && <> · {slotCount}× per week</>}
           {totalSessions != null
             ? <> · {remaining} of {totalSessions} sessions left</>
             : <> · Ongoing</>}
@@ -575,13 +522,43 @@ export function TrainingDrawer({
                       </span>
                     )}
                     <span className="arow2-a">
-                      <button
-                        type="button"
-                        className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--color-rose)] text-white px-3 py-1 min-h-[30px] font-[inherit] text-[12px] font-semibold cursor-pointer hover:bg-[var(--color-rose)]/90 transition-colors"
-                        onClick={() => setChooserSessionId(s.id)}
-                      >
-                        Choose a workout
-                      </button>
+                      {hasWorkout ? (
+                        <>
+                          <button
+                            type="button"
+                            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] px-3 py-1 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
+                            onClick={() => setChooserSessionId(s.id)}
+                          >
+                            Swap
+                          </button>
+                          <button
+                            type="button"
+                            className="inline-flex items-center justify-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-muted)] cursor-pointer hover:bg-[var(--hub-hover)] hover:text-[var(--color-ink)] transition-colors"
+                            onClick={() => handleClearSession(s.id)}
+                          >
+                            Clear
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--color-rose)] text-white px-3 py-1 min-h-[30px] font-[inherit] text-[12px] font-semibold cursor-pointer hover:bg-[var(--color-rose)]/90 transition-colors"
+                            onClick={() => setChooserSessionId(s.id)}
+                          >
+                            Choose a workout
+                          </button>
+                          {programState && nextPosition <= totalQueueSlots && (
+                            <button
+                              type="button"
+                              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] px-3 py-1 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
+                              onClick={() => handleUsePosition(s.id)}
+                            >
+                              Use position {nextPosition}
+                            </button>
+                          )}
+                        </>
+                      )}
                     </span>
                   </div>
                 );
@@ -594,7 +571,7 @@ export function TrainingDrawer({
         </div>
       </div>
 
-      {/* ═══ 2. HER PROGRAMME ═══ */}
+      {/* ═══ 2. HIS PROGRAMME ═══ */}
       {programState && mapData && (
         <div className="fcard acc-teal">
           <div className="fcard-h">
@@ -602,9 +579,6 @@ export function TrainingDrawer({
             <span className="sub">
               {programmeName} · {slotCount}× per week · {totalQueueSlots} positions, {completedCount} reached
             </span>
-            <button type="button" className="btn-link" disabled aria-disabled="true" title="Coming soon" style={{ opacity: 0.5, cursor: "not-allowed" }}>
-              Reorder
-            </button>
           </div>
           <div className="fcard-b">
             <div className="pmap">
@@ -622,29 +596,53 @@ export function TrainingDrawer({
                 <div className="pmap-week" key={week.label}>
                   <span className="pmap-lbl">{week.label}</span>
                   <span className="pmap-cells">
-                    {week.cells.map((cell) => (
-                      <button
-                        key={cell.position}
-                        type="button"
-                        className={`mcell ${cell.state}`}
-                        title={`Position ${cell.position}${
-                          cell.state === "done"
-                            ? " — completed"
-                            : cell.state === "flag"
-                              ? " — completed, no sets logged"
-                              : cell.state === "next"
-                                ? " — next up"
-                                : cell.state === "beyond"
-                                  ? ` — beyond the ${remaining} remaining paid sessions`
-                                  : cell.state === "applied"
-                                    ? " — applied"
-                                    : " — nothing applied"
-                        }`}
-                      >
-                        {cell.dateLabel && <small>{cell.dateLabel}</small>}
-                        <b>{cell.label}</b>
-                      </button>
-                    ))}
+                    {week.cells.map((cell) => {
+                      // Find the scheduled session for this cell position
+                      const cellSession = cell.state !== "empty" && cell.state !== "beyond"
+                        ? blockSessions.find((s) => {
+                            if (!s.scheduled_at || s.completed_at || s.cancelled_at || s.parent_session_id) return false;
+                            const slot = s.program_slot_id ? slots.find((sl) => sl.id === s.program_slot_id) : null;
+                            if (slot && s.week) {
+                              const pos = (s.week - 1) * slotCount + slot.position;
+                              return pos === cell.position;
+                            }
+                            return false;
+                          })
+                        : null;
+                      const isClickable = cell.state === "applied" || cell.state === "done" || cell.state === "flag" || cell.state === "next";
+                      return (
+                        <button
+                          key={cell.position}
+                          type="button"
+                          className={`mcell ${cell.state}`}
+                          disabled={cell.state === "beyond" || cell.state === "empty"}
+                          title={`Position ${cell.position}${
+                            cell.state === "done"
+                              ? " — completed"
+                              : cell.state === "flag"
+                                ? " — completed, no sets logged"
+                                : cell.state === "next"
+                                  ? " — next up"
+                                  : cell.state === "beyond"
+                                    ? ` — beyond the ${remaining} remaining paid sessions`
+                                    : cell.state === "applied"
+                                      ? " — applied"
+                                      : " — nothing applied"
+                          }`}
+                          onClick={() => {
+                            if (isClickable && cellSession) {
+                              openDrawer("dw-workout");
+                              // The DrawerManager + workout page reads selectedSessionId
+                              // For now, navigate to the session
+                              router.push(`/hub/clients/${clientNumber}/blocks/${cellSession.block_id}/sessions/${cellSession.session_number}`);
+                            }
+                          }}
+                        >
+                          {cell.dateLabel && <small>{cell.dateLabel}</small>}
+                          <b>{cell.label}</b>
+                        </button>
+                      );
+                    })}
                   </span>
                 </div>
               ))}
@@ -667,194 +665,45 @@ export function TrainingDrawer({
                 <span>Plain cells are applied and to come</span>
               </div>
             </div>
-            <div className="flex gap-2 mt-3">
+            <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+              <span className="text-[12.5px]" style={{ color: "var(--color-muted)", alignSelf: "center" }}>
+                Click a week cell to open that workout.
+              </span>
+              <span style={{ flex: 1 }} />
               <button
                 type="button"
-                onClick={() => router.push(`/hub/clients/${clientNumber}/programs/${programState.program.id}`)}
+                onClick={() => {
+                  openDrawer("dw-pot-ledger");
+                }}
                 className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] px-3 py-1.5 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
-              >
-                Add workouts
-              </button>
-              <button
-                type="button"
-                disabled
-                aria-disabled="true"
-                title="Coming soon"
-                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] px-3 py-1.5 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-not-allowed opacity-50 transition-colors"
-              >
-                Move one later
-              </button>
-              <span className="flex-1" />
-              <button
-                type="button"
-                disabled
-                aria-disabled="true"
-                title="Coming soon"
-                className="inline-flex items-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1.5 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-not-allowed opacity-50 transition-colors"
               >
                 Manage the pot
               </button>
             </div>
-            {beyondPaidCount > 0 && (
-              <p className="miss mt-2.5">
-                <b style={{ color: "var(--color-amber-text)" }}>
-                  {beyondPaidCount} position{beyondPaidCount === 1 ? "" : "s"} run{beyondPaidCount === 1 ? "s" : ""} past the pot.
-                </b>{" "}
-                {clientName} needs a renewal, or those sessions have nothing to bill against.
-              </p>
-            )}
+            {beyondPaidCount > 0 && (() => {
+              // Find the first beyond-pot session's date for the renewal warning
+              const beyondSession = blockSessions.find((s) => {
+                if (!s.scheduled_at || s.completed_at || s.cancelled_at || s.parent_session_id) return false;
+                const slot = s.program_slot_id ? slots.find((sl) => sl.id === s.program_slot_id) : null;
+                if (slot && s.week) {
+                  const pos = (s.week - 1) * slotCount + slot.position;
+                  return pos > totalQueueSlots - beyondPaidCount;
+                }
+                return false;
+              });
+              const renewalDate = beyondSession?.scheduled_at ? fmtShortDate(beyondSession.scheduled_at) : null;
+              return (
+                <p className="miss mt-2.5">
+                  <b style={{ color: "var(--color-amber-text)" }}>
+                    {beyondPaidCount} position{beyondPaidCount === 1 ? "" : "s"} run{beyondPaidCount === 1 ? "s" : ""} past the pot.
+                  </b>{" "}
+                  {clientName} needs a renewal{renewalDate ? ` before ${renewalDate}` : ""}, or those sessions have nothing to bill against.
+                </p>
+              );
+            })()}
           </div>
         </div>
       )}
-
-      {/* ═══ 3. START OR REPLACE ═══ */}
-      <div className="fcard acc-teal">
-        <div className="fcard-h">
-          Start or replace the programme
-          <span className="sub">Copies in — never links, so editing {p.possessiveStandalone} changes nobody else&apos;s</span>
-        </div>
-        <div className="fcard-b">
-          {programState && (
-            <div className="prow">
-              <span className="prow-m">
-                <span className="prow-t">{programmeName}</span>
-                <span className="prow-s">
-                  {totalQueueSlots} workouts · currently {p.possessiveStandalone}
-                </span>
-              </span>
-              <span className="prow-a">
-                <span className="inline-flex items-center rounded-pill border border-[var(--hub-border)] bg-[var(--hub-hover)] px-2 py-0.5 text-[11px] font-semibold text-[var(--color-body)]">
-                  In use
-                </span>
-              </span>
-            </div>
-          )}
-          {libraryProgrammes.length > 0 && libraryProgrammes.map((p) => (
-            <div className="prow" key={p.id}>
-              <span className="prow-m">
-                <span className="prow-t">{p.name}</span>
-                <span className="prow-s">{p.weeks} weeks</span>
-              </span>
-              <span className="prow-a">
-                <button
-                  type="button"
-                  disabled={applyingProgramId === p.id}
-                  onClick={() => handleApplyProgramme(p.id)}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--color-rose)] text-white px-3 py-1 min-h-[28px] font-[inherit] text-[11.5px] font-semibold cursor-pointer hover:bg-[var(--color-rose)]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {applyingProgramId === p.id ? "Applying…" : "Apply"}
-                </button>
-              </span>
-            </div>
-          ))}
-          {libraryProgrammes.length === 0 && (
-            <p className="miss" style={{ margin: "0 0 8px" }}>No library programmes yet. Build one first, then apply it here.</p>
-          )}
-
-          {/* Copy from another client */}
-          <div style={{ marginTop: 12, borderTop: "1px solid var(--hub-border)", paddingTop: 10 }}>
-            {!showCopySearch ? (
-              <button
-                type="button"
-                onClick={() => setShowCopySearch(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1.5 min-h-[28px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
-              >
-                Copy from another client…
-              </button>
-            ) : (
-              <div>
-                <input
-                  className="fld"
-                  placeholder="Search by programme or client name…"
-                  value={copySearchQuery}
-                  onChange={(e) => { setCopySearchQuery(e.target.value); setSelectedCopyClient(null); }}
-                  style={{ marginBottom: 8 }}
-                />
-                {selectedCopyClient ? (
-                  <div>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedCopyClient(null)}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-rose)] hover:underline mb-2 bg-transparent border-0 p-0 cursor-pointer font-[inherit]"
-                    >
-                      ‹ Back to search
-                    </button>
-                    {copyClientGroups.find(([id]) => id === selectedCopyClient)?.[1].programmes.map((p) => (
-                      <div className="prow" key={p.id}>
-                        <span className="prow-m">
-                          <span className="prow-t">{p.name}</span>
-                          <span className="prow-s">{p.weeks} weeks</span>
-                        </span>
-                        <span className="prow-a">
-                          <button
-                            type="button"
-                            disabled={applyingProgramId === p.id}
-                            onClick={() => handleApplyProgramme(p.id)}
-                            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--color-rose)] text-white px-3 py-1 min-h-[28px] font-[inherit] text-[11.5px] font-semibold cursor-pointer hover:bg-[var(--color-rose)]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {applyingProgramId === p.id ? "Applying…" : "Apply"}
-                          </button>
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div>
-                    {copyClientGroups.length > 0 ? copyClientGroups.map(([clientId, group]) => (
-                      <button
-                        key={clientId}
-                        type="button"
-                        onClick={() => setSelectedCopyClient(clientId)}
-                        className="w-full text-left px-3 py-2 rounded-control border border-[var(--hub-border)] bg-white mb-1.5 cursor-pointer hover:bg-[var(--hub-hover)] transition-colors font-[inherit]"
-                      >
-                        <span className="text-[13px] font-semibold text-[var(--color-ink)]">{group.clientName}</span>
-                        <span className="text-[12px] text-[var(--color-muted)] ml-1.5">{group.programmes.length} programme{group.programmes.length !== 1 ? "s" : ""}</span>
-                      </button>
-                    )) : (
-                      <p className="miss" style={{ margin: 0 }}>No other clients&apos; programmes found.</p>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => { setShowCopySearch(false); setCopySearchQuery(""); }}
-                      className="inline-flex items-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1.5 min-h-[28px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors mt-1"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div className="flex gap-2 mt-3">
-            <button
-              type="button"
-              onClick={() => router.push(`/hub/clients/${clientNumber}/programs/new`)}
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] px-3 py-1.5 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
-            >
-              Build from scratch
-            </button>
-            <span className="flex-1" />
-            <button
-              type="button"
-              onClick={() => router.push(`/hub/programs?client=${clientNumber}`)}
-              className="inline-flex items-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1.5 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
-            >
-              All programmes
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push(`/hub/clients/${clientNumber}/programs/new`)}
-              className="inline-flex items-center gap-1.5 rounded-lg border-0 bg-transparent px-3 py-1.5 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
-            >
-              Open the builder
-            </button>
-          </div>
-          <p className="miss mt-2.5">
-            Applying a different programme replaces what is not yet completed. Positions already done stay on {p.possessive} record.
-          </p>
-        </div>
-      </div>
 
       {/* ═══ 4. SUPPLEMENTARY ═══ */}
       <div className="fcard">
