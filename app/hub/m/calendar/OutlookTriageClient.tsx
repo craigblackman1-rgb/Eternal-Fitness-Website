@@ -217,7 +217,7 @@ export function OutlookTriageClient({
                           <span className="sh-opt-ic">{ICO.calendarDot}</span>
                           <span style={{ flex: 1, minWidth: 0 }}>
                             <span className="sh-opt-t" style={{ display: "block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                              {b.subject}
+                              {matched ? b.subject : "Outlook booking \u2014 needs matching"}
                             </span>
                             <span className="sh-opt-d">{formatBookingWhen(b.start_at)}</span>
                           </span>

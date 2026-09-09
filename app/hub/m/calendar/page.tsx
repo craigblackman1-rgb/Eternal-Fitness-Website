@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase-server";
 import type { Session } from "@/types";
 import { deriveSessionStatus } from "@/lib/session-status";
-import { DEFAULT_ARCHETYPE_FOCUS_LABELS } from "@/lib/planAgentPrompt";
+import { sessionWorkoutName } from "@/lib/session-display";
 import { toIsoTimestamp } from "@/lib/pg-timestamp";
 import {
   todayLocalISODate,
@@ -39,13 +39,7 @@ export interface OutlookBookingRow {
   clients: { id: string; name: string; client_number: number | null; email: string | null } | null;
 }
 
-function sessionName(s: SessionRow): string {
-  return (
-    s.data?.focus_label?.trim() ||
-    DEFAULT_ARCHETYPE_FOCUS_LABELS[s.archetype ?? ""] ||
-    `Session ${s.session_number}`
-  );
-}
+
 
 function windowBounds(pastDays: number) {
   const today = todayLocalISODate();
@@ -98,7 +92,7 @@ export default async function MobileCalendarPage({
     return {
       id: s.id,
       scheduledAt: toIsoTimestamp(s.scheduled_at) as string,
-      name: sessionName(s),
+      name: sessionWorkoutName(s, `Session ${s.session_number}`),
       status: deriveSessionStatus({
         status: s.status,
         cancelled_at: s.cancelled_at,
