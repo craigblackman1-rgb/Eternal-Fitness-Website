@@ -338,7 +338,7 @@ export function DocumentsScreen({
             type="button"
             onClick={resetFilters}
             disabled={!filtersActive}
-            className="ml-auto text-xs font-semibold text-[var(--color-muted)] underline underline-offset-2 hover:text-foreground disabled:opacity-40 disabled:no-underline disabled:cursor-default"
+            className="btn-link ml-auto text-xs text-[var(--color-muted)] disabled:opacity-40 disabled:no-underline disabled:cursor-default"
           >
             Reset filters
           </button>
@@ -552,7 +552,7 @@ function DocumentDrawer({ doc, onClose }: { doc: DocumentRow; onClose: () => voi
         {doc.clientNumber != null && doc.sourceType === "generated" && (
           <Link
             href={`/hub/clients/${doc.clientNumber}/documents/${doc.id}`}
-            className="text-xs font-semibold text-[var(--rose-text)] hover:underline underline-offset-2"
+            className="btn-link text-xs text-[var(--rose-text)]"
           >
             Open full document →
           </Link>
@@ -626,7 +626,7 @@ function NewDocumentDrawer({ clientOptions, onClose }: { clientOptions: ClientOp
         {selected ? (
           <div className="flex items-center justify-between gap-2 mb-3.5 rounded-control border border-[var(--hub-field-border)] px-2.5 py-2 text-[13px]">
             <span className="font-semibold text-[var(--color-ink)]">{selected.name}</span>
-            <button type="button" onClick={() => setSelected(null)} className="text-xs text-[var(--rose-text)] font-semibold hover:underline">Change</button>
+            <button type="button" onClick={() => setSelected(null)} className="btn-link text-xs text-[var(--rose-text)]">Change</button>
           </div>
         ) : (
           <>

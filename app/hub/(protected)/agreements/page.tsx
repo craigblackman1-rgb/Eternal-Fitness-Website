@@ -3,6 +3,7 @@ import Link from "next/link";
 import { IconCalendar, IconEye, IconFileSignature } from "@/components/icons";
 import { HubCard } from "@/components/hub/HubCard";
 import { HubCardHeader } from "@/components/hub/HubCardHeader";
+import { HubPageHeader } from "@/components/hub/HubPageHeader";
 import { KpiTile } from "@/components/hub/KpiTile";
 import { AgreementsTable } from "./agreements-table";
 
@@ -29,12 +30,16 @@ export default async function AgreementsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">Signed Agreements (legacy record)</h1>
-        <p className="text-muted-foreground mt-1">
-          Pre-migration agreements, kept for reference. New and updated Personal Training Agreements are
-          now sent and signed from each client&apos;s Documents tab — see{" "}
-          <Link href="/hub/documents" className="text-teal font-medium hover:underline">All Documents</Link>.
-        </p>
+        <HubPageHeader
+          title="Signed Agreements (legacy record)"
+          subtitle={
+            <>
+              Pre-migration agreements, kept for reference. New and updated Personal Training Agreements are
+              now sent and signed from each client&apos;s Documents tab — see{" "}
+              <Link href="/hub/documents" className="btn-link">All Documents</Link>.
+            </>
+          }
+        />
       </div>
 
       {/* Stats — branded */}

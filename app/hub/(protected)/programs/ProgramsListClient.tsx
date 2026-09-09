@@ -313,7 +313,7 @@ export function ProgramsListClient({
           Choosing a program for{" "}
           <Link
             href={`/hub/clients/${clientContext.client_number}`}
-            className="font-medium text-foreground underline underline-offset-2 hover:text-primary"
+            className="btn-link text-foreground"
           >
             {clientContext.name}
           </Link>
@@ -410,7 +410,7 @@ export function ProgramsListClient({
           <button
             type="button"
             onClick={() => setShowArchived(!showArchived)}
-            className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
+            className="btn-link text-xs text-muted-foreground"
           >
             {showArchived
               ? "Hide archived"

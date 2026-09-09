@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { IconCheck, IconAlertCircle, IconSave } from "@/components/icons";
 import Link from "next/link";
 import BackLink from "@/components/hub/BackLink";
-import { HubAlert, StatusBadge } from "@/components/hub";
+import { HubAlert, HubPageHeader, StatusBadge } from "@/components/hub";
 import { TagMultiSelect } from "@/components/hub/TagMultiSelect";
 import { InjuryHistoryTable } from "@/components/hub/InjuryHistoryTable";
 import { MedicationTable } from "@/components/hub/MedicationTable";
@@ -311,66 +311,61 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
 
   return (
     <div>
-      {/* Header with chip strip */}
-      <div className="bg-[var(--hub-card)] border-b border-[var(--hub-border)] pt-4 pb-0">
-        <div className="edit-form" style={{ padding: "0 24px 12px" }}>
-          <BackLink
-            fallback={`/hub/clients/${params.id}`}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground rounded-nested px-2 py-1 -ml-2 mb-2 transition-colors"
-          >
-            &lsaquo; {name || "client"}
-          </BackLink>
-          <div className="flex items-start gap-3.5">
-            <div className="w-12 h-12 rounded-pill bg-rose/15 text-rose flex items-center justify-center shrink-0 text-base font-bold">
-              {initials}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-[22px] font-bold tracking-[-.015em] text-[var(--color-ink)] m-0">Edit {name}</h1>
-                {clientNumber != null && (
-                  <span className="text-xs font-medium text-muted-foreground bg-[var(--hub-canvas)] border border-[var(--hub-border)] rounded-nested px-1.5 py-0.5">
-                    #{clientNumber}
-                  </span>
-                )}
-                <StatusBadge status={complianceStatus} />
-              </div>
-              {/* Chip strip */}
-              <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
-                {createdAt && (
-                  <span className="bdg mut">
-                    Client since {new Date(createdAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
-                  </span>
-                )}
-                {sessionLimit != null && (
-                  <span className="bdg mut">
-                    {sessionsLogged} of {sessionLimit} used
-                  </span>
-                )}
-                {gpRequired && (
-                  <span className={gpHeld ? "bdg ok" : "bdg warn"}>
-                    {gpHeld ? "Cleared" : "Not cleared"}
-                  </span>
-                )}
-                <span className="bdg mut">{riskLevel} risk</span>
-                {isUpdateOverdue && <span className="bdg warn">Update overdue</span>}
-                <span className="ml-auto flex gap-3 flex-wrap">
-                  <Link href={`/hub/clients/${params.id}`} className="btn-link text-xs">View record</Link>
-                  <Link href={`/hub/clients/${params.id}/training`} className="btn-link text-xs">Training</Link>
-                  <Link href={`/hub/clients/${params.id}`} className="btn-link text-xs">Invoice</Link>
+      {/* Header */}
+      <div className="mb-5">
+        <BackLink
+          fallback={`/hub/clients/${params.id}`}
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground rounded-nested px-2 py-1 -ml-2 mb-3 transition-colors"
+        >
+          &lsaquo; {name || "client"}
+        </BackLink>
+        <div className="flex items-start gap-3.5">
+          <div className="w-12 h-12 rounded-pill bg-rose/15 text-rose flex items-center justify-center shrink-0 text-base font-bold">
+            {initials}
+          </div>
+          <div className="flex-1 min-w-0">
+            <HubPageHeader
+              title={name}
+              subtitle={
+                <span className="flex items-center gap-1.5 flex-wrap">
+                  {clientNumber != null && (
+                    <span className="badge b-neutral">#{clientNumber}</span>
+                  )}
+                  <StatusBadge status={complianceStatus} />
+                  {createdAt && (
+                    <span className="badge b-neutral">
+                      Client since {new Date(createdAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
+                    </span>
+                  )}
+                  {sessionLimit != null && (
+                    <span className="badge b-neutral">
+                      {sessionsLogged} of {sessionLimit} used
+                    </span>
+                  )}
+                  {gpRequired && (
+                    <span className={gpHeld ? "badge b-success" : "badge b-warning"}>
+                      {gpHeld ? "Cleared" : "Not cleared"}
+                    </span>
+                  )}
+                  <span className="badge b-neutral">{riskLevel} risk</span>
+                  {isUpdateOverdue && <span className="badge b-warning">Update overdue</span>}
+                  {hasSignedAgreementDocument && <span className="badge b-success">Agreement signed</span>}
+                  {blocksCompleted > 0 && <span className="badge b-neutral">{blocksCompleted} block{blocksCompleted !== 1 ? "s" : ""} completed</span>}
+                  {lastSessionDate && (
+                    <span className="badge b-neutral">
+                      Last session {new Date(lastSessionDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                    </span>
+                  )}
+                  {outstandingCount > 0 && <span className="badge b-warning">{outstandingCount} outstanding action{outstandingCount !== 1 ? "s" : ""}</span>}
+                  {parqOverridden && <span className="badge b-success">PAR-Q override</span>}
                 </span>
-              </div>
-              <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
-                {hasSignedAgreementDocument && <span className="bdg ok">Agreement signed</span>}
-                {blocksCompleted > 0 && <span className="bdg mut">{blocksCompleted} block{blocksCompleted !== 1 ? "s" : ""} completed</span>}
-                {lastSessionDate && (
-                  <span className="bdg mut">
-                    Last session {new Date(lastSessionDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                  </span>
-                )}
-                {outstandingCount > 0 && <span className="bdg warn">{outstandingCount} outstanding action{outstandingCount !== 1 ? "s" : ""}</span>}
-                {parqOverridden && <span className="bdg ok">PAR-Q override</span>}
-              </div>
-            </div>
+              }
+              actions={
+                <Link href={`/hub/clients/${params.id}`} className="btn btn-outline btn-sm">
+                  View record
+                </Link>
+              }
+            />
           </div>
         </div>
       </div>
