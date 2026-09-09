@@ -387,44 +387,49 @@ export function ClientModeView({
           </div>
 
           {/* ── §NEXT WORKOUT — what she is doing next ── */}
-          {nextPool && (
-            <div className="panel">
-              <div className="panel-h">
-                <span className="panel-h-ic teal">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </span>
-                <span className="panel-h-t">Next workout</span>
-              </div>
-              <div className="panel-b">
-                <div className="nw">
-                  <span className="nw-p">{nextPool.letter}</span>
-                  <span className="nw-m">
-                    <span className="nw-t">{nextPool.name}</span>
-                    <span className="nw-s">
-                      {nextPool.assignedDate
-                        ? `Assigned · ${new Date(nextPool.assignedDate).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}`
-                        : "Not yet assigned"}
-                    </span>
-                  </span>
-                </div>
-                <div className="actbar-m">
-                  <Link className="btn btn-outline" href={trainTargetId ? `/hub/m/train/${trainTargetId}` : "#"}>
-                    See workout
-                  </Link>
-                  <Link className="btn btn-primary" href={trainTargetId ? `/hub/m/train/${trainTargetId}` : "#"}>
-                    Start session
-                  </Link>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ── §QUEUE — after that ── */}
           {(() => {
-            const queued = poolWorkouts.filter((w) => w.status === "unused" || w.status === "next").slice(0, 3);
-            const totalQueued = poolWorkouts.filter((w) => w.status === "unused" || w.status === "next").length;
-            if (queued.length === 0 && !nextPool) {
-              /* ── §NOPLAN — the honest empty state ── */
+            /* When pool workouts are empty but upcoming sessions have content,
+               derive the next workout from session rows (matching desktop). */
+            if (!nextPool) {
+              const nowMs = Date.now();
+              const nextWithContent = calendarSessions
+                .filter((s) => {
+                  if (s.status !== "scheduled") return false;
+                  if (s.name === "No workout assigned yet") return false;
+                  const end = new Date(s.scheduledAt).getTime() + s.durationMinutes * 60_000;
+                  return nowMs <= end;
+                })
+                .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())[0];
+              if (nextWithContent) {
+                const d = new Date(nextWithContent.scheduledAt);
+                return (
+                  <div className="panel">
+                    <div className="panel-h">
+                      <span className="panel-h-ic teal">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                      </span>
+                      <span className="panel-h-t">Next workout</span>
+                    </div>
+                    <div className="panel-b">
+                      <div className="nw">
+                        <span className="nw-m">
+                          <span className="nw-t">{nextWithContent.name}</span>
+                          <span className="nw-s">
+                            {d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}{d.toDateString() === new Date().toDateString() ? " today" : ""}
+                          </span>
+                        </span>
+                      </div>
+                      <div className="actbar-m">
+                        <Link className="btn btn-primary" href={`/hub/m/train/${nextWithContent.id}`}>
+                          See workout
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+            }
+            if (nextPool) {
               return (
                 <div className="panel">
                   <div className="panel-h">
@@ -434,11 +439,68 @@ export function ClientModeView({
                     <span className="panel-h-t">Next workout</span>
                   </div>
                   <div className="panel-b">
+                    <div className="nw">
+                      <span className="nw-p">{nextPool.letter}</span>
+                      <span className="nw-m">
+                        <span className="nw-t">{nextPool.name}</span>
+                        <span className="nw-s">
+                          {nextPool.assignedDate
+                            ? `Assigned · ${new Date(nextPool.assignedDate).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}`
+                            : "Not yet assigned"}
+                        </span>
+                      </span>
+                    </div>
+                    <div className="actbar-m">
+                      <Link className="btn btn-outline" href={trainTargetId ? `/hub/m/train/${trainTargetId}` : "#"}>
+                        See workout
+                      </Link>
+                      <Link className="btn btn-primary" href={trainTargetId ? `/hub/m/train/${trainTargetId}` : "#"}>
+                        Start session
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          })()}
+
+          {/* ── §QUEUE — after that ── */}
+          {(() => {
+            const queued = poolWorkouts.filter((w) => w.status === "unused" || w.status === "next").slice(0, 3);
+            const totalQueued = poolWorkouts.filter((w) => w.status === "unused" || w.status === "next").length;
+            if (queued.length === 0 && !nextPool) {
+              /* ── §NOPLAN — programme-aware empty state ── */
+              const hasProgramme = !!programmeQueue;
+              const firstUpcomingDate = calendarSessions
+                .filter((s) => s.status === "scheduled" && new Date(s.scheduledAt).getTime() >= Date.now())
+                .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())[0]?.scheduledAt;
+              const startDate = firstUpcomingDate
+                ? new Date(firstUpcomingDate).toLocaleDateString("en-GB", { day: "numeric", month: "short" })
+                : null;
+              return (
+                <div className="panel">
+                  <div className="panel-h">
+                    <span className="panel-h-ic teal">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
+                    <span className="panel-h-t">{hasProgramme ? programmeQueue!.programName : "Next workout"}</span>
+                  </div>
+                  <div className="panel-b">
                     <div className="noplan-m">
-                      <p className="noplan-m-t">No workouts assigned yet</p>
-                      <p className="noplan-m-s">No programme set up for {firstName} yet — nothing to show here.</p>
+                      {hasProgramme ? (
+                        <>
+                          <p className="noplan-m-t">Programme not started{startDate ? ` — begins ${startDate}` : ""}</p>
+                          <p className="noplan-m-s">{firstName}&apos;s programme is set up but no sessions have content yet.</p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="noplan-m-t">No workouts assigned yet</p>
+                          <p className="noplan-m-s">No programme set up for {firstName} yet — nothing to show here.</p>
+                        </>
+                      )}
                       <Link className="btn btn-outline" href={`/hub/clients/${clientNumber}`} style={{ width: "100%" }}>
-                        Plan the programme on desktop
+                        {hasProgramme ? "Manage programme on desktop" : "Plan the programme on desktop"}
                       </Link>
                     </div>
                     {(potView.purchasedIsEstimate || (potView.remaining ?? 0) > 0) && (
