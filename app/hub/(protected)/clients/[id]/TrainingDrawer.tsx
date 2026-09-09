@@ -587,15 +587,18 @@ export function TrainingDrawer({
                   </div>
                 );
               })}
-              {partitionedSessions.length > SESSIONS_INITIAL_COUNT && !showAllSessions && (
-                <button
-                  type="button"
-                  onClick={() => setShowAllSessions(true)}
-                  className="btn-link"
-                  style={{ marginTop: 8 }}
-                >
-                  Show all {partitionedSessions.length} ›
-                </button>
+              {partitionedSessions.length > SESSIONS_INITIAL_COUNT && (
+                <div className="arow2" style={{ padding: "9px 16px", justifyContent: "flex-end" }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowAllSessions(!showAllSessions)}
+                    className="btn-link"
+                  >
+                    {showAllSessions
+                      ? "Show fewer ‹"
+                      : `Show all ${partitionedSessions.length} ›`}
+                  </button>
+                </div>
               )}
               <p className="miss" style={{ marginTop: 10 }}>
                 A workout can be applied on the day or ahead of time — the rule is unchanged. Applying one takes nothing from the pot; only completing it does.
