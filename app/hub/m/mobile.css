@@ -1016,6 +1016,76 @@
 .pool-tag.unused { background: var(--s-neutral-bg); color: var(--s-neutral); border: 1px solid var(--s-neutral-bd); }
 .pool-tag.nextup { background: var(--rose); color: var(--color-white); border: 1px solid var(--rose); }
 
+/* ── Segmented control ────────────────────────────────────────── */
+.seg { display: inline-flex; align-items: center; gap: 2px; height: 40px; padding: 3px; background: var(--hover); border: 1px solid var(--border); border-radius: var(--r-control); width: 100%; }
+.seg-btn { flex: 1; height: 100%; text-decoration: none; padding: 0 6px; border: 0; border-radius: var(--r-control-sm); background: transparent; font-family: inherit; font-size: 12.5px; font-weight: 600; color: var(--muted); cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+.seg-btn:hover { color: var(--ink); }
+.seg-btn.on { background: var(--card); color: var(--ink); font-weight: 700; box-shadow: var(--shadow-sm); }
+.seg-btn:focus-visible { outline: 2px solid var(--rose); outline-offset: 2px; }
+.seg-count { font-size: 10.5px; font-weight: 800; border-radius: var(--r-pill); padding: 0 5px; background: var(--hover); color: var(--muted); min-width: 18px; text-align: center; }
+.seg-btn.on .seg-count { background: var(--s-primary-bg); color: var(--rose); }
+
+/* ── Money tab ────────────────────────────────────────────────── */
+.money-summary { padding: 14px; margin-bottom: 14px; }
+.ms-row { display: flex; gap: 16px; }
+.ms-item { flex: 1; }
+.ms-label { display: block; font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+.ms-fig { display: block; font-size: 22px; font-weight: 800; color: var(--ink); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.ms-fig-warn { color: var(--s-warning); }
+
+.inv-list { display: flex; flex-direction: column; gap: 8px; }
+.inv-row { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: var(--card); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow-sm); padding: 12px; font-family: inherit; cursor: pointer; color: inherit; }
+.inv-row:hover { background: var(--hover); }
+.inv-body { min-width: 0; flex: 1; }
+.inv-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.inv-client { font-size: 15px; font-weight: 700; color: var(--ink); }
+.inv-pill { display: inline-flex; align-items: center; border-radius: var(--r-pill); padding: 2px 8px; font-size: 10.5px; font-weight: 700; flex-shrink: 0; }
+.inv-pill.ok { background: var(--s-success-bg); border: 1px solid var(--s-success-bd); color: var(--teal); }
+.inv-pill.today { background: var(--s-primary-bg); border: 1px solid var(--s-primary-bd); color: var(--rose); }
+.inv-pill.overdue { background: var(--s-danger-bg); border: 1px solid var(--s-danger-bd); color: var(--s-danger); }
+.inv-pill.soon { background: var(--hover); border: 1px solid var(--border); color: var(--muted); }
+.inv-sub { font-size: 13px; color: var(--body); margin-top: 3px; font-variant-numeric: tabular-nums; }
+.inv-dates { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.inv-chev { flex-shrink: 0; color: var(--muted); }
+
+/* ── Invoice detail sheet ─────────────────────────────────────── */
+.inv-sheet { height: 85vh; max-height: 85dvh; }
+.inv-detail-status { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.inv-detail-dates { font-size: 12px; color: var(--muted); }
+.inv-lines { display: flex; flex-direction: column; margin-bottom: 16px; }
+.inv-line { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 9px 0; }
+.inv-line + .inv-line { border-top: 1px dashed var(--border); }
+.inv-line-desc { font-size: 13.5px; color: var(--ink); font-weight: 600; min-width: 0; flex: 1; }
+.inv-line-nums { display: flex; gap: 12px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.inv-line-total { font-weight: 700; color: var(--ink); }
+.inv-total { border-top: 2px solid var(--ink) !important; padding-top: 10px !important; }
+.inv-total .inv-line-desc { font-weight: 800; }
+.inv-total .inv-line-total { font-size: 15px; }
+.inv-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.inv-act-btn { width: 100%; }
+.inv-paid-note { font-size: 13px; color: var(--teal); font-weight: 600; text-align: center; padding: 12px; }
+
+/* ── Client essentials edit ──────────────────────────────────── */
+.edit-field-ic { display: flex; align-items: center; gap: 8px; }
+.edit-field-ic svg { flex-shrink: 0; color: var(--muted); }
+.edit-field-ic input { flex: 1; }
+.edit-tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.edit-tag { display: inline-flex; align-items: center; border-radius: var(--r-pill); padding: 4px 10px; font-size: 12.5px; font-weight: 600; background: var(--s-primary-bg); border: 1px solid var(--s-primary-bd); color: var(--rose); }
+.edit-med-list { display: flex; flex-direction: column; gap: 6px; }
+.edit-med-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; }
+.edit-med-row + .edit-med-row { border-top: 1px dashed var(--border); }
+.edit-med-name { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+.edit-med-detail { font-size: 12px; color: var(--muted); }
+.edit-health-link { display: flex; align-items: flex-start; gap: 8px; font-size: 12.5px; color: var(--s-warning); background: var(--s-warning-bg); border: 1px solid var(--s-warning-bd); border-radius: 12px; padding: 10px 12px; margin-top: 10px; line-height: 1.5; }
+.edit-health-link svg { flex-shrink: 0; margin-top: 1px; }
+.edit-health-link a { color: var(--teal); font-weight: 700; text-decoration: none; }
+.edit-health-link a:hover { text-decoration: underline; }
+.edit-save-bar { position: sticky; bottom: 0; background: rgba(255,255,255,.96); backdrop-filter: blur(10px); border-top: 1px solid var(--border); padding: 12px 16px; padding-bottom: max(12px, env(safe-area-inset-bottom)); margin: 20px -16px -14px; }
+.edit-save-bar .btn { width: 100%; }
+
+/* ── Tasks add sheet client picker ──────────────────────────── */
+.task-client-pick { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; max-height: 200px; overflow-y: auto; }
+
 @media (prefers-reduced-motion: reduce) {
   .mobile-shell *, .mobile-shell *::before, .mobile-shell *::after {
     transition-duration: .01ms !important;
