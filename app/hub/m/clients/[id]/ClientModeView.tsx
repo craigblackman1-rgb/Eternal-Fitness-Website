@@ -544,61 +544,105 @@ export function ClientModeView({
             );
           })()}
 
-          {/* ── §BOOKED IN — the only dates in the model ── */}
-          {calendarSessions.filter((s) => s.status === "scheduled").length > 0 && (
-            <div className="panel">
-              <div className="panel-h">
-                <span className="panel-h-ic navy">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                </span>
-                <span className="panel-h-t">Booked in</span>
-                <Link className="btn-link" href="/hub/m/calendar" style={{ marginLeft: "auto", fontSize: 12, fontWeight: 700, color: "var(--rose)" }}>
-                  Calendar ›
-                </Link>
-              </div>
-              <div className="panel-b" style={{ paddingTop: 2, paddingBottom: 4 }}>
-                {(() => {
-                  const scheduled = calendarSessions.filter((s) => s.status === "scheduled");
-                  const now = Date.now();
-                  /* Find first upcoming session with a workout for "Next" chip */
-                  const nextIdx = scheduled.findIndex((s) => {
-                    const end = new Date(s.scheduledAt).getTime() + s.durationMinutes * 60_000;
-                    return now <= end && s.name !== "No workout assigned yet";
-                  });
-                  return scheduled.slice(0, 4).map((s, idx) => {
-                    const d = new Date(s.scheduledAt);
-                    const durationMin = s.durationMinutes;
-                    const chip = deriveSessionChip(
-                      s.status,
-                      s.scheduledAt,
-                      durationMin,
-                      s.name,
-                      {},
-                      idx === nextIdx,
-                    );
-                    return (
-                      <Link
-                        key={s.id}
-                        className="brow-m"
-                        href={`/hub/m/train/${s.id}`}
-                        style={{ textDecoration: "none", color: "inherit" }}
-                      >
-                        <span className="bdate-m">
-                          <b>{d.getDate()}</b>
-                          <span>{d.toLocaleDateString("en-GB", { weekday: "short" })}</span>
-                        </span>
-                        <span className="bmeta-m">
-                          <b>{d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}{d.toDateString() === new Date().toDateString() ? " today" : ""}</b>
-                          {s.name}
-                        </span>
-                        <span className={`schip ${chip.variant}`}>{chip.label}</span>
+          {/* ── §BOOKED IN — upcoming sessions only (matching desktop BOOKED table) ── */}
+          {(() => {
+            const nowMs = Date.now();
+            const upcoming = calendarSessions
+              .filter((s) => s.status === "scheduled" && new Date(s.scheduledAt).getTime() >= nowMs)
+              .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
+            const pastUnlogged = calendarSessions
+              .filter((s) => s.status === "scheduled" && new Date(s.scheduledAt).getTime() < nowMs);
+            if (upcoming.length === 0 && pastUnlogged.length === 0) return null;
+            return (
+              <>
+                {upcoming.length > 0 && (
+                  <div className="panel">
+                    <div className="panel-h">
+                      <span className="panel-h-ic navy">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                      </span>
+                      <span className="panel-h-t">Booked in</span>
+                      <span className="panel-h-s">{upcoming.length} upcoming</span>
+                      <Link className="btn-link" href="/hub/m/calendar" style={{ marginLeft: "auto", fontSize: 12, fontWeight: 700, color: "var(--rose)" }}>
+                        Calendar ›
                       </Link>
-                    );
-                  });
-                })()}
-              </div>
-            </div>
-          )}
+                    </div>
+                    <div className="panel-b" style={{ paddingTop: 2, paddingBottom: 4 }}>
+                      {(() => {
+                        const nextIdx = upcoming.findIndex((s) => {
+                          const end = new Date(s.scheduledAt).getTime() + s.durationMinutes * 60_000;
+                          return nowMs <= end && s.name !== "No workout assigned yet";
+                        });
+                        return upcoming.slice(0, 5).map((s, idx) => {
+                          const d = new Date(s.scheduledAt);
+                          const chip = deriveSessionChip(
+                            s.status,
+                            s.scheduledAt,
+                            s.durationMinutes,
+                            s.name,
+                            {},
+                            idx === nextIdx,
+                          );
+                          return (
+                            <Link
+                              key={s.id}
+                              className="brow-m"
+                              href={`/hub/m/train/${s.id}`}
+                              style={{ textDecoration: "none", color: "inherit" }}
+                            >
+                              <span className="bdate-m">
+                                <b>{d.getDate()}</b>
+                                <span>{d.toLocaleDateString("en-GB", { weekday: "short" })}</span>
+                              </span>
+                              <span className="bmeta-m">
+                                <b>{d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}{d.toDateString() === new Date().toDateString() ? " today" : ""}</b>
+                                {s.name}
+                              </span>
+                              <span className={`schip ${chip.variant}`}>{chip.label}</span>
+                            </Link>
+                          );
+                        });
+                      })()}
+                    </div>
+                  </div>
+                )}
+                {pastUnlogged.length > 0 && (
+                  <div className="panel">
+                    <div className="panel-h">
+                      <span className="panel-h-ic ic-rose">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+                      </span>
+                      <span className="panel-h-t">Needs logging</span>
+                      <span className="panel-h-s">{pastUnlogged.length} past session{pastUnlogged.length !== 1 ? "s" : ""}</span>
+                    </div>
+                    <div className="panel-b" style={{ paddingTop: 2, paddingBottom: 4 }}>
+                      {pastUnlogged.slice(0, 3).map((s) => {
+                        const d = new Date(s.scheduledAt);
+                        return (
+                          <Link
+                            key={s.id}
+                            className="brow-m"
+                            href={`/hub/m/train/${s.id}`}
+                            style={{ textDecoration: "none", color: "inherit" }}
+                          >
+                            <span className="bdate-m">
+                              <b>{d.getDate()}</b>
+                              <span>{d.toLocaleDateString("en-GB", { weekday: "short" })}</span>
+                            </span>
+                            <span className="bmeta-m">
+                              <b>{d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</b>
+                              {s.name}
+                            </span>
+                            <span className="schip not-logged">Not logged</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
 
           {/* ── §SO FAR ── */}
           <div className="panel">
