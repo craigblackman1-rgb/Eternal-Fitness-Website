@@ -655,7 +655,9 @@ export function ClientModeView({
             <div className="panel-b">
               <div className="stats-m">
                 <span>Done<b>{potView.completed}</b></span>
-                <span>Pots<b>{potView.purchased != null ? Math.ceil(potView.used / (potView.purchased || 1)) : "—"}</b></span>
+                {potView.purchased != null && (
+                  <span>Pots<b>{Math.ceil(potView.used / (potView.purchased || 1))}</b></span>
+                )}
               </div>
             </div>
           </div>
@@ -740,6 +742,7 @@ export function ClientModeView({
                 sessionLogStartedAt: s.sessionLogStartedAt,
                 sessionLogCompletedAt: s.sessionLogCompletedAt,
                 completedAt: s.completedAt,
+                programmeName: programmeQueue?.programName ?? null,
               })
             )}
             today={todayLocalISODate()}

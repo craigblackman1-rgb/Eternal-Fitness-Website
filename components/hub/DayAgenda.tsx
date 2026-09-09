@@ -51,6 +51,7 @@ export interface AgendaSession {
   sessionLogStartedAt?: string | null;
   sessionLogCompletedAt?: string | null;
   completedAt?: string | null;
+  programmeName?: string | null;
 }
 
 interface DayAgendaProps {
@@ -200,7 +201,7 @@ export function DayAgenda({
                     {scope === "trainer" && (
                       <span className="dsess-client">
                         {s.clientName}
-                        {s.blockNumber != null && ` · Programme ${s.blockNumber}`}
+                        {s.programmeName && ` · ${s.programmeName}`}
                       </span>
                     )}
                   </Link>

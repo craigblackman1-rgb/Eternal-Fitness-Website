@@ -82,15 +82,25 @@ export default async function MobileCalendarPage({
 
   const clientIds = [...new Set(blocks.map((b) => b.client_id).filter(Boolean))];
   const { data: clientRows } = clientIds.length
-    ? await supabase.from("clients").select("id, name, client_number").in("id", clientIds)
-    : { data: [] as { id: string; name: string; client_number: number | null }[] };
+    ? await supabase.from("clients").select("id, name, client_number, active_program_id").in("id", clientIds)
+    : { data: [] as { id: string; name: string; client_number: number | null; active_program_id: string | null }[] };
   const clients = clientRows ?? [];
   const clientById = new Map(clients.map((c) => [c.id, c]));
+
+  // Resolve programme names for clients with active programmes
+  const programIds = [...new Set(clients.map((c) => c.active_program_id).filter(Boolean))] as string[];
+  const { data: programRows } = programIds.length
+    ? await supabase.from("programs").select("id, name").in("id", programIds)
+    : { data: [] as { id: string; name: string }[] };
+  const programNameById = new Map((programRows ?? []).map((p) => [p.id, p.name]));
 
   const agendaSessions = sessions.map((s) => {
     const block = blockById.get(s.block_id);
     const client = block ? clientById.get(block.client_id) : undefined;
     const sessionLog = s.data?.session_log ?? null;
+    const programmeName = client?.active_program_id
+      ? programNameById.get(client.active_program_id) ?? null
+      : null;
     return {
       id: s.id,
       scheduledAt: toIsoTimestamp(s.scheduled_at) as string,
@@ -108,6 +118,7 @@ export default async function MobileCalendarPage({
       sessionLogStartedAt: sessionLog?.started_at ?? null,
       sessionLogCompletedAt: sessionLog?.completed_at ?? null,
       completedAt: s.completed_at ?? sessionLog?.completed_at ?? null,
+      programmeName,
     };
   });
 
