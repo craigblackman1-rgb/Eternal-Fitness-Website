@@ -1,7 +1,7 @@
 import type { SetLog } from "@/types";
 import { stableSetOpId } from "@/lib/set-log-id";
 import { toKg } from "@/lib/units";
-import { enqueue, getAllPending, remove, type PendingSetLogEntry } from "@/lib/hub/offline-set-log-queue";
+import { enqueue, getAllPending, remove, type PendingSetLogEntry, getAllPendingCompletions, removeCompletion } from "@/lib/hub/offline-set-log-queue";
 
 /** Three-way outcome of a set-log save: saved to server, parked for later, or a
  *  genuine server-side failure (which must NOT be queued). */
@@ -107,6 +107,7 @@ export interface DrainResult {
   newPbs: number;
   authError: boolean;
   remainingPending: number;
+  completionsDrained: number;
 }
 
 /**
@@ -121,7 +122,27 @@ export async function drainSetLogQueue(
   onSynced: (entry: PendingSetLogEntry, data: SetLog & { is_new_pb?: boolean }) => void,
 ): Promise<DrainResult> {
   const pending = await getAllPending();
-  if (pending.length === 0) return { synced: 0, newPbs: 0, authError: false, remainingPending: 0 };
+  if (pending.length === 0) {
+    // No pending set logs — still check for pending completions.
+    const completions = await getAllPendingCompletions();
+    let completionsDrained = 0;
+    for (const entry of completions) {
+      try {
+        const res = await fetch(`/api/sessions/${entry.sessionId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(entry.body),
+        });
+        if (res.status === 401) break;
+        if (!res.ok) break;
+        await removeCompletion(entry.client_op_id);
+        completionsDrained += 1;
+      } catch {
+        break;
+      }
+    }
+    return { synced: 0, newPbs: 0, authError: false, remainingPending: 0, completionsDrained };
+  }
 
   let synced = 0;
   let newPbs = 0;
@@ -155,5 +176,30 @@ export async function drainSetLogQueue(
 
   const remainingPending = authError ? (await getAllPending()).length : 0;
 
-  return { synced, newPbs, authError, remainingPending };
+  // Drain pending completions AFTER all set logs (order matters: sets must
+  // arrive before the completion PATCH).
+  let completionsDrained = 0;
+  if (!authError) {
+    const completions = await getAllPendingCompletions();
+    for (const entry of completions) {
+      try {
+        const res = await fetch(`/api/sessions/${entry.sessionId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(entry.body),
+        });
+        if (res.status === 401) {
+          authError = true;
+          break;
+        }
+        if (!res.ok) break;
+        await removeCompletion(entry.client_op_id);
+        completionsDrained += 1;
+      } catch {
+        break;
+      }
+    }
+  }
+
+  return { synced, newPbs, authError, remainingPending, completionsDrained };
 }

@@ -35,9 +35,27 @@ export interface PendingSetLogEntry {
   queuedAt: string;
 }
 
+/**
+ * Pending session completion queued while offline. Drained AFTER all pending
+ * set logs for the same session (order matters: sets must arrive before the
+ * completion PATCH). The server's idempotent read-only guard means replay is
+ * safe even if the completion already landed.
+ */
+export interface PendingCompletionEntry {
+  /** `kind: "completion"` discriminant — distinguishes from set-log entries. */
+  kind: "completion";
+  /** Stable idempotency key derived from the session id. */
+  client_op_id: string;
+  sessionId: string;
+  /** The PATCH body exactly as it would have been sent live. */
+  body: Record<string, unknown>;
+  queuedAt: string;
+}
+
 const DB_NAME = "ef-hub-offline-queue";
 const STORE_NAME = "pending-set-logs";
-const DB_VERSION = 1;
+const COMPLETIONS_STORE = "pending-completions";
+const DB_VERSION = 2;
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -57,6 +75,9 @@ export function openQueueDb(): Promise<IDBDatabase> {
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         db.createObjectStore(STORE_NAME, { keyPath: "client_op_id" });
       }
+      if (!db.objectStoreNames.contains(COMPLETIONS_STORE)) {
+        db.createObjectStore(COMPLETIONS_STORE, { keyPath: "client_op_id" });
+      }
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error ?? new Error("Failed to open offline queue database"));
@@ -69,11 +90,12 @@ export function openQueueDb(): Promise<IDBDatabase> {
 async function withStore<T>(
   mode: IDBTransactionMode,
   run: (store: IDBObjectStore) => IDBRequest<T>,
+  storeName: string = STORE_NAME,
 ): Promise<T> {
   const db = await openQueueDb();
   return new Promise<T>((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, mode);
-    const store = tx.objectStore(STORE_NAME);
+    const tx = db.transaction(storeName, mode);
+    const store = tx.objectStore(storeName);
     const request = run(store);
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error ?? new Error("IndexedDB request failed"));
@@ -101,6 +123,25 @@ export async function getAllPending(): Promise<PendingSetLogEntry[]> {
 }
 
 /** Deletes one entry after it has been successfully replayed. */
-export async function remove(client_op_id: string): Promise<void> {
-  await withStore("readwrite", (store) => store.delete(client_op_id));
+export async function remove(client_op_id: string, storeName?: string): Promise<void> {
+  await withStore("readwrite", (store) => store.delete(client_op_id), storeName);
+}
+
+// ── Completion queue (same DB, separate object store) ─────────────
+
+export async function enqueueCompletion(entry: PendingCompletionEntry): Promise<void> {
+  await withStore("readwrite", (store) => store.put(entry), COMPLETIONS_STORE);
+}
+
+export async function getAllPendingCompletions(): Promise<PendingCompletionEntry[]> {
+  const all = await withStore<PendingCompletionEntry[]>(
+    "readonly",
+    (store) => store.getAll() as IDBRequest<PendingCompletionEntry[]>,
+    COMPLETIONS_STORE,
+  );
+  return [...all].sort((a, b) => a.queuedAt.localeCompare(b.queuedAt));
+}
+
+export async function removeCompletion(client_op_id: string): Promise<void> {
+  await remove(client_op_id, COMPLETIONS_STORE);
 }
