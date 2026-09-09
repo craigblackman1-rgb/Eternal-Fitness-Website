@@ -245,44 +245,53 @@ export function TrainingSection({
           <span className="drow-s" />
         </div>
       ) : (
-        upcomingBookings.map((booking) => {
-          const hasWorkout =
-            !isOutlookPlaceholder(booking) &&
-            !sessionHasNoExercises(booking.data) &&
-            !isTrainerizeImported(booking);
-          const workoutName = hasWorkout ? sessionWorkoutName(booking, "") : null;
-          const slot = programState?.slots.find((sl) => sl.id === booking.program_slot_id);
-          return (
-            <div key={booking.id} className="drow">
-              <span className="drow-d">
-                {dayOfWeek(booking.scheduled_at!)} {fmtDateShort(booking.scheduled_at!)}, {timeOfDay(booking.scheduled_at!)}
-                <small>{relativeDay(booking.scheduled_at!)}</small>
-              </span>
-              <span className="drow-w">
-                {hasWorkout ? (
-                  <>
-                    {workoutName}
-                    {slot && <small>Position {slot.position}</small>}
-                  </>
-                ) : (
-                  <span className="drow-w none">
-                    No workout applied yet
-                    <small style={{ color: "var(--color-muted)", fontWeight: 400 }}>
-                      Applied on the day, or ahead of time from Manage training
-                    </small>
-                  </span>
-                )}
-              </span>
-              <span className="drow-s">
-                {hasWorkout ? (
-                  <span className="badge b-neutral">Applied</span>
-                ) : (
-                  <span className="badge b-warning">Open</span>
-                )}
-              </span>
-            </div>
-          );
-        })
+        (() => {
+          let nextFound = false;
+          return upcomingBookings.map((booking) => {
+            const hasWorkout =
+              !isOutlookPlaceholder(booking) &&
+              !sessionHasNoExercises(booking.data) &&
+              !isTrainerizeImported(booking);
+            const workoutName = hasWorkout ? sessionWorkoutName(booking, "") : null;
+            const slot = programState?.slots.find((sl) => sl.id === booking.program_slot_id);
+            const isNext = hasWorkout && !nextFound;
+            if (isNext) nextFound = true;
+            return (
+              <div key={booking.id} className="drow">
+                <span className="drow-d">
+                  {dayOfWeek(booking.scheduled_at!)} {fmtDateShort(booking.scheduled_at!)}, {timeOfDay(booking.scheduled_at!)}
+                  <small>{relativeDay(booking.scheduled_at!)}</small>
+                </span>
+                <span className="drow-w">
+                  {hasWorkout ? (
+                    <>
+                      {workoutName}
+                      {slot && <small>Position {slot.position}</small>}
+                    </>
+                  ) : (
+                    <span className="drow-w none">
+                      No workout applied yet
+                      <small style={{ color: "var(--color-muted)", fontWeight: 400 }}>
+                        Applied on the day, or ahead of time from Manage training
+                      </small>
+                    </span>
+                  )}
+                </span>
+                <span className="drow-s">
+                  {hasWorkout ? (
+                    isNext ? (
+                      <span className="badge b-primary">Next</span>
+                    ) : (
+                      <span className="badge b-neutral">Applied</span>
+                    )
+                  ) : (
+                    <span className="badge b-warning">Open</span>
+                  )}
+                </span>
+              </div>
+            );
+          });
+        })()
       )}
 
       {/* ── So-far summary line ── */}
