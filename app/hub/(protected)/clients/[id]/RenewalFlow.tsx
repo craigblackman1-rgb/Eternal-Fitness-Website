@@ -214,21 +214,21 @@ export function RenewalFlow({ client, sessionsRemaining, sessionsPurchased, onCl
                 </div>
                 <div className="p-3">
                   <div className="flex items-baseline gap-3.5 py-2 text-[13px]">
-                    <span className="flex-0-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">Client</span>
+                    <span className="shrink-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">Client</span>
                     <span className="flex-1 text-[var(--color-ink)] font-medium">{client.name}</span>
                   </div>
                   <div className="flex items-baseline gap-3.5 py-2 text-[13px] border-t border-[var(--hub-border)]">
-                    <span className="flex-0-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">Package</span>
+                    <span className="shrink-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">Package</span>
                     <span className="flex-1 text-[var(--color-ink)] font-medium">{pkg?.label}</span>
                   </div>
                   <div className="flex items-baseline gap-3.5 py-2 text-[13px] border-t border-[var(--hub-border)]">
-                    <span className="flex-0-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">Amount</span>
+                    <span className="shrink-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">Amount</span>
                     <span className="flex-1 text-[var(--color-ink)] font-medium">
                       <span className="text-[18px] font-extrabold">{pkg?.priceDisplay}</span>
                     </span>
                   </div>
                   <div className="flex items-baseline gap-3.5 py-2 text-[13px] border-t border-[var(--hub-border)]">
-                    <span className="flex-0-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">Due date</span>
+                    <span className="shrink-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">Due date</span>
                     <span className="flex-1 text-[var(--color-ink)] font-medium">On booking first session</span>
                   </div>
                 </div>
@@ -312,7 +312,7 @@ export function RenewalFlow({ client, sessionsRemaining, sessionsPurchased, onCl
                 </div>
                 <div className="p-3">
                   <div className="flex items-baseline gap-3.5 py-2 text-[13px]">
-                    <span className="flex-0-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">Before</span>
+                    <span className="shrink-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">Before</span>
                     <span className="flex-1 text-[var(--color-ink)] font-medium">
                       <span className="text-[18px] font-extrabold text-[var(--status-danger)]">{currentRemaining}</span>
                       {" "}of {currentPurchased} remaining
@@ -320,7 +320,7 @@ export function RenewalFlow({ client, sessionsRemaining, sessionsPurchased, onCl
                     </span>
                   </div>
                   <div className="flex items-baseline gap-3.5 py-2 text-[13px] border-t border-[var(--hub-border)]">
-                    <span className="flex-0-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">After</span>
+                    <span className="shrink-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">After</span>
                     <span className="flex-1 text-[var(--color-ink)] font-medium">
                       <span className="text-[18px] font-extrabold text-[var(--color-teal)]">{newRemaining || "∞"}</span>
                       {isOngoing ? " sessions (ongoing)" : ` of ${newPurchased} remaining · Expires ${new Date(expiryDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`}
@@ -336,13 +336,13 @@ export function RenewalFlow({ client, sessionsRemaining, sessionsPurchased, onCl
                 </div>
                 <div className="p-3">
                   <div className="flex items-baseline gap-3.5 py-2 text-[13px]">
-                    <span className="flex-0-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">Programme</span>
+                    <span className="shrink-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">Programme</span>
                     <span className="flex-1 text-[var(--color-ink)] font-medium">
                       {keepProgramme ? "Current programme — continues from session 1" : "New programme — assign after creation"}
                     </span>
                   </div>
                   <div className="flex items-baseline gap-3.5 py-2 text-[13px] border-t border-[var(--hub-border)]">
-                    <span className="flex-0-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">First session</span>
+                    <span className="shrink-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">First session</span>
                     <span className="flex-1 text-[var(--color-ink)] font-medium">Next available booking slot</span>
                   </div>
                 </div>
@@ -356,13 +356,13 @@ export function RenewalFlow({ client, sessionsRemaining, sessionsPurchased, onCl
                   </div>
                   <div className="p-3">
                     <div className="flex items-baseline gap-3.5 py-2 text-[13px]">
-                      <span className="flex-0-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">Draft invoice</span>
+                      <span className="shrink-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">Draft invoice</span>
                       <span className="flex-1 text-[var(--color-ink)] font-medium">
                         {pkg?.sessions ?? "∞"} × {pkg?.priceDisplay} = <b>{pkg?.priceDisplay}</b>
                       </span>
                     </div>
                     <div className="flex items-baseline gap-3.5 py-2 text-[13px] border-t border-[var(--hub-border)]">
-                      <span className="flex-0-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">Status</span>
+                      <span className="shrink-0 w-[160px] text-[var(--color-muted)] text-[12.5px]">Status</span>
                       <span className="flex-1 text-[var(--color-ink)] font-medium">Draft — will be sent when you confirm</span>
                     </div>
                   </div>

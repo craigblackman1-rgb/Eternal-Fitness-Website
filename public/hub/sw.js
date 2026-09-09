@@ -1,4 +1,4 @@
-const CACHE_NAME = "hub-shell-v1";
+const CACHE_NAME = "hub-shell-v2";
 
 const STATIC_PREFIXES = [
   "/_next/static/",
@@ -9,7 +9,7 @@ const STATIC_PREFIXES = [
 const API_PREFIX = "/api/";
 
 function isStaticAsset(url) {
-  const path = new URL(url).pathname;
+  var path = new URL(url).pathname;
   return STATIC_PREFIXES.some(function (prefix) {
     return path.startsWith(prefix);
   });
@@ -23,7 +23,7 @@ function isApiRequest(url) {
 self.addEventListener("install", function (event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
-      return cache.addAll(["/hub.webmanifest"]);
+      return cache.addAll(["/hub.webmanifest", "/hub/offline.html"]);
     })
   );
   self.skipWaiting();
@@ -72,6 +72,15 @@ self.addEventListener("fetch", function (event) {
             return response;
           })
         );
+      })
+    );
+    return;
+  }
+
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request).catch(function () {
+        return caches.match("/hub/offline.html");
       })
     );
   }
