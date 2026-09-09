@@ -47,6 +47,16 @@
     --color-ink-rgb: 19 19 19;
     --color-border-warm-rgb: 228 221 215;
 
+    /* Short-form aliases — used by hub desktop TSX (color-mix hovers) and
+       mobile/home CSS (scoped re-declarations shadow these identically). */
+    --rose: var(--color-rose);
+    --ink: var(--color-ink);
+    --teal: var(--color-teal);
+    --body: var(--color-body);
+    --muted: var(--color-muted-text);
+    --navy: var(--color-dark-navy);
+    --amber-text: var(--color-amber-text);
+
     /* ===== IMAGE TREATMENT (studio-grade) ===== */
     --ef-img-grade: saturate(.94) contrast(1.05) brightness(1.02);
     --ef-img-wash: var(--color-warm);
