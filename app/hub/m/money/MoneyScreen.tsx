@@ -61,13 +61,19 @@ function fmtMoney(n: number): string {
   return `£${n.toFixed(2)}`;
 }
 
-function statusPill(status: string): { label: string; cls: string } {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+function statusPill(status: string, dueDate?: string): { label: string; cls: string } {
   if (status === "paid") return { label: "Paid", cls: "ok" };
   if (status === "draft") return { label: "Draft", cls: "soon" };
   if (status === "void") return { label: "Void", cls: "soon" };
   if (status === "overdue") return { label: "Overdue", cls: "overdue" };
+  if (status === "sent" && dueDate) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(dueDate + "T00:00:00");
+    const diffDays = Math.round((due.getTime() - today.getTime()) / 86_400_000);
+    if (diffDays < 0) return { label: "Overdue", cls: "overdue" };
+    if (diffDays <= 7) return { label: "Due soon", cls: "soon" };
+  }
   return { label: "Sent", cls: "today" };
 }
 
@@ -122,10 +128,10 @@ export function MoneyScreen({ invoices, collected, outstanding }: Props) {
     if (!detailInv) return;
     setActionBusy("paid");
     try {
-      const res = await fetch(`/api/cashflow/reconciliation/confirm`, {
-        method: "POST",
+      const res = await fetch(`/api/invoices/${detailInv.id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ invoice_id: detailInv.id }),
+        body: JSON.stringify({ status: "paid" }),
       });
       if (res.ok) {
         showToast("Marked as paid");
@@ -159,7 +165,7 @@ export function MoneyScreen({ invoices, collected, outstanding }: Props) {
   }
 
   function chase() {
-    showToast("Chase email is desktop-only for now");
+    showToast("Chase emails aren't built yet — coming later");
   }
 
   function showToast(msg: string) {
@@ -179,7 +185,7 @@ export function MoneyScreen({ invoices, collected, outstanding }: Props) {
       </header>
 
       <main className="mcontent">
-        <div className="mcard money-summary">
+        <div className="panel money-summary">
           <div className="ms-row">
             <div className="ms-item">
               <span className="ms-label">Collected this month</span>
@@ -223,7 +229,7 @@ export function MoneyScreen({ invoices, collected, outstanding }: Props) {
         ) : (
           <div className="inv-list">
             {filtered.map((inv) => {
-              const pill = statusPill(inv.status);
+              const pill = statusPill(inv.status, inv.due_date);
               return (
                 <button
                   key={inv.id}
@@ -267,8 +273,8 @@ export function MoneyScreen({ invoices, collected, outstanding }: Props) {
           </div>
           <div className="sh-body">
             <div className="inv-detail-status">
-              <span className={`inv-pill ${statusPill(detailInv.status).cls}`}>
-                {statusPill(detailInv.status).label}
+              <span className={`inv-pill ${statusPill(detailInv.status, detailInv.due_date).cls}`}>
+                {statusPill(detailInv.status, detailInv.due_date).label}
               </span>
               <span className="inv-detail-dates">
                 Sent {fmtDate(detailInv.issue_date)} · Due {fmtDate(detailInv.due_date)}
@@ -322,14 +328,6 @@ export function MoneyScreen({ invoices, collected, outstanding }: Props) {
                   >
                     {ICO.check}
                     {actionBusy === "paid" ? "Saving…" : "Mark paid"}
-                  </button>
-                  <button
-                    className="btn btn-outline inv-act-btn"
-                    disabled={actionBusy === "resend"}
-                    onClick={resend}
-                  >
-                    {ICO.mail}
-                    {actionBusy === "resend" ? "Sending…" : "Resend"}
                   </button>
                   <button
                     className="btn btn-outline inv-act-btn"
