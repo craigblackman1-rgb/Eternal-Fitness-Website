@@ -69,6 +69,11 @@ interface NewUpdateClientProps {
   existing?: EditableUpdate;
   /** Pre-fills the editor and skips the chat/paste step for a new compose. */
   initialDraft?: InitialDraft;
+  /** Pre-selects a specific template kind (e.g. "six_week_update") instead of
+   *  the default flexible_update — used when the caller routes with
+   *  ?template=picker to distinguish the "Choose a template" card from the
+   *  "Quick" free-compose card. */
+  initialTemplate?: string;
   /** Hides this component's own back-link/heading — used when a parent screen
    *  (e.g. the block review surface) already supplies the page chrome and is
    *  embedding this as one section of a longer scroll, not a standalone page. */
@@ -127,6 +132,7 @@ export function NewUpdateClient({
   defaultEmailSource,
   existing,
   initialDraft,
+  initialTemplate,
   embedded = false,
   onBeforeSubmit,
   primarySendLabel,
@@ -134,7 +140,7 @@ export function NewUpdateClient({
   const router = useRouter();
   const isEdit = !!existing;
 
-  const [templateKind, setTemplateKind] = useState(existing?.templateKind ?? UPDATE_TEMPLATE_KINDS[0].id);
+  const [templateKind, setTemplateKind] = useState(existing?.templateKind ?? initialTemplate ?? UPDATE_TEMPLATE_KINDS[0].id);
   const [generating, setGenerating] = useState(false);
   const [busy, setBusy] = useState<string | null>(null); // which action is running
   const [testingTo, setTestingTo] = useState<string | null>(null);

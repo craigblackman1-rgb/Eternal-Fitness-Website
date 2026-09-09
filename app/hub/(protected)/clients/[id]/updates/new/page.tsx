@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import { NewUpdateClient } from "./NewUpdateClient";
 
-export default async function NewUpdatePage({ params }: { params: { id: string } }) {
+export default async function NewUpdatePage({ params, searchParams }: { params: { id: string }; searchParams: Record<string, string | undefined> }) {
   const supabase = createClient();
   const { data: client } = await supabase
     .from("clients")
@@ -57,6 +57,7 @@ export default async function NewUpdatePage({ params }: { params: { id: string }
       clientName={client.name}
       defaultEmail={defaultEmail}
       defaultEmailSource={defaultEmailSource}
+      initialTemplate={searchParams.template === "picker" ? "six_week_update" : undefined}
     />
   );
 }

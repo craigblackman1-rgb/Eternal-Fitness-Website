@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import BackLink from "@/components/hub/BackLink";
-import { IconChevronLeft, IconChevronRight, IconSend, IconFileText, IconClipboardList, IconMail, IconEye } from "@/components/icons";
-import { Badge } from "@/components/ui/badge";
+import { IconChevronLeft, IconMail } from "@/components/icons";
+import { TokenPill } from "@/components/hub/StatusBadge";
 import { pronouns } from "@/lib/pronouns";
 import type { SentUpdate } from "@/types";
 
@@ -50,15 +49,6 @@ export function CommsComposerClient({
 
   return (
     <div className="space-y-4 max-w-[1100px] mx-auto">
-      {/* Back link */}
-      <BackLink
-        fallback={`/hub/clients/${clientNumber}`}
-        className="inline-flex items-center gap-1 text-[12.5px] font-medium text-muted-foreground hover:text-foreground transition-colors rounded-nested px-2 py-0.5 -ml-2"
-      >
-        <IconChevronLeft className="w-4 h-4" />
-        Back to {clientName}
-      </BackLink>
-
       {/* Page header */}
       <div className="flex items-center gap-3.5">
         <div className="w-[48px] h-[48px] rounded-pill bg-[var(--status-primary-bg)] text-[var(--status-primary-text)] grid place-items-center text-base font-bold shrink-0">
@@ -131,7 +121,7 @@ export function CommsComposerClient({
           </div>
           <div className="border-t border-[var(--hub-border)] p-3">
             <Link
-              href={`/hub/clients/${clientNumber}/updates/new`}
+              href={`/hub/clients/${clientNumber}/updates/new?template=picker`}
               className="flex items-center justify-center w-full h-9 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] text-[13px] font-semibold text-foreground hover:bg-[var(--hub-hover)] transition-colors no-underline"
             >
               Choose a template
@@ -192,7 +182,7 @@ export function CommsComposerClient({
               const sentDate = formatShortDate(u.sent_at!);
               let trackingLine: string;
               let badgeLabel: string;
-              let badgeVariant: "default" | "secondary" | "outline" = "secondary";
+              let badgeToken: "success" | "neutral" = "neutral";
 
               if (u.opened_at) {
                 const openedDate = new Date(u.opened_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
@@ -200,15 +190,15 @@ export function CommsComposerClient({
                 trackingLine = `Opened ${openedDate}, ${openedTime}`;
                 if (u.open_count > 1) trackingLine += ` ×${u.open_count}`;
                 badgeLabel = "Opened";
-                badgeVariant = "default";
+                badgeToken = "success";
               } else if (u.emailed) {
                 trackingLine = "Not opened yet";
                 badgeLabel = "Sent";
-                badgeVariant = "outline";
+                badgeToken = "neutral";
               } else {
                 trackingLine = "No open tracking";
                 badgeLabel = "Logged";
-                badgeVariant = "secondary";
+                badgeToken = "neutral";
               }
 
               return (
@@ -220,7 +210,7 @@ export function CommsComposerClient({
                     </p>
                   </div>
                   <div className="shrink-0">
-                    <Badge variant={badgeVariant} className="rounded-pill text-[11.5px]">{badgeLabel}</Badge>
+                    <TokenPill token={badgeToken} label={badgeLabel} className="text-[11.5px]" />
                   </div>
                 </div>
               );

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase-server";
-import { IconSend, IconClock, IconEye, IconUsers, IconPlus, IconDownload, IconMail } from "@/components/icons";
+import { IconSend, IconClock, IconEye, IconUsers, IconDownload, IconMail } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { KpiTile } from "@/components/hub/KpiTile";
 import { HubCard, HubCardHeader, HubPageHeader } from "@/components/hub";
@@ -20,8 +20,8 @@ export default async function UpdatesReportPage() {
   const { data, error } = await supabase
     .from("sent_updates")
     .select("*, client:clients(name, client_number, package_type)")
-    .order("created_at", { ascending: false })
-    .limit(500);
+    .order("sent_at", { ascending: false })
+    .limit(100);
 
   if (error) console.error("[reports/updates]", error.message);
 
