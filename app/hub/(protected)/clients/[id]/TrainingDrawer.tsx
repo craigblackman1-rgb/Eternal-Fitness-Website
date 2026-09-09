@@ -392,6 +392,9 @@ export function TrainingDrawer({
         body: JSON.stringify({
           program_id: null,
           program_slot_id: null,
+          archetype: null,
+          week: null,
+          phase: null,
           data: {
             versions: { studio: { warm_up: [], main_block: [], cooldown: [] }, home: { warm_up: [], main_block: [], cooldown: [] } },
             focus_label: "Outlook booking — cleared",
@@ -693,8 +696,13 @@ export function TrainingDrawer({
               </button>
             </div>
             {beyondPaidCount > 0 && (() => {
-              // Find the first beyond-pot session's date for the renewal warning
-              const beyondSession = blockSessions.find((s) => {
+              // Sort by scheduled_at so .find() returns the earliest beyond-pot session
+              const sorted = [...blockSessions].sort((a, b) => {
+                if (!a.scheduled_at) return 1;
+                if (!b.scheduled_at) return -1;
+                return a.scheduled_at.localeCompare(b.scheduled_at);
+              });
+              const beyondSession = sorted.find((s) => {
                 if (!s.scheduled_at || s.completed_at || s.cancelled_at || s.parent_session_id) return false;
                 const slot = s.program_slot_id ? slots.find((sl) => sl.id === s.program_slot_id) : null;
                 if (slot && s.week) {
@@ -717,7 +725,7 @@ export function TrainingDrawer({
         </div>
       )}
 
-      {/* ═══ 4. SUPPLEMENTARY ═══ */}
+      {/* ═══ 3. SUPPLEMENTARY ═══ */}
       <div className="fcard">
         <div className="fcard-h">
           Supplementary
