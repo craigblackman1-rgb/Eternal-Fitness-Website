@@ -131,8 +131,15 @@ export function BlockReviewClient({
                   : "bg-[var(--status-warning-bg)] border-[var(--status-warning-border)] text-[var(--status-warning-text)]",
               )}
             >
-              {attendance.completedCount} of {attendance.bookedCount} session{attendance.bookedCount === 1 ? "" : "s"}
+              {attendance.pastSessionCount === 0 && attendance.bookedCount > 0
+                ? "Not started"
+                : `${attendance.completedCount} of ${attendance.pastSessionCount || attendance.bookedCount}`}
             </span>
+            {attendance.pastSessionCount === 0 && attendance.bookedCount > 0 ? (
+              <span className="text-xs text-[var(--color-muted-text)]">{attendance.bookedCount} booked, all to come</span>
+            ) : attendance.futureSessionCount > 0 && attendance.pastSessionCount > 0 ? (
+              <span className="text-xs text-[var(--color-muted-text)]">of sessions so far · +{attendance.futureSessionCount} to come</span>
+            ) : null}
           </div>
           <p className="mt-0.5 text-[13px] text-[var(--color-body)]">
             {clientName} · {attendance.dateRangeLabel}
@@ -151,7 +158,7 @@ export function BlockReviewClient({
       <section className="bg-white border border-[var(--hub-border)] rounded-surface shadow-sm overflow-hidden">
         <div className="flex items-center gap-2.5 py-2.5 px-4 border-b border-[var(--hub-border)]">
           <h2 className="m-0 text-[15px] font-bold text-[var(--color-ink)] tracking-tight">This block, in facts</h2>
-          <span className="text-xs text-[var(--color-muted-text)]">Pulled from her sessions and set logs — nothing here is typed</span>
+          <span className="text-xs text-[var(--color-muted-text)]">Pulled from {pronouns(gender).possessive} sessions and set logs — nothing here is typed</span>
         </div>
         <div className="p-4 space-y-3">
           <FactCard tone="teal" title="Attendance" source="from sessions">
@@ -189,7 +196,7 @@ export function BlockReviewClient({
           <FactCard tone="teal" title="Personal bests this block" source="from set logs">
             {pbsThisBlock.length === 0 ? (
               <p className="m-0 text-[13px] text-[var(--color-muted-text)]">
-                Nothing was logged inside {attendance.dateRangeLabel} that beat an all-time best, so there is nothing to pull in here automatically. If she hit anything worth naming, it needs writing in from memory or the paper log.
+                Nothing was logged inside {attendance.dateRangeLabel} that beat an all-time best, so there is nothing to pull in here automatically. If {pronouns(gender).subject} hit anything worth naming, it needs writing in from memory or the paper log.
               </p>
             ) : (
               <ul className="m-0 pl-4 text-[13px] text-[var(--color-ink)] space-y-0.5">
@@ -239,7 +246,7 @@ export function BlockReviewClient({
             </FactCard>
           )}
 
-          <FactCard tone="amber" title="Rules in effect" source="from her health record">
+          <FactCard tone="amber" title="Rules in effect" source={`from ${pronouns(gender).possessive} health record`}>
             {rulesInEffect.length === 0 ? (
               <p className="m-0 text-[13px] text-[var(--color-muted-text)]">No standing training rules on file.</p>
             ) : (
@@ -320,7 +327,7 @@ export function BlockReviewClient({
         </div>
       </section>
 
-      {/* 3. The update she'll receive — embeds the existing composer, seeded
+      {/* 3. The update the client will receive — embeds the existing composer, seeded
           with the facts above rather than starting from the chat/blank box. */}
       <NewUpdateClient
         clientNumber={clientNumber}

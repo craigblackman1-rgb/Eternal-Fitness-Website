@@ -202,7 +202,7 @@ export function ReviewFlowClient({
       {/* Step panels */}
       {step === 1 && (
         <StepPanel onContinue={() => setStep(2)}>
-          <ProgressStep client={client} completedSessions={completedSessions} hasDeliveredSessions={hasDeliveredSessions} hasAnyCompletedSessions={hasAnyCompletedSessions} totalSessions={chronologicalTotal || client.sessions_purchased || 0} pbsCount={pbsCount} />
+          <ProgressStep client={client} completedSessions={completedSessions} hasAnyCompletedSessions={hasAnyCompletedSessions} totalSessions={chronologicalTotal || client.sessions_purchased || 0} pbsCount={pbsCount} />
         </StepPanel>
       )}
 
@@ -456,14 +456,12 @@ function StepPanel({
 function ProgressStep({
   client,
   completedSessions,
-  hasDeliveredSessions,
   hasAnyCompletedSessions,
   totalSessions,
   pbsCount,
 }: {
   client: DBClient;
   completedSessions: { id: string; name: string; scheduled_at: string | null; position: string }[];
-  hasDeliveredSessions: boolean;
   hasAnyCompletedSessions: boolean;
   totalSessions: number;
   pbsCount: number;

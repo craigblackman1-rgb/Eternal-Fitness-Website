@@ -189,9 +189,7 @@ export function computeBelowBestFacts(allClientSetLogs: SetLog[]): BelowBestResu
     }
   }
 
-  const cause = result.length > 0 ? "none"
-    : hasEnoughData ? "none"
-    : "insufficient_data";
+  const cause = hasEnoughData ? "none" : "insufficient_data";
 
   return { facts: result.sort((a, b) => a.exercise.localeCompare(b.exercise)), cause };
 }

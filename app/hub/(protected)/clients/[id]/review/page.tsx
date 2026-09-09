@@ -8,7 +8,6 @@ import { buildExerciseHistory } from "@/lib/exercise-history";
 import { deriveBlockStatus } from "@/lib/block-status";
 import { deriveSessionStatus } from "@/lib/session-status";
 import { trainerizeResultsToSetLogs } from "@/lib/trainerize-adapter";
-import { buildExerciseTrends, type TrendSessionMeta } from "@/lib/progress";
 import type { SetLog, DBClientReview } from "@/types";
 import { ReviewFlowClient } from "./ReviewFlowClient";
 
@@ -122,15 +121,6 @@ export default async function ReviewPage({ params }: { params: { id: string } })
     ...((hubSetLogs ?? []) as SetLog[]),
     ...trainerizeResultsToSetLogs((trainerizeWorkoutResults ?? []) as any),
   ];
-
-  const trendSessionMeta: Record<string, TrendSessionMeta> = {};
-  for (const s of sessions ?? []) {
-    trendSessionMeta[s.id] = {
-      blockNumber: (s as any).blocks?.block_number ?? null,
-      sessionNumber: s.session_number ?? null,
-    };
-  }
-  const exerciseTrends = buildExerciseTrends(combinedSetLogs, trendSessionMeta);
 
   // Compute personal bests from combined source scoped to the review period.
   const blockStartedAt = activeBlock?.scheduled_start;
