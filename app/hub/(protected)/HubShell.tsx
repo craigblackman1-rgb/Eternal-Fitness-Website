@@ -11,7 +11,7 @@ export function HubShell({ children }: { children: React.ReactNode }) {
 
   return (
     <CrumbNameProvider>
-      <div className="hub-shell flex min-h-screen bg-[var(--hub-canvas)]">
+      <div className="hub-shell flex min-h-screen bg-[var(--hub-canvas)] overflow-x-clip">
         <HubSidebar />
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <SheetContent
