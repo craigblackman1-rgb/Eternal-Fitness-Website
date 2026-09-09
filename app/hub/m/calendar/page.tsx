@@ -9,7 +9,16 @@ import {
   shiftDay,
   isoToLocalDate,
 } from "@/lib/schedule-dates";
-import { OutlookTriageClient } from "./OutlookTriageClient";
+import Link from "next/link";
+import { DayAgenda } from "@/components/hub/DayAgenda";
+
+const ICO = {
+  plus: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 5v14M5 12h14"/>
+    </svg>
+  ),
+};
 
 const PAST_MAX = 30;
 const FUTURE_DAYS = 14;
@@ -25,19 +34,6 @@ interface SessionRow {
   cancelled_at: string | null;
   status: string | null;
   completed_at: string | null;
-}
-
-export interface OutlookBookingRow {
-  id: string;
-  event_id: string;
-  subject: string;
-  start_at: string;
-  end_at: string;
-  parsed_name: string | null;
-  client_id: string | null;
-  status: string;
-  session_id: string | null;
-  clients: { id: string; name: string; client_number: number | null; email: string | null } | null;
 }
 
 
@@ -122,35 +118,44 @@ export default async function MobileCalendarPage({
     };
   });
 
-  const { data: bookingRows, error: bookingErr } = await supabase
-    .from("outlook_booking_events")
-    .select("id, event_id, subject, start_at, end_at, parsed_name, client_id, status, session_id, clients(id, name, client_number, email)")
-    .eq("status", "open")
-    .order("start_at", { ascending: true });
-
-  if (bookingErr) {
-    console.error("Failed to load outlook bookings:", bookingErr.message);
-  }
-
-  const openBookings = (bookingRows ?? []) as OutlookBookingRow[];
-
-  // Normalise Postgres TIMESTAMPTZ to strict ISO-8601 so WebKit (iOS Safari)
-  // doesn't render "Invalid Date". Node/V8 parses the raw format correctly.
-  for (const b of openBookings) {
-    if (b.start_at) b.start_at = new Date(b.start_at).toISOString();
-    if (b.end_at) b.end_at = new Date(b.end_at).toISOString();
-  }
-  const openBookingCount = openBookings.length;
-
   return (
-    <OutlookTriageClient
-      agendaSessions={agendaSessions}
-      today={today}
-      windowStart={start}
-      windowEnd={end}
-      openBookings={openBookings}
-      openBookingCount={openBookingCount}
-      showPast={pastDays > 0}
-    />
+    <>
+      <header className="mtop">
+        <div className="mtop-row">
+          <div className="mbrand">
+            <img src="/images/ef-heart-logo.svg" alt="Eternal Fitness" />
+            <span className="mbrand-sub">Trainer Hub</span>
+          </div>
+        </div>
+      </header>
+      <main className="mcontent has-fab">
+        <div className="note">
+          <span className="note-b">i</span>
+          <div>
+            <b>Day-agenda calendar.</b> One row per day, forward and back from today. Empty days still
+            render — tap one to book a session. Weeks are Monday–Sunday.
+          </div>
+        </div>
+
+        <Link
+          className="past-toggle"
+          href={pastDays > 0 ? "/hub/m/calendar" : "/hub/m/calendar?past=7"}
+        >
+          {pastDays > 0 ? "Hide past days" : "Show past 7 days"}
+        </Link>
+
+        <DayAgenda
+          sessions={agendaSessions}
+          today={today}
+          windowStart={start}
+          windowEnd={end}
+          scope="trainer"
+        />
+      </main>
+      <Link className="fab" href={`/hub/m/book?scope=trainer&day=${today}`} data-od-id="agenda-add">
+        {ICO.plus}
+        Book session
+      </Link>
+    </>
   );
 }

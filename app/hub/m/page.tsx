@@ -97,10 +97,6 @@ export default async function TodayPage() {
     client_name: (task.clients as { name?: string } | null)?.name ?? null,
   })) as unknown as Task[];
 
-  const { count: openBookingCount } = await supabase
-    .from("outlook_booking_events")
-    .select("id", { count: "exact", head: true })
-    .eq("status", "open");
 
   // BUG-EF-135 — find the first in-progress session so the Today screen can
   // show a "Resume session" banner. Primary signal: status column ('in_progress').
@@ -111,5 +107,5 @@ export default async function TodayPage() {
       (e.sessionLogStartedAt && !e.sessionLogCompletedAt && !e.completedAt),
   ) ?? null;
 
-  return <TodayScreen entries={entries} tasks={tasks} openBookingCount={openBookingCount ?? 0} currentUserName={user?.name ?? null} resumeSession={inProgressEntry} />;
+  return <TodayScreen entries={entries} tasks={tasks} currentUserName={user?.name ?? null} resumeSession={inProgressEntry} />;
 }

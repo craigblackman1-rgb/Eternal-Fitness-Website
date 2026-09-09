@@ -175,13 +175,13 @@ const ICO = {
 interface TodayScreenProps {
   entries: TodayEntry[];
   tasks: Task[];
-  openBookingCount: number;
+
   currentUserName: string | null;
   /** BUG-EF-135 — the first in-progress session for today, if any. */
   resumeSession: TodayEntry | null;
 }
 
-export function TodayScreen({ entries, tasks, openBookingCount, currentUserName, resumeSession }: TodayScreenProps) {
+export function TodayScreen({ entries, tasks, currentUserName, resumeSession }: TodayScreenProps) {
   const router = useRouter();
   const [day, setDay] = useState<string>(todayISO());
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -315,20 +315,6 @@ export function TodayScreen({ entries, tasks, openBookingCount, currentUserName,
           </div>
         )}
 
-        {openBookingCount > 0 && (
-          <Link
-            className="alert a-warning"
-            href="/hub/m/calendar"
-            data-od-id="bookings-alert"
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            <span className="alert-ic">{ICO.warn}</span>
-            <div>
-              <b>{openBookingCount} booking{openBookingCount !== 1 ? "s" : ""} waiting to be matched</b>
-              Booked through Microsoft Bookings and not yet linked to a client or block — they&apos;re on the calendar.
-            </div>
-          </Link>
-        )}
 
         <div className={`m-section${collapsed.sessions ? " collapsed" : ""}`}>
           <button
