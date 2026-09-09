@@ -1726,6 +1726,14 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
   // ── 5. Programme reviews ──
   const sortedBlocks = [...blocks].sort((a, b) => b.block_number - a.block_number);
 
+  // BUG-EF-152 — route the review button to the most recent block that HAS
+  // past-dated sessions, not blindly sortedBlocks[0]. If only a future block
+  // exists, link to it (the review screen will say "this block hasn't started yet").
+  const now = new Date();
+  const reviewableBlock = sortedBlocks.find((block) =>
+    sessions.some((s: any) => s.block_id === block.id && s.scheduled_at && new Date(s.scheduled_at) <= now && !s.parent_session_id)
+  ) ?? sortedBlocks[0] ?? null;
+
   // PB entry form state
   const [showPbForm, setShowPbForm] = useState(false);
   const [pbExercise, setPbExercise] = useState("");
@@ -1783,11 +1791,11 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
             Close
           </button>
           <span className="flex-1" />
-          {sortedBlocks.length > 0 && (
+          {reviewableBlock && (
             <button
               type="button"
               onClick={() => {
-                window.location.href = `/hub/clients/${clientNumber}/updates/block-review/${sortedBlocks[0].id}`;
+                window.location.href = `/hub/clients/${clientNumber}/updates/block-review/${reviewableBlock.id}`;
               }}
               className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--color-rose)] text-white px-4 py-1.5 min-h-[30px] font-[inherit] text-[12.5px] font-semibold cursor-pointer hover:bg-[var(--color-rose)]/90 transition-colors"
             >
