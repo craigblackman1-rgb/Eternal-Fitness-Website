@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { HubCard, HubAlert } from "@/components/hub";
 import { Button } from "@/components/ui/button";
 
@@ -191,7 +192,7 @@ export function OutlookDuplicatesQueue() {
       </HubCard>
 
       <p className="text-xs text-muted-foreground">
-        Sync paused on open rows · check +15 min. <Link href="/hub/schedule" className="underline underline-offset-2">Back to schedule</Link>
+        Sync paused on open rows · check +15 min. <BackLink fallback="/hub/schedule" className="underline underline-offset-2">Back to schedule</BackLink>
       </p>
     </div>
   );

@@ -303,7 +303,13 @@ export function NewUpdateClient({
     }
   };
 
-  const goBack = () => router.push(`/hub/clients/${clientNumber}/updates`);
+  const goBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push(`/hub/clients/${clientNumber}/updates`);
+    }
+  };
 
   // --- Compose-mode actions -------------------------------------------------
 

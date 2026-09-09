@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { deriveSessionPot } from "@/lib/session-pot";
+import BackLink from "@/components/hub/BackLink";
 
 export default async function PlanNewProgrammePage({
   params,
@@ -164,12 +165,12 @@ export default async function PlanNewProgrammePage({
 
       <div className="max-w-[1100px] mx-auto">
         {/* Back link */}
-        <Link
-          href={`/hub/clients/${client.client_number}`}
+        <BackLink
+          fallback={`/hub/clients/${client.client_number}`}
           className="inline-flex items-center gap-1 text-[12.5px] text-[var(--color-body)] hover:text-[var(--color-ink)] no-underline mb-[7px]"
         >
           &#8249; {client.name}
-        </Link>
+        </BackLink>
 
         {/* Header */}
         <div className="pn-hdr">

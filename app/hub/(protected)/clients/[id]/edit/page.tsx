@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { IconCheck, IconAlertCircle, IconSave } from "@/components/icons";
 import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { HubAlert, StatusBadge } from "@/components/hub";
 import { TagMultiSelect } from "@/components/hub/TagMultiSelect";
 import { InjuryHistoryTable } from "@/components/hub/InjuryHistoryTable";
@@ -313,12 +314,12 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
       {/* Header with chip strip */}
       <div className="bg-[var(--hub-card)] border-b border-[var(--hub-border)] pt-4 pb-0">
         <div className="edit-form" style={{ padding: "0 24px 12px" }}>
-          <Link
-            href={`/hub/clients/${params.id}`}
+          <BackLink
+            fallback={`/hub/clients/${params.id}`}
             className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground rounded-nested px-2 py-1 -ml-2 mb-2 transition-colors"
           >
             &lsaquo; {name || "client"}
-          </Link>
+          </BackLink>
           <div className="flex items-start gap-3.5">
             <div className="w-12 h-12 rounded-pill bg-rose/15 text-rose flex items-center justify-center shrink-0 text-base font-bold">
               {initials}

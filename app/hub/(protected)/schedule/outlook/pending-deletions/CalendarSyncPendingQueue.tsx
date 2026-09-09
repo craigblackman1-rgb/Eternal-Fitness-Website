@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { HubCard, HubAlert, EmptyState } from "@/components/hub";
 import { Button } from "@/components/ui/button";
 import { IconCalendar, IconCheck, IconCheckCircle, IconX, IconAlertTriangle, IconClock, IconPlus, IconRefreshCw, IconTrash2 } from "@/components/icons";
@@ -194,10 +195,10 @@ export function CalendarSyncPendingQueue() {
       {/* Quick actions */}
       <div className="flex items-center gap-3 flex-wrap">
         <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Quick actions</span>
-        <Link href="/hub/schedule" className="inline-flex items-center gap-2 min-h-[40px] px-3.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] text-sm font-semibold text-foreground hover:border-[var(--color-rose)] hover:bg-[var(--status-primary-bg)] transition-colors">
+        <BackLink fallback="/hub/schedule" className="inline-flex items-center gap-2 min-h-[40px] px-3.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] text-sm font-semibold text-foreground hover:border-[var(--color-rose)] hover:bg-[var(--status-primary-bg)] transition-colors">
           <IconCalendar className="h-4 w-4 text-[var(--color-rose)]" />
           Back to schedule
-        </Link>
+        </BackLink>
         <Link href="/hub/settings/integrations" className="inline-flex items-center gap-2 min-h-[40px] px-3.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] text-sm font-semibold text-foreground hover:border-[var(--color-rose)] hover:bg-[var(--status-primary-bg)] transition-colors">
           <IconClock className="h-4 w-4 text-[var(--color-rose)]" />
           Integration settings

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { IconChevronLeft, IconPencil, IconCalendar, IconMail } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/hub/StatusBadge";
@@ -104,12 +105,12 @@ export function ClientRecordHeader({
 
   return (
     <>
-      <a
-        href="/hub/clients"
+      <BackLink
+        fallback="/hub/clients"
         className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-body)] no-underline hover:text-[var(--color-ink)] mb-1.5"
       >
         ‹ Clients
-      </a>
+      </BackLink>
 
       {/* C1a — Do-Not-Train hard-stop header variant */}
       {isDNT ? (

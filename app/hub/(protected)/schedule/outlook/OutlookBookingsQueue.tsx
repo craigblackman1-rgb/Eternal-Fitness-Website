@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { HubCard, HubAlert } from "@/components/hub";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -293,7 +294,7 @@ export function OutlookBookingsQueue() {
       </HubCard>
 
       <p className="text-xs text-muted-foreground">
-        Synced with Outlook every 15 minutes. <Link href="/hub/schedule" className="underline underline-offset-2">Back to schedule</Link>
+        Synced with Outlook every 15 minutes. <BackLink fallback="/hub/schedule" className="underline underline-offset-2">Back to schedule</BackLink>
       </p>
 
       <BlockPickerDialog
