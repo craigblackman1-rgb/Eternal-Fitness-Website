@@ -2318,15 +2318,17 @@ function SupersetBlock({
 }) {
   const label = block.label ?? "?";
   const totalRounds = Math.max(...block.items.map((ex) => ex.sets || 1));
+  const [expandedExs, setExpandedExs] = useState<Record<string, boolean>>({});
+  const toggleAccordion = (uid: string) => {
+    setExpandedExs((prev) => ({ ...prev, [uid]: !prev[uid] }));
+  };
 
   return (
     <div className="grp-wrap">
       <div className="grp-h">
         <span className="grp-pill">Superset {label}</span>
-        <span className="grp-note">{block.items.length} — logged round by round, one shared rest between rounds</span>
-        <button className="grp-ungroup" onClick={() => onUngroup(label)}>
-          {ICO.ungroup}Ungroup
-        </button>
+        <span className="grp-note">round by round · shared rest</span>
+        <button className="c-sw" onClick={() => onUngroup(label)}>Ungroup</button>
       </div>
       <div className="grp-legends">
         {block.items.map((ex) => {
@@ -2337,96 +2339,55 @@ function SupersetBlock({
           const timeBased = isTimeBased(ex.reps, ex.log_type);
           const presc = formatPrescription(ex);
           const hasVideo = !!(ex.media?.video_url);
-          const note = st?.note ?? "";
-          const noteOpen = st?.noteOpen ?? false;
+          const isExpanded = !!expandedExs[uid];
 
           return (
-            <div key={uid} className={`grp-legend${isPicked ? " picked" : ""}`}>
-              <div className="ex-top">
+            <div key={uid} className={`rx-row${isExpanded ? " expanded" : ""}`}>
+              <div className="rx-header" onClick={() => toggleAccordion(uid)}>
                 {inPick && (
                   <button
                     className="pick-box"
-                    onClick={() => onPickToggle(uid)}
+                    onClick={(e) => { e.stopPropagation(); onPickToggle(uid); }}
                     aria-pressed={isPicked}
                     aria-label={`Select ${ex.exercise_name}`}
                   >
                     {ICO.checkSm}
                   </button>
                 )}
-                <Thumbnail exercise={ex} />
-                <div className="ex-name-wrap">
-                  <div className="ex-name-row">
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="rx-name">
                     {complete && <span className="ex-complete-ic">{ICO.check}</span>}
-                    <span className="ex-name">{ex.exercise_name}</span>
-                    <span className={`log-badge ${timeBased ? "time" : "reps"}`}>
-                      {timeBased ? <>{ICO.clock}Time</> : <>{ICO.reps}Reps &amp; weight</>}
-                    </span>
+                    {ex.exercise_name}
                   </div>
-                  <div className="ex-presc">Prescribed <b>{presc}</b></div>
-                  {/* CR-EF-124: load chip in superset legend */}
+                  <div className="rx-sub">{presc}{ex.equipment && ex.equipment.length > 0 ? ` · ${ex.equipment[0]}` : ""}</div>
+                </div>
+                <span className="rx-chevron">{isExpanded ? "⌃" : "⌄"}</span>
+              </div>
+              {isExpanded && (
+                <div className="rx-detail">
+                  <span className="rx-chip">{timeBased ? "Time" : "Reps & weight"}</span>
                   {ex.load && (() => {
                     const p = parseLoad(ex.load);
                     if (!p) return null;
-                    if (p.kind === "weight") return <div className="mt-1 inline-flex items-baseline gap-1 rounded-nested border border-rose/20 bg-rose/5 px-1.5 py-0.5 text-[11px] font-bold tabular-nums text-rose"><span className="text-[9px] font-extrabold uppercase tracking-wider text-rose/80">Load</span>{p.value}<span className="text-[10px] font-bold text-rose/80">{p.unit}</span></div>;
-                    if (p.kind === "pair") return <div className="mt-1 inline-flex items-baseline gap-1 rounded-nested border border-rose/20 bg-rose/5 px-1.5 py-0.5 text-[11px] font-bold tabular-nums text-rose"><span className="text-[9px] font-extrabold uppercase tracking-wider text-rose/80">Load</span>{p.multiplier} × {p.value}<span className="text-[10px] font-bold text-rose/80">{p.unit}</span></div>;
-                    if (p.kind === "token") return <div className="mt-1 inline-flex items-center gap-1 rounded-nested border border-rose/20 bg-rose/5 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-rose"><span className="text-[9px] font-extrabold tracking-wider text-rose/80">Load</span>{p.label}{p.sub && <span className="text-[10px] font-semibold normal-case tracking-normal text-rose/70">{p.sub}</span>}</div>;
-                    if (p.kind === "band") return <div className="mt-1 inline-flex items-center gap-1 rounded-nested border border-rose/20 bg-rose/5 px-1.5 py-0.5 text-[11px] font-bold text-rose"><span className="text-[9px] font-extrabold uppercase tracking-wider text-rose/80">Load</span>{p.colour} band</div>;
+                    if (p.kind === "weight") return <span className="rx-load">Load: {p.value}{p.unit}</span>;
+                    if (p.kind === "pair") return <span className="rx-load">Load: {p.multiplier} × {p.value}{p.unit}</span>;
+                    if (p.kind === "token") return <span className="rx-load">Load: {p.label}{p.sub ? ` ${p.sub}` : ""}</span>;
+                    if (p.kind === "band") return <span className="rx-load">Load: {p.colour} band</span>;
                     return null;
                   })()}
-                  {ex.coaching_cue && <div className="ex-cue">{ex.coaching_cue}</div>}
-                  {ex.modification && <div className="ex-mod">{ex.modification}</div>}
-                  {ex.equipment && ex.equipment.length > 0 && (
-                    <div className="ex-tags">
-                      {ex.equipment.map((t) => (
-                        <span key={t} className="ex-tag">{t}</span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="ex-acts">
-                  {hasVideo ? (
-                    <a
-                      className="icon-btn video"
-                      href={ex.media?.video_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Play demo video for ${ex.exercise_name}`}
-                    >
-                      {ICO.video}
-                    </a>
-                  ) : (
-                    <button
-                      className="icon-btn"
-                      disabled
-                      aria-label={`No demo video for ${ex.exercise_name}`}
-                      title="No demo video on this exercise"
-                    >
-                      {ICO.video}
-                    </button>
-                  )}
-                  <button
-                    className={`icon-btn${note ? " has-note" : ""}`}
-                    onClick={() => onNoteToggle(uid)}
-                    aria-label={`Note on ${ex.exercise_name}`}
-                  >
-                    {ICO.note}
-                  </button>
-                </div>
-              </div>
-
-              {noteOpen && (
-                <div className="ex-note-row">
-                  <textarea
-                    placeholder="Quick note about this exercise…"
-                    value={note}
-                    onChange={(e) => onNoteInput(uid, e.target.value)}
-                  />
+                  <div className="rx-actions">
+                    {hasVideo ? (
+                      <a className="c-skip" href={ex.media?.video_url} target="_blank" rel="noopener noreferrer" aria-label={`Play demo video for ${ex.exercise_name}`}>🎥</a>
+                    ) : (
+                      <button className="c-skip" disabled aria-label={`No demo video for ${ex.exercise_name}`}>🎥</button>
+                    )}
+                    <button className="c-skip" onClick={() => onNoteToggle(uid)} aria-label={`Note on ${ex.exercise_name}`}>💬</button>
+                    {!sessionCompleted && (
+                      <button className="c-skip" onClick={() => onAddSet(uid)}>+ set</button>
+                    )}
+                  </div>
                 </div>
               )}
-
-              <button className="add-set" onClick={() => onAddSet(uid)}>
-                {ICO.plus}Add set to {ex.exercise_name}
-              </button>
             </div>
           );
         })}
