@@ -110,33 +110,33 @@ async function handleEvent(evt: ResendWebhookEvent): Promise<void> {
     occurredAt: eventTs,
   });
 
-  // Keep sent_updates' own opened_at/open_count/clicked_at/click_count columns
-  // in sync — existing portal/hub UI reads those directly, not the event log.
-  if (entity.type === "update") {
-    if (evt.type === "email.opened") {
-      const { data: row } = await supabase
-        .from("sent_updates")
-        .select("id, opened_at, open_count")
-        .eq("id", entity.id)
-        .maybeSingle();
-      if (row) {
-        await supabase
-          .from("sent_updates")
-          .update({ opened_at: row.opened_at || eventTs, open_count: (row.open_count || 0) + 1 })
-          .eq("id", row.id);
-      }
-    } else if (evt.type === "email.clicked") {
-      const { data: row } = await supabase
-        .from("sent_updates")
-        .select("id, clicked_at, click_count")
-        .eq("id", entity.id)
-        .maybeSingle();
-      if (row) {
-        await supabase
-          .from("sent_updates")
-          .update({ clicked_at: row.clicked_at || eventTs, click_count: (row.click_count || 0) + 1 })
-          .eq("id", row.id);
-      }
+  // Keep the source table's own opened_at/open_count/clicked_at/click_count
+  // columns in sync — existing portal/hub UI reads those directly, not the
+  // event log. Both sent_updates and client_documents have these columns.
+  const table = entity.type === "update" ? "sent_updates" : "client_documents";
+  if (evt.type === "email.opened") {
+    const { data: row } = await supabase
+      .from(table)
+      .select("id, opened_at, open_count")
+      .eq("id", entity.id)
+      .maybeSingle();
+    if (row) {
+      await supabase
+        .from(table)
+        .update({ opened_at: row.opened_at || eventTs, open_count: (row.open_count || 0) + 1 })
+        .eq("id", row.id);
+    }
+  } else if (evt.type === "email.clicked") {
+    const { data: row } = await supabase
+      .from(table)
+      .select("id, clicked_at, click_count")
+      .eq("id", entity.id)
+      .maybeSingle();
+    if (row) {
+      await supabase
+        .from(table)
+        .update({ clicked_at: row.clicked_at || eventTs, click_count: (row.click_count || 0) + 1 })
+        .eq("id", row.id);
     }
   }
 }

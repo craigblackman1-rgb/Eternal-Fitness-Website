@@ -125,10 +125,32 @@ export async function POST(request: Request) {
     const sgId = evt.sg_message_id.split(".")[0];
     const eventTs = new Date(evt.timestamp * 1000).toISOString();
 
-    if (evt.event === "open") {
-      // Match by prefix — the stored ID may or may not have the suffix.
+    // Find which table owns this message ID — sent_updates or client_documents.
+    let table: string | null = null;
+    {
       const { data: row } = await supabase
         .from("sent_updates")
+        .select("id")
+        .or(`sg_message_id.eq.${evt.sg_message_id},sg_message_id.eq.${sgId}`)
+        .limit(1)
+        .maybeSingle();
+      if (row) {
+        table = "sent_updates";
+      } else {
+        const { data: doc } = await supabase
+          .from("client_documents")
+          .select("id")
+          .or(`sg_message_id.eq.${evt.sg_message_id},sg_message_id.eq.${sgId}`)
+          .limit(1)
+          .maybeSingle();
+        if (doc) table = "client_documents";
+      }
+    }
+    if (!table) continue;
+
+    if (evt.event === "open") {
+      const { data: row } = await supabase
+        .from(table)
         .select("id, opened_at, open_count")
         .or(`sg_message_id.eq.${evt.sg_message_id},sg_message_id.eq.${sgId}`)
         .limit(1)
@@ -136,7 +158,7 @@ export async function POST(request: Request) {
 
       if (row) {
         await supabase
-          .from("sent_updates")
+          .from(table)
           .update({
             opened_at: row.opened_at || eventTs,
             open_count: (row.open_count || 0) + 1,
@@ -145,7 +167,7 @@ export async function POST(request: Request) {
       }
     } else if (evt.event === "click") {
       const { data: row } = await supabase
-        .from("sent_updates")
+        .from(table)
         .select("id, clicked_at, click_count")
         .or(`sg_message_id.eq.${evt.sg_message_id},sg_message_id.eq.${sgId}`)
         .limit(1)
@@ -153,7 +175,7 @@ export async function POST(request: Request) {
 
       if (row) {
         await supabase
-          .from("sent_updates")
+          .from(table)
           .update({
             clicked_at: row.clicked_at || eventTs,
             click_count: (row.click_count || 0) + 1,

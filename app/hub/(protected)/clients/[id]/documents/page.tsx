@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatusBadge, TokenPill } from "@/components/hub/StatusBadge";
-import { IconChevronLeft, IconChevronRight, IconFileText, IconCalendar, IconFileSignature } from "@/components/icons";
+import { IconChevronLeft, IconChevronRight, IconFileText, IconCalendar, IconFileSignature, IconEye } from "@/components/icons";
 import { EmptyState } from "@/components/hub/EmptyState";
 import { NewDocumentButton } from "./NewDocumentButton";
 import { CopyParqEditLink } from "./CopyParqEditLink";
@@ -162,6 +162,19 @@ export default async function ClientDocumentsPage({ params }: { params: { id: st
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
                         <StatusBadge status={d.status} />
+                        {d.status === "sent" && (
+                          <span className="flex items-center gap-1 text-xs text-teal">
+                            <IconEye className="h-3 w-3" />
+                            {(d as any).opened_at ? (
+                              <>
+                                Opened {new Date((d as any).opened_at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" })}
+                                {(d as any).open_count > 1 && <span className="text-muted-foreground">&times;{(d as any).open_count}</span>}
+                              </>
+                            ) : (
+                              <span className="text-muted-foreground italic">No open tracking</span>
+                            )}
+                          </span>
+                        )}
                         <IconChevronRight className="h-4 w-4 text-muted-foreground" />
                       </div>
                     </CardContent>
