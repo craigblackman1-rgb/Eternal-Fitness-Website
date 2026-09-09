@@ -170,7 +170,13 @@ export function BlockReviewClient({
             )}
             {!attendance.isFullAttendance && attendance.cancelledCount === 0 && (
               <p className="m-0 mt-1.5 text-[13px] text-[var(--color-muted-text)]">
-                {attendance.bookedCount - attendance.completedCount} booked session{attendance.bookedCount - attendance.completedCount === 1 ? "" : "s"} in this block never logged as completed.
+                {/* BUG-EF-152 — only warn about past sessions that were never logged;
+                    future sessions haven't happened yet so the warning is premature. */}
+                {attendance.pastSessionCount - attendance.completedCount > 0
+                  ? `${attendance.pastSessionCount - attendance.completedCount} past session${attendance.pastSessionCount - attendance.completedCount === 1 ? "" : "s"} in this block never logged as completed.`
+                  : attendance.futureSessionCount > 0
+                    ? `${attendance.futureSessionCount} session${attendance.futureSessionCount === 1 ? "" : "s"} still to come.`
+                    : null}
               </p>
             )}
           </FactCard>
