@@ -2385,6 +2385,11 @@ function SupersetBlock({
                     if (p.kind === "band") return <span className="rx-load">Load: {p.colour} band</span>;
                     return null;
                   })()}
+                  {!isBandEquipment(ex.equipment ?? []) && !timeBased && (
+                    <button className="c-sw" onClick={(e) => { e.stopPropagation(); onSwapUnit(uid); }}>
+                      {(st?.displayUnit ?? "kg") === "kg" ? "lb" : "kg"} ⇄
+                    </button>
+                  )}
                   <div className="rx-actions">
                     {hasVideo ? (
                       <a className="c-skip" href={ex.media?.video_url} target="_blank" rel="noopener noreferrer" aria-label={`Play demo video for ${ex.exercise_name}`}>🎥</a>

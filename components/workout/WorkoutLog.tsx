@@ -2030,7 +2030,12 @@ function SupersetBlock({
                               </div>
                             ) : (
                               <div className="flex w-[120px] flex-col gap-[3px]">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Weight ({st?.displayUnit ?? "kg"})</span>
+                                <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                  Weight ({st?.displayUnit ?? "kg"})
+                                  {!isBandEquipment(ex.equipment ?? []) && (
+                                    <button type="button" onClick={() => onSwapUnit(ref, ex)} className="font-bold normal-case tracking-normal text-teal underline" title="Correct the unit for this exercise">switch</button>
+                                  )}
+                                </span>
                                 <input
                                   type="text"
                                   inputMode="decimal"
