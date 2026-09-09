@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 
 interface SentUpdate {
@@ -35,7 +36,13 @@ function fmtDateTime(iso: string | null | undefined): string {
   return d.toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" });
 }
 
+const INITIAL_LIMIT = 10;
+
 export function CommsClient({ firstName, clientNumber, sentUpdates, pronounPossessive }: CommsClientProps) {
+  const [expanded, setExpanded] = useState(false);
+  const visible = expanded ? sentUpdates : sentUpdates.slice(0, INITIAL_LIMIT);
+  const hiddenCount = sentUpdates.length - INITIAL_LIMIT;
+
   return (
     <>
       {/* Write to {firstName} */}
@@ -55,11 +62,12 @@ export function CommsClient({ firstName, clientNumber, sentUpdates, pronounPosse
       {/* Every update sent */}
       <div className="mcard" style={{ marginTop: 14 }}>
         <div className="mcard-h">Every update sent</div>
-        {sentUpdates.length > 0 ? (
-          sentUpdates.map((u) => {
-            const hasOpened = u.opened_at && u.open_count && u.open_count > 0;
-            const pillClass = hasOpened ? "p-ok" : "p-mut";
-            const pillLabel = hasOpened ? "Opened" : "Logged";
+        {visible.length > 0 ? (
+          visible.map((u) => {
+            const emailed = u.emailed === true;
+            const pillClass = emailed ? "p-ok" : "p-mut";
+            const pillLabel = emailed ? "Emailed" : "Logged only";
+            const hasOpenInfo = u.opened_at && u.open_count && u.open_count > 0;
 
             return (
               <div key={u.id} className="mrow">
@@ -67,9 +75,9 @@ export function CommsClient({ firstName, clientNumber, sentUpdates, pronounPosse
                   <div className="mrow-t">{u.subject || "Update"}</div>
                   <div className="mrow-s">
                     Sent {fmtShortDate(u.sent_at || u.created_at)}
-                    {hasOpened
+                    {hasOpenInfo
                       ? ` · Opened ${fmtDateTime(u.opened_at)}${(u.open_count ?? 0) > 1 ? ` ×${u.open_count}` : ""}`
-                      : " · no open tracking"}
+                      : ""}
                   </div>
                 </div>
                 <span className={`pill ${pillClass}`}>{pillLabel}</span>
@@ -80,6 +88,11 @@ export function CommsClient({ firstName, clientNumber, sentUpdates, pronounPosse
           <div className="mrow" style={{ justifyContent: "center" }}>
             <span style={{ fontSize: 13, color: "var(--muted)" }}>Nothing sent from the hub yet.</span>
           </div>
+        )}
+        {!expanded && hiddenCount > 0 && (
+          <button className="qmore" type="button" onClick={() => setExpanded(true)}>
+            Show all {sentUpdates.length} updates ›
+          </button>
         )}
       </div>
     </>

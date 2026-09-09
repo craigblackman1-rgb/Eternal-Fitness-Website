@@ -35,6 +35,7 @@ export default async function MobileCommsPage({ params }: { params: { id: string
     .from("sent_updates")
     .select("id, subject, status, sent_at, created_at, emailed, opened_at, open_count, click_count")
     .eq("client_id", client.id)
+    .eq("status", "sent")
     .order("created_at", { ascending: false });
 
   const p = pronouns(client.gender);
