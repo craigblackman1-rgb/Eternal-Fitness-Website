@@ -7,6 +7,7 @@ import { IconChevronLeft, IconCheckCircle, IconTriangleAlert } from "@/component
 import { NewUpdateClient } from "../../new/NewUpdateClient";
 import type { ReviewDecision } from "@/types";
 import type { AttendanceFacts, PbFact, BelowBestFact } from "@/lib/block-review-facts";
+import { pronouns } from "@/lib/pronouns";
 
 /* ── S8 — Block review & update client shell (design-systems v3/09-update-
    review.html). One scroll: facts, Esther's internal decision, the email —
@@ -34,11 +35,13 @@ interface BlockReviewClientProps {
   clientName: string;
   defaultEmail: string;
   currentUserName: string;
+  gender: string | null;
   block: { id: string; blockNumber: number; status: string };
   nextBlock: NextBlockInfo | null;
   attendance: AttendanceFacts;
   pbsThisBlock: PbFact[];
   belowBest: BelowBestFact[];
+  belowBestCause: "none" | "insufficient_data" | "no_logs";
   rulesInEffect: { id: string; text: string }[];
 }
 
@@ -55,11 +58,13 @@ export function BlockReviewClient({
   clientName,
   defaultEmail,
   currentUserName,
+  gender,
   block,
   nextBlock,
   attendance,
   pbsThisBlock,
   belowBest,
+  belowBestCause,
   rulesInEffect,
 }: BlockReviewClientProps) {
   const [decision, setDecision] = useState<ReviewDecision | null>(null);
@@ -197,28 +202,42 @@ export function BlockReviewClient({
             )}
           </FactCard>
 
-          <FactCard tone="amber" title="Still below her best" source="from set logs">
-            {belowBest.length === 0 ? (
-              <p className="m-0 text-[13px] text-[var(--color-muted-text)]">
-                Nothing is currently logging below its all-time best.
+          {/* BUG-EF-153 — title/tone is state-dependent: teal when no
+              regressions, amber when there are. Gender-aware possessive
+              via lib/pronouns.ts. Three distinct empty causes: no regressions,
+              insufficient repeat logs, or no set logs at all. */}
+          {belowBest.length === 0 ? (
+            <FactCard tone="teal" title={`Back at ${pronouns(gender).possessive} best on everything`} source="from set logs">
+              {belowBestCause === "no_logs" ? (
+                <p className="m-0 text-[13px] text-[var(--color-muted-text)]">
+                  No set logs in range to compare — this fact will appear once {pronouns(gender).subject} has logged working sets across multiple sessions.
+                </p>
+              ) : belowBestCause === "insufficient_data" ? (
+                <p className="m-0 text-[13px] text-[var(--color-muted-text)]">
+                  Not enough repeat logs yet to compare — {pronouns(gender).subject} needs at least two sessions per exercise before this fact can be assessed.
+                </p>
+              ) : (
+                <p className="m-0 text-[13px] text-[var(--color-muted-text)]">
+                  Nothing is currently logging below {pronouns(gender).possessive} all-time best.
+                </p>
+              )}
+            </FactCard>
+          ) : (
+            <FactCard tone="amber" title={`Still below ${pronouns(gender).possessive} best on ${belowBest.length} lift${belowBest.length === 1 ? "" : "s"}`} source="from set logs">
+              <p className="m-0 text-[13px] text-[var(--color-ink)]">
+                {belowBest.map((b, i) => (
+                  <span key={b.exercise}>
+                    <b className="font-semibold">{b.exercise}</b>
+                    {i < belowBest.length - 2 ? ", " : i === belowBest.length - 2 ? " and " : ""}
+                  </span>
+                ))}
+                {" "}{belowBest.length === 1 ? "is" : "are"} still logging below {belowBest.length === 1 ? pronouns(gender).possessive : "their"} all-time best.
               </p>
-            ) : (
-              <>
-                <p className="m-0 text-[13px] text-[var(--color-ink)]">
-                  {belowBest.map((b, i) => (
-                    <span key={b.exercise}>
-                      <b className="font-semibold">{b.exercise}</b>
-                      {i < belowBest.length - 2 ? ", " : i === belowBest.length - 2 ? " and " : ""}
-                    </span>
-                  ))}
-                  {" "}{belowBest.length === 1 ? "is" : "are"} still logging below {belowBest.length === 1 ? "its" : "their"} all-time best.
-                </p>
-                <p className="m-0 mt-1.5 text-[13px] text-[var(--color-muted-text)]">
-                  She has not yet logged a session that beats it.
-                </p>
-              </>
-            )}
-          </FactCard>
+              <p className="m-0 mt-1.5 text-[13px] text-[var(--color-muted-text)]">
+                {pronouns(gender).possessiveCapitalized} {pronouns(gender).verb} not yet logged a session that beats it.
+              </p>
+            </FactCard>
+          )}
 
           <FactCard tone="amber" title="Rules in effect" source="from her health record">
             {rulesInEffect.length === 0 ? (

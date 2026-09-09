@@ -135,6 +135,12 @@ export interface BelowBestFact {
   bestWeightKg: number;
 }
 
+export interface BelowBestResult {
+  facts: BelowBestFact[];
+  /** Why the facts array is empty, when it is. "none" means no regressions. */
+  cause: "none" | "insufficient_data" | "no_logs";
+}
+
 /** Exercises whose most recently logged working weight sits below the
  *  heaviest weight ever logged for that exercise (any block, any time) — the
  *  same "last point vs. max across all points" comparison the client
@@ -142,9 +148,16 @@ export interface BelowBestFact {
  *  reapplied here to name the exercises rather than just count them.
  *  Scoped to ALL of the client's set_logs (not just this block) because a
  *  fact carried over from before the block is still true during it — the
- *  card explains that in copy, this function just finds the exercises. */
-export function computeBelowBestFacts(allClientSetLogs: SetLog[]): BelowBestFact[] {
+ *  card explains that in copy, this function just finds the exercises.
+ *
+ *  BUG-EF-153 — returns a result object that distinguishes three empty
+ *  causes: no regressions, insufficient repeat logs, or no logs at all. */
+export function computeBelowBestFacts(allClientSetLogs: SetLog[]): BelowBestResult {
   const working = allClientSetLogs.filter((l) => l.completed && !l.is_warmup && typeof l.weight_kg === "number");
+
+  if (working.length === 0) {
+    return { facts: [], cause: "no_logs" };
+  }
 
   // exercise -> session_id -> best weight logged in that session, plus when
   const byExercise = new Map<string, Map<string, { weight: number; loggedAt: string }>>();
@@ -162,17 +175,25 @@ export function computeBelowBestFacts(allClientSetLogs: SetLog[]): BelowBestFact
     }
   }
 
+  // Check if any exercise has enough data (>= 2 sessions) to compare.
+  let hasEnoughData = false;
   const result: BelowBestFact[] = [];
   for (const [exercise, sessions] of byExercise) {
     const points = [...sessions.values()].sort((a, b) => (a.loggedAt < b.loggedAt ? -1 : a.loggedAt > b.loggedAt ? 1 : 0));
-    if (points.length < 2) continue; // nothing to compare a single session against
+    if (points.length < 2) continue;
+    hasEnoughData = true;
     const best = Math.max(...points.map((p) => p.weight));
     const last = points[points.length - 1].weight;
     if (last < best) {
       result.push({ exercise, lastWeightKg: last, bestWeightKg: best });
     }
   }
-  return result.sort((a, b) => a.exercise.localeCompare(b.exercise));
+
+  const cause = result.length > 0 ? "none"
+    : hasEnoughData ? "none"
+    : "insufficient_data";
+
+  return { facts: result.sort((a, b) => a.exercise.localeCompare(b.exercise)), cause };
 }
 
 /** Standing training rules ("what this means for training"), rendered as

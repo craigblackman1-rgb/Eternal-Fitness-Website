@@ -7,6 +7,7 @@ import {
   computeBelowBestFacts,
   computeRulesInEffect,
 } from "@/lib/block-review-facts";
+import { trainerizeResultsToSetLogs } from "@/lib/trainerize-adapter";
 import { BlockReviewClient } from "./BlockReviewClient";
 
 export const dynamic = "force-dynamic";
@@ -71,6 +72,9 @@ export default async function BlockReviewPage({ params }: { params: { id: string
   // Every one of the client's blocks/sessions, to derive set_logs for the
   // below-best comparison (that fact is deliberately NOT scoped to this
   // block alone — see lib/block-review-facts.ts).
+  // BUG-EF-153 — fetch combined hub + Trainerize set-log source (same as
+  // clients/[id]/page.tsx:120-145) so below-best can't disagree with the
+  // Progress drawer.
   const { data: allBlocks } = await supabase.from("blocks").select("id").eq("client_id", client.id);
   const allBlockIds = (allBlocks ?? []).map((b) => b.id);
   let allSetLogs: SetLog[] = [];
@@ -82,6 +86,16 @@ export default async function BlockReviewPage({ params }: { params: { id: string
       allSetLogs = (logs ?? []) as SetLog[];
     }
   }
+  const { data: trainerizeWorkoutResults } = await supabase
+    .from("trainerize_workout_results")
+    .select("id, trainerize_daily_workout_id, workout_name, performed_date, rpe, trainerize_daily_exercise_id, exercise_name, set_number, reps, weight, duration_seconds")
+    .eq("client_id", client.id)
+    .order("performed_date", { ascending: false });
+
+  const combinedSetLogs: SetLog[] = [
+    ...allSetLogs,
+    ...trainerizeResultsToSetLogs((trainerizeWorkoutResults ?? []) as any),
+  ];
 
   const { data: personalRecords } = await supabase
     .from("personal_records")
@@ -125,7 +139,7 @@ export default async function BlockReviewPage({ params }: { params: { id: string
     blockDates[0] ?? null,
     blockDates[blockDates.length - 1] ?? null,
   );
-  const belowBest = computeBelowBestFacts(allSetLogs);
+  const belowBestResult = computeBelowBestFacts(combinedSetLogs);
   const rulesInEffect = computeRulesInEffect(adaptations, ruleTypesById as Map<string, { label?: string | null }>);
 
   const nextBlockDates = nextBlockSessions.map((s) => s.scheduled_at).filter((d): d is string => !!d).sort();
@@ -143,11 +157,13 @@ export default async function BlockReviewPage({ params }: { params: { id: string
       clientName={client.name}
       defaultEmail={defaultEmail}
       currentUserName={currentUserName}
+      gender={client.gender ?? null}
       block={{ id: block.id, blockNumber: block.block_number, status: block.status }}
       nextBlock={nextBlockInfo}
       attendance={attendance}
       pbsThisBlock={pbsThisBlock}
-      belowBest={belowBest}
+      belowBest={belowBestResult.facts}
+      belowBestCause={belowBestResult.cause}
       rulesInEffect={rulesInEffect}
     />
   );
