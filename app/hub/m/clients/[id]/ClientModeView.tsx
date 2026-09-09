@@ -30,6 +30,7 @@ export interface CalendarSessionView {
   scheduledAt: string;
   name: string;
   status: SessionStatus;
+  durationMinutes: number;
 }
 
 export interface SessionView {
@@ -503,12 +504,12 @@ export function ClientModeView({
                   const now = Date.now();
                   /* Find first upcoming session with a workout for "Next" chip */
                   const nextIdx = scheduled.findIndex((s) => {
-                    const end = new Date(s.scheduledAt).getTime() + 60 * 60_000;
+                    const end = new Date(s.scheduledAt).getTime() + s.durationMinutes * 60_000;
                     return now <= end && s.name !== "No workout assigned yet";
                   });
                   return scheduled.slice(0, 4).map((s, idx) => {
                     const d = new Date(s.scheduledAt);
-                    const durationMin = 60;
+                    const durationMin = s.durationMinutes;
                     const chip = deriveSessionChip(
                       s.status,
                       s.scheduledAt,

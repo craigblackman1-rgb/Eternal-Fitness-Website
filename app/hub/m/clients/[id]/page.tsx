@@ -10,6 +10,7 @@ import { blockNameOrSpan } from "@/lib/block-name";
 import { sessionWorkoutName } from "@/lib/session-display";
 import { deriveChronologicalPositions } from "@/lib/session-chronological-order";
 import { deriveSessionPot } from "@/lib/session-pot";
+import { sessionDurationMinutes } from "@/lib/scheduling";
 import { toIsoTimestamp } from "@/lib/pg-timestamp";
 import { aggregateExerciseNotes, type AggregatedExerciseNote } from "@/lib/exercise-notes";
 import { buildExerciseTrends, buildExerciseTrendSummary, type TrendSessionMeta } from "@/lib/progress";
@@ -69,6 +70,7 @@ interface SessionRow {
   completed_at: string | null;
   data: {
     focus_label?: string | null;
+    time_tier?: string | null;
     versions?: {
       studio?: { warm_up?: unknown[]; main_block?: unknown[]; cooldown?: unknown[] };
       home?: { warm_up?: unknown[]; main_block?: unknown[]; cooldown?: unknown[] };
@@ -354,6 +356,7 @@ export default async function MobileClientModePage({ params }: { params: { id: s
           scheduled_at: s.scheduled_at,
           session_log: s.data?.session_log,
         }),
+        durationMinutes: sessionDurationMinutes((s.data?.time_tier ?? null) as any),
       };
     });
 
