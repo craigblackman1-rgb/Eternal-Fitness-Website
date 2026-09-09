@@ -8,6 +8,7 @@ import { IconChevronLeft, IconChevronRight, IconFileText, IconCalendar, IconFile
 import { EmptyState } from "@/components/hub/EmptyState";
 import { NewDocumentButton } from "./NewDocumentButton";
 import { CopyParqEditLink } from "./CopyParqEditLink";
+import { CrumbNameSetter } from "../CrumbNameSetter";
 import { DOCUMENT_KIND_LABEL, type ClientDocument } from "@/lib/documents/types";
 import { uploadKind, uploadKindLabel, formatBytes } from "@/lib/documents/upload-kind";
 import { OpenUploadButton } from "@/components/hub/OpenUploadButton";
@@ -48,6 +49,7 @@ export default async function ClientDocumentsPage({ params }: { params: { id: st
   const isEmpty = documents.length === 0 && agreements.length === 0;
 
   return (
+    <CrumbNameSetter name={client.name}>
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href={`/hub/clients/${clientNumber}`} className="text-muted-foreground hover:text-foreground">
@@ -226,5 +228,6 @@ export default async function ClientDocumentsPage({ params }: { params: { id: st
         </div>
       )}
     </div>
+    </CrumbNameSetter>
   );
 }
