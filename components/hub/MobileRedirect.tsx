@@ -3,8 +3,13 @@
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
-const MOBILE_BREAKPOINT = 768;
 const DESKTOP_PREF_KEY = "ef-desktop-preferred";
+
+const MOBILE_REDIRECTS: Array<{ pattern: RegExp; replacement: string }> = [
+  { pattern: /^\/hub\/clients\/(\d+)$/, replacement: "/hub/m/clients/$1" },
+  { pattern: /^\/hub\/clients$/, replacement: "/hub/m/clients" },
+  { pattern: /^\/hub$/, replacement: "/hub/m" },
+];
 
 export function MobileRedirect() {
   const router = useRouter();
@@ -12,7 +17,7 @@ export function MobileRedirect() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (pathname === "/hub/m") return;
+    if (pathname.startsWith("/hub/m")) return;
 
     let pref = false;
     try {
@@ -21,9 +26,12 @@ export function MobileRedirect() {
 
     if (pref) return;
 
-    /* Desktop pages are now responsive — no redirect needed. Phone-width
-       visitors see the desktop layout rendered at their viewport width,
-       keeping the destination URL intact. */
+    for (const { pattern, replacement } of MOBILE_REDIRECTS) {
+      if (pattern.test(pathname)) {
+        router.replace(pathname.replace(pattern, replacement));
+        return;
+      }
+    }
   }, [router, pathname]);
 
   return null;
