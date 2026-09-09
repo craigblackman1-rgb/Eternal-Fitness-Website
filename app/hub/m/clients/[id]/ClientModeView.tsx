@@ -367,14 +367,25 @@ export function ClientModeView({
               <span className="panel-h-t">Sessions left</span>
             </div>
             <div className="panel-b">
-              <div className={`pot-hero${(potView.remaining ?? 99) <= 2 ? " low" : ""}`}>
-                <span className="pot-hero-fig">{potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining ?? "?"}</span>
-                <span className="pot-hero-label">left</span>
-                <span className="pot-hero-of">
-                  {potView.used} of {potView.purchasedIsEstimate ? potView.estimatedPurchase : potView.purchased ?? "?"} used
-                </span>
+              <div className={`pot-hero${(potView.purchased == null && !potView.purchasedIsEstimate) ? "" : (potView.remaining ?? 99) <= 2 ? " low" : ""}`}>
+                {(potView.purchased == null && !potView.purchasedIsEstimate) ? (
+                  <>
+                    <span className="pot-hero-fig">{potView.used}</span>
+                    <span className="pot-hero-label">sessions used</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="pot-hero-fig">{potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining ?? "?"}</span>
+                    <span className="pot-hero-label">left</span>
+                    <span className="pot-hero-of">
+                      {potView.used} of {potView.purchasedIsEstimate ? potView.estimatedPurchase : potView.purchased ?? "?"} used
+                    </span>
+                  </>
+                )}
               </div>
-              {potView.purchased != null && (
+              {(potView.purchased == null && !potView.purchasedIsEstimate) ? (
+                <p className="pot-hero-s">Ongoing package — no session cap.</p>
+              ) : potView.purchased != null && (
                 <div className="pot-hero-bar">
                   <i style={{ width: `${Math.min(((potView.purchased - (potView.remaining ?? 0)) / potView.purchased) * 100, 100)}%` }} />
                 </div>
@@ -443,9 +454,9 @@ export function ClientModeView({
                         Plan the programme on desktop
                       </Link>
                     </div>
-                    {(potView.remaining ?? 0) > 0 && (
+                    {(potView.purchased == null && !potView.purchasedIsEstimate || (potView.remaining ?? 0) > 0) && (
                       <div className="mrecon-m">
-                        <span><b>{totalQueued} in the programme · {potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining ?? "?"} session{(potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining) !== 1 ? "s" : ""} left.</b></span>
+                        <span><b>{totalQueued} in the programme · {potView.purchased == null && !potView.purchasedIsEstimate ? "Ongoing" : `${potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining ?? "?"} session${(potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining) !== 1 ? "s" : ""} left`}.</b></span>
                       </div>
                     )}
                   </div>
@@ -478,7 +489,7 @@ export function ClientModeView({
                   )}
                 </div>
                 <div className="panel-f" style={{ borderTop: "1px solid var(--border)", padding: "10px 14px", background: "var(--hover)", fontSize: 12, color: "var(--muted)" }}>
-                  {totalQueued} in the programme · {potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining ?? "?"} session{(potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining) !== 1 ? "s" : ""} left. The plan and the pot agree.
+                  {totalQueued} in the programme · {potView.purchased == null && !potView.purchasedIsEstimate ? "Ongoing" : `${potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining ?? "?"} session${(potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining) !== 1 ? "s" : ""} left`}. The plan and the pot agree.
                 </div>
               </div>
             );

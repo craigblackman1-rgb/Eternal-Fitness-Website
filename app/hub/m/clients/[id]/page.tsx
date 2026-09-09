@@ -459,7 +459,7 @@ export default async function MobileClientModePage({ params }: { params: { id: s
   // BUG-EF-159 — earliest scheduled session with no workout attached (matching
   // desktop TrainingSection's sessionsWithWorkouts filter).
   const earliestUnattached = currentBlockSessions
-    .filter((s) => s.scheduled_at && !s.cancelled_at && !s.parent_session_id && sessionHasNoExercises(s.data) && !isOutlookPlaceholder(s) && !isTrainerizeImported(s))
+    .filter((s) => s.scheduled_at && !s.cancelled_at && !s.parent_session_id && (isOutlookPlaceholder(s) || sessionHasNoExercises(s.data) || isTrainerizeImported(s)))
     .sort((a, b) => new Date(a.scheduled_at as string).getTime() - new Date(b.scheduled_at as string).getTime())[0] ?? null;
 
   /* ── CR-EF-167: programme queue state ── */
