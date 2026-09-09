@@ -1002,7 +1002,19 @@ Cancel — record it as today`,
     setShowComplete(false);
     // BUG-EF-135 — clear the localStorage draft on successful completion.
     try { localStorage.removeItem(`ef-session-draft:${sessionId}`); } catch { /* ignore */ }
-    toast.success(`Session ${sessionNumber} marked complete.`);
+    // Post-complete message: look up the next scheduled session today
+    fetch(`/api/sessions/today-next?exclude=${sessionId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((next) => {
+        if (next?.clientName && next?.time) {
+          toast.success(`Done — next up: ${next.clientName} at ${next.time}`);
+        } else {
+          toast.success("Done — that's the last session today.");
+        }
+      })
+      .catch(() => {
+        toast.success(`Session ${sessionNumber} marked complete.`);
+      });
   };
 
   // ── Uid → exercise / exercise_ref lookup ───────────────────────
