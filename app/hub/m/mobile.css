@@ -368,7 +368,6 @@
 .tab.on svg { color: var(--rose); }
 .tab.on::before { content: ''; position: absolute; top: 0; left: 22%; right: 22%; height: 2.5px; border-radius: 0 0 3px 3px; background: var(--rose); }
 .tab svg { width: 21px; height: 21px; }
-.tab-badge { position: absolute; top: 8px; left: 50%; margin-left: 6px; min-width: 16px; height: 16px; border-radius: var(--r-pill); background: var(--rose); color: var(--color-white); font-size: 10px; font-weight: 800; display: grid; place-items: center; padding: 0 4px; }
 
 /* ── Tablet / landscape scale-up additions ────────────────────── */
 @media (min-width: 700px) {
@@ -768,13 +767,9 @@
 .mrow-s { font-size: 12px; color: var(--muted); margin-top: 1px; }
 .mrow-body { min-width: 0; flex: 1; }
 .mrow-chevron { flex-shrink: 0; color: var(--muted); }
-.pill.p-ok { background: rgba(8,126,139,.10); border: 1px solid rgba(8,126,139,.20); color: #07717D; }
-.pill.p-warn { background: var(--amber-bg, #F7EFDD); border: 1px solid rgba(176,138,62,.25); color: var(--amber, #B08A3E); }
+.pill.p-ok { background: var(--s-success-bg); border: 1px solid var(--s-success-bd); color: var(--s-success); }
+.pill.p-warn { background: var(--s-warning-bg); border: 1px solid var(--s-warning-bd); color: var(--s-warning); }
 .pill.p-mut { background: var(--hover); border: 1px solid var(--border); color: var(--body); }
-.mbtn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; min-height: 40px; border-radius: 10px; border: 0; background: var(--rose); color: var(--color-white); font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; }
-.mbtn:hover { background: var(--rose-deep, color-mix(in oklab, var(--color-rose) 90%, var(--color-ink))); }
-.mbtn.ghost { background: var(--card); border: 1px solid var(--border); color: var(--ink); }
-.mbtn.ghost:hover { background: var(--hover); }
 .mnote { font-size: 11.5px; color: var(--muted); line-height: 1.6; padding: 0 14px; margin-top: 10px; }
 
 /* ── CR-EF-u3: Unified Training model ────────────────────────────────

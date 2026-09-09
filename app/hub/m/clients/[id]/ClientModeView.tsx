@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect, type ReactNode } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { SessionStatus } from "@/types";
@@ -171,24 +171,6 @@ const ICO = {
       <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
     </svg>
   ),
-  pool: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <path d="M3 9h18M9 9v12" />
-    </svg>
-  ),
-  calendarTab: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="4" width="18" height="18" rx="2" />
-      <path d="M16 2v4M8 2v4M3 10h18" />
-      <path d="M3 15h18M12 15v3" />
-    </svg>
-  ),
-  notes: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </svg>
-  ),
   check: (
     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
       <path d="m5 13 4 4L19 7" />
@@ -228,6 +210,7 @@ interface ClientModeViewProps {
   clientNumber: number;
   clientName: string;
   firstName: string;
+  initialTab?: TabKey;
   flags: ClientFlag[];
   activeFlagCount: number;
   block: BlockView | null;
@@ -252,6 +235,7 @@ export function ClientModeView({
   clientNumber,
   clientName,
   firstName,
+  initialTab = "training",
   flags,
   activeFlagCount,
   block,
@@ -271,12 +255,11 @@ export function ClientModeView({
   programmeQueue = null,
 }: ClientModeViewProps) {
   const pathname = usePathname();
-  const [tab, setTab] = useState<TabKey>("training");
 
   // Route-based tabs: documents and comms are separate pages
   const isDocuments = pathname.endsWith("/documents");
   const isComms = pathname.endsWith("/comms");
-  const activeTab: TabKey = isDocuments ? "documents" : isComms ? "comms" : tab;
+  const activeTab: TabKey = isDocuments ? "documents" : isComms ? "comms" : initialTab;
 
   /* ── Accordion state for Medical & compliance (CR-EF-164) ── */
   const accStorageKey = `ef-medcomp-acc:${clientId}`;
@@ -646,7 +629,6 @@ export function ClientModeView({
       <ClientTabBar
         clientNumber={clientNumber}
         activeTab={activeTab}
-        onTabChange={(t) => setTab(t)}
       />
     </>
   );

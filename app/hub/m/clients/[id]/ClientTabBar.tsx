@@ -44,48 +44,31 @@ const ICO = {
 
 interface ClientTabBarProps {
   clientNumber: number;
-  /** The "real" in-component tab for training/calendar/notes, or route-based for documents/comms */
   activeTab: TabKey;
-  onTabChange?: (tab: TabKey) => void;
 }
 
-const tabs: { key: TabKey; label: string; icon: ReactNode; href?: (n: number) => string }[] = [
-  { key: "training", label: "Training", icon: ICO.pool },
-  { key: "calendar", label: "Calendar", icon: ICO.calendarTab },
+const tabs: { key: TabKey; label: string; icon: ReactNode; href: (n: number) => string }[] = [
+  { key: "training", label: "Training", icon: ICO.pool, href: (n) => `/hub/m/clients/${n}?tab=training` },
+  { key: "calendar", label: "Calendar", icon: ICO.calendarTab, href: (n) => `/hub/m/clients/${n}?tab=calendar` },
   { key: "documents", label: "Documents", icon: ICO.documents, href: (n) => `/hub/m/clients/${n}/documents` },
   { key: "comms", label: "Comms", icon: ICO.comms, href: (n) => `/hub/m/clients/${n}/comms` },
-  { key: "notes", label: "Notes", icon: ICO.notes },
+  { key: "notes", label: "Notes", icon: ICO.notes, href: (n) => `/hub/m/clients/${n}?tab=notes` },
 ];
 
-export function ClientTabBar({ clientNumber, activeTab, onTabChange }: ClientTabBarProps) {
+export function ClientTabBar({ clientNumber, activeTab }: ClientTabBarProps) {
   return (
     <nav className="tabbar" aria-label="Client">
-      {tabs.map((t) => {
-        if (t.href) {
-          return (
-            <Link
-              key={t.key}
-              className={`tab${activeTab === t.key ? " on" : ""}`}
-              href={t.href(clientNumber)}
-              aria-current={activeTab === t.key ? "true" : undefined}
-            >
-              {t.icon}
-              {t.label}
-            </Link>
-          );
-        }
-        return (
-          <button
-            key={t.key}
-            className={`tab${activeTab === t.key ? " on" : ""}`}
-            onClick={() => onTabChange?.(t.key)}
-            aria-current={activeTab === t.key ? "true" : undefined}
-          >
-            {t.icon}
-            {t.label}
-          </button>
-        );
-      })}
+      {tabs.map((t) => (
+        <Link
+          key={t.key}
+          className={`tab${activeTab === t.key ? " on" : ""}`}
+          href={t.href(clientNumber)}
+          aria-current={activeTab === t.key ? "true" : undefined}
+        >
+          {t.icon}
+          {t.label}
+        </Link>
+      ))}
     </nav>
   );
 }
