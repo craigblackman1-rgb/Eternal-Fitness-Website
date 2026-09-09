@@ -828,7 +828,7 @@
 .notes-search { display: flex; gap: 8px; margin-bottom: 10px; }
 .notes-search input { flex: 1; height: 46px; border: 1px solid var(--field-border); border-radius: var(--r-nested); padding: 0 12px; font-size: 15px; font-family: inherit; background: var(--card); color: var(--ink); }
 .notes-search input:focus { outline: none; border-color: var(--rose); box-shadow: 0 0 0 3px rgba(193,131,159,.3); }
-.npills { display: flex; gap: 6px; margin-bottom: 12px; }
+.npills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .npill { flex: 0 0 auto; height: 36px; padding: 0 13px; border-radius: var(--r-pill); border: 1px solid var(--border); background: var(--card); color: var(--body); font-family: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 .npill:hover { background: var(--hover); color: var(--ink); }
 .npill.on { background: var(--s-primary-bg); border-color: var(--s-primary-bd); color: var(--rose); font-weight: 700; }
