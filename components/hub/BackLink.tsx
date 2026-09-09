@@ -24,7 +24,7 @@ export default function BackLink({
   };
 
   return (
-    <a href="#" onClick={handleClick} className={className}>
+    <a href={fallback} onClick={handleClick} className={className}>
       {children}
     </a>
   );
