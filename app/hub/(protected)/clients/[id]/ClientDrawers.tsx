@@ -1096,7 +1096,7 @@ function ArrangementDrawer({ client, latestBlock, bandSetName, missingBandSet, s
   if (blockSessionCountMismatch) {
     thingsToSort.push({
       headline: "The two session counts disagree",
-      sub: `Typed: ${sessionsUsed ?? 0} used. Counted: ${baselineUsed} before the hub + ${hubUsedCount} in the hub.`,
+      sub: `Typed: ${sessionsUsed != null ? sessionsUsed : "not set"} used. Counted: ${baselineUsed} before the hub + ${hubUsedCount} in the hub.`,
     });
   }
   if (missingBandSet) {
