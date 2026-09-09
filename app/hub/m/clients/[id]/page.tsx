@@ -406,6 +406,8 @@ export default async function MobileClientModePage({ params, searchParams }: { p
       cancelled_at: s.cancelled_at,
       charged_free: s.charged_free,
       parent_session_id: s.parent_session_id,
+      completed_at: s.completed_at,
+      data: s.data as any,
     })),
     row.sessions_purchased,
     (row as any).pot_baseline_used ?? 0,
