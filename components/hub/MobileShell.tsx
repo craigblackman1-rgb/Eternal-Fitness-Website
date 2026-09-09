@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 
-function TabIcon({ type }: { type: "today" | "calendar" | "train" | "clients" }) {
+function TabIcon({ type }: { type: "today" | "calendar" | "train" | "clients" | "money" }) {
   if (type === "today") {
     return (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -29,6 +29,14 @@ function TabIcon({ type }: { type: "today" | "calendar" | "train" | "clients" })
       </svg>
     );
   }
+  if (type === "money") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="1" x2="12" y2="23"/>
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+      </svg>
+    );
+  }
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
@@ -46,6 +54,7 @@ export function MobileShell({ children }: { children: React.ReactNode }) {
     if (pathname.startsWith("/hub/m/calendar")) return "calendar";
     if (pathname.startsWith("/hub/m/train")) return "train";
     if (pathname.startsWith("/hub/m/clients")) return "clients";
+    if (pathname.startsWith("/hub/m/money")) return "money";
     return "today";
   }, [pathname]);
 
@@ -94,6 +103,14 @@ export function MobileShell({ children }: { children: React.ReactNode }) {
         >
           <TabIcon type="clients" />
           Clients
+        </Link>
+        <Link
+          className={`tab${activeTab === "money" ? " on" : ""}`}
+          href="/hub/m/money"
+          {...(activeTab === "money" ? { "aria-current": "page" as const } : {})}
+        >
+          <TabIcon type="money" />
+          Money
         </Link>
       </nav>
       )}
