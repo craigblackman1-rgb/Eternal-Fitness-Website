@@ -43,7 +43,7 @@ export default async function MobileMoneyPage() {
     .reduce((sum, inv) => sum + inv.total, 0);
 
   const outstanding = list
-    .filter((inv) => inv.status !== "paid" && inv.status !== "void" && inv.status !== "draft")
+    .filter((inv) => inv.status === "sent" && inv.issue_date >= monthStart)
     .reduce((sum, inv) => sum + inv.total, 0);
 
   return <MoneyScreen invoices={list} collected={collected} outstanding={outstanding} />;
