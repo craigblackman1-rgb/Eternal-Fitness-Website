@@ -387,6 +387,7 @@ export function SessionList({
           preferredTime={null}
           sessionsRemaining={sessionsRemaining}
           pronouns={pronouns(gender)}
+          allSessions={allSessions}
           onClose={() => setMoveSession(null)}
         />
       )}

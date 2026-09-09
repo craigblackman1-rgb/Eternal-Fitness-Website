@@ -44,6 +44,8 @@ interface MoveCancelSheetProps {
   session: SessionData;
   clientName: string;
   clientNumber: number | null;
+  /** BUG-EF-162 — scheduled sessions for this client, used to mark occupied slots */
+  allSessions?: { id: string; scheduled_at: string | null }[];
   onClose: () => void;
   onMoved: () => void;
   onCancelled: () => void;
@@ -72,6 +74,7 @@ export function MoveCancelSheet({
   session,
   clientName,
   clientNumber,
+  allSessions = [],
   onClose,
   onMoved,
   onCancelled,
@@ -120,14 +123,32 @@ export function MoveCancelSheet({
         const from = session.scheduled_at
           ? new Date(session.scheduled_at).toISOString().slice(0, 10)
           : new Date().toISOString().slice(0, 10);
+
+        // BUG-EF-162 — build booked set from real sessions, pass to API
+        const bookedSlots = allSessions
+          .filter((s) => s.scheduled_at && s.id !== session.id)
+          .map((s) => {
+            const d = new Date(s.scheduled_at!);
+            const dateStr = d.toLocaleDateString("en-GB", {
+              year: "numeric", month: "2-digit", day: "2-digit",
+            }).split("/").reverse().join("-");
+            const timeStr = d.toLocaleTimeString("en-GB", {
+              hour: "2-digit", minute: "2-digit", hour12: false,
+            });
+            return `${dateStr} ${timeStr}`;
+          });
+        const bookedParam = bookedSlots.length > 0
+          ? `&booked=${encodeURIComponent(JSON.stringify(bookedSlots))}`
+          : "";
+
         const res = await fetch(
-          `/api/availability/slots?from=${from}&weeks=3`,
+          `/api/availability/slots?from=${from}&weeks=3${bookedParam}`,
           { signal: controller.signal }
         );
         if (!res.ok) throw new Error("Failed to load availability");
         const data = await res.json();
         const candidates: SlotCandidate[] = [];
-        const bookedSet = new Set<string>();
+        const bookedSet = new Set(bookedSlots);
 
         for (const week of data.weeks ?? []) {
           for (const day of week.days ?? []) {
@@ -170,7 +191,7 @@ export function MoveCancelSheet({
 
     fetchSlots();
     return () => controller.abort();
-  }, [route, session.scheduled_at]);
+  }, [route, session.scheduled_at, session.id, allSessions]);
 
   const handleMove = useCallback(async () => {
     if (!selectedSlot) return;

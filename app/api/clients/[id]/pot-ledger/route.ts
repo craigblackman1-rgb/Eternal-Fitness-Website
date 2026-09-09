@@ -309,5 +309,10 @@ export async function GET(
     ongoing: purchased === null,
   };
 
-  return NextResponse.json({ consumption, ledger });
+  // BUG-EF-162 — expose booked sessions so move/cancel dialogs can mark clashes
+  const bookedSessions = sessions
+    .filter((s) => s.scheduled_at && !s.cancelled_at)
+    .map((s) => ({ id: s.id, scheduled_at: s.scheduled_at }));
+
+  return NextResponse.json({ consumption, ledger, sessions: bookedSessions });
 }

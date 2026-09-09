@@ -326,7 +326,7 @@ export function TrainScreen({
   const [lastSavedNoteText, setLastSavedNoteText] = useState<string | null>(initialSessionNote ?? null);
   const [swapOpen, setSwapOpen] = useState(false);
   const [moveCancelOpen, setMoveCancelOpen] = useState(false);
-  const [moveCancelData, setMoveCancelData] = useState<{ allSessions: unknown[]; sessionsPurchased: number | null } | null>(null);
+  const [moveCancelData, setMoveCancelData] = useState<{ allSessions: { id: string; scheduled_at: string | null }[]; sessionsPurchased: number | null } | null>(null);
 
   const [offline, setOffline] = useState<boolean>(false);
   const [syncNotice, setSyncNotice] = useState<string | null>(null);
@@ -1595,7 +1595,7 @@ Cancel — record it as today`,
                   const res = await fetch(`/api/clients/${clientNumber}/pot-ledger`);
                   const data = await res.json();
                   setMoveCancelData({
-                    allSessions: data.consumption?.sessions ?? [],
+                    allSessions: data.sessions ?? [],
                     sessionsPurchased: data.consumption?.purchased ?? null,
                   });
                 } catch {
@@ -1736,6 +1736,7 @@ Cancel — record it as today`,
           }}
           clientName={clientName}
           clientNumber={clientNumber}
+          allSessions={moveCancelData?.allSessions ?? []}
           onClose={() => setMoveCancelOpen(false)}
           onMoved={() => { setMoveCancelOpen(false); router.refresh(); }}
           onCancelled={() => { setMoveCancelOpen(false); router.refresh(); }}

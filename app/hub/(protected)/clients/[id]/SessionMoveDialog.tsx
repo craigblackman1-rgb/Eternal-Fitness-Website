@@ -32,6 +32,8 @@ interface SessionMoveDialogProps {
   preferredTime: string | null;
   sessionsRemaining: number | null;
   pronouns: PronounSet;
+  /** BUG-EF-162 — all sessions for this client's block, used to mark occupied slots */
+  allSessions?: DBSession[];
   onClose: () => void;
 }
 
@@ -64,6 +66,7 @@ export function SessionMoveDialog({
   preferredTime,
   sessionsRemaining,
   pronouns: p,
+  allSessions = [],
   onClose,
 }: SessionMoveDialogProps) {
   const router = useRouter();
@@ -90,14 +93,32 @@ export function SessionMoveDialog({
         const from = session.scheduled_at
           ? new Date(session.scheduled_at).toISOString().slice(0, 10)
           : new Date().toISOString().slice(0, 10);
+
+        // BUG-EF-162 — build booked set from real sessions, pass to API
+        const bookedSlots = allSessions
+          .filter((s) => s.scheduled_at && !s.cancelled_at && s.id !== session.id)
+          .map((s) => {
+            const d = new Date(s.scheduled_at!);
+            const dateStr = d.toLocaleDateString("en-GB", {
+              year: "numeric", month: "2-digit", day: "2-digit",
+            }).split("/").reverse().join("-");
+            const timeStr = d.toLocaleTimeString("en-GB", {
+              hour: "2-digit", minute: "2-digit", hour12: false,
+            });
+            return `${dateStr} ${timeStr}`;
+          });
+        const bookedParam = bookedSlots.length > 0
+          ? `&booked=${encodeURIComponent(JSON.stringify(bookedSlots))}`
+          : "";
+
         const res = await fetch(
-          `/api/availability/slots?from=${from}&weeks=3`,
+          `/api/availability/slots?from=${from}&weeks=3${bookedParam}`,
           { signal: controller.signal }
         );
         if (!res.ok) throw new Error("Failed to load availability");
         const data = await res.json();
         const candidates: SlotCandidate[] = [];
-        const bookedSet = new Set<string>();
+        const bookedSet = new Set(bookedSlots);
 
         for (const week of data.weeks ?? []) {
           for (const day of week.days ?? []) {
@@ -141,7 +162,7 @@ export function SessionMoveDialog({
 
     fetchSlots();
     return () => controller.abort();
-  }, [route, session.scheduled_at]);
+  }, [route, session.scheduled_at, session.id, allSessions]);
 
   const handleMove = useCallback(async () => {
     if (!selectedSlot) return;
