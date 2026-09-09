@@ -610,58 +610,80 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
 
         {/* ── HEALTH & CLEARANCE ──────────────────────────────────────────── */}
         <div className="edit-sec" id="sec-health">
-          <div className="fcard acc-rose">
-            <div className="fcard-h">Health &amp; clearance</div>
+          {/* Conditions */}
+          <div className="fcard">
+            <div className="fcard-h">Conditions</div>
             <div className="fcard-b">
-              <div style={{ padding: "4px 0 8px" }}>
-                <div className="space-y-2 mb-3">
-                  <Label>Conditions</Label>
+              <div className="space-y-2" style={{ padding: "4px 0 0" }}>
+                <Label>Conditions</Label>
+                <TagMultiSelect
+                  category="condition"
+                  selected={profile.health.conditions}
+                  onChange={(conditions) => { updateProfile("health", { conditions }); recordFieldChange(dirtySections, "conditions"); }}
+                  placeholder="Select known conditions or add new..."
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Contraindications & pain */}
+          <div className="fcard">
+            <div className="fcard-h">Contraindications &amp; pain</div>
+            <div className="fcard-b">
+              <div className="grid gap-4 md:grid-cols-2" style={{ padding: "4px 0 0" }}>
+                <div className="space-y-2">
+                  <Label>Contraindications</Label>
                   <TagMultiSelect
-                    category="condition"
-                    selected={profile.health.conditions}
-                    onChange={(conditions) => { updateProfile("health", { conditions }); recordFieldChange(dirtySections, "conditions"); }}
-                    placeholder="Select known conditions or add new..."
-                  />
-                </div>
-                <div className="grid gap-4 md:grid-cols-2 mb-3">
-                  <div className="space-y-2">
-                    <Label>Contraindications</Label>
-                    <TagMultiSelect
-                      category="contraindication"
-                      selected={profile.health.contraindications}
-                      onChange={(contraindications) => { updateProfile("health", { contraindications }); recordFieldChange(dirtySections, "contraindications"); }}
-                      placeholder="Select contraindications or add new..."
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Pain Points</Label>
-                    <TagMultiSelect
-                      category="pain_point"
-                      selected={profile.health.pain_points}
-                      onChange={(pain_points) => { updateProfile("health", { pain_points }); recordFieldChange(dirtySections, "pain_points"); }}
-                      placeholder="Select pain points or add new..."
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2 mb-3">
-                  <Label>Medications</Label>
-                  <MedicationTable
-                    value={profile.health.medications ?? []}
-                    onChange={(medications) => { updateProfile("health", { medications }); recordFieldChange(dirtySections, "medications"); }}
+                    category="contraindication"
+                    selected={profile.health.contraindications}
+                    onChange={(contraindications) => { updateProfile("health", { contraindications }); recordFieldChange(dirtySections, "contraindications"); }}
+                    placeholder="Select contraindications or add new..."
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Injury History</Label>
-                  <InjuryHistoryTable
-                    value={profile.health.injury_history}
-                    onChange={(injury_history) => { updateProfile("health", { injury_history }); recordFieldChange(dirtySections, "injury_history"); }}
+                  <Label>Pain Points</Label>
+                  <TagMultiSelect
+                    category="pain_point"
+                    selected={profile.health.pain_points}
+                    onChange={(pain_points) => { updateProfile("health", { pain_points }); recordFieldChange(dirtySections, "pain_points"); }}
+                    placeholder="Select pain points or add new..."
                   />
                 </div>
               </div>
+            </div>
+          </div>
 
-              {/* Clearance subsection */}
-              <div className="edit-sub-hd">Clearance</div>
-              <div style={{ padding: "4px 0 8px" }}>
+          {/* Medications */}
+          <div className="fcard">
+            <div className="fcard-h">Medications</div>
+            <div className="fcard-b">
+              <div className="space-y-2" style={{ padding: "4px 0 0" }}>
+                <MedicationTable
+                  value={profile.health.medications ?? []}
+                  onChange={(medications) => { updateProfile("health", { medications }); recordFieldChange(dirtySections, "medications"); }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Injury history */}
+          <div className="fcard">
+            <div className="fcard-h">Injury history</div>
+            <div className="fcard-b">
+              <div className="space-y-2" style={{ padding: "4px 0 0" }}>
+                <InjuryHistoryTable
+                  value={profile.health.injury_history}
+                  onChange={(injury_history) => { updateProfile("health", { injury_history }); recordFieldChange(dirtySections, "injury_history"); }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Clearance */}
+          <div className="fcard acc-amber">
+            <div className="fcard-h">Clearance</div>
+            <div className="fcard-b">
+              <div style={{ padding: "4px 0 0" }}>
                 <div className="flex items-start gap-3 py-3 border-b border-[var(--hub-border)]">
                   <label htmlFor="gp_clearance_required" className="relative shrink-0 w-5 h-5 mt-px cursor-pointer">
                     <input type="checkbox" id="gp_clearance_required" checked={gpRequired} onChange={(e) => { updateProfile("health", { gp_clearance_required: e.target.checked }); recordFieldChange(dirtySections, "gp_clearance_required"); }} className="sr-only" />
