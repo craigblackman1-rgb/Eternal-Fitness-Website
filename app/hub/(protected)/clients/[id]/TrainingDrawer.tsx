@@ -441,16 +441,8 @@ export function TrainingDrawer({
     </>
   );
 
-  // ── Partitioned sessions: nothing-applied first, then with-workout ──
-  const partitionedSessions = [
-    ...scheduledSessions.filter(
-      (s) => isOutlookPlaceholder(s) || sessionHasNoExercises(s.data) || isTrainerizeImported(s),
-    ),
-    ...scheduledSessions.filter(
-      (s) => !isOutlookPlaceholder(s) && !sessionHasNoExercises(s.data) && !isTrainerizeImported(s),
-    ),
-  ];
-  const visibleSessions = showAllSessions ? partitionedSessions : partitionedSessions.slice(0, SESSIONS_INITIAL_COUNT);
+  // ── Pure chronological: current → future (CR-EF-188) ──
+  const visibleSessions = showAllSessions ? scheduledSessions : scheduledSessions.slice(0, SESSIONS_INITIAL_COUNT);
 
   return (
     <DrawerShell
@@ -486,7 +478,7 @@ export function TrainingDrawer({
             <p className="miss">No booked dates in this training period.</p>
           ) : (
             <>
-              {/* Dates with nothing applied first, then dates with workouts */}
+              {/* Pure chronological: soonest first (CR-EF-188) */}
               {visibleSessions.map((s) => {
                 const hasWorkout =
                   !isOutlookPlaceholder(s) && !sessionHasNoExercises(s.data) && !isTrainerizeImported(s);
@@ -587,7 +579,7 @@ export function TrainingDrawer({
                   </div>
                 );
               })}
-              {partitionedSessions.length > SESSIONS_INITIAL_COUNT && (
+              {scheduledSessions.length > SESSIONS_INITIAL_COUNT && (
                 <div className="arow2" style={{ padding: "9px 16px", justifyContent: "flex-end" }}>
                   <button
                     type="button"
@@ -596,7 +588,7 @@ export function TrainingDrawer({
                   >
                     {showAllSessions
                       ? "Show fewer ‹"
-                      : `Show all ${partitionedSessions.length} ›`}
+                      : `Show all ${scheduledSessions.length} ›`}
                   </button>
                 </div>
               )}
