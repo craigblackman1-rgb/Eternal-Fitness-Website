@@ -25,6 +25,7 @@ interface ReviewFlowClientProps {
   extensionHistory: { from: string; to: string; at: string; reason?: string }[];
   pbsCount: number;
   hasDeliveredSessions: boolean;
+  hasAnyCompletedSessions: boolean;
   chronologicalTotal: number;
   blockExpiryDate: string | null;
   clientNumber: number;
@@ -89,6 +90,7 @@ export function ReviewFlowClient({
   extensionHistory,
   pbsCount,
   hasDeliveredSessions,
+  hasAnyCompletedSessions,
   chronologicalTotal,
   blockExpiryDate,
   clientNumber,
@@ -200,7 +202,7 @@ export function ReviewFlowClient({
       {/* Step panels */}
       {step === 1 && (
         <StepPanel onContinue={() => setStep(2)}>
-          <ProgressStep client={client} completedSessions={completedSessions} hasDeliveredSessions={hasDeliveredSessions} totalSessions={chronologicalTotal || client.sessions_purchased || 0} pbsCount={pbsCount} />
+          <ProgressStep client={client} completedSessions={completedSessions} hasDeliveredSessions={hasDeliveredSessions} hasAnyCompletedSessions={hasAnyCompletedSessions} totalSessions={chronologicalTotal || client.sessions_purchased || 0} pbsCount={pbsCount} />
         </StepPanel>
       )}
 
@@ -455,12 +457,14 @@ function ProgressStep({
   client,
   completedSessions,
   hasDeliveredSessions,
+  hasAnyCompletedSessions,
   totalSessions,
   pbsCount,
 }: {
   client: DBClient;
   completedSessions: { id: string; name: string; scheduled_at: string | null; position: string }[];
   hasDeliveredSessions: boolean;
+  hasAnyCompletedSessions: boolean;
   totalSessions: number;
   pbsCount: number;
 }) {
@@ -472,7 +476,10 @@ function ProgressStep({
         subtitle="Sessions delivered, PBs this period, position in programme"
       />
       <div>
-        {!hasDeliveredSessions ? (
+        {/* BUG-EF-151 — only show EmptyState when the client has NEVER had a
+            completed session anywhere; if sessions exist in other blocks, show
+            the stats from whatever scope resolved. */}
+        {!hasAnyCompletedSessions ? (
           <EmptyState
             icon={<IconClock className="w-5 h-5" />}
             title="No sessions logged yet"

@@ -179,6 +179,12 @@ export default async function ReviewPage({ params }: { params: { id: string } })
 
   const hasDeliveredSessions = completedSessions.length > 0;
 
+  // BUG-EF-151 — EmptyState must only show when the client has NEVER had a
+  // completed session anywhere, not just in the current block.
+  const hasAnyCompletedSessions = (sessions ?? []).some(
+    (s: any) => deriveSessionStatus(s) === "completed" && !s.parent_session_id,
+  );
+
   return (
     <ReviewFlowClient
       client={client}
@@ -193,6 +199,7 @@ export default async function ReviewPage({ params }: { params: { id: string } })
       extensionHistory={extensionHistory}
       pbsCount={pbsCount}
       hasDeliveredSessions={hasDeliveredSessions}
+      hasAnyCompletedSessions={hasAnyCompletedSessions}
       chronologicalTotal={chronologicalTotal}
       blockExpiryDate={client.block_expiry_date}
       clientNumber={numericId}
