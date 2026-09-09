@@ -33,6 +33,9 @@ export interface CalendarSessionView {
   name: string;
   status: SessionStatus;
   durationMinutes: number;
+  sessionLogStartedAt?: string | null;
+  sessionLogCompletedAt?: string | null;
+  completedAt?: string | null;
 }
 
 export interface SessionView {
@@ -733,6 +736,10 @@ export function ClientModeView({
                 scheduledAt: s.scheduledAt,
                 name: s.name,
                 status: s.status,
+                durationMinutes: s.durationMinutes,
+                sessionLogStartedAt: s.sessionLogStartedAt,
+                sessionLogCompletedAt: s.sessionLogCompletedAt,
+                completedAt: s.completedAt,
               })
             )}
             today={todayLocalISODate()}

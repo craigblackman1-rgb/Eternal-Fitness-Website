@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase-server";
 import type { Session } from "@/types";
 import { deriveSessionStatus } from "@/lib/session-status";
 import { sessionWorkoutName } from "@/lib/session-display";
+import { sessionDurationMinutes } from "@/lib/scheduling";
 import { toIsoTimestamp } from "@/lib/pg-timestamp";
 import {
   todayLocalISODate,
@@ -89,6 +90,7 @@ export default async function MobileCalendarPage({
   const agendaSessions = sessions.map((s) => {
     const block = blockById.get(s.block_id);
     const client = block ? clientById.get(block.client_id) : undefined;
+    const sessionLog = s.data?.session_log ?? null;
     return {
       id: s.id,
       scheduledAt: toIsoTimestamp(s.scheduled_at) as string,
@@ -102,6 +104,10 @@ export default async function MobileCalendarPage({
       }),
       clientName: client?.name ?? "Unknown client",
       blockNumber: block?.block_number ?? null,
+      durationMinutes: sessionDurationMinutes((s.data?.time_tier ?? null) as any),
+      sessionLogStartedAt: sessionLog?.started_at ?? null,
+      sessionLogCompletedAt: sessionLog?.completed_at ?? null,
+      completedAt: s.completed_at ?? sessionLog?.completed_at ?? null,
     };
   });
 

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { startOfWeek } from "date-fns";
 import type { SessionStatus } from "@/types";
-import { SessionStatusPill } from "@/components/hub/SessionStatusPill";
+import { deriveSessionChip } from "@/lib/session-chip";
 import {
   todayLocalISODate,
   toLocalISODate,
@@ -47,6 +47,10 @@ export interface AgendaSession {
   status: SessionStatus;
   clientName?: string;
   blockNumber?: number;
+  durationMinutes?: number;
+  sessionLogStartedAt?: string | null;
+  sessionLogCompletedAt?: string | null;
+  completedAt?: string | null;
 }
 
 interface DayAgendaProps {
@@ -172,27 +176,38 @@ export function DayAgenda({
             <div className="dbody-t">
               {list.length} {list.length === 1 ? "session" : "sessions"}
             </div>
-            {list.map((s) => (
-              <div key={s.id} className="dsess">
-                <span className="dsess-time">{isoToLocalTime(s.scheduledAt)}</span>
-                <Link
-                  className="dsess-main"
-                  href={`/hub/m/train/${s.id}`}
-                  onClick={(e: MouseEvent) => e.stopPropagation()}
-                >
-                  <span className="dsess-name">{s.name}</span>
-                  {scope === "trainer" && (
-                    <span className="dsess-client">
-                      {s.clientName}
-                      {s.blockNumber != null && ` · Programme ${s.blockNumber}`}
-                    </span>
-                  )}
-                </Link>
-                <span className="dsess-pill">
-                  <SessionStatusPill status={s.status} />
-                </span>
-              </div>
-            ))}
+            {list.map((s) => {
+              const chip = deriveSessionChip(
+                s.status,
+                s.scheduledAt,
+                s.durationMinutes ?? 60,
+                s.name,
+                {
+                  sessionLogStartedAt: s.sessionLogStartedAt,
+                  sessionLogCompletedAt: s.sessionLogCompletedAt,
+                  completedAt: s.completedAt,
+                },
+              );
+              return (
+                <div key={s.id} className="dsess">
+                  <span className="dsess-time">{isoToLocalTime(s.scheduledAt)}</span>
+                  <Link
+                    className="dsess-main"
+                    href={`/hub/m/train/${s.id}`}
+                    onClick={(e: MouseEvent) => e.stopPropagation()}
+                  >
+                    <span className="dsess-name">{s.name}</span>
+                    {scope === "trainer" && (
+                      <span className="dsess-client">
+                        {s.clientName}
+                        {s.blockNumber != null && ` · Programme ${s.blockNumber}`}
+                      </span>
+                    )}
+                  </Link>
+                  <span className={`schip ${chip.variant}`}>{chip.label}</span>
+                </div>
+              );
+            })}
           </div>
         </div>,
       );

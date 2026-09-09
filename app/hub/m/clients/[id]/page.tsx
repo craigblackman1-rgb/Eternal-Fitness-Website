@@ -346,6 +346,7 @@ export default async function MobileClientModePage({ params, searchParams }: { p
     .sort((a, b) => new Date(a.scheduled_at as string).getTime() - new Date(b.scheduled_at as string).getTime())
     .map((s) => {
       const d = new Date(s.scheduled_at as string);
+      const sessionLog = s.data?.session_log as Record<string, unknown> | null | undefined;
       return {
         id: s.id,
         day: d.getDate(),
@@ -361,6 +362,9 @@ export default async function MobileClientModePage({ params, searchParams }: { p
           session_log: s.data?.session_log,
         }),
         durationMinutes: sessionDurationMinutes((s.data?.time_tier ?? null) as any),
+        sessionLogStartedAt: (sessionLog?.started_at as string) ?? null,
+        sessionLogCompletedAt: (sessionLog?.completed_at as string) ?? null,
+        completedAt: s.completed_at ?? (sessionLog?.completed_at as string) ?? null,
       };
     });
 
