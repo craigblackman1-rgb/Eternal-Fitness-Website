@@ -18,7 +18,6 @@ interface DocRow {
 interface DocumentsClientProps {
   allDocs: DocRow[];
   clientNumber: number;
-  clientName: string;
 }
 
 function fmtShortDate(iso: string | null | undefined): string {
@@ -43,8 +42,8 @@ const ICO = {
   ),
 };
 
-export function DocumentsClient({ allDocs, clientNumber, clientName }: DocumentsClientProps) {
-  const needsAction = allDocs.filter((d) => d.status === "sent" || d.status === "awaiting");
+export function DocumentsClient({ allDocs, clientNumber }: DocumentsClientProps) {
+  const needsAction = allDocs.filter((d) => d.status === "sent" || d.status === "draft");
   const onFile = allDocs.filter((d) => d.status === "signed" || d.status === "superseded");
 
   return (
@@ -58,11 +57,15 @@ export function DocumentsClient({ allDocs, clientNumber, clientName }: Documents
               <div className="mrow-body">
                 <div className="mrow-t">{doc.title || doc.kind}</div>
                 <div className="mrow-s">
-                  Sent {fmtShortDate(doc.updated_at || doc.created_at)}
-                  {doc.emailed === false ? " · not opened yet" : ""}
+                  {doc.status === "draft"
+                    ? `Created ${fmtShortDate(doc.created_at)}`
+                    : `Sent ${fmtShortDate(doc.updated_at || doc.created_at)}${doc.emailed === false ? " · Not delivered" : ""}`
+                  }
                 </div>
               </div>
-              <span className="pill p-warn">Awaiting signature</span>
+              <span className={`pill ${doc.status === "draft" ? "p-mut" : "p-warn"}`}>
+                {doc.status === "draft" ? "Draft" : "Awaiting signature"}
+              </span>
             </div>
           ))}
         </div>

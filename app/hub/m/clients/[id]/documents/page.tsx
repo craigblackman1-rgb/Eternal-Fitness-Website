@@ -95,7 +95,6 @@ export default async function MobileDocumentsPage({ params }: { params: { id: st
         <DocumentsClient
           allDocs={allDocs}
           clientNumber={clientNumber}
-          clientName={client.name}
         />
       </main>
 
