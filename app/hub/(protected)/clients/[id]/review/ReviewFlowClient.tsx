@@ -28,7 +28,7 @@ interface ReviewFlowClientProps {
   pbsCount: number;
   hasDeliveredSessions: boolean;
   hasAnyCompletedSessions: boolean;
-  chronologicalTotal: number;
+  hasActiveBlockDeliveredSessions: boolean;
   blockExpiryDate: string | null;
   clientNumber: number;
   currentUserName: string;
@@ -79,7 +79,7 @@ export function ReviewFlowClient({
   pbsCount,
   hasDeliveredSessions,
   hasAnyCompletedSessions,
-  chronologicalTotal,
+  hasActiveBlockDeliveredSessions,
   blockExpiryDate,
   clientNumber,
   currentUserName,
@@ -194,7 +194,7 @@ export function ReviewFlowClient({
       {/* Step panels */}
       {step === 1 && (
         <StepPanel onContinue={() => setStep(2)}>
-          <ProgressStep client={client} completedSessions={completedSessions} hasAnyCompletedSessions={hasAnyCompletedSessions} totalSessions={chronologicalTotal || client.sessions_purchased || 0} pbsCount={pbsCount} windowLabel={windowLabel} programmePosition={programmePosition} programmeFirstDate={programmeFirstDate} recentSessions={recentSessions} />
+          <ProgressStep client={client} completedSessions={completedSessions} hasAnyCompletedSessions={hasAnyCompletedSessions} pbsCount={pbsCount} windowLabel={windowLabel} programmePosition={programmePosition} programmeFirstDate={programmeFirstDate} recentSessions={recentSessions} />
         </StepPanel>
       )}
 
@@ -204,7 +204,7 @@ export function ReviewFlowClient({
             complianceFlags={complianceFlags}
             unreviewedCancellations={unreviewedCancellations}
             lapsedSessions={lapsedSessions}
-            hasDeliveredSessions={hasDeliveredSessions}
+            hasDeliveredSessions={hasActiveBlockDeliveredSessions}
             clientName={client.name}
             annualReviewDateSet={!!annualReviewDue}
           />
@@ -217,7 +217,7 @@ export function ReviewFlowClient({
             pot={pot}
             blockExpiryDate={blockExpiryDate}
             extensionHistory={extensionHistory}
-            hasDeliveredSessions={hasDeliveredSessions}
+            hasDeliveredSessions={hasActiveBlockDeliveredSessions}
             unreviewedCount={unreviewedCancellations.length}
           />
         </StepPanel>
@@ -446,7 +446,6 @@ function ProgressStep({
   client,
   completedSessions,
   hasAnyCompletedSessions,
-  totalSessions,
   pbsCount,
   windowLabel,
   programmePosition,
@@ -456,7 +455,6 @@ function ProgressStep({
   client: DBClient;
   completedSessions: { id: string; name: string; scheduled_at: string | null; position: string }[];
   hasAnyCompletedSessions: boolean;
-  totalSessions: number;
   pbsCount: number;
   windowLabel: string;
   programmePosition: { completedCount: number; totalSlots: number } | null;
@@ -470,7 +468,7 @@ function ProgressStep({
     if (programmePosition && programmePosition.totalSlots === 0) {
       return `${programmePosition.completedCount} session${programmePosition.completedCount === 1 ? "" : "s"} consumed`;
     }
-    return `Session ${completedSessions.length} of ${totalSessions || "?"}`;
+    return null;
   })();
 
   const programmeNotStarted = programmePosition
@@ -515,8 +513,10 @@ function ProgressStep({
                   <p className="text-[13px] font-bold text-foreground mt-0.5">
                     Programme not started{programmeFirstDate ? <> — begins {new Date(programmeFirstDate).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</> : ""}
                   </p>
-                ) : (
+                ) : positionText ? (
                   <p className="text-[13px] font-bold text-foreground mt-0.5">{positionText}</p>
+                ) : (
+                  <p className="text-[13px] text-muted-foreground mt-0.5">No programme assigned</p>
                 )}
               </div>
             </div>

@@ -97,8 +97,6 @@ export default async function ReviewPage({ params }: { params: { id: string } })
   const activeBlockSessions = activeBlock ? sessions.filter((s) => s.block_id === activeBlock.id) : [];
   const pot = deriveSessionPot(activeBlockSessions, client.sessions_purchased, client.pot_baseline_used ?? 0);
 
-  const chronologicalTotal = 0; // Replaced by programmeState.totalSlots in the window-scoped section
-
   // BUG-EF-151 — fetch combined hub + Trainerize set-log source (same as
   // clients/[id]/page.tsx:120-145) so PBs match the Progress drawer.
   const hubSessionIds = sessions.map((s: any) => s.id);
@@ -185,21 +183,17 @@ export default async function ReviewPage({ params }: { params: { id: string } })
   // Window label
   const fmtDate = (d: Date) =>
     d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-  const fmtDateFull = (d: Date) =>
-    d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-  const isToday = (d: Date) =>
-    d.toISOString().slice(0, 10) === now.toISOString().slice(0, 10);
-
   let windowLabel: string;
   if (windowSource === "review") {
-    const endLabel = isToday(now) ? "today" : fmtDateFull(now);
-    windowLabel = `Since last review, ${fmtDate(windowStart)} – ${endLabel}`;
+    windowLabel = `Since last review, ${fmtDate(windowStart)} – today`;
   } else if (windowSource === "default") {
-    windowLabel = "Last 6 weeks";
+    windowLabel = `Last 6 weeks — ${fmtDate(windowStart)} – today`;
   } else {
-    const endLabel = isToday(now) ? "today" : fmtDateFull(now);
-    const startLabel = fmtDate(windowStart);
-    windowLabel = `${startLabel} – ${endLabel}`;
+    const latestCompleted = [...reviewWindowSessions]
+      .filter((s) => s.completed_at)
+      .sort((a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime())[0];
+    const endLabel = latestCompleted?.completed_at ? fmtDate(new Date(latestCompleted.completed_at)) : "today";
+    windowLabel = `Last training period, ${fmtDate(windowStart)} – ${endLabel}`;
   }
 
   // Completed session names in the window (for ProgressStep)
@@ -211,17 +205,14 @@ export default async function ReviewPage({ params }: { params: { id: string } })
   }));
 
   // Position: programme-based, never from the (possibly empty) active block
-  let programmeState: QueueState | null = null;
-  try {
-    programmeState = await getClientProgramState(client.id);
-  } catch {
-    programmeState = null;
-  }
+  const programmeState = client.active_program_id
+    ? await getClientProgramState(client.id).catch(() => null)
+    : null;
 
-  // First scheduled date of the active block, for "not started" label
-  const firstScheduledDate = activeBlockSessions
+  // Earliest FUTURE scheduled date of the active block, for "not started" label
+  const programmeFirstDate = activeBlockSessions
     .map((s) => s.scheduled_at)
-    .filter((d): d is string => !!d)
+    .filter((d): d is string => !!d && new Date(d) >= now)
     .sort()[0] ?? null;
 
   // Unreviewed cancellations and lapsed sessions (still active-block-scoped —
@@ -242,6 +233,11 @@ export default async function ReviewPage({ params }: { params: { id: string } })
   // completed session anywhere, not just in the current block.
   const hasAnyCompletedSessions = allCompletedSessions.length > 0;
 
+  // Active-block scope for OutstandingStep/PositionStep (action items, not stats)
+  const hasActiveBlockDeliveredSessions = activeBlockSessions.some(
+    (s) => !s.parent_session_id && deriveSessionStatus(s) === "completed",
+  );
+
   // Recent sessions: 5 most recent completed in window, with set-log counts
   const recentSessionIds = reviewWindowSessions
     .sort((a, b) => {
@@ -252,7 +248,7 @@ export default async function ReviewPage({ params }: { params: { id: string } })
     .slice(0, 5)
     .map((s) => s.id);
 
-  let setLogCountBySession = new Map<string, number>();
+  const setLogCountBySession = new Map<string, number>();
   if (recentSessionIds.length > 0) {
     const { data: recentSetLogs } = await supabase
       .from("set_logs")
@@ -293,14 +289,14 @@ export default async function ReviewPage({ params }: { params: { id: string } })
       pbsCount={pbsCount}
       hasDeliveredSessions={hasDeliveredSessions}
       hasAnyCompletedSessions={hasAnyCompletedSessions}
-      chronologicalTotal={chronologicalTotal}
+      hasActiveBlockDeliveredSessions={hasActiveBlockDeliveredSessions}
       blockExpiryDate={client.block_expiry_date}
       clientNumber={numericId}
       currentUserName={currentUserName}
       windowLabel={windowLabel}
       recentSessions={recentSessionsData}
       programmePosition={programmeState ? { completedCount: programmeState.completedCount, totalSlots: programmeState.totalSlots } : null}
-      programmeFirstDate={firstScheduledDate}
+      programmeFirstDate={programmeFirstDate}
     />
   );
 }
