@@ -1660,7 +1660,7 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
     .filter((r) => r.delta !== null)
     .sort((a, b) => (a.sortDate > b.sortDate ? -1 : a.sortDate < b.sortDate ? 1 : 0));
 
-  const PB_PAGE_SIZE = 25;
+  const PB_PAGE_SIZE = 10;
   const pbQuery = pbSearch.toLowerCase();
   const filteredPbRows = pbQuery
     ? pbRows.filter((r) => r.name.toLowerCase().includes(pbQuery))
@@ -1669,17 +1669,41 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
   const clampedPbPage = Math.min(pbPage, pbTotalPages - 1);
   const visiblePbRows = filteredPbRows.slice(clampedPbPage * PB_PAGE_SIZE, (clampedPbPage + 1) * PB_PAGE_SIZE);
 
-  // ── 3b. Load progression rows (last / best / trend) ──
+  // ── 3b. Load progression rows (last / best / trend / improvement) ──
   const loadRows = exerciseTrends
     .filter((t) => t.points && t.points.length > 0)
     .map((trend) => {
       const pts = trend.points;
       const last = pts[pts.length - 1];
       let best = last;
-      for (const p of pts) {
-        if (trend.metric === "weight" && (p.topWeightKg ?? 0) > (best.topWeightKg ?? 0)) best = p;
-        else if (trend.metric === "reps" && (p.maxReps ?? 0) > (best.maxReps ?? 0)) best = p;
-        else if (trend.metric === "duration" && (p.maxDurationSeconds ?? 0) > (best.maxDurationSeconds ?? 0)) best = p;
+      let bestIdx = pts.length - 1;
+      for (let i = 0; i < pts.length; i++) {
+        const p = pts[i];
+        if (trend.metric === "weight" && (p.topWeightKg ?? 0) > (best.topWeightKg ?? 0)) { best = p; bestIdx = i; }
+        else if (trend.metric === "reps" && (p.maxReps ?? 0) > (best.maxReps ?? 0)) { best = p; bestIdx = i; }
+        else if (trend.metric === "duration" && (p.maxDurationSeconds ?? 0) > (best.maxDurationSeconds ?? 0)) { best = p; bestIdx = i; }
+      }
+      // Previous best = highest value among points BEFORE the session that set the current best
+      let prevBestVal: number | null = null;
+      if (bestIdx > 0) {
+        for (let i = 0; i < bestIdx; i++) {
+          const p = pts[i];
+          const val = trend.metric === "weight" ? p.topWeightKg
+            : trend.metric === "reps" ? p.maxReps
+            : p.maxDurationSeconds;
+          if (val != null && (prevBestVal == null || val > prevBestVal)) prevBestVal = val;
+        }
+      }
+      let improvementPct: number | null = null;
+      let improvementLabel: string | null = null;
+      if (prevBestVal != null && prevBestVal > 0) {
+        const bestVal = trend.metric === "weight" ? best.topWeightKg
+          : trend.metric === "reps" ? best.maxReps
+          : best.maxDurationSeconds;
+        if (bestVal != null && bestVal > prevBestVal) {
+          improvementPct = ((bestVal - prevBestVal) / prevBestVal) * 100;
+          improvementLabel = `+${Math.round(improvementPct)}% on previous best`;
+        }
       }
       const formatValue = (pt: any) => {
         if (trend.metric === "weight" && pt.topWeightKg != null) return `${pt.topWeightKg} kg × ${pt.repsAtTopWeight ?? "?"}`;
@@ -1706,11 +1730,18 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
         trendDir,
         lastDate: fmtShortDate(last.loggedAt),
         sortDate: last.loggedAt ?? "",
+        improvementPct,
+        improvementLabel,
       };
     }).filter(Boolean)
-    .sort((a: any, b: any) => (a.sortDate > b.sortDate ? -1 : a.sortDate < b.sortDate ? 1 : 0));
+    .sort((a: any, b: any) => {
+      if (a.improvementPct != null && b.improvementPct != null) return b.improvementPct - a.improvementPct;
+      if (a.improvementPct != null) return -1;
+      if (b.improvementPct != null) return 1;
+      return (a.sortDate > b.sortDate ? -1 : a.sortDate < b.sortDate ? 1 : 0);
+    });
 
-  const LOAD_PAGE_SIZE = 25;
+  const LOAD_PAGE_SIZE = 10;
   const loadQuery = loadSearch.toLowerCase();
   const filteredLoadRows = loadQuery
     ? loadRows.filter((r: any) => r.name.toLowerCase().includes(loadQuery))
@@ -2062,7 +2093,12 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
                 <tbody>
                   {visibleLoadRows.map((row: any, i: number) => (
                     <tr key={i}>
-                      <td>{row.name}</td>
+                      <td>
+                        <div>{row.name}</div>
+                        {row.improvementLabel && (
+                          <div style={{ fontSize: 12, color: "var(--color-body)", marginTop: 1 }}>{row.improvementLabel}</div>
+                        )}
+                      </td>
                       <td className="n">{row.lastValue}</td>
                       <td className="n">
                         {row.bestValue}
