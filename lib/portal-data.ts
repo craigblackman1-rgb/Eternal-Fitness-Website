@@ -62,7 +62,7 @@ export interface PortalExercise {
 export interface PortalSessionPlan {
   id: string;
   session_number: number;
-  week: number;
+  week: number | null;
   scheduled_at: string | null;
   phase: string;
   focus_label: string;
@@ -170,7 +170,7 @@ export class PortalDataClient {
     const rows = (sessionRows ?? []) as {
       id: string;
       session_number: number;
-      week: number;
+      week: number | null;
       scheduled_at: string | null;
       phase: string;
       data: Session;
@@ -360,7 +360,7 @@ export class PortalDataClient {
     const rows = (sessionRows ?? []) as {
       id: string;
       session_number: number;
-      week: number;
+      week: number | null;
       phase: string;
       data: Session;
       scheduled_at: string | null;
@@ -413,7 +413,7 @@ export class PortalDataClient {
 export interface PortalUpcomingSession {
   id: string;
   session_number: number;
-  week: number;
+  week: number | null;
   phase: string;
   focus_label: string;
   archetype: string;
@@ -424,7 +424,7 @@ export interface PortalUpcomingSession {
 export interface PortalBookingSession {
   id: string;
   session_number: number;
-  week: number;
+  week: number | null;
   phase: string;
   focus_label: string;
   archetype: string;
