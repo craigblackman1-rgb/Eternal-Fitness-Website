@@ -17,7 +17,8 @@ interface LedgerEntry {
   date: string;
   event: string;
   delta: number | null;
-  remaining: number;
+  remaining: number | null;
+  used?: number;
   tags: string[];
 }
 
@@ -89,7 +90,7 @@ export async function GET(
     ? deriveSessionPot(sessions as any, client.sessions_purchased ?? null, (client as any).pot_baseline_used ?? 0)
     : null;
 
-  const purchased = client.sessions_purchased ?? 0;
+  const purchased = client.sessions_purchased ?? null;
   const extensions = (client.block_expiry_extensions ?? []) as { from: string; to: string; at: string; reason?: string }[];
   const baselineUsed = (client as any).pot_baseline_used ?? 0;
 
@@ -161,7 +162,7 @@ export async function GET(
   if (packageStartDate) {
     events.push({
       date: toIsoTimestamp(packageStartDate) ?? packageStartDate,
-      event: `Package started — ${purchased} sessions`,
+      event: purchased != null ? `Package started — ${purchased} sessions` : "Ongoing package — no session cap",
       delta: purchased,
       tags: [],
       rank: 0,
@@ -239,12 +240,20 @@ export async function GET(
     return a.rank - b.rank;
   });
 
-  // Walk computing remaining in ascending order
-  let runningRemaining = 0;
+  // Walk computing remaining (capped) or used (ongoing) in ascending order
+  const isOngoing = purchased === null;
+  let runningCount = 0;
   const sorted: LedgerEntry[] = events.map((e) => {
-    runningRemaining =
-      e.delta !== null ? Math.max(0, runningRemaining + e.delta) : runningRemaining;
-    return { date: e.date, event: e.event, delta: e.delta, remaining: runningRemaining, tags: e.tags };
+    if (isOngoing) {
+      if (e.delta != null && e.delta < 0) {
+        runningCount -= e.delta; // delta is negative for consumption events
+      }
+      return { date: e.date, event: e.event, delta: e.delta, remaining: null, used: runningCount + baselineUsed, tags: e.tags };
+    } else {
+      runningCount =
+        e.delta !== null ? Math.max(0, runningCount + e.delta) : runningCount;
+      return { date: e.date, event: e.event, delta: e.delta, remaining: runningCount, tags: e.tags };
+    }
   });
 
   // ── Collapse consecutive free-cancel no-ops BEFORE reverse ─────────
@@ -274,6 +283,7 @@ export async function GET(
         event: count === 1 ? "Session cancelled (free)" : `${count} sessions cancelled`,
         delta: null,
         remaining: sorted[j - 1].remaining,
+        used: sorted[j - 1].used,
         tags: ["Free"],
       });
       i = j;
@@ -292,9 +302,11 @@ export async function GET(
     cancelled_charged: cancelledCharged,
     rescheduled,
     no_show: noShow,
-    remaining: derivedPot?.remaining ?? 0,
+    remaining: derivedPot?.remaining ?? null,
     purchased,
     baseline_used: baselineUsed,
+    used: derivedPot?.used ?? 0,
+    ongoing: purchased === null,
   };
 
   return NextResponse.json({ consumption, ledger });

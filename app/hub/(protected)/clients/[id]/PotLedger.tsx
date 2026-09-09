@@ -10,7 +10,8 @@ interface LedgerEntry {
   date: string;
   event: string;
   delta: number | null;
-  remaining: number;
+  remaining: number | null;
+  used?: number;
   tags: string[];
 }
 
@@ -20,9 +21,11 @@ interface Consumption {
   cancelled_charged: number;
   rescheduled: number;
   no_show: number;
-  remaining: number;
-  purchased: number;
+  remaining: number | null;
+  purchased: number | null;
   baseline_used?: number;
+  used: number;
+  ongoing: boolean;
 }
 
 interface PotLedgerData {
@@ -62,7 +65,9 @@ export function PotLedger({ clientNumber, clientName }: PotLedgerProps) {
   }, [clientNumber]);
 
   const c = data?.consumption;
-  const usedPct = c ? Math.round(((c.purchased - c.remaining) / c.purchased) * 100) : 0;
+  const usedPct = c && c.purchased != null && c.purchased > 0
+    ? Math.round(((c.purchased - (c.remaining ?? 0)) / c.purchased) * 100)
+    : 0;
 
   return (
     <>
@@ -76,19 +81,29 @@ export function PotLedger({ clientNumber, clientName }: PotLedgerProps) {
           <div className="fcard acc-teal">
             <div className="fcard-h">Balance</div>
             <div className="fcard-b">
-              <p className="text-[13px] font-semibold text-[var(--color-ink)] mb-1">
-                {c.purchased - c.remaining} of {c.purchased} sessions used
-              </p>
-              <div className="h-[10px] rounded-pill bg-neutral-100 overflow-hidden mb-1.5">
-                <div
-                  className="h-full rounded-pill bg-[var(--color-teal)] transition-[width] duration-300"
-                  style={{ width: `${usedPct}%` }}
-                />
-              </div>
-              <div className="flex justify-between text-xs text-[var(--color-muted)]">
-                <span>{c.purchased - c.remaining} used</span>
-                <span>{c.remaining} remaining</span>
-              </div>
+              {c.ongoing ? (
+                <>
+                  <p className="text-[13px] font-semibold text-[var(--color-ink)] mb-1">
+                    Ongoing — {c.used} sessions used
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-[13px] font-semibold text-[var(--color-ink)] mb-1">
+                    {(c.purchased ?? 0) - (c.remaining ?? 0)} of {c.purchased} sessions used
+                  </p>
+                  <div className="h-[10px] rounded-pill bg-neutral-100 overflow-hidden mb-1.5">
+                    <div
+                      className="h-full rounded-pill bg-[var(--color-teal)] transition-[width] duration-300"
+                      style={{ width: `${usedPct}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs text-[var(--color-muted)]">
+                    <span>{(c.purchased ?? 0) - (c.remaining ?? 0)} used</span>
+                    <span>{c.remaining} remaining</span>
+                  </div>
+                </>
+              )}
               <div className="mt-3">
                 {(c.baseline_used ?? 0) > 0 && (
                   <CounterRow count={c.baseline_used!} label="used before the hub (Trainerize)" />
@@ -97,7 +112,9 @@ export function PotLedger({ clientNumber, clientName }: PotLedgerProps) {
                 <CounterRow count={c.cancelled_free} label="cancelled — didn't use a session" chip="Free" />
                 <CounterRow count={c.rescheduled} label="rescheduled — didn't use a session" chip="Free" />
                 <CounterRow count={c.no_show} label="no-show" tone="warn" />
-                <CounterRow count={c.remaining} label="remaining" />
+                {!c.ongoing && (
+                  <CounterRow count={c.remaining ?? 0} label="remaining" />
+                )}
               </div>
               <p className="mt-3 mb-0 text-xs text-[var(--color-muted)]">
                 Programme advances on completed sessions only. Cancelled and rescheduled sessions don&apos;t use a session.
@@ -122,7 +139,7 @@ export function PotLedger({ clientNumber, clientName }: PotLedgerProps) {
                       Delta
                     </th>
                     <th className="text-right text-xs font-medium uppercase tracking-wider text-muted-foreground bg-[var(--hub-hover)] px-4 h-10 border-b border-[var(--hub-border)] whitespace-nowrap w-[100px]">
-                      Remaining
+                      {c.ongoing ? "Used" : "Remaining"}
                     </th>
                   </tr>
                 </thead>
@@ -144,7 +161,9 @@ export function PotLedger({ clientNumber, clientName }: PotLedgerProps) {
                         {entry.delta === null ? "—" : entry.delta > 0 ? `+${entry.delta}` : entry.delta}
                       </td>
                       <td className="px-2.5 py-2 border-b border-[var(--hub-border)] font-semibold text-[var(--color-ink)] text-right whitespace-nowrap">
-                        {entry.remaining} remaining
+                        {c.ongoing
+                          ? `${entry.used ?? 0} used`
+                          : `${entry.remaining} remaining`}
                       </td>
                     </tr>
                   ))}

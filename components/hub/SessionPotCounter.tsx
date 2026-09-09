@@ -29,6 +29,7 @@ function daysUntil(iso: string): number {
  */
 export function SessionPotCounter({ pot, blockExpiryDate, extended, originalExpiry }: SessionPotCounterProps) {
   const { completed, chargedCancellations, freeCancellations, unreviewedCancellations, used, purchased, remaining, unreviewed } = pot;
+  const isOngoing = purchased == null;
   const total = purchased || 1; // avoid division by zero
 
   const days = blockExpiryDate ? daysUntil(blockExpiryDate) : null;
@@ -46,12 +47,14 @@ export function SessionPotCounter({ pot, blockExpiryDate, extended, originalExpi
         {/* Hero: remaining */}
         <div className="flex items-baseline gap-2.5 shrink-0">
           <span className="text-[38px] font-extrabold tracking-tight leading-none text-foreground tabular-nums">
-            {remaining}
+            {isOngoing ? used : remaining}
           </span>
           <span className="text-[11.5px] font-bold text-muted-foreground leading-tight max-w-[74px]">
-            {expiryStatus === "past"
-              ? `${remaining} session${remaining === 1 ? "" : "s"} unused at expiry`
-              : "sessions remaining"}
+            {isOngoing
+              ? "sessions used"
+              : expiryStatus === "past"
+                ? `${remaining} session${remaining === 1 ? "" : "s"} unused at expiry`
+                : "sessions remaining"}
           </span>
         </div>
 
@@ -79,33 +82,55 @@ export function SessionPotCounter({ pot, blockExpiryDate, extended, originalExpi
             <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">Used</div>
           </div>
           <div>
-            <div className="text-base font-bold text-foreground leading-tight tabular-nums">{purchased}</div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">Purchased</div>
+            <div className="text-base font-bold text-foreground leading-tight tabular-nums">{isOngoing ? "Ongoing" : purchased}</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">{isOngoing ? "Package" : "Purchased"}</div>
           </div>
         </div>
 
         {/* Bar */}
         <div className="flex-1 min-w-[220px]">
-          <div className="flex h-3 rounded-pill overflow-hidden bg-[var(--hub-hover)] border border-[var(--hub-border)]" role="img" aria-label="Session balance breakdown">
-            {segments.map((seg) => (
-              <span
-                key={seg.label}
-                className="h-full first:rounded-l-pill last:rounded-r-pill"
-                style={{
-                  width: `${(seg.count / total) * 100}%`,
-                  backgroundColor: seg.color,
-                  borderRight: "1.5px solid var(--hub-card)",
-                }}
-              />
-            ))}
-          </div>
+          {isOngoing ? (
+            <div className="flex h-3 rounded-pill overflow-hidden bg-[var(--hub-hover)] border border-[var(--hub-border)]" role="img" aria-label="Sessions used">
+              {completed > 0 && (
+                <span
+                  className="h-full first:rounded-l-pill last:rounded-r-pill"
+                  style={{
+                    width: `${(completed / Math.max(used, 1)) * 100}%`,
+                    backgroundColor: "#087E8B",
+                    borderRight: "1.5px solid var(--hub-card)",
+                  }}
+                />
+              )}
+            </div>
+          ) : (
+            <div className="flex h-3 rounded-pill overflow-hidden bg-[var(--hub-hover)] border border-[var(--hub-border)]" role="img" aria-label="Session balance breakdown">
+              {segments.map((seg) => (
+                <span
+                  key={seg.label}
+                  className="h-full first:rounded-l-pill last:rounded-r-pill"
+                  style={{
+                    width: `${(seg.count / total) * 100}%`,
+                    backgroundColor: seg.color,
+                    borderRight: "1.5px solid var(--hub-card)",
+                  }}
+                />
+              ))}
+            </div>
+          )}
           <div className="flex flex-wrap gap-1 mt-2">
-            {segments.map((seg) => (
-              <span key={seg.label} className="flex items-center gap-1.5 text-xs text-body">
-                <span className="w-2.5 h-2.5 rounded-control shrink-0" style={{ backgroundColor: seg.color }} />
-                {seg.label} <b className="text-foreground font-bold tabular-nums">{seg.count}</b>
+            {isOngoing ? (
+              <span className="flex items-center gap-1.5 text-xs text-body">
+                <span className="w-2.5 h-2.5 rounded-control shrink-0" style={{ backgroundColor: "#087E8B" }} />
+                Completed <b className="text-foreground font-bold tabular-nums">{completed}</b>
               </span>
-            ))}
+            ) : (
+              segments.map((seg) => (
+                <span key={seg.label} className="flex items-center gap-1.5 text-xs text-body">
+                  <span className="w-2.5 h-2.5 rounded-control shrink-0" style={{ backgroundColor: seg.color }} />
+                  {seg.label} <b className="text-foreground font-bold tabular-nums">{seg.count}</b>
+                </span>
+              ))
+            )}
           </div>
         </div>
 
