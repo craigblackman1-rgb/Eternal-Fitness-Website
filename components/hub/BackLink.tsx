@@ -14,7 +14,8 @@ export default function BackLink({
 }) {
   const router = useRouter();
 
-  const handleClick = (e: MouseEvent) => {
+  const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     e.preventDefault();
     if (window.history.length > 1) {
       router.back();
