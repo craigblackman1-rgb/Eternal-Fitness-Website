@@ -114,6 +114,12 @@ export default async function TrainSessionPage({ params }: { params: { sessionId
   const sessionLog = sessionData?.session_log ?? null;
   const deliveryMode: DeliveryMode = client?.delivery_mode ?? "studio_1to1";
 
+  // Phase 2 — completion state for one-time completion semantics
+  const isCompleted =
+    sessionRow.status === "completed" ||
+    !!sessionRow.completed_at ||
+    !!sessionLog?.completed_at;
+
   // CR-EF-169 — fetch child sub-sessions for the supplementary work section
   const subSessions: SubSessionSummary[] = [];
   {
@@ -184,6 +190,8 @@ export default async function TrainSessionPage({ params }: { params: { sessionId
       initialSessionNote={sessionClientNote}
       initialSessionNoteId={sessionClientNoteId}
       subSessions={subSessions}
+      isCompleted={isCompleted}
+      completedAt={sessionRow.completed_at ?? sessionLog?.completed_at ?? null}
     />
   );
 }

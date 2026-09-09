@@ -131,6 +131,12 @@
 .schip.open { background: var(--hover); border: 1px solid var(--border); color: var(--muted); }
 .schip.in-progress { background: var(--s-primary-bg); border: 1px solid var(--s-primary-bd); color: var(--rose); }
 
+/* Phase 2 — completed session banner */
+.completed-banner { display: flex; align-items: center; gap: 12px; padding: 14px 16px; margin-bottom: 14px; border-radius: 14px; background: var(--s-success-bg); border: 1px solid var(--s-success-bd); color: var(--teal); }
+.completed-banner-ic { flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: var(--teal); color: var(--color-white); display: grid; place-items: center; }
+.completed-banner-t { font-size: 14px; font-weight: 700; color: var(--ink); }
+.completed-banner-s { font-size: 12px; color: var(--body); margin-top: 2px; }
+
 .schev { flex-shrink: 0; align-self: center; color: var(--muted); }
 
 /* ── Task list ────────────────────────────────────────────────── */

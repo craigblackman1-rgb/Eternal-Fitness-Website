@@ -128,6 +128,8 @@ export function TrainScreen({
   initialSessionNote,
   initialSessionNoteId,
   subSessions = [],
+  isCompleted = false,
+  completedAt = null,
 }: {
   sessionId: string;
   sessionNumber: number;
@@ -161,11 +163,18 @@ export function TrainScreen({
   initialSessionNoteId?: string | null;
   /** CR-EF-169 — child sub-sessions (supplementary work) attached to this session */
   subSessions?: { id: string; name: string; exerciseCount: number }[];
+  /** Phase 2 — one-time completion semantics: session is already completed */
+  isCompleted?: boolean;
+  /** Phase 2 — ISO timestamp of when the session was completed */
+  completedAt?: string | null;
 }) {
   const version = deliveryMode === "home_training" ? "home" : "studio";
   const sections = data?.versions?.[version] ?? { warm_up: [], main_block: [], cooldown: [] };
 
   const durationMinutes = data?.estimated_minutes ?? sessionDurationMinutes(data?.time_tier);
+
+  // Phase 2 — derived completion flag (also tracks in-flight completion)
+  const sessionCompleted = isCompleted || !!sessionLog?.completed_at;
 
   const setLogsMap = useMemo(() => {
     const map: Record<string, SetLog> = {};
@@ -1254,6 +1263,7 @@ Cancel — record it as today`,
                           onRestAdjust={handleRestAdjust}
                           onUngroup={handleUngroup}
                           exComplete={exComplete}
+                          sessionCompleted={sessionCompleted}
                         />
                       ) : (
                         <ExerciseCard
@@ -1281,6 +1291,7 @@ Cancel — record it as today`,
                           onRestStop={handleRestStop}
                           onRestAdjust={handleRestAdjust}
                           isComplete={block.items[0].uid ? exComplete(block.items[0].uid) : false}
+                          sessionCompleted={sessionCompleted}
                         />
                       )
                     )}
@@ -1401,6 +1412,21 @@ Cancel — record it as today`,
         </div>
       )}
 
+      {/* ── Completed banner (Phase 2) ────────────────────────────── */}
+      {sessionCompleted && (
+        <div className="completed-banner">
+          <span className="completed-banner-ic">{ICO.checkLg}</span>
+          <div>
+            <div className="completed-banner-t">
+              Session completed{completedAt ? ` ${new Date(completedAt).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })} at ${new Date(completedAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}` : ""}
+            </div>
+            <div className="completed-banner-s">
+              {progress.doneExCount} of {allSets.length} exercises logged
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Bottom action bar ─────────────────────────────────────── */}
       <div className="action-bar">
         <div className="action-inner">
@@ -1422,20 +1448,30 @@ Cancel — record it as today`,
             {ICO.note}
           </button>
           <span className="action-scope">{progress.doneExCount} of {allSets.length} exercises logged</span>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => {
-              if (rpe == null && fatigue == null) {
-                toast("Tip: RPE and fatigue are still blank — you can still complete without them.");
-              }
-              setShowComplete(true);
-            }}
-            disabled={completing}
-          >
-            {ICO.check}
-            Complete
-          </button>
+          {sessionCompleted ? (
+            <Link
+              className="btn btn-outline"
+              href={`/hub/m/train/${sessionId}/edit`}
+              style={{ fontSize: 13 }}
+            >
+              Edit this session
+            </Link>
+          ) : (
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => {
+                if (rpe == null && fatigue == null) {
+                  toast("Tip: RPE and fatigue are still blank — you can still complete without them.");
+                }
+                setShowComplete(true);
+              }}
+              disabled={completing}
+            >
+              {ICO.check}
+              Complete
+            </button>
+          )}
         </div>
       </div>
 
@@ -1552,6 +1588,7 @@ function SetRow({
   onSetSkip,
   onSetField,
   onSwapUnit,
+  readOnly,
 }: {
   exercise: Exercise;
   set: SetState;
@@ -1561,10 +1598,12 @@ function SetRow({
   onSetSkip: (uid: string, setIdx: number) => void;
   onSetField: (uid: string, setIdx: number, field: "reps" | "weight" | "duration", value: string) => void;
   onSwapUnit: (uid: string) => void;
+  /** Phase 2 — when true, inputs are disabled and action buttons are hidden */
+  readOnly?: boolean;
 }) {
   const uid = exercise.uid ?? "";
   const timeBased = isTimeBased(exercise.reps, exercise.log_type);
-  const disabled = set.status === "skipped";
+  const disabled = readOnly || set.status === "skipped";
   const isBand = isBandEquipment(exercise.equipment ?? []);
   const targetLabel = timeBased
     ? `Target: ${exercise.reps}`
@@ -1666,24 +1705,26 @@ function SetRow({
             </div>
           </>
         )}
-        <div className="set-actions">
-          <button
-            type="button"
-            className={`set-btn done-btn${set.status === "done" ? " on" : ""}`}
-            onClick={() => onSetDone(uid, setIdx)}
-            aria-pressed={set.status === "done"}
-          >
-            {ICO.check}Done
-          </button>
-          <button
-            type="button"
-            className={`set-btn skip-btn${set.status === "skipped" ? " on" : ""}`}
-            onClick={() => onSetSkip(uid, setIdx)}
-            aria-pressed={set.status === "skipped"}
-          >
-            {ICO.skip}Skip
-          </button>
-        </div>
+        {!readOnly && (
+          <div className="set-actions">
+            <button
+              type="button"
+              className={`set-btn done-btn${set.status === "done" ? " on" : ""}`}
+              onClick={() => onSetDone(uid, setIdx)}
+              aria-pressed={set.status === "done"}
+            >
+              {ICO.check}Done
+            </button>
+            <button
+              type="button"
+              className={`set-btn skip-btn${set.status === "skipped" ? " on" : ""}`}
+              onClick={() => onSetSkip(uid, setIdx)}
+              aria-pressed={set.status === "skipped"}
+            >
+              {ICO.skip}Skip
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1811,6 +1852,7 @@ function ExerciseCard({
   onRestStop,
   onRestAdjust,
   isComplete,
+  sessionCompleted,
 }: {
   sessionId: string;
   exercise: Exercise;
@@ -1835,6 +1877,8 @@ function ExerciseCard({
   onRestStop: (key: string) => void;
   onRestAdjust: (key: string, delta: number, fallbackSeconds: number) => void;
   isComplete: boolean;
+  /** Phase 2 — session is completed, sets are read-only */
+  sessionCompleted?: boolean;
 }) {
   const uid = exercise.uid ?? "";
   const timeBased = isTimeBased(exercise.reps, exercise.log_type);
@@ -1956,15 +2000,18 @@ function ExerciseCard({
             onSetSkip={onSetSkip}
             onSetField={onSetField}
             onSwapUnit={onSwapUnit}
+            readOnly={sessionCompleted}
           />
         ))}
       </div>
 
-      <div style={{ marginTop: 8 }}>
-        <button className="add-set" onClick={() => onAddSet(uid)}>
-          {ICO.plus}Add set
-        </button>
-      </div>
+      {!sessionCompleted && (
+        <div style={{ marginTop: 8 }}>
+          <button className="add-set" onClick={() => onAddSet(uid)}>
+            {ICO.plus}Add set
+          </button>
+        </div>
+      )}
 
       <RestControl
         timerKey={restTimerKey}
@@ -2003,6 +2050,7 @@ function SupersetBlock({
   onRestAdjust,
   onUngroup,
   exComplete,
+  sessionCompleted,
 }: {
   block: { type: "group"; label?: string; items: Exercise[] };
   exStates: Record<string, ExState>;
@@ -2025,6 +2073,8 @@ function SupersetBlock({
   onRestAdjust: (key: string, delta: number, fallbackSeconds: number) => void;
   onUngroup: (label: string) => void;
   exComplete: (uid: string) => boolean;
+  /** Phase 2 — session is completed, sets are read-only */
+  sessionCompleted?: boolean;
 }) {
   const label = block.label ?? "?";
   const totalRounds = Math.max(...block.items.map((ex) => ex.sets || 1));
@@ -2180,6 +2230,7 @@ function SupersetBlock({
                   onSetSkip={onSetSkip}
                   onSetField={onSetField}
                   onSwapUnit={onSwapUnit}
+                  readOnly={sessionCompleted}
                 />
               </div>
             );
