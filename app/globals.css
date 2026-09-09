@@ -1474,6 +1474,34 @@ table.eb-table { width: 100%; border-collapse: collapse; font-size: 14px; min-wi
 .h-card-hd .t-section { flex: 1; min-width: 0; }
 .h-card-bd { padding: 14px 16px; }
 
+/* ══ CLIENT RECORD HEADER — responsive (BUG-EF-168) ══════════════════════
+   At phone width the identity block and action buttons must stack vertically
+   so buttons don't render on top of the client name. */
+@media (max-width: 700px) {
+  .cr-header { flex-wrap: wrap; }
+  .cr-header > :first-child { min-width: 52px; }
+  .cr-header > :nth-child(2) { flex: 1 1 0; min-width: 0; }
+  .cr-header > :last-child { flex: 1 1 100%; justify-content: flex-start; }
+}
+
+/* ══ TRAINING CARD HEADER + FOOTER — responsive ══════════════════════════
+   Card header: title and meta must not overlap at narrow widths.
+   Rungs footer: caption drops below buttons instead of a crushed side column. */
+@media (max-width: 620px) {
+  .h-card-hd { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .tsec .rungs { flex-wrap: wrap; }
+  .tsec .rungs .btn { flex: 1 1 auto; }
+  .tsec .rungs .t-meta { flex: 1 1 100%; margin-top: 8px; }
+}
+
+/* ══ TRAINING DROW — responsive column widths ═════════════════════════════
+   At phone width, fixed drow columns exceed available space. Reduce widths
+   so the row fits without horizontal scroll. */
+@media (max-width: 620px) {
+  .tsec .drow-d { flex: 0 0 100px; }
+  .tsec .drow-s { flex: 0 0 72px; }
+}
+
 /* ══ SEGMENTED CONTROL (§5b) ════════════════════════════════════════════ */
 .seg { display: inline-flex; align-items: center; gap: 2px; height: 36px; padding: 3px; background: var(--hub-canvas); border: 1px solid var(--hub-border); border-radius: var(--r-control); }
 .seg-btn { height: 100%; text-decoration: none; padding: 0 12px; border: 0; border-radius: var(--r-control-sm); background: transparent; font-family: inherit; font-size: 12.5px; font-weight: 600; color: var(--color-muted-text); cursor: pointer; white-space: nowrap; }
