@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { ensureUids } from "@/lib/exercise-ref";
+import type { SessionVersion } from "@/types";
 
 /**
  * Mobile swap chooser — Phase 3 (pwa-parity u5).
@@ -65,13 +67,25 @@ export function SwapChooser({
   const selectedTemplate = templates.find((t) => t.id === selectedTemplateId) ?? null;
 
   async function handleSwapProgramme() {
-    if (!hasProgram) return;
+    if (!hasProgram || clientNumber == null) return;
     setSaving(true);
     try {
+      const stateRes = await fetch(`/api/clients/${clientNumber}/program-state`);
+      if (!stateRes.ok) {
+        const errData = await stateRes.json().catch(() => null);
+        throw new Error(errData?.error || "Could not load programme state");
+      }
+      const state: { program: { id: string }; nextSlot: { id: string } | null } = await stateRes.json();
+      if (!state.nextSlot) {
+        throw new Error("Programme queue is exhausted — no next slot available");
+      }
       const res = await fetch(`/api/sessions/${sessionId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ push_along: true }),
+        body: JSON.stringify({
+          program_id: state.program.id,
+          program_slot_id: state.nextSlot.id,
+        }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => null);
@@ -90,21 +104,41 @@ export function SwapChooser({
     if (!selectedTemplate) return;
     setSaving(true);
     try {
+      const tplRes = await fetch("/api/workout-templates");
+      if (!tplRes.ok) throw new Error("Could not load template data");
+      const tplList: { id: string; name: string; data: SessionVersion }[] = await tplRes.json();
+      const tpl = tplList.find((t) => t.id === selectedTemplateId);
+      if (!tpl) throw new Error("Template not found");
+
+      const versions: Record<string, SessionVersion> = {};
+      const buildVersion = (src: SessionVersion): SessionVersion => ({
+        warm_up: ensureUids(src.warm_up ?? []),
+        main_block: ensureUids(src.main_block ?? []),
+        cooldown: ensureUids(src.cooldown ?? []),
+      });
+      versions.studio = buildVersion(tpl.data);
+      versions.home = buildVersion(tpl.data);
+
       const res = await fetch(`/api/sessions/${sessionId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          data: {
-            focus_label: selectedTemplate.name,
-          },
-          program_slot_id: null,
+          data: { versions, focus_label: tpl.name },
+          source_focus_label: tpl.name,
+          source_archetype: null,
         }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => null);
-        throw new Error(data?.error || "Failed to swap workout");
+        throw new Error(data?.error || "Failed to assign template");
       }
-      toast.success(`Swapped to "${selectedTemplate.name}"`);
+      fetch(`/api/workout-templates/${selectedTemplateId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ increment_usage: true }),
+      }).catch(() => {});
+
+      toast.success(`Swapped to "${tpl.name}"`);
       onSwapped();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Swap failed");
