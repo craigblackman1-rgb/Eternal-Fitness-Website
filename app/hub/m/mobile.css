@@ -120,6 +120,17 @@
 .pill.med { background: var(--s-danger-bg); border: 1px solid var(--s-danger-bd); color: var(--s-danger); }
 .pill.live { background: var(--s-primary-bg); border: 1px solid var(--s-primary-bd); color: var(--rose); }
 .pill.logged { background: var(--s-success-bg); border: 1px solid var(--s-success-bd); color: var(--teal); }
+
+/* Time-aware session chips (pwa-parity u5) */
+.schip { display: inline-flex; align-items: center; gap: 4px; border-radius: var(--r-pill); padding: 2px 9px; font-size: 10.5px; font-weight: 700; white-space: nowrap; }
+.schip.done { background: var(--s-success-bg); border: 1px solid var(--s-success-bd); color: var(--teal); }
+.schip.cancelled { background: var(--s-neutral-bg); border: 1px solid var(--s-neutral-bd); color: var(--muted); }
+.schip.not-logged { background: var(--s-warning-bg); border: 1px solid var(--s-warning-bd); color: var(--s-warning); }
+.schip.next { background: var(--s-primary-bg); border: 1px solid var(--s-primary-bd); color: var(--rose); }
+.schip.applied { background: var(--s-success-bg); border: 1px solid var(--s-success-bd); color: var(--teal); }
+.schip.open { background: var(--hover); border: 1px solid var(--border); color: var(--muted); }
+.schip.in-progress { background: var(--s-primary-bg); border: 1px solid var(--s-primary-bd); color: var(--rose); }
+
 .schev { flex-shrink: 0; align-self: center; color: var(--muted); }
 
 /* ── Task list ────────────────────────────────────────────────── */

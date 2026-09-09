@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { Task } from "@/types";
 import type { TodayEntry } from "./page";
+import { deriveSessionChip } from "@/lib/session-chip";
 
 // ── date/time helpers (mirrors ScheduleCalendar) ───────────────
 
@@ -355,44 +356,62 @@ export function TodayScreen({ entries, tasks, openBookingCount, currentUserName,
                 </div>
               ) : (
                 <div className="slist">
-                  {dayEntries.map((entry) => {
-                    const clash = conflictIds.has(entry.id);
-                    const isLogged = !!entry.sessionLogCompletedAt;
-                    const isLive = !!entry.sessionLogStartedAt && !entry.sessionLogCompletedAt;
-                    const { start, end } = formatTimeRange(entry.scheduledAt, entry.durationMinutes);
-                    const hasMedicalFlag = entry.complianceStatus && entry.complianceStatus !== "clear";
+                  {(() => {
+                    /* Find the first upcoming session (not completed, not cancelled, not past) */
+                    const now = Date.now();
+                    const nextIdx = dayEntries.findIndex((e) => {
+                      if (e.status === "completed" || e.completedAt || e.sessionLogCompletedAt) return false;
+                      if (e.status === "cancelled") return false;
+                      const end = new Date(e.scheduledAt).getTime() + e.durationMinutes * 60_000;
+                      return now <= end;
+                    });
 
-                    return (
-                      <Link
-                        key={entry.id}
-                        className={`scard${clash ? " clash" : ""}${isLogged ? " done" : ""}`}
-                        href={`/hub/m/train/${entry.id}`}
-                      >
-                        <div className="stime">
-                          <b>{start}</b>
-                          <span>{end}</span>
-                        </div>
-                        <div className="sbody">
-                          <div className="sname-row">
-                            <span className="sname">{entry.clientName}</span>
+                    return dayEntries.map((entry, idx) => {
+                      const clash = conflictIds.has(entry.id);
+                      const { start, end } = formatTimeRange(entry.scheduledAt, entry.durationMinutes);
+                      const hasMedicalFlag = entry.complianceStatus && entry.complianceStatus !== "clear";
+                      const chip = deriveSessionChip(
+                        entry.status ?? "planned",
+                        entry.scheduledAt,
+                        entry.durationMinutes,
+                        entry.displayName,
+                        {
+                          sessionLogStartedAt: entry.sessionLogStartedAt,
+                          sessionLogCompletedAt: entry.sessionLogCompletedAt,
+                          completedAt: entry.completedAt,
+                        },
+                        idx === nextIdx,
+                      );
+
+                      return (
+                        <Link
+                          key={entry.id}
+                          className={`scard${clash ? " clash" : ""}`}
+                          href={`/hub/m/train/${entry.id}`}
+                        >
+                          <div className="stime">
+                            <b>{start}</b>
+                            <span>{end}</span>
                           </div>
-                          <div className="smeta">
-                            {entry.displayName}
-                            {` · ${entry.durationMinutes} min`}
-                          </div>
-                          {(clash || isLive || isLogged || hasMedicalFlag) && (
+                          <div className="sbody">
+                            <div className="sname-row">
+                              <span className="sname">{entry.clientName}</span>
+                            </div>
+                            <div className="smeta">
+                              {entry.displayName}
+                              {` · ${entry.durationMinutes} min`}
+                            </div>
                             <div className="sflags">
+                              <span className={`schip ${chip.variant}`}>{chip.label}</span>
                               {clash && <span className="pill clash-pill">{ICO.warnSm}Clash</span>}
-                              {isLive && <span className="pill live">{ICO.live}In progress</span>}
-                              {isLogged && <span className="pill logged">{ICO.check}Logged</span>}
                               {hasMedicalFlag && <span className="pill med">{ICO.med}Medical flag</span>}
                             </div>
-                          )}
-                        </div>
-                        <span className="schev">{ICO.chev}</span>
-                      </Link>
-                    );
-                  })}
+                          </div>
+                          <span className="schev">{ICO.chev}</span>
+                        </Link>
+                      );
+                    });
+                  })()}
                 </div>
               )}
             </div>

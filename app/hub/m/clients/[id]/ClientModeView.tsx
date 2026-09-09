@@ -10,6 +10,7 @@ import type { ExerciseTrendSummary } from "@/lib/progress";
 import { DayAgenda, type AgendaSession } from "@/components/hub/DayAgenda";
 import { ClientNotesPane } from "./ClientNotesPane";
 import { todayLocalISODate, shiftDay } from "@/lib/schedule-dates";
+import { deriveSessionChip } from "@/lib/session-chip";
 
 /* ── Exported view types (derived in page.tsx server component) ── */
 
@@ -497,24 +498,45 @@ export function ClientModeView({
                 </Link>
               </div>
               <div className="panel-b" style={{ paddingTop: 2, paddingBottom: 4 }}>
-                {calendarSessions
-                  .filter((s) => s.status === "scheduled")
-                  .slice(0, 2)
-                  .map((s) => {
+                {(() => {
+                  const scheduled = calendarSessions.filter((s) => s.status === "scheduled");
+                  const now = Date.now();
+                  /* Find first upcoming session with a workout for "Next" chip */
+                  const nextIdx = scheduled.findIndex((s) => {
+                    const end = new Date(s.scheduledAt).getTime() + 60 * 60_000;
+                    return now <= end && s.name !== "No workout assigned yet";
+                  });
+                  return scheduled.slice(0, 4).map((s, idx) => {
                     const d = new Date(s.scheduledAt);
+                    const durationMin = 60;
+                    const chip = deriveSessionChip(
+                      s.status,
+                      s.scheduledAt,
+                      durationMin,
+                      s.name,
+                      {},
+                      idx === nextIdx,
+                    );
                     return (
-                      <div key={s.id} className="brow-m">
+                      <Link
+                        key={s.id}
+                        className="brow-m"
+                        href={`/hub/m/train/${s.id}`}
+                        style={{ textDecoration: "none", color: "inherit" }}
+                      >
                         <span className="bdate-m">
                           <b>{d.getDate()}</b>
                           <span>{d.toLocaleDateString("en-GB", { weekday: "short" })}</span>
                         </span>
                         <span className="bmeta-m">
                           <b>{d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}{d.toDateString() === new Date().toDateString() ? " today" : ""}</b>
-                          Will use {s.name}
+                          {s.name}
                         </span>
-                      </div>
+                        <span className={`schip ${chip.variant}`}>{chip.label}</span>
+                      </Link>
                     );
-                  })}
+                  });
+                })()}
               </div>
             </div>
           )}
