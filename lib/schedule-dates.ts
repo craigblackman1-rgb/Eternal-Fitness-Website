@@ -96,7 +96,7 @@ export interface CalendarWeekGroup<T> {
   kind: CalendarWeekKind;
   /** The stored `week` ordinal — the source of truth for "Plan week N" headers
    *  and the fallback grouping key for unscheduled sessions. */
-  planWeek: number;
+  planWeek: number | null;
   /** Local "YYYY-MM-DD" of the Monday opening this week; null for plan weeks. */
   monday: string | null;
   sessions: T[];
@@ -118,11 +118,11 @@ export interface CalendarWeekGroup<T> {
  * `scheduled_at` (then stable by original order); within a plan week they keep
  * the input order (the caller passes them in `session_number` order).
  */
-export function groupSessionsByWeek<T extends { scheduled_at: string | null; projected_at?: string | null; week: number; completed_at?: string | null }>(
+export function groupSessionsByWeek<T extends { scheduled_at: string | null; projected_at?: string | null; week: number | null; completed_at?: string | null }>(
   sessions: T[],
 ): CalendarWeekGroup<T>[] {
-  const scheduledWeeks = new Map<string, { planWeek: number; sessions: T[] }>();
-  const planWeeks = new Map<number, T[]>();
+  const scheduledWeeks = new Map<string, { planWeek: number | null; sessions: T[] }>();
+  const planWeeks = new Map<number | null, T[]>();
 
   for (const s of sessions) {
     // Use scheduled_at first; fall back to projected_at for unbooked sessions
@@ -158,7 +158,7 @@ export function groupSessionsByWeek<T extends { scheduled_at: string | null; pro
     });
 
   [...planWeeks.entries()]
-    .sort(([a], [b]) => (a == null ? 1 : b == null ? -1 : a - b))
+    .sort(([a], [b]) => (a == null && b == null ? 0 : a == null ? 1 : b == null ? -1 : a - b))
     .forEach(([week, items]) => {
       groups.push({ key: `p${week}`, kind: "plan", planWeek: week, monday: null, sessions: items });
     });
@@ -168,10 +168,11 @@ export function groupSessionsByWeek<T extends { scheduled_at: string | null; pro
 
 /**
  * Derived week label: "Week of 25 Aug" for scheduled sessions,
- * "Plan week N" for unscheduled ones (CR-EF-032).
+ * "Plan week N" for unscheduled ones (CR-EF-032),
+ * "Not scheduled" when week is null and there's no date.
  */
-export function derivedWeekLabel(scheduled_at: string | null, week: number): string {
-  if (!scheduled_at) return `Plan week ${week}`;
+export function derivedWeekLabel(scheduled_at: string | null, week: number | null): string {
+  if (!scheduled_at) return week != null ? `Plan week ${week}` : "Not scheduled";
   const monday = isoToMonday(scheduled_at);
   const d = new Date(monday);
   return `Week of ${d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`;

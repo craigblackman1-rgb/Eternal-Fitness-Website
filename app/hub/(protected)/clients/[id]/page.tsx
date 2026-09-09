@@ -10,6 +10,7 @@ import { trainerizeResultsToSetLogs } from "@/lib/trainerize-adapter";
 import { toIsoTimestamp } from "@/lib/pg-timestamp";
 import { aggregateExerciseNotes } from "@/lib/exercise-notes";
 import { getClientProgramState } from "@/lib/programs/queue";
+import { deriveSessionPot } from "@/lib/session-pot";
 import { sessionWorkoutName } from "@/lib/session-display";
 import type { SessionNoteData, PinnedNoteRef, DBSession, SetLog } from "@/types";
 import { ClientRecordShell } from "./ClientRecordShell";
@@ -54,18 +55,26 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
   // Hub-used sessions across ALL blocks (not limited to 50) for the pot
   // baseline disagreement check. Counts completed + cancelled-and-charged.
+  const baselineUsed = (client as any).pot_baseline_used ?? 0;
   let hubUsedCount = 0;
+  let allHubSessions: any[] = [];
   if (clientBlockIds.length > 0) {
-    const { data: allHubSessions } = await supabase
+    const { data: allSessions } = await supabase
       .from("sessions")
-      .select("id, status, charged_free")
+      .select("id, status, charged_free, cancelled_at, completed_at, parent_session_id, scheduled_at, data")
       .in("block_id", clientBlockIds);
-    for (const s of allHubSessions ?? []) {
+    allHubSessions = allSessions ?? [];
+    for (const s of allHubSessions) {
       if (s.status === "completed" || (s.status === "cancelled" && (s as any).charged_free !== "free")) {
         hubUsedCount++;
       }
     }
   }
+
+  // BUG-EF-142 — derive pot from actual session data, never trust stored columns.
+  const derivedPot = allHubSessions.length > 0
+    ? deriveSessionPot(allHubSessions, client.sessions_purchased ?? null, baselineUsed)
+    : null;
 
   // Normalise to strict ISO-8601 (offset-preserving) so WebKit (iOS Safari)
   // doesn't render "Invalid Date" — see lib/pg-timestamp.ts.
@@ -496,7 +505,6 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   const undatedSessionCount = latestBlockSessions.filter((s) => !s.scheduled_at).length;
 
   // Block session count mismatch: typed pot_used vs (baseline + hub counted)
-  const baselineUsed = (client as any).pot_baseline_used ?? 0;
   const blockSessionCountMismatch = client.sessions_used != null
     && client.sessions_used !== baselineUsed + hubUsedCount;
 
@@ -629,8 +637,8 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       ruleTypesById={ruleTypesById}
       complianceLookup={complianceLookup}
       gpClearance={gpClearance}
-      sessionsRemaining={client.sessions_remaining}
-      sessionsUsed={client.sessions_used}
+      sessionsRemaining={derivedPot?.remaining ?? client.sessions_remaining ?? 0}
+      sessionsUsed={derivedPot?.used ?? client.sessions_used ?? 0}
       paymentStatus={client.payment_status}
       packageType={client.package_type}
       medicalClearanceStatus={client.medical_clearance_status}

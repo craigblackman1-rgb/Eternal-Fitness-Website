@@ -57,7 +57,7 @@ export interface SessionPotBreakdown {
  * cancellations.
  */
 export function deriveSessionPot(
-  sessions: Pick<DBSession, "status" | "charged_free" | "cancelled_at" | "parent_session_id" | "completed_at">[],
+  sessions: (Pick<DBSession, "status" | "charged_free" | "cancelled_at" | "parent_session_id" | "completed_at"> & { data?: DBSession["data"] })[],
   sessionsPurchased: number | null,
   baselineUsed: number = 0,
 ): SessionPotBreakdown {
@@ -70,7 +70,7 @@ export function deriveSessionPot(
   let unreviewedCancellations = 0;
 
   for (const s of potSessions) {
-    const status = deriveSessionStatus(s);
+    const status = deriveSessionStatus({ ...s, session_log: (s as any).data?.session_log });
     if (status === "completed") {
       completed++;
     } else if (status === "cancelled") {

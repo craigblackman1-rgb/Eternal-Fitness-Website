@@ -425,7 +425,7 @@ export interface Session {
   client_id: string;
   session_number: number;
   archetype: Archetype;
-  week: number;
+  week: number | null;
   phase: Phase;
   focus_label: string;
   time_tier: TimeTier;
@@ -618,7 +618,7 @@ export interface DBSession {
   block_id: string;
   session_number: number;
   archetype: Archetype;
-  week: number;
+  week: number | null;
   phase: Phase;
   data: Session;
   /** When this session is booked to happen. NULL = unscheduled. Distinct from

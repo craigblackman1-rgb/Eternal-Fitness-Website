@@ -9,6 +9,7 @@ import {
 } from "@/lib/cashflow-matching";
 import { computeForecast } from "@/lib/cashflow-forecast";
 import { currentTaxYear, getTaxYearBounds } from "@/lib/cashflow-tax";
+import { deriveSessionPot } from "@/lib/session-pot";
 import { ForecastSection } from "./ForecastSection";
 import { TaxSection } from "./TaxSection";
 
@@ -57,6 +58,7 @@ interface ClientRow {
   block_expiry_date: string | null;
   sessions_remaining: number | null;
   sessions_purchased: number | null;
+  pot_baseline_used: number | null;
   client_rate: number | null;
   session_duration: number | null;
 }
@@ -114,7 +116,7 @@ export default async function CashflowOverviewPage() {
       supabase
         .from("clients")
         .select(
-          "id, name, client_number, client_status, block_expiry_date, sessions_remaining, sessions_purchased, client_rate, session_duration",
+          "id, name, client_number, client_status, block_expiry_date, sessions_remaining, sessions_purchased, pot_baseline_used, client_rate, session_duration",
         )
         .eq("client_status", "active"),
       supabase
@@ -138,6 +140,44 @@ export default async function CashflowOverviewPage() {
   const clients = (clientsRes.data ?? []) as ClientRow[];
   const allInvoices = (invoicesRes.data ?? []) as InvoiceRow[];
   const invoiceTotalCount = invoiceCountRes.count ?? allInvoices.length;
+
+  // BUG-EF-142 — derive remaining for all active clients from session data.
+  // Batch-fetch blocks and sessions to avoid N+1 queries.
+  const clientIds = clients.map((c) => c.id);
+  const derivedRemainingByClientId = new Map<string, number | null>();
+  if (clientIds.length > 0) {
+    const { data: allClientBlocks } = await supabase
+      .from("blocks")
+      .select("id, client_id")
+      .in("client_id", clientIds);
+    const allBlockIds = (allClientBlocks ?? []).map((b: { id: string }) => b.id);
+    const blockToClientId = new Map<string, string>();
+    for (const b of allClientBlocks ?? []) blockToClientId.set(b.id, b.client_id);
+    if (allBlockIds.length > 0) {
+      const { data: allClientSessions } = await supabase
+        .from("sessions")
+        .select("status, charged_free, cancelled_at, completed_at, parent_session_id, scheduled_at, data, block_id")
+        .in("block_id", allBlockIds);
+      // Group sessions by client_id
+      const sessionsByClientId = new Map<string, any[]>();
+      for (const s of allClientSessions ?? []) {
+        const cid = blockToClientId.get(s.block_id);
+        if (cid) {
+          if (!sessionsByClientId.has(cid)) sessionsByClientId.set(cid, []);
+          sessionsByClientId.get(cid)!.push(s);
+        }
+      }
+      for (const c of clients) {
+        const cSessions = sessionsByClientId.get(c.id);
+        if (cSessions && cSessions.length > 0) {
+          const pot = deriveSessionPot(cSessions, c.sessions_purchased ?? null, c.pot_baseline_used ?? 0);
+          derivedRemainingByClientId.set(c.id, pot.remaining);
+        } else {
+          derivedRemainingByClientId.set(c.id, null);
+        }
+      }
+    }
+  }
 
   // ── Finance KPIs (§7 — same anatomy as compliance/updates) ───────────
   const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
@@ -166,11 +206,11 @@ export default async function CashflowOverviewPage() {
   const queue: QueueItem[] = [];
 
   // 1) A block ending (or already ended) with sessions left unused — sell
-  // the next one now, or let it lapse. (clients.block_expiry_date, sessions_remaining)
+  // the next one now, or let it lapse. (clients.block_expiry_date, derived remaining)
   const endingClients = clients
     .filter((c) => {
       if (!c.block_expiry_date) return false;
-      const remaining = c.sessions_remaining ?? 0;
+      const remaining = derivedRemainingByClientId.get(c.id) ?? 0;
       if (remaining <= 0) return false;
       const expiry = new Date(c.block_expiry_date);
       const daysUntil = daysBetween(expiry, now);
@@ -181,7 +221,7 @@ export default async function CashflowOverviewPage() {
   for (const c of endingClients) {
     const expiry = new Date(c.block_expiry_date!);
     const daysUntil = daysBetween(expiry, now);
-    const remaining = c.sessions_remaining ?? 0;
+    const remaining = derivedRemainingByClientId.get(c.id) ?? 0;
     const purchased = c.sessions_purchased ?? remaining;
     const whenText =
       daysUntil >= 0

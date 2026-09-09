@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { deriveSessionPot } from "@/lib/session-pot";
+import { deriveSessionStatus } from "@/lib/session-status";
+import { toIsoTimestamp } from "@/lib/pg-timestamp";
 
 /* ── GET /api/clients/[id]/pot-ledger ──────────────────────────────────
  * Derives the full pot ledger from sessions rows + block_expiry_extensions.
@@ -18,6 +21,17 @@ interface LedgerEntry {
   tags: string[];
 }
 
+/** Rank events for deterministic sort: package-start → baseline → session activity → extension → expiry. */
+function eventRank(e: { event: string; tags: string[] }): number {
+  if (e.event.startsWith("Package started")) return 0;
+  if (e.event.startsWith("Before the hub")) return 1;
+  if (e.event.startsWith("Session completed")) return 2;
+  if (e.event.startsWith("Session cancelled")) return 2;
+  if (e.event.startsWith("Expiry extended")) return 3;
+  if (e.event === "Package expired") return 4;
+  return 5;
+}
+
 export async function GET(
   _request: Request,
   { params }: { params: { id: string } },
@@ -29,7 +43,7 @@ export async function GET(
   // Fetch client — include pot_baseline_used for the pre-hub opening balance
   const { data: client, error: clientError } = await supabase
     .from("clients")
-    .select("id, start_date, created_at, sessions_purchased, sessions_remaining, block_expiry_date, block_expiry_extensions, pot_baseline_used, pot_baseline_note, pot_baseline_at")
+    .select("id, start_date, created_at, sessions_purchased, block_expiry_date, block_expiry_extensions, pot_baseline_used, pot_baseline_note, pot_baseline_at")
     .eq("client_number", parseInt(params.id))
     .single();
   if (clientError || !client) {
@@ -53,13 +67,15 @@ export async function GET(
     charged_free: string | null;
     scheduled_at: string | null;
     completed_at: string | null;
+    parent_session_id: string | null;
     block_id: string;
     session_number: number | null;
+    data: Record<string, unknown> | null;
   }[] = [];
   if (blockIds.length > 0) {
     const { data: sessionRows, error: sessionsError } = await supabase
       .from("sessions")
-      .select("id, status, cancelled_at, charged_free, scheduled_at, completed_at, block_id, session_number")
+      .select("id, status, cancelled_at, charged_free, scheduled_at, completed_at, parent_session_id, block_id, session_number, data")
       .in("block_id", blockIds)
       .order("scheduled_at", { ascending: true });
     if (sessionsError) {
@@ -68,12 +84,18 @@ export async function GET(
     sessions = (sessionRows ?? []) as typeof sessions;
   }
 
+  // BUG-EF-142 — derive remaining from actual session data, never the stored column
+  const derivedPot = sessions.length > 0
+    ? deriveSessionPot(sessions as any, client.sessions_purchased ?? null, (client as any).pot_baseline_used ?? 0)
+    : null;
+
   const purchased = client.sessions_purchased ?? 0;
-  const remaining = client.sessions_remaining ?? 0;
   const extensions = (client.block_expiry_extensions ?? []) as { from: string; to: string; at: string; reason?: string }[];
   const baselineUsed = (client as any).pot_baseline_used ?? 0;
 
-  // Count session categories
+  // BUG-EF-144 — count session categories using deriveSessionStatus.
+  // Sub-sessions (parent_session_id) are excluded per CR-EF-101.
+  // NULL charged_free is never treated as "charged" (never-guess rule).
   let completed = 0;
   let cancelledFree = 0;
   let cancelledCharged = 0;
@@ -81,20 +103,21 @@ export async function GET(
   let noShow = 0;
 
   for (const s of sessions ?? []) {
-    if (s.status === "completed") {
+    if (s.parent_session_id) continue; // CR-EF-101 — sub-sessions excluded
+    const sStatus = deriveSessionStatus({ ...s, session_log: (s.data as Record<string, unknown> | null)?.session_log });
+    if (sStatus === "completed") {
       completed++;
-    } else if (s.status === "cancelled") {
+    } else if (sStatus === "cancelled") {
       if (s.charged_free === "free") {
         cancelledFree++;
-      } else {
+      } else if (s.charged_free === "charged") {
         cancelledCharged++;
       }
-      // Check if it was rescheduled (has a parent or was moved)
+      // NULL charged_free: neither counted as charged nor free — unreviewed
       if (s.scheduled_at && s.cancelled_at && new Date(s.scheduled_at) > new Date(s.cancelled_at)) {
         rescheduled++;
       }
     } else if (s.status === "scheduled" && s.scheduled_at) {
-      // Check for no-show: scheduled, past, not completed, not cancelled
       const scheduledDate = new Date(s.scheduled_at);
       if (scheduledDate < new Date() && !s.completed_at) {
         noShow++;
@@ -104,21 +127,27 @@ export async function GET(
 
   // ── Build all events without remaining ────────────────────────────
   // Package start date: prefer clients.start_date (the date the client's
-  // training account began), then clients.created_at (row insertion time),
-  // then earliest session scheduled_at.
-  const firstSession = (sessions ?? [])[0];
+  // training account began), then clients.created_at (row insertion time).
   let packageStartDate: string | null =
-    (client as any).start_date ?? (client as any).created_at ?? firstSession?.scheduled_at ?? null;
+    (client as any).start_date ?? (client as any).created_at ?? null;
 
-  // If packageStartDate is in the future relative to the earliest real
-  // activity (completed session, charged cancel), pull it back.
-  const earliestActivity = [...(sessions ?? [])].find(
-    (s) =>
-      (s.status === "completed" && s.completed_at) ||
-      (s.status === "cancelled" && s.charged_free !== "free" && s.cancelled_at),
-  );
-  const earliestActivityDate =
-    earliestActivity?.completed_at ?? earliestActivity?.cancelled_at ?? null;
+  // BUG-EF-144 — earliest ACTIVITY date (not earliest scheduled), computed
+  // from the min of all completed_at / cancelled_at values using
+  // deriveSessionStatus to match the pot derivation's own status logic.
+  let earliestActivityDate: string | null = null;
+  for (const s of sessions ?? []) {
+    if (s.parent_session_id) continue;
+    const sStatus = deriveSessionStatus({ ...s, session_log: (s.data as Record<string, unknown> | null)?.session_log });
+    if (sStatus === "completed" && s.completed_at) {
+      if (!earliestActivityDate || s.completed_at < earliestActivityDate) {
+        earliestActivityDate = s.completed_at;
+      }
+    } else if (sStatus === "cancelled" && s.charged_free === "charged" && s.cancelled_at) {
+      if (!earliestActivityDate || s.cancelled_at < earliestActivityDate) {
+        earliestActivityDate = s.cancelled_at;
+      }
+    }
+  }
   if (
     packageStartDate &&
     earliestActivityDate &&
@@ -127,14 +156,15 @@ export async function GET(
     packageStartDate = earliestActivityDate;
   }
 
-  const events: { date: string; event: string; delta: number | null; tags: string[] }[] = [];
+  const events: { date: string; event: string; delta: number | null; tags: string[]; rank: number }[] = [];
 
   if (packageStartDate) {
     events.push({
-      date: packageStartDate,
+      date: toIsoTimestamp(packageStartDate) ?? packageStartDate,
       event: `Package started — ${purchased} sessions`,
       delta: purchased,
       tags: [],
+      rank: 0,
     });
   }
 
@@ -144,46 +174,47 @@ export async function GET(
       ? new Date(new Date(packageStartDate).getTime() + 1).toISOString()
       : ((client as any).pot_baseline_at ?? new Date(0).toISOString());
     events.push({
-      date: baselineDate,
+      date: toIsoTimestamp(baselineDate) ?? baselineDate,
       event: `Before the hub — ${baselineUsed} sessions used (Trainerize)`,
       delta: -baselineUsed,
       tags: [],
+      rank: 1,
     });
   }
 
   // Extension events
   for (const ext of extensions) {
     events.push({
-      date: ext.at,
+      date: toIsoTimestamp(ext.at) ?? ext.at,
       event: `Expiry extended ${ext.from} → ${ext.to}${ext.reason ? ` (${ext.reason})` : ""}`,
       delta: null,
       tags: [],
+      rank: 3,
     });
   }
 
-  // Session events — every session belongs to this client's blocks and
-  // therefore necessarily belongs to this package.  The old predate filter
-  // (scheduled_at < packageStartDate) caused a bootstrapping bug: the
-  // pull-back derives packageStartDate from activity dates (completed_at /
-  // cancelled_at), which are stamped later than scheduled_at, then drops
-  // the very sessions that anchor the corrected date — under-counting vs
-  // the summary counters.  Since all fetched sessions belong to this
-  // client, no filter is needed.
+  // Session events — sub-sessions excluded per CR-EF-101.
+  // All dates normalised through toIsoTimestamp at push time.
   for (const s of sessions ?? []) {
-    if (s.status === "completed" && s.completed_at) {
+    if (s.parent_session_id) continue;
+    const sStatus = deriveSessionStatus({ ...s, session_log: (s.data as Record<string, unknown> | null)?.session_log });
+    if (sStatus === "completed" && s.completed_at) {
       events.push({
-        date: s.completed_at,
+        date: toIsoTimestamp(s.completed_at) ?? s.completed_at,
         event: "Session completed",
         delta: -1,
         tags: [],
+        rank: 2,
       });
-    } else if (s.status === "cancelled" && s.cancelled_at) {
+    } else if (sStatus === "cancelled" && s.cancelled_at) {
       const isFree = s.charged_free === "free";
+      const isCharged = s.charged_free === "charged";
       events.push({
-        date: s.cancelled_at,
-        event: isFree ? "Session cancelled (free)" : "Session cancelled (charged)",
-        delta: isFree ? null : -1,
+        date: toIsoTimestamp(s.cancelled_at) ?? s.cancelled_at,
+        event: isFree ? "Session cancelled (free)" : isCharged ? "Session cancelled (charged)" : "Session cancelled",
+        delta: isCharged ? -1 : null,
         tags: isFree ? ["Free"] : [],
+        rank: 2,
       });
     }
   }
@@ -191,24 +222,24 @@ export async function GET(
   // Package expiry event
   if (client.block_expiry_date) {
     events.push({
-      date: client.block_expiry_date,
+      date: toIsoTimestamp(client.block_expiry_date) ?? client.block_expiry_date,
       event: "Package expired",
       delta: null,
       tags: [],
+      rank: 4,
     });
   }
 
-  // ── Sort ascending, walk computing remaining ──────────────────────
-  // Tie-break: package-started before baseline at the same instant so
-  // ascending reads naturally (purchase → baseline → activity).
+  // ── Sort ascending with deterministic tie-break ────────────────────
+  // BUG-EF-144 — normalise every date through toIsoTimestamp at push time;
+  // sort by explicit numeric ms + event rank for deterministic order.
   events.sort((a, b) => {
     const diff = new Date(a.date).getTime() - new Date(b.date).getTime();
     if (diff !== 0) return diff;
-    if (a.event.startsWith("Package started")) return -1;
-    if (b.event.startsWith("Package started")) return 1;
-    return 0;
+    return a.rank - b.rank;
   });
 
+  // Walk computing remaining in ascending order
   let runningRemaining = 0;
   const sorted: LedgerEntry[] = events.map((e) => {
     runningRemaining =
@@ -216,7 +247,9 @@ export async function GET(
     return { date: e.date, event: e.event, delta: e.delta, remaining: runningRemaining, tags: e.tags };
   });
 
-  // ── Collapse consecutive free-cancel no-ops ───────────────────────
+  // ── Collapse consecutive free-cancel no-ops BEFORE reverse ─────────
+  // BUG-EF-144 — collapsed row carries the run's EARLIEST date and the
+  // LAST row's remaining (they're identical since delta is null for all).
   const collapsed: LedgerEntry[] = [];
   let i = 0;
   while (i < sorted.length) {
@@ -226,7 +259,6 @@ export async function GET(
       sorted[i].event.startsWith("Session cancelled")
     ) {
       let count = 1;
-      let lastDate = sorted[i].date;
       let j = i + 1;
       while (
         j < sorted.length &&
@@ -235,14 +267,13 @@ export async function GET(
         sorted[j].event.startsWith("Session cancelled")
       ) {
         count++;
-        lastDate = sorted[j].date;
         j++;
       }
       collapsed.push({
-        date: lastDate,
+        date: sorted[i].date,
         event: count === 1 ? "Session cancelled (free)" : `${count} sessions cancelled`,
         delta: null,
-        remaining: sorted[i].remaining,
+        remaining: sorted[j - 1].remaining,
         tags: ["Free"],
       });
       i = j;
@@ -261,7 +292,7 @@ export async function GET(
     cancelled_charged: cancelledCharged,
     rescheduled,
     no_show: noShow,
-    remaining,
+    remaining: derivedPot?.remaining ?? 0,
     purchased,
     baseline_used: baselineUsed,
   };
