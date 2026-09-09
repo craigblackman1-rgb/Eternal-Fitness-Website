@@ -21,9 +21,9 @@ export function MobileRedirect() {
 
     if (pref) return;
 
-    if (window.innerWidth < MOBILE_BREAKPOINT) {
-      router.push("/hub/m");
-    }
+    /* Desktop pages are now responsive — no redirect needed. Phone-width
+       visitors see the desktop layout rendered at their viewport width,
+       keeping the destination URL intact. */
   }, [router, pathname]);
 
   return null;
