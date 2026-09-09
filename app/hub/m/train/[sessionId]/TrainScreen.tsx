@@ -19,6 +19,7 @@ import { saveSetLog, drainSetLogQueue, type SaveSetLogResult } from "@/lib/worko
 import { completeSession } from "@/lib/workout/complete-session";
 import { displayWeight, exerciseRefKey, mmss, type SectionKey, SECTION_DEFS } from "@/lib/workout/helpers";
 import { SwapChooser } from "./SwapChooser";
+import { MoveCancelSheet } from "./MoveCancelSheet";
 
 interface SetState {
   status: "pending" | "done" | "skipped";
@@ -322,6 +323,8 @@ export function TrainScreen({
   const [savedNoteId, setSavedNoteId] = useState<string | null>(initialSessionNoteId ?? null);
   const [lastSavedNoteText, setLastSavedNoteText] = useState<string | null>(initialSessionNote ?? null);
   const [swapOpen, setSwapOpen] = useState(false);
+  const [moveCancelOpen, setMoveCancelOpen] = useState(false);
+  const [moveCancelData, setMoveCancelData] = useState<{ allSessions: unknown[]; sessionsPurchased: number | null } | null>(null);
 
   const [offline, setOffline] = useState<boolean>(false);
   const [syncNotice, setSyncNotice] = useState<string | null>(null);
@@ -1460,6 +1463,32 @@ Cancel — record it as today`,
           >
             {ICO.note}
           </button>
+          {!sessionCompleted && (
+            <button
+              type="button"
+              className="btn btn-outline btn-icon"
+              onClick={async () => {
+                if (clientNumber == null) return;
+                try {
+                  const res = await fetch(`/api/clients/${clientNumber}/pot-ledger`);
+                  const data = await res.json();
+                  setMoveCancelData({
+                    allSessions: data.consumption?.sessions ?? [],
+                    sessionsPurchased: data.consumption?.purchased ?? null,
+                  });
+                } catch {
+                  setMoveCancelData({ allSessions: [], sessionsPurchased: null });
+                }
+                setMoveCancelOpen(true);
+              }}
+              aria-label="Move or cancel this session"
+              title="Move or cancel"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </button>
+          )}
           <span className="action-scope">{progress.doneExCount} of {allSets.length} exercises logged</span>
           {sessionCompleted ? (
             <Link
@@ -1567,6 +1596,27 @@ Cancel — record it as today`,
           hasProgram={hasProgram}
           onClose={() => setSwapOpen(false)}
           onSwapped={() => { setSwapOpen(false); router.refresh(); }}
+        />
+      )}
+
+      {/* ── Phase 4: Move / Cancel sheet ─────────────────────────── */}
+      {moveCancelOpen && moveCancelData && (
+        <MoveCancelSheet
+          session={{
+            id: sessionId,
+            scheduled_at: scheduledAt,
+            block_id: "",
+            session_number: sessionNumber,
+            data,
+            archetype,
+            week,
+            phase,
+          }}
+          clientName={clientName}
+          clientNumber={clientNumber}
+          onClose={() => setMoveCancelOpen(false)}
+          onMoved={() => { setMoveCancelOpen(false); router.refresh(); }}
+          onCancelled={() => { setMoveCancelOpen(false); router.refresh(); }}
         />
       )}
     </>
