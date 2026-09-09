@@ -46,20 +46,17 @@ export default async function TrainTabPage() {
   );
   const nextUpcoming = todaySessions.find((s) => !s.data?.session_log?.completed_at);
 
-  const target = inProgress ?? nextUpcoming;
-  if (target) redirect(`/hub/m/train/${target.id}`);
+  // Intent rule: jump to a session only if one is in progress now or starts
+  // within 30 minutes.  Otherwise land on the Today day list (/hub/m) so the
+  // trainer sees the full day context rather than a dead-end empty state.
+  const THIRTY_MIN = 30 * 60 * 1000;
+  const target =
+    inProgress ??
+    (nextUpcoming &&
+    new Date(nextUpcoming.scheduled_at).getTime() - now.getTime() <= THIRTY_MIN
+      ? nextUpcoming
+      : null);
 
-  return (
-    <main className="mcontent">
-      <div className="sec-label" style={{ marginTop: 10 }}>
-        <h2>Train</h2>
-      </div>
-      <div className="empty">
-        <div className="empty-t">No session scheduled for today</div>
-        <div className="empty-d">
-          Nothing to deliver right now. Open a session from the Today tab once it&apos;s time.
-        </div>
-      </div>
-    </main>
-  );
+  if (target) redirect(`/hub/m/train/${target.id}`);
+  redirect("/hub/m");
 }
