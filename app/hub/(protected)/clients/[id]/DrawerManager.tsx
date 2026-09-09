@@ -167,6 +167,7 @@ export function DrawerShell({ id, title, subtitle, width = "md", children, foote
   const { activeDrawer, parentId, closeDrawer } = useDrawerManager();
   const isActive = activeDrawer === id;
   const isParent = parentId === id && activeDrawer !== null;
+  const isStacked = parentId !== null && isActive;
   const isOpen = isActive || isParent;
 
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -195,7 +196,7 @@ export function DrawerShell({ id, title, subtitle, width = "md", children, foote
       {/* Header */}
       <div className="flex items-center gap-2.5 px-4 pt-4 pb-3 border-b border-[var(--hub-border)] shrink-0">
         <div className="min-w-0 flex-1">
-          {isParent && parentId && (
+          {(isParent || isStacked) && (
             <button
               onClick={closeDrawer}
               className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-rose)] hover:underline underline-offset-2 mb-0.5 bg-transparent border-0 p-0 cursor-pointer font-[inherit]"
