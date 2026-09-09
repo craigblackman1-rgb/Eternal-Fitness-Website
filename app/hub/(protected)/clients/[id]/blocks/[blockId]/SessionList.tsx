@@ -12,6 +12,7 @@ import { deriveSessionStatus } from "@/lib/session-status";
 import { isoToLocalTime } from "@/lib/schedule-dates";
 import { sessionWorkoutName, sessionHasNoExercises } from "@/lib/session-display";
 import { ensureUids } from "@/lib/exercise-ref";
+import { pronouns } from "@/lib/pronouns";
 import type { SessionStatus, DBSession, SessionVersion } from "@/types";
 import type { QueueState } from "@/lib/programs/types";
 
@@ -57,6 +58,7 @@ interface SessionListProps {
   /** CR-EF-154 — program state for the guided SessionChooser. */
   programState?: QueueState | null;
   clientNumber?: number;
+  gender?: string | null;
   sessionsRemaining?: number | null;
   setCountsBySession?: Record<string, number>;
   pbCountsBySession?: Record<string, number>;
@@ -117,6 +119,7 @@ export function SessionList({
   baselineUsed = 0,
   programState = null,
   clientNumber = 0,
+  gender = null,
   sessionsRemaining = null,
   setCountsBySession = {},
   pbCountsBySession = {},
@@ -347,6 +350,7 @@ export function SessionList({
                 sessionsRemaining={sessionsRemaining ?? 0}
                 programName={programState.program?.name ?? ""}
                 clientNumber={clientNumber}
+                pronouns={pronouns(gender)}
                 onConfirmProgram={(slotId) => handleChooserProgram(chooserSessionId, slotId)}
                 onConfirmTemplate={(templateId, templateName) => handleChooserTemplate(chooserSessionId, templateId, templateName)}
                 onConfirmOneOff={() => handleChooserOneOff(chooserSessionId)}
@@ -382,6 +386,7 @@ export function SessionList({
           clientName={clientName}
           preferredTime={null}
           sessionsRemaining={sessionsRemaining}
+          pronouns={pronouns(gender)}
           onClose={() => setMoveSession(null)}
         />
       )}

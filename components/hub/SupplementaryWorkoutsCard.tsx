@@ -40,13 +40,20 @@ interface RemoveResult {
   kept_delivered: number;
 }
 
+interface PronounSet {
+  possessive: string;
+  possessiveCapitalized: string;
+  subject: string;
+}
+
 interface Props {
   clientNumber: number;
   clientName: string;
   sessionsRemaining: number | null;
+  pronouns: PronounSet;
 }
 
-export function SupplementaryWorkoutsCard({ clientNumber, clientName, sessionsRemaining }: Props) {
+export function SupplementaryWorkoutsCard({ clientNumber, clientName, sessionsRemaining, pronouns: p }: Props) {
   const [rows, setRows] = useState<SupplementaryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [templates, setTemplates] = useState<WorkoutTemplate[]>([]);
@@ -238,7 +245,7 @@ export function SupplementaryWorkoutsCard({ clientNumber, clientName, sessionsRe
                         )}
                       </>
                     ) : (
-                      <span className="text-[var(--color-muted)] italic">Not run yet — first on her next session</span>
+                      <span className="text-[var(--color-muted)] italic">Not run yet — first on {p.possessive} next session</span>
                     )}
                     <span>Added {new Date(row.added_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}{row.added_by ? ` by ${row.added_by}` : ""}</span>
                   </div>
@@ -327,7 +334,7 @@ export function SupplementaryWorkoutsCard({ clientNumber, clientName, sessionsRe
             {addStep === 1 ? (
               <div className="flex-1 overflow-y-auto px-5 py-4">
                 <p className="text-[13px] text-[var(--color-body)] leading-relaxed mb-3.5">
-                  Pick the template that should run alongside every session for {clientName}. It will not use one of her sessions.
+                  Pick the template that should run alongside every session for {clientName}. It will not use one of {p.possessive} sessions.
                 </p>
                 <div className="relative mb-3">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-muted)] pointer-events-none">
@@ -416,7 +423,7 @@ export function SupplementaryWorkoutsCard({ clientNumber, clientName, sessionsRe
                         </li>
                         <li className="flex gap-2.5 items-start text-[13px] text-[var(--color-body)] leading-relaxed">
                           <IconCheck className="w-4 h-4 text-[var(--status-success-text)] shrink-0 mt-0.5" />
-                          <span>It <b className="text-foreground">does not use one of her sessions.</b> She still has <b className="text-foreground">{sessionsRemaining ?? "—"}</b> remaining — supplementary work is never counted or charged.</span>
+                          <span>It <b className="text-foreground">does not use one of {p.possessive} sessions.</b> {p.subject.charAt(0).toUpperCase() + p.subject.slice(1)} still has <b className="text-foreground">{sessionsRemaining ?? "—"}</b> remaining — supplementary work is never counted or charged.</span>
                         </li>
                         <li className="flex gap-2.5 items-start text-[13px] text-[var(--color-body)] leading-relaxed">
                           <IconCheck className="w-4 h-4 text-[var(--status-success-text)] shrink-0 mt-0.5" />

@@ -309,6 +309,7 @@ export function ClientRecordShell({
         sessionDuration={client.session_duration}
         deliveryMode={(client as any).delivery_mode ?? null}
         preferredTime={client.profile?.logistics?.preferred_time ?? null}
+        gender={client.gender}
         latestBlock={latestBlock}
         blockSessions={blockSessions}
         allBlocks={blocks}

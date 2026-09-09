@@ -18,6 +18,7 @@ import { GpLetterCard } from "@/components/hub/GpLetterCard";
 import { PackagePaymentsCard } from "@/components/hub/PackagePaymentsCard";
 import { GracePeriodExtension } from "@/components/hub/GracePeriodExtension";
 import { PotLedger } from "./PotLedger";
+import { pronouns } from "@/lib/pronouns";
 import type { DBBlock, DBSession, SessionNoteData, PinnedNoteRef } from "@/types";
 import type { ExerciseTrend } from "@/lib/progress";
 import type { ComplianceFlags } from "@/lib/compliance";
@@ -130,7 +131,7 @@ function ProfileDrawer({ client, portalAccount, clientNotes, sessionNotes, exerc
 
   return (
     <DrawerShell id="dw-profile" title="Profile" subtitle="Who this client is" width="md">
-      {/* Who she is */}
+      {/* Identity */}
       <IdentityCard
         clientNumber={client.client_number}
         name={client.name}
@@ -1196,7 +1197,7 @@ function ArrangementDrawer({ client, latestBlock, bandSetName, missingBandSet, s
             <span className="fk">Equipment</span>
             <span className="fv">
               {equipment.length > 0 ? (
-                /* Chips, not a comma list: what she can reach is a set of
+                /* Chips, not a comma list: what the client can reach is a set of
                    discrete constraints on what may be prescribed, and it
                    matters most for a home client with no studio rack. */
                 <span className="tags">
@@ -1237,7 +1238,7 @@ function ArrangementDrawer({ client, latestBlock, bandSetName, missingBandSet, s
    DOCUMENTS — one list of paper with compliance summary
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function DocumentsDrawer({ clientNumber, clientDocuments, legacyDocumentRows, flags, gpClearance, annualReviewDueDate, gpLetterStatus }: {
+function DocumentsDrawer({ clientNumber, clientDocuments, legacyDocumentRows, flags, gpClearance, annualReviewDueDate, gpLetterStatus, gender }: {
   clientNumber: number;
   clientDocuments: any[];
   legacyDocumentRows: any[];
@@ -1245,7 +1246,9 @@ function DocumentsDrawer({ clientNumber, clientDocuments, legacyDocumentRows, fl
   gpClearance: any;
   annualReviewDueDate: string | null;
   gpLetterStatus: string;
+  gender?: string | null;
 }) {
+  const p = pronouns(gender);
   const allDocs = [...clientDocuments, ...legacyDocumentRows];
   const signedDocs = allDocs.filter((d) => d.status === "signed");
   const isClear = flags.effectiveStatus === "clear";
@@ -1273,7 +1276,7 @@ function DocumentsDrawer({ clientNumber, clientDocuments, legacyDocumentRows, fl
               : flags.autoOutstanding.length > 0
                 ? `${flags.autoOutstanding.length} thing${flags.autoOutstanding.length !== 1 ? "s" : ""} still needed.`
                 : "Check the individual documents below for status."}
-            {annualReviewDueDate && ` Her annual review is not due until ${fmtDate(annualReviewDueDate)}.`}
+            {annualReviewDueDate && ` ${p.possessiveCapitalized} annual review is not due until ${fmtDate(annualReviewDueDate)}.`}
           </p>
           {gpClearance && gpLetterStatus === "not_required" && medicalClearanceIsPending(flags) && (
             <p className="miss" style={{ margin: "7px 0 0" }}>
@@ -2205,6 +2208,7 @@ export function ClientDrawers(props: ClientDrawersProps) {
         gpClearance={props.gpClearance}
         annualReviewDueDate={props.annualReviewDueDate}
         gpLetterStatus={props.client.gp_letter_status}
+        gender={props.client.gender}
       />
       <CommsDrawer
         clientId={props.clientId}

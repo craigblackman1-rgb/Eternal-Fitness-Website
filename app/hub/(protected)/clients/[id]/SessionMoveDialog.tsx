@@ -6,6 +6,11 @@ import { useRouter } from "next/navigation";
 import type { DBSession } from "@/types";
 import { sessionWorkoutName } from "@/lib/session-display";
 
+interface PronounSet {
+  possessive: string;
+  possessiveCapitalized: string;
+}
+
 /* ── SessionMoveDialog — Move or cancel one session.
    Fetches candidate slots from GET /api/availability/slots, shows clash/free
    status, and PATCHes the session on confirm. Cancel mode offers reason
@@ -26,6 +31,7 @@ interface SessionMoveDialogProps {
   clientName: string;
   preferredTime: string | null;
   sessionsRemaining: number | null;
+  pronouns: PronounSet;
   onClose: () => void;
 }
 
@@ -57,6 +63,7 @@ export function SessionMoveDialog({
   clientName,
   preferredTime,
   sessionsRemaining,
+  pronouns: p,
   onClose,
 }: SessionMoveDialogProps) {
   const router = useRouter();
@@ -317,7 +324,7 @@ export function SessionMoveDialog({
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
                 </svg>
                 <span>
-                  Her programme is unaffected — <b>{sessionWorkoutName(session)}</b> still delivers at her next session. Moving this session does not touch the programme.
+                  {p.possessiveCapitalized} programme is unaffected — <b>{sessionWorkoutName(session)}</b> still delivers at {p.possessive} next session. Moving this session does not touch the programme.
                 </span>
               </div>
             </div>

@@ -13,7 +13,8 @@ import {
   isOutlookPlaceholder,
   isTrainerizeImported,
 } from "@/lib/session-display";
-import type { DBBlock, DBSession, SessionVersion } from "@/types";
+import { pronouns } from "@/lib/pronouns";
+import type { DBBlock, DBSession, Gender, SessionVersion } from "@/types";
 import type { QueueState } from "@/lib/programs/types";
 
 /* ── TrainingDrawer — the Manage training drawer (DO rung).
@@ -95,6 +96,7 @@ interface TrainingDrawerProps {
     belowBestCount: number;
     recentNotes: string | null;
   };
+  gender?: Gender | "" | null;
   standingRules?: { id: string; label: string | null; detail: string }[];
   sessionsRemaining: number | null;
   sessionsPurchased: number | null;
@@ -113,6 +115,7 @@ export function TrainingDrawer({
   blockSessions,
   allBlocks,
   allSessions: _allSessions,
+  gender,
   standingRules = [],
   sessionsRemaining,
   sessionsPurchased,
@@ -122,6 +125,7 @@ export function TrainingDrawer({
 }: TrainingDrawerProps) {
   const router = useRouter();
   const { closeDrawer, openDrawer } = useDrawerManager();
+  const p = pronouns(gender);
 
   // ── Dialog state ──
   const [chooserSessionId, setChooserSessionId] = useState<string | null>(null);
@@ -565,7 +569,7 @@ export function TrainingDrawer({
                         Nothing applied
                         <small style={{ color: "var(--color-muted-text)", fontWeight: 400 }}>
                           {programState && nextPosition <= totalQueueSlots
-                            ? `Position ${nextPosition} is next in her programme`
+                            ? `Position ${nextPosition} is next in ${p.possessive} programme`
                             : "No programme position available"}
                         </small>
                       </span>
@@ -594,7 +598,7 @@ export function TrainingDrawer({
       {programState && mapData && (
         <div className="fcard acc-teal">
           <div className="fcard-h">
-            Her programme
+            {p.possessiveCapitalized} programme
             <span className="sub">
               {programmeName} · {slotCount}× per week · {totalQueueSlots} positions, {completedCount} reached
             </span>
@@ -707,7 +711,7 @@ export function TrainingDrawer({
       <div className="fcard acc-teal">
         <div className="fcard-h">
           Start or replace the programme
-          <span className="sub">Copies in — never links, so editing hers changes nobody else&apos;s</span>
+          <span className="sub">Copies in — never links, so editing {p.possessiveStandalone} changes nobody else&apos;s</span>
         </div>
         <div className="fcard-b">
           {programState && (
@@ -715,7 +719,7 @@ export function TrainingDrawer({
               <span className="prow-m">
                 <span className="prow-t">{programmeName}</span>
                 <span className="prow-s">
-                  {totalQueueSlots} workouts · currently hers
+                  {totalQueueSlots} workouts · currently {p.possessiveStandalone}
                 </span>
               </span>
               <span className="prow-a">
@@ -847,7 +851,7 @@ export function TrainingDrawer({
             </button>
           </div>
           <p className="miss mt-2.5">
-            Applying a different programme replaces what is not yet completed. Positions already done stay on her record.
+            Applying a different programme replaces what is not yet completed. Positions already done stay on {p.possessive} record.
           </p>
         </div>
       </div>
@@ -863,6 +867,7 @@ export function TrainingDrawer({
             clientNumber={clientNumber}
             clientName={clientName}
             sessionsRemaining={sessionsRemaining}
+            pronouns={p}
           />
         </div>
       </div>
@@ -939,6 +944,7 @@ export function TrainingDrawer({
                 sessionsRemaining={remaining}
                 programName={programState.program?.name ?? ""}
                 clientNumber={clientNumber}
+                pronouns={p}
                 onConfirmProgram={(slotId) =>
                   handleReassignProgram(chooserSessionId, slotId)
                 }

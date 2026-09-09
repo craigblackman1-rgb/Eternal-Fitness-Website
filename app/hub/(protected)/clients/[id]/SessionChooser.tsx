@@ -4,6 +4,11 @@ import { useEffect, useState } from "react";
 import type { DBProgramSlot } from "@/lib/programs/types";
 import type { SessionVersion } from "@/types";
 
+interface PronounSet {
+  possessive: string;
+  possessiveCapitalized: string;
+}
+
 /* ── SessionChooser — the guided three-way choice from program-chooser.html.
    When assigning a workout to a session, offers:
    1. Program queue (default, pre-selected next slot)
@@ -28,6 +33,7 @@ interface SessionChooserProps {
   sessionsRemaining: number;
   programName: string;
   clientNumber: number;
+  pronouns: PronounSet;
   onConfirmProgram: (slotId: string) => void;
   onConfirmTemplate: (templateId: string, templateName: string, templateData: SessionVersion) => void;
   onConfirmOneOff: () => void;
@@ -57,6 +63,7 @@ export function SessionChooser({
   sessionsRemaining,
   programName,
   clientNumber,
+  pronouns: p,
   onConfirmProgram,
   onConfirmTemplate,
   onConfirmOneOff,
@@ -111,7 +118,7 @@ export function SessionChooser({
           `}
         >
           <span className={`text-[10.5px] font-extrabold uppercase tracking-[.08em] ${choice === "program" ? "text-rose-text" : "text-[var(--color-muted)]"}`}>
-            From her program
+            From {p.possessive} programme
           </span>
           <p className="mt-1.5 mb-0.5 text-sm font-bold text-[var(--color-ink)]">
             {nextSlotLabel ? `Next up: Workout ${nextSlotLabel}` : "No next slot"}

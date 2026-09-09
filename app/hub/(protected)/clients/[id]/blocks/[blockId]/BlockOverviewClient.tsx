@@ -124,6 +124,7 @@ interface BlockOverviewClientProps {
   blockExpiryExtensions: { from: string; to: string; at: string; reason?: string }[];
   programState: QueueState | null;
   clientNumber: number;
+  gender?: string | null;
   sessionsRemaining: number | null;
   setCountsBySession?: Record<string, number>;
   pbCountsBySession?: Record<string, number>;
@@ -171,6 +172,7 @@ export function BlockOverviewClient({
   blockExpiryExtensions,
   programState,
   clientNumber,
+  gender,
   sessionsRemaining,
   setCountsBySession,
   pbCountsBySession,
@@ -485,6 +487,7 @@ export function BlockOverviewClient({
                     baselineUsed={baselineUsed}
                     programState={programState}
                     clientNumber={clientNumber}
+                    gender={gender}
                     sessionsRemaining={sessionsRemaining}
                     setCountsBySession={setCountsBySession}
                     pbCountsBySession={pbCountsBySession}
