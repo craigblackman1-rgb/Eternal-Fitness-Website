@@ -71,7 +71,7 @@ export function SessionMoveDialog({
 }: SessionMoveDialogProps) {
   const router = useRouter();
   const [route, setRoute] = useState<"move" | "cancel">("move");
-  const [cancelRoute, setCancelRoute] = useState<CancelRoute>("free");
+  const [cancelRoute, setCancelRoute] = useState<CancelRoute | null>(null);
   const [slots, setSlots] = useState<SlotCandidate[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(true);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
@@ -381,13 +381,15 @@ export function SessionMoveDialog({
               </div>
 
               {/* Consequence preview */}
-              <div className="border border-[var(--status-success-border)] rounded-nested bg-[var(--status-success-bg)] px-3.5 py-3 mb-3 text-[13px] text-[var(--color-teal-text)] font-medium">
-                {cancelRoute === "charge"
-                  ? `${sessionsRemaining ?? "?"} remaining → ${Math.max(0, (sessionsRemaining ?? 1) - 1)} remaining`
-                  : cancelRoute === "free"
-                    ? `${sessionsRemaining ?? "?"} remaining → ${sessionsRemaining ?? "?"} remaining (no change)`
-                    : `${sessionsRemaining ?? "?"} remaining → ${sessionsRemaining ?? "?"} remaining (date changes only)`}
-              </div>
+              {cancelRoute && (
+                <div className="border border-[var(--status-success-border)] rounded-nested bg-[var(--status-success-bg)] px-3.5 py-3 mb-3 text-[13px] text-[var(--color-teal-text)] font-medium">
+                  {cancelRoute === "charge"
+                    ? `${sessionsRemaining ?? "?"} remaining → ${Math.max(0, (sessionsRemaining ?? 1) - 1)} remaining`
+                    : cancelRoute === "free"
+                      ? `${sessionsRemaining ?? "?"} remaining → ${sessionsRemaining ?? "?"} remaining (no change)`
+                      : `${sessionsRemaining ?? "?"} remaining → ${sessionsRemaining ?? "?"} remaining (date changes only)`}
+                </div>
+              )}
 
               {/* Reason */}
               <p className="text-[10.5px] font-bold uppercase tracking-[.06em] text-[var(--color-muted)] mb-1.5">
@@ -429,7 +431,7 @@ export function SessionMoveDialog({
           <button
             type="button"
             onClick={route === "move" ? handleMove : handleCancel}
-            disabled={saving || (route === "move" && !selectedSlot)}
+            disabled={saving || (route === "move" && !selectedSlot) || (route === "cancel" && !cancelRoute)}
             className={`inline-flex items-center justify-center gap-1.5 rounded-control border border-transparent px-5 py-[7px] min-h-[36px] font-[inherit] text-[13px] font-semibold cursor-pointer transition-colors disabled:opacity-50 ${
               route === "move"
                 ? "bg-[var(--color-rose)] text-white hover:bg-[var(--color-rose)]/90"
