@@ -32,3 +32,14 @@ When visiting each training phase page, the scraper iterates ALL captured API re
    - Finds Phase B's own response (5 workouts). Phase B now has 5 → `5 < 5` is false, no replacement. ← Phase B keeps Phase A's workouts!
 
 Result: Phase A has correct workouts, Phase B has Phase A's workouts (wrong), Phase C has Phase A's workouts (wrong). The archive import faithfully stores these incorrect mappings, and the promotion script creates sessions from them — producing fewer distinct workouts than the source.
+
+## FIX
+
+Added `processedResponseCount` variable to track which `apiResponses` entries have already been processed. Each page navigation slices `apiResponses` to only process new entries:
+
+- `import-trainerize-block-data.mjs:116-120` — declares `processedResponseCount = 0`
+- `import-trainerize-block-data.mjs:162` — updates after Step 1 (dash)
+- `import-trainerize-block-data.mjs:186-212` — Step 2 (workouts): slices new responses, processes them, updates count
+- `import-trainerize-block-data.mjs:489-505` — retry loop: same fix applied
+
+`tsc --noEmit` clean.

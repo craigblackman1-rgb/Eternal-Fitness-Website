@@ -113,6 +113,12 @@ async function login(page) {
     if (!done(step)) data._completedSteps.push(step);
   };
 
+  // Track which apiResponses have already been processed so each page navigation
+  // only assigns workouts from its OWN captured responses, not from previous pages.
+  // Without this, visiting Phase B would re-process Phase A's getWorkoutDefList
+  // response and assign Phase A's workouts to Phase B's planId.
+  let processedResponseCount = 0;
+
   // Step 1: Visit dash — captures user/getProfile, user/getClientSummary,
   // program/getUserProgramTrainingPlanList, Timeline/getList, accomplishment/getList
   if (!done("dash")) {
@@ -153,6 +159,7 @@ async function login(page) {
         }
       }
     }
+    processedResponseCount = apiResponses.length;
     markDone("dash");
     writeFileSync(OUT_FILE, JSON.stringify(data, null, 2));
   }
@@ -176,8 +183,10 @@ async function login(page) {
         );
         await page.waitForTimeout(4000);
 
-        // Extract workout definitions from the captured API responses
-        for (const r of apiResponses) {
+        // Extract workout definitions from NEW captured API responses only
+        // (skip responses already processed from earlier page visits)
+        const newResponses = apiResponses.slice(processedResponseCount);
+        for (const r of newResponses) {
           if (r.endpoint === "trainingPlan/getWorkoutDefList" && r.responseBody?.workouts) {
             const existing = data.workoutsByPlan.find(wp => wp.planId === plan.id);
             if (!existing || existing.workouts.length < r.responseBody.workouts.length) {
@@ -197,6 +206,10 @@ async function login(page) {
             }
           }
         }
+        // Mark all responses seen so far as processed (including any from
+        // earlier pages that were already consumed) so the next phase visit
+        // starts from this point.
+        processedResponseCount = apiResponses.length;
         console.log(`    ${data.workoutsByPlan.find(wp => wp.planId === plan.id)?.workouts.length || 0} workouts captured`);
       } catch (e) {
         console.warn(`    ERROR: ${e.message}`);
@@ -473,7 +486,9 @@ async function login(page) {
         );
         await page.waitForTimeout(4000);
 
-        for (const r of apiResponses) {
+        // Extract workout definitions from NEW captured API responses only
+        const newResponses = apiResponses.slice(processedResponseCount);
+        for (const r of newResponses) {
           if (r.endpoint === "trainingPlan/getWorkoutDefList" && r.responseBody?.workouts) {
             const existing = data.workoutsByPlan.find(wp => wp.planId === plan.id);
             if (!existing || existing.workouts.length < r.responseBody.workouts.length) {
@@ -487,6 +502,7 @@ async function login(page) {
             }
           }
         }
+        processedResponseCount = apiResponses.length;
         console.log(`    ${data.workoutsByPlan.find(wp => wp.planId === plan.id)?.workouts.length || 0} workouts captured`);
       } catch (e) {
         console.warn(`    ERROR: ${e.message}`);
