@@ -137,6 +137,39 @@
 .completed-banner-t { font-size: 14px; font-weight: 700; color: var(--ink); }
 .completed-banner-s { font-size: 12px; color: var(--body); margin-top: 2px; }
 
+/* Phase 3 — swap workout sheet */
+.swap-sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 45; background: var(--card); border-top: 1px solid var(--border); border-radius: 18px 18px 0 0; box-shadow: 0 -8px 30px rgba(16,24,40,.12); max-height: 85vh; display: flex; flex-direction: column; transform: translateY(0); transition: transform .25s ease; }
+.sh-grab { width: 36px; height: 4px; border-radius: 2px; background: var(--border); margin: 8px auto 0; flex-shrink: 0; }
+.sh-h { display: flex; align-items: center; gap: 10px; padding: 12px 16px 8px; flex-shrink: 0; }
+.sh-t { font-size: 16px; font-weight: 800; color: var(--ink); letter-spacing: -.01em; flex: 1; min-width: 0; }
+.sh-close { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--muted); display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
+.sh-close:hover { background: var(--hover); color: var(--ink); }
+.sh-s { padding: 0 16px 10px; font-size: 12.5px; color: var(--muted); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.swap-body { flex: 1; overflow-y: auto; padding: 12px 16px 24px; }
+.swap-option { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); cursor: pointer; font-family: inherit; text-align: left; margin-bottom: 12px; }
+.swap-option:hover { background: var(--hover); border-color: var(--rose); }
+.swap-option-ic { flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; }
+.swap-option-body { min-width: 0; flex: 1; }
+.swap-option-t { font-size: 14px; font-weight: 700; color: var(--ink); }
+.swap-option-s { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.swap-option-chev { flex-shrink: 0; font-size: 18px; color: var(--muted); font-weight: 600; }
+.swap-section { margin-top: 4px; }
+.swap-section-t { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 8px; }
+.swap-search { width: 100%; height: 40px; border: 1px solid var(--field-border); border-radius: 10px; padding: 0 12px; font-size: 14px; font-family: inherit; background: var(--card); color: var(--ink); margin-bottom: 8px; }
+.swap-search:focus { outline: none; border-color: var(--rose); box-shadow: 0 0 0 3px rgba(193,131,159,.25); }
+.swap-list { display: flex; flex-direction: column; gap: 6px; max-height: 240px; overflow-y: auto; }
+.swap-item { display: block; width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); cursor: pointer; font-family: inherit; text-align: left; }
+.swap-item:hover { background: var(--hover); }
+.swap-item.selected { border-color: var(--rose); background: var(--s-primary-bg); box-shadow: inset 0 0 0 1px var(--rose); }
+.swap-item-t { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+.swap-item-s { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.swap-confirm { width: 100%; margin-top: 12px; }
+.swap-loading, .swap-empty { font-size: 13px; color: var(--muted); padding: 12px 0; }
+
+/* Phase 3 — swap button in train header */
+.swap-btn { flex-shrink: 0; height: 26px; padding: 0 10px; border-radius: var(--r-pill); border: 1px solid var(--s-primary-bd); background: var(--s-primary-bg); color: var(--rose); font-family: inherit; font-size: 11.5px; font-weight: 700; cursor: pointer; margin-left: 8px; }
+.swap-btn:hover { background: var(--rose); color: var(--color-white); }
+
 .schev { flex-shrink: 0; align-self: center; color: var(--muted); }
 
 /* ── Task list ────────────────────────────────────────────────── */

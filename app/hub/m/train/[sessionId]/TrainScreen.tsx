@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { Session, SessionLog, SetLog, Exercise, DeliveryMode } from "@/types";
 import type { Band } from "@/lib/bands";
@@ -17,6 +18,7 @@ import { type PendingSetLogEntry } from "@/lib/hub/offline-set-log-queue";
 import { saveSetLog, drainSetLogQueue, type SaveSetLogResult } from "@/lib/workout/save-set-log";
 import { completeSession } from "@/lib/workout/complete-session";
 import { displayWeight, exerciseRefKey, mmss, type SectionKey, SECTION_DEFS } from "@/lib/workout/helpers";
+import { SwapChooser } from "./SwapChooser";
 
 interface SetState {
   status: "pending" | "done" | "skipped";
@@ -172,6 +174,7 @@ export function TrainScreen({
   const sections = data?.versions?.[version] ?? { warm_up: [], main_block: [], cooldown: [] };
 
   const durationMinutes = data?.estimated_minutes ?? sessionDurationMinutes(data?.time_tier);
+  const router = useRouter();
 
   // Phase 2 — derived completion flag (also tracks in-flight completion)
   const sessionCompleted = isCompleted || !!sessionLog?.completed_at;
@@ -318,6 +321,7 @@ export function TrainScreen({
   const [noteSaving, setNoteSaving] = useState(false);
   const [savedNoteId, setSavedNoteId] = useState<string | null>(initialSessionNoteId ?? null);
   const [lastSavedNoteText, setLastSavedNoteText] = useState<string | null>(initialSessionNote ?? null);
+  const [swapOpen, setSwapOpen] = useState(false);
 
   const [offline, setOffline] = useState<boolean>(false);
   const [syncNotice, setSyncNotice] = useState<string | null>(null);
@@ -1155,6 +1159,15 @@ Cancel — record it as today`,
             </div>
           </div>
           <span className={`top-status ${topStatusClass}`}>{topStatusLabel}</span>
+          {!sessionCompleted && (
+            <button
+              type="button"
+              className="swap-btn"
+              onClick={() => setSwapOpen(true)}
+            >
+              Swap ›
+            </button>
+          )}
         </div>
         <div className="progress-track">
           <div className="progress-fill" style={{ width: `${progress.pct}%` }} />
@@ -1543,6 +1556,18 @@ Cancel — record it as today`,
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Phase 3: Swap workout sheet ──────────────────────────── */}
+      {swapOpen && (
+        <SwapChooser
+          sessionId={sessionId}
+          clientNumber={clientNumber}
+          currentWorkoutName={sessionWorkoutName({ archetype, data, week, phase }, `Session ${sessionNumber}`)}
+          hasProgram={hasProgram}
+          onClose={() => setSwapOpen(false)}
+          onSwapped={() => { setSwapOpen(false); router.refresh(); }}
+        />
       )}
     </>
   );
