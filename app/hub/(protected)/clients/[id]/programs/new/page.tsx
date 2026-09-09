@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { deriveSessionPot } from "@/lib/session-pot";
 
 export default async function PlanNewProgrammePage({
   params,
@@ -11,12 +12,30 @@ export default async function PlanNewProgrammePage({
   const { data: client } = await supabase
     .from("clients")
     .select(
-      "id, name, client_number, sessions_remaining, sessions_purchased, active_program_id",
+      "id, name, client_number, sessions_purchased, active_program_id, pot_baseline_used",
     )
     .eq("client_number", parseInt(params.id))
     .single();
 
   if (!client) notFound();
+
+  // BUG-EF-142 — derive remaining from session data, not stored column
+  const { data: clientBlocks } = await supabase
+    .from("blocks")
+    .select("id")
+    .eq("client_id", client.id);
+  const clientBlockIds = (clientBlocks ?? []).map((b: { id: string }) => b.id);
+  let derivedRemaining: number | null = null;
+  if (clientBlockIds.length > 0) {
+    const { data: potSessions } = await supabase
+      .from("sessions")
+      .select("status, charged_free, cancelled_at, completed_at, parent_session_id, scheduled_at, data")
+      .in("block_id", clientBlockIds);
+    if (potSessions && potSessions.length > 0) {
+      const pot = deriveSessionPot(potSessions as any, client.sessions_purchased ?? null, (client as any).pot_baseline_used ?? 0);
+      derivedRemaining = pot.remaining;
+    }
+  }
 
   const initials = client.name
     .split(" ")
@@ -30,7 +49,7 @@ export default async function PlanNewProgrammePage({
   if (client.sessions_purchased == null) {
     remainingBadge = "Ongoing";
   } else {
-    remainingBadge = `${client.sessions_remaining ?? 0} of ${client.sessions_purchased} remaining`;
+    remainingBadge = `${derivedRemaining ?? 0} of ${client.sessions_purchased} remaining`;
   }
 
   // Active programme name (only if one exists)
