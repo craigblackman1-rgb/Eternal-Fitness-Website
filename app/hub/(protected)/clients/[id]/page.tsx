@@ -53,6 +53,28 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         .limit(50)
     : { data: [] as any[] };
 
+  // CR-EF-188 — the shared .limit(50) sessions query orders by scheduled_at
+  // DESC, so future bookings sort first and can evict historical rows. A
+  // second bounded query for upcoming sessions (ascending, limit 30) ensures
+  // the landing surfaces always see all upcoming without shrinking history.
+  const { data: upcomingSessions } = clientBlockIds.length > 0
+    ? await supabase
+        .from("sessions")
+        .select(`*, blocks!inner(block_number, client_id)`)
+        .in("block_id", clientBlockIds)
+        .gte("scheduled_at", new Date().toISOString())
+        .order("scheduled_at", { ascending: true })
+        .limit(30)
+    : { data: [] as any[] };
+
+  // Merge upcoming into the main sessions set, deduplicating by id
+  const sessionMap = new Map<string, any>();
+  for (const s of sessions ?? []) sessionMap.set(s.id, s);
+  for (const s of upcomingSessions ?? []) {
+    if (!sessionMap.has(s.id)) sessionMap.set(s.id, s);
+  }
+  const mergedSessions = Array.from(sessionMap.values());
+
   // Hub-used sessions across ALL blocks (not limited to 50) for the pot
   // baseline disagreement check. Counts completed + cancelled-and-charged.
   const baselineUsed = (client as any).pot_baseline_used ?? 0;
@@ -78,7 +100,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
   // Normalise to strict ISO-8601 (offset-preserving) so WebKit (iOS Safari)
   // doesn't render "Invalid Date" — see lib/pg-timestamp.ts.
-  for (const s of sessions ?? []) {
+  for (const s of mergedSessions) {
     if (s.scheduled_at) s.scheduled_at = toIsoTimestamp(s.scheduled_at) as string;
     if (s.completed_at) s.completed_at = toIsoTimestamp(s.completed_at) as string;
     const log = s.data?.session_log;
@@ -127,12 +149,12 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
     .eq("client_id", client.id)
     .order("performed_date", { ascending: false });
 
-  const sessionIds = (sessions ?? []).map((s) => s.id);
+  const sessionIds = mergedSessions.map((s) => s.id);
   const { data: setLogs } = sessionIds.length > 0
     ? await supabase.from("set_logs").select("*").in("session_id", sessionIds).order("logged_at", { ascending: true })
     : { data: [] as any[] };
   const trendSessionMeta: Record<string, TrendSessionMeta> = {};
-  for (const s of sessions ?? []) {
+  for (const s of mergedSessions) {
     trendSessionMeta[s.id] = {
       blockNumber: (s as any).blocks?.block_number ?? null,
       sessionNumber: s.session_number ?? null,
@@ -149,7 +171,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   // Session position is "Session N" without the total — the total per block is
   // computed further down and the capped 50-row window makes an accurate "of Y"
   // unreliable anyway.
-  const sessionNotes: SessionNoteData[] = (sessions ?? [])
+  const sessionNotes: SessionNoteData[] = mergedSessions
     .filter((s: any) => {
       const log = s.data?.session_log as Record<string, unknown> | undefined;
       return log && typeof log.notes === "string" && log.notes.trim();
@@ -177,7 +199,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   // through page.tsx -> ClientRecordShell -> ClientDrawers, so the client
   // record's "Your notes" fcard rendered only the plain client_notes table
   // and profile.notes, missing session notes and exercise notes entirely.
-  const exerciseNotes = aggregateExerciseNotes(sessions ?? []);
+  const exerciseNotes = aggregateExerciseNotes(mergedSessions);
 
   const pinnedNoteRefs: PinnedNoteRef[] = Array.isArray(
     (client as Record<string, unknown>).pinned_note_refs,
@@ -369,7 +391,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   // BUG-EF-109 — derive block status from sessions instead of trusting the stored column.
   const derivedStatusByBlock = new Map<string, import("@/types").BlockStatus>();
   for (const block of (blocks ?? [])) {
-    const blockSessions = (sessions ?? []).filter((s: any) => s.block_id === block.id);
+    const blockSessions = mergedSessions.filter((s: any) => s.block_id === block.id);
     derivedStatusByBlock.set(block.id, deriveBlockStatus(block.status, blockSessions));
   }
 
@@ -382,7 +404,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   // would silently pick up a session with no log at all.
   // CR-EF-101 — exclude sub-sessions: "last completed session" should be a
   // main session, not supplementary work.
-  const completedSessions = (sessions ?? []).filter((s: any) => s.completed_at && !s.parent_session_id);
+  const completedSessions = mergedSessions.filter((s: any) => s.completed_at && !s.parent_session_id);
   const latestCompletedSession = completedSessions.length > 0
     ? completedSessions.reduce((latest: any, s: any) =>
         new Date(s.completed_at) > new Date(latest.completed_at) ? s : latest,
@@ -396,7 +418,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   const sessionIsCompleted = (s: any) =>
     s.status === "completed" || !!s.completed_at;
   const nextSession = (() => {
-    const blockSessions = (sessions ?? []).filter((s: any) => s.block_id === latestBlock?.id);
+    const blockSessions = mergedSessions.filter((s: any) => s.block_id === latestBlock?.id);
     return (
       blockSessions
         .filter((s: any) => !sessionIsCompleted(s) && s.scheduled_at)
@@ -406,7 +428,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   })();
   const blockSessionCounts: Record<number, number> = {};
   const blockCompletedCounts: Record<number, number> = {};
-  for (const s of sessions ?? []) {
+  for (const s of mergedSessions) {
     if ((s as any).parent_session_id) continue;
     const bn = (s as any).blocks?.block_number;
     if (bn != null) {
@@ -425,7 +447,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
    */
   const latestBlockDateRangeLabel = (() => {
     if (!latestBlock) return "Not yet scheduled";
-    const dates = (sessions ?? [])
+    const dates = mergedSessions
       .filter((s: any) => s.block_id === latestBlock.id && s.scheduled_at)
       .map((s: any) => s.scheduled_at as string)
       .sort();
@@ -500,7 +522,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
   // Undated sessions in the latest block: sessions with no scheduled_at
   const latestBlockSessions = latestBlock
-    ? (sessions ?? []).filter((s) => s.block_id === latestBlock.id && !s.parent_session_id)
+    ? mergedSessions.filter((s) => s.block_id === latestBlock.id && !s.parent_session_id)
     : [];
   const undatedSessionCount = latestBlockSessions.filter((s) => !s.scheduled_at).length;
 
@@ -582,7 +604,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
     if (sid) setLogCountBySession.set(sid, (setLogCountBySession.get(sid) ?? 0) + 1);
   }
   const flaggedSessionIds = new Set<string>();
-  for (const s of sessions ?? []) {
+  for (const s of mergedSessions) {
     if (s.completed_at && !s.parent_session_id && (setLogCountBySession.get(s.id) ?? 0) === 0) {
       flaggedSessionIds.add(s.id);
     }
@@ -593,7 +615,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
     <ClientRecordShell
       client={client}
       blocks={blocks ?? []}
-      sessions={(sessions ?? []) as DBSession[]}
+      sessions={mergedSessions as DBSession[]}
       blockCompletedCounts={blockCompletedCounts}
       blockDateRangeLabel={latestBlockDateRangeLabel}
       nextSession={nextSession ? (nextSession as DBSession) : null}

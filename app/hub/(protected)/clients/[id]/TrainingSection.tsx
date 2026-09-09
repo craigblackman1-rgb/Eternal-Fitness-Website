@@ -1,6 +1,6 @@
 "use client";
 
-
+import { useState } from "react";
 import { useDrawerManager } from "./DrawerManager";
 import { HubCard } from "@/components/hub";
 import { deriveSessionPot } from "@/lib/session-pot";
@@ -153,6 +153,11 @@ export function TrainingSection({
     .filter((s) => s.completed_at && !s.parent_session_id)
     .sort((a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime())[0];
 
+  // ── Condensed list for upcoming bookings ──
+  const BOOKINGS_INITIAL_COUNT = 5;
+  const [showAllBookings, setShowAllBookings] = useState(false);
+  const visibleBookings = showAllBookings ? upcomingBookings : upcomingBookings.slice(0, BOOKINGS_INITIAL_COUNT);
+
   return (
     <HubCard padded={false}>
       {/* ── Card header ── */}
@@ -247,7 +252,7 @@ export function TrainingSection({
       ) : (
         (() => {
           let nextFound = false;
-          return upcomingBookings.map((booking) => {
+          return visibleBookings.map((booking) => {
             const hasWorkout =
               !isOutlookPlaceholder(booking) &&
               !sessionHasNoExercises(booking.data) &&
@@ -292,6 +297,16 @@ export function TrainingSection({
             );
           });
         })()
+      )}
+      {upcomingBookings.length > BOOKINGS_INITIAL_COUNT && !showAllBookings && (
+        <button
+          type="button"
+          onClick={() => setShowAllBookings(true)}
+          className="btn-link"
+          style={{ marginTop: 8 }}
+        >
+          Show all {upcomingBookings.length} ›
+        </button>
       )}
 
       {/* ── So-far summary line ── */}

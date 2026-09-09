@@ -129,6 +129,8 @@ export function TrainingDrawer({
   // ── Dialog state ──
   const [chooserSessionId, setChooserSessionId] = useState<string | null>(null);
   const [chooserBusy, setChooserBusy] = useState(false);
+  const SESSIONS_INITIAL_COUNT = 5;
+  const [showAllSessions, setShowAllSessions] = useState(false);
 
   function openChooser(sessionId: string) {
     setChooserSessionId(sessionId);
@@ -439,6 +441,17 @@ export function TrainingDrawer({
     </>
   );
 
+  // ── Partitioned sessions: nothing-applied first, then with-workout ──
+  const partitionedSessions = [
+    ...scheduledSessions.filter(
+      (s) => isOutlookPlaceholder(s) || sessionHasNoExercises(s.data) || isTrainerizeImported(s),
+    ),
+    ...scheduledSessions.filter(
+      (s) => !isOutlookPlaceholder(s) && !sessionHasNoExercises(s.data) && !isTrainerizeImported(s),
+    ),
+  ];
+  const visibleSessions = showAllSessions ? partitionedSessions : partitionedSessions.slice(0, SESSIONS_INITIAL_COUNT);
+
   return (
     <DrawerShell
       id="dw-training"
@@ -474,14 +487,7 @@ export function TrainingDrawer({
           ) : (
             <>
               {/* Dates with nothing applied first, then dates with workouts */}
-              {[
-                ...scheduledSessions.filter(
-                  (s) => isOutlookPlaceholder(s) || sessionHasNoExercises(s.data) || isTrainerizeImported(s),
-                ),
-                ...scheduledSessions.filter(
-                  (s) => !isOutlookPlaceholder(s) && !sessionHasNoExercises(s.data) && !isTrainerizeImported(s),
-                ),
-              ].map((s) => {
+              {visibleSessions.map((s) => {
                 const hasWorkout =
                   !isOutlookPlaceholder(s) && !sessionHasNoExercises(s.data) && !isTrainerizeImported(s);
                 const workoutName = sessionWorkoutName(s, "");
@@ -581,6 +587,16 @@ export function TrainingDrawer({
                   </div>
                 );
               })}
+              {partitionedSessions.length > SESSIONS_INITIAL_COUNT && !showAllSessions && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllSessions(true)}
+                  className="btn-link"
+                  style={{ marginTop: 8 }}
+                >
+                  Show all {partitionedSessions.length} ›
+                </button>
+              )}
               <p className="miss" style={{ marginTop: 10 }}>
                 A workout can be applied on the day or ahead of time — the rule is unchanged. Applying one takes nothing from the pot; only completing it does.
               </p>
