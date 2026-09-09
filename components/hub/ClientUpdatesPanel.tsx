@@ -38,7 +38,7 @@ export function ClientUpdatesPanel({
         icon={<IconMail className="w-7 h-7" />}
         title="No updates yet"
         description="Generate a branded 6-week update from this client's training data, then review, schedule, or send it."
-        cta={{ label: "New Update", href: `/hub/clients/${clientNumber}/updates/new` }}
+        cta={{ label: "New Update", href: `/hub/clients/${clientNumber}/comms/new` }}
       />
     );
   }
@@ -56,7 +56,7 @@ export function ClientUpdatesPanel({
                 Full history &amp; report
               </Link>
             )}
-            <Link href={`/hub/clients/${clientNumber}/updates/new`}>
+            <Link href={`/hub/clients/${clientNumber}/comms/new`}>
               <Button size="sm" className="rounded-lg gap-1.5 bg-rose hover:bg-rose/90 text-white">
                 <IconSend className="h-4 w-4" />
                 Send Update

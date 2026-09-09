@@ -956,10 +956,16 @@ function ConfirmationPanel({
             >
               Back to {client.name}
             </BackLink>
+            <Link
+              href={`/hub/clients/${clientNumber}/comms/new`}
+              className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg border border-rose bg-rose text-white text-[13px] font-semibold hover:bg-[color-mix(in_oklch,var(--rose)_82%,var(--ink))] transition-colors"
+            >
+              Write the update
+            </Link>
             {decision !== "continue" && (
               <Link
                 href={`/hub/clients/${clientNumber}/add-workout`}
-                className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg border border-rose bg-rose text-white text-[13px] font-semibold hover:bg-[color-mix(in_oklch,var(--rose)_82%,var(--ink))] transition-colors"
+                className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] text-[13px] font-semibold text-foreground hover:bg-[var(--hub-hover)] transition-colors"
               >
                 Go to Add a workout
               </Link>

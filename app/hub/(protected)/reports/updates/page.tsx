@@ -6,6 +6,7 @@ import { KpiTile } from "@/components/hub/KpiTile";
 import { HubCard, HubCardHeader, HubPageHeader } from "@/components/hub";
 import { TokenPill } from "@/components/hub/StatusBadge";
 import { UpdatesReport } from "./UpdatesReport";
+import { CommsClientPicker } from "@/components/hub/CommsClientPicker";
 import type { UpdateWithClient } from "@/types";
 import { getClientsWithUpdateDue } from "@/lib/updates-due-db";
 import { UPDATE_INTERVAL_LABELS, type UpdateDueStatus } from "@/lib/updates-due";
@@ -87,12 +88,7 @@ export default async function UpdatesReportPage() {
                 Export
               </Button>
             </Link>
-            <Link href="/hub/clients">
-              <Button size="sm" className="rounded-lg gap-1.5">
-                <IconPlus className="h-3.5 w-3.5" />
-                New update
-              </Button>
-            </Link>
+            <CommsClientPicker />
           </>
         }
       />

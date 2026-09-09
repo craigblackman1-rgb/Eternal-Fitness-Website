@@ -1361,13 +1361,13 @@ function CommsDrawer({
           studio client. Raised by Craig, 5 Sep 2026. */}
       <div className="flex items-center gap-2 flex-wrap pb-3">
         <Link
-          href={`/hub/clients/${clientNumber}/updates/new`}
+          href={`/hub/clients/${clientNumber}/comms/new`}
           className="inline-flex items-center justify-center rounded-control border border-[var(--hub-field-border)] bg-white px-2.5 py-1 min-h-[30px] text-xs font-semibold text-foreground no-underline hover:bg-[var(--hub-hover)] transition-colors"
         >
           Write an update
         </Link>
         <Link
-          href={`/hub/clients/${clientNumber}/updates`}
+          href={`/hub/clients/${clientNumber}/comms/new`}
           className="text-xs font-semibold text-[var(--color-rose)] no-underline hover:underline underline-offset-2"
         >
           See every update sent

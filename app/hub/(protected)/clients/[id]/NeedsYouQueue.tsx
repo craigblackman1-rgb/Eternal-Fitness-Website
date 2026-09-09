@@ -113,7 +113,7 @@ export function buildNeedsYouItems(input: NeedsYouInput): QueueItem[] {
         ? `Last self-logged set ${new Date(lastClientLogAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}. Home training is self-logged, so silence is the only signal.`
         : "Home training is self-logged, so nothing has come through the portal at all.",
       actionLabel: "Write an update",
-      actionHref: `/hub/clients/${clientNumber}/updates/new`,
+      actionHref: `/hub/clients/${clientNumber}/comms/new`,
     });
   }
 

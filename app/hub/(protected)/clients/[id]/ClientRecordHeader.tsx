@@ -199,7 +199,7 @@ export function ClientRecordHeader({
               "Book session" is the wrong primary action for her — the thing
               Esther actually does is get in touch. */}
           {isHomeTraining ? (
-            <Link href={`/hub/clients/${client.client_number}/updates/new`}>
+            <Link href={`/hub/clients/${client.client_number}/comms/new`}>
               <Button className="bg-rose hover:bg-rose/90 text-white rounded-lg px-3.5 py-1.5 h-auto text-sm font-semibold gap-1.5">
                 <IconMail className="w-4 h-4" /> Message {firstName}
               </Button>
