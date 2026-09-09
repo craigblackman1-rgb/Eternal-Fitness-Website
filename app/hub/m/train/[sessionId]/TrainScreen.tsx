@@ -1748,35 +1748,6 @@ Cancel — record it as today`,
 
 // ── Sub-components ───────────────────────────────────────────────
 
-function Thumbnail({ exercise }: { exercise: Exercise }) {
-  const imageUrl = exercise.media?.image_url;
-  if (imageUrl) {
-    return (
-      <div className="ex-thumb has-img" aria-hidden="true">
-        <img
-          src={imageUrl}
-          alt=""
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-          loading="lazy"
-        />
-      </div>
-    );
-  }
-  if (exercise.media?.video_url) {
-    return (
-      <div className="ex-thumb has-img" aria-hidden="true">
-        {ICO.video}
-      </div>
-    );
-  }
-  return (
-    <div className="ex-thumb no-img" aria-hidden="true">
-      {ICO.img}
-      <span className="thumb-cap">none</span>
-    </div>
-  );
-}
-
 function SetRow({
   exercise,
   set,

@@ -314,10 +314,6 @@
 .ex.picked { border-color: var(--rose); box-shadow: 0 0 0 2px var(--s-primary-bd); }
 .pick-box { flex-shrink: 0; width: 26px; height: 26px; margin-top: 3px; border-radius: 7px; border: 1.5px solid var(--field-border); background: var(--card); color: transparent; display: grid; place-items: center; cursor: pointer; padding: 0; }
 .ex.picked .pick-box, .grp-legend.picked .pick-box { background: var(--rose); border-color: var(--rose); color: var(--color-white); }
-.ex-thumb { position: relative; flex-shrink: 0; width: 56px; height: 56px; border-radius: var(--r-nested); border: 1px solid var(--border); background: var(--hover); display: grid; place-items: center; color: var(--muted); overflow: hidden; }
-.ex-thumb.has-img { background: var(--s-primary-bg); border-color: var(--s-primary-bd); color: var(--rose); }
-.ex-thumb.no-img { border-style: dashed; }
-.thumb-cap { position: absolute; left: 0; right: 0; bottom: 0; font-size: 8px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; text-align: center; background: rgba(255,255,255,.82); color: var(--muted); padding: 1px 0; }
 .ex-complete-ic { color: var(--teal); flex-shrink: 0; }
 .log-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; border-radius: var(--r-control-sm); padding: 2px 7px 2px 6px; flex-shrink: 0; }
 .log-badge.reps { color: var(--rose); background: var(--s-primary-bg); border: 1px solid var(--s-primary-bd); }
