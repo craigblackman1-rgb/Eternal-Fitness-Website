@@ -1500,6 +1500,8 @@ table.eb-table { width: 100%; border-collapse: collapse; font-size: 14px; min-wi
 .badge.b-primary { background: var(--status-primary-bg); border: 1px solid var(--status-primary-border); color: var(--status-primary-text); }
 .badge.b-neutral { background: var(--hub-hover); border: 1px solid var(--hub-border); color: var(--color-body); }
 .badge.b-warning { background: var(--status-warning-bg); border: 1px solid var(--status-warning-border); color: var(--status-warning-text); }
+.badge.b-success { background: var(--status-success-bg); border: 1px solid var(--status-success-border); color: var(--status-success-text); }
+.badge.b-danger { background: var(--status-danger-bg); border: 1px solid var(--status-danger-border); color: var(--status-danger); }
 
 /* ══ GLANCE CARD — read-only training summary (CR-EF-186 u1) ════════════
    Ported from hub-client-detail-v3.html. All drow rules namespaced under
@@ -1866,7 +1868,7 @@ table.eb-table { width: 100%; border-collapse: collapse; font-size: 14px; min-wi
 .edit-form {
   max-width: 950px;
   margin: 0 auto;
-  padding: 0 24px 100px;
+  padding: 20px 24px 100px;
 }
 
 /* Section wrapper */
