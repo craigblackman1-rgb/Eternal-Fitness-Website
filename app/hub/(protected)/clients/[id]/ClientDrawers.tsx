@@ -1945,7 +1945,7 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
                 placeholder="Search exercises..."
                 value={pbSearch}
                 onChange={(e) => { setPbSearch(e.target.value); setPbPage(0); }}
-                className="w-full h-8 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] pl-9 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground font-[inherit] outline-none hover:border-[var(--hub-field-border-hover)] focus:outline-none focus:border-[var(--color-rose)] focus:ring-[3px] focus:ring-[rgba(193,131,159,0.3)]"
+                className="tb-search"
               />
             </div>
           </div>
@@ -1971,10 +1971,10 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
                       : `${clampedPbPage * PB_PAGE_SIZE + 1}–${Math.min((clampedPbPage + 1) * PB_PAGE_SIZE, filteredPbRows.length)} of ${filteredPbRows.length}`}
                   </span>
                   {pbTotalPages > 1 && (
-                    <>
-                      <button type="button" className="pager-b" disabled={clampedPbPage === 0} onClick={() => setPbPage((p) => Math.max(0, p - 1))} style={{ border: "1px solid var(--hub-border)", borderRadius: "var(--r-nested)", background: "var(--hub-card)", padding: "4px 10px", fontSize: 12.5, cursor: clampedPbPage === 0 ? "default" : "pointer", opacity: clampedPbPage === 0 ? 0.4 : 1 }}>Prev</button>
-                      <button type="button" className="pager-b" disabled={clampedPbPage >= pbTotalPages - 1} onClick={() => setPbPage((p) => Math.min(pbTotalPages - 1, p + 1))} style={{ border: "1px solid var(--hub-border)", borderRadius: "var(--r-nested)", background: "var(--hub-card)", padding: "4px 10px", fontSize: 12.5, cursor: clampedPbPage >= pbTotalPages - 1 ? "default" : "pointer", opacity: clampedPbPage >= pbTotalPages - 1 ? 0.4 : 1 }}>Next</button>
-                    </>
+                    <span className="pager-b">
+                      <button type="button" className="btn btn-outline btn-sm" disabled={clampedPbPage === 0} onClick={() => setPbPage((p) => Math.max(0, p - 1))}>Prev</button>
+                      <button type="button" className="btn btn-outline btn-sm" disabled={clampedPbPage >= pbTotalPages - 1} onClick={() => setPbPage((p) => Math.min(pbTotalPages - 1, p + 1))}>Next</button>
+                    </span>
                   )}
                 </div>
               )}
@@ -2040,7 +2040,7 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
                   placeholder="Search exercises..."
                   value={loadSearch}
                   onChange={(e) => { setLoadSearch(e.target.value); setLoadPage(0); }}
-                  className="w-full h-8 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] pl-9 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground font-[inherit] outline-none hover:border-[var(--hub-field-border-hover)] focus:outline-none focus:border-[var(--color-rose)] focus:ring-[3px] focus:ring-[rgba(193,131,159,0.3)]"
+                  className="tb-search"
                 />
               </div>
             </div>
@@ -2085,10 +2085,10 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
                     : `${clampedLoadPage * LOAD_PAGE_SIZE + 1}–${Math.min((clampedLoadPage + 1) * LOAD_PAGE_SIZE, filteredLoadRows.length)} of ${filteredLoadRows.length}`}
                 </span>
                 {loadTotalPages > 1 && (
-                  <>
-                    <button type="button" className="pager-b" disabled={clampedLoadPage === 0} onClick={() => setLoadPage((p) => Math.max(0, p - 1))} style={{ border: "1px solid var(--hub-border)", borderRadius: "var(--r-nested)", background: "var(--hub-card)", padding: "4px 10px", fontSize: 12.5, cursor: clampedLoadPage === 0 ? "default" : "pointer", opacity: clampedLoadPage === 0 ? 0.4 : 1 }}>Prev</button>
-                    <button type="button" className="pager-b" disabled={clampedLoadPage >= loadTotalPages - 1} onClick={() => setLoadPage((p) => Math.min(loadTotalPages - 1, p + 1))} style={{ border: "1px solid var(--hub-border)", borderRadius: "var(--r-nested)", background: "var(--hub-card)", padding: "4px 10px", fontSize: 12.5, cursor: clampedLoadPage >= loadTotalPages - 1 ? "default" : "pointer", opacity: clampedLoadPage >= loadTotalPages - 1 ? 0.4 : 1 }}>Next</button>
-                  </>
+                  <span className="pager-b">
+                    <button type="button" className="btn btn-outline btn-sm" disabled={clampedLoadPage === 0} onClick={() => setLoadPage((p) => Math.max(0, p - 1))}>Prev</button>
+                    <button type="button" className="btn btn-outline btn-sm" disabled={clampedLoadPage >= loadTotalPages - 1} onClick={() => setLoadPage((p) => Math.min(loadTotalPages - 1, p + 1))}>Next</button>
+                  </span>
                 )}
               </div>
             )}
