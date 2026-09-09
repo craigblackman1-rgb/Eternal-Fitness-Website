@@ -32,6 +32,10 @@ interface ReviewFlowClientProps {
   blockExpiryDate: string | null;
   clientNumber: number;
   currentUserName: string;
+  windowLabel: string;
+  recentSessions: { id: string; name: string; completed_at: string | null; setLogCount: number }[];
+  programmePosition: { completedCount: number; totalSlots: number } | null;
+  programmeFirstDate: string | null;
 }
 
 const STEPS = ["Progress", "Outstanding", "Position", "Health check-in", "Decision"] as const;
@@ -79,6 +83,10 @@ export function ReviewFlowClient({
   blockExpiryDate,
   clientNumber,
   currentUserName,
+  windowLabel,
+  recentSessions,
+  programmePosition,
+  programmeFirstDate,
 }: ReviewFlowClientProps) {
   const [step, setStep] = useState(1);
   const [decision, setDecision] = useState<ReviewDecision | null>(null);
@@ -186,7 +194,7 @@ export function ReviewFlowClient({
       {/* Step panels */}
       {step === 1 && (
         <StepPanel onContinue={() => setStep(2)}>
-          <ProgressStep client={client} completedSessions={completedSessions} hasAnyCompletedSessions={hasAnyCompletedSessions} totalSessions={chronologicalTotal || client.sessions_purchased || 0} pbsCount={pbsCount} />
+          <ProgressStep client={client} completedSessions={completedSessions} hasAnyCompletedSessions={hasAnyCompletedSessions} totalSessions={chronologicalTotal || client.sessions_purchased || 0} pbsCount={pbsCount} windowLabel={windowLabel} programmePosition={programmePosition} programmeFirstDate={programmeFirstDate} />
         </StepPanel>
       )}
 
@@ -440,19 +448,39 @@ function ProgressStep({
   hasAnyCompletedSessions,
   totalSessions,
   pbsCount,
+  windowLabel,
+  programmePosition,
+  programmeFirstDate,
 }: {
   client: DBClient;
   completedSessions: { id: string; name: string; scheduled_at: string | null; position: string }[];
   hasAnyCompletedSessions: boolean;
   totalSessions: number;
   pbsCount: number;
+  windowLabel: string;
+  programmePosition: { completedCount: number; totalSlots: number } | null;
+  programmeFirstDate: string | null;
 }) {
+  const positionText = (() => {
+    if (programmePosition && programmePosition.totalSlots > 0) {
+      return `Session ${programmePosition.completedCount} of ${programmePosition.totalSlots}`;
+    }
+    if (programmePosition && programmePosition.totalSlots === 0) {
+      return `${programmePosition.completedCount} session${programmePosition.completedCount === 1 ? "" : "s"} consumed`;
+    }
+    return `Session ${completedSessions.length} of ${totalSessions || "?"}`;
+  })();
+
+  const programmeNotStarted = programmePosition
+    && programmePosition.totalSlots > 0
+    && programmePosition.completedCount === 0;
+
   return (
     <HubCard>
       <HubCardHeader
         icon={<IconClipboardList className="w-4 h-4" />}
         title="Progress"
-        subtitle="Sessions delivered, PBs this period, position in programme"
+        subtitle={windowLabel}
       />
       <div>
         {/* BUG-EF-151 — only show EmptyState when the client has NEVER had a
@@ -480,8 +508,14 @@ function ProgressStep({
                 <p className="text-base font-bold text-foreground mt-0.5 tabular-nums">{pbsCount}</p>
               </div>
               <div className="px-4 py-3 border-l border-[var(--hub-border)]">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Position</p>
-                <p className="text-[13px] font-bold text-foreground mt-0.5">Session {completedSessions.length} of {totalSessions || "?"}</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Programme position</p>
+                {programmeNotStarted ? (
+                  <p className="text-[13px] font-bold text-foreground mt-0.5">
+                    Programme not started{programmeFirstDate ? <> — begins {new Date(programmeFirstDate).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</> : ""}
+                  </p>
+                ) : (
+                  <p className="text-[13px] font-bold text-foreground mt-0.5">{positionText}</p>
+                )}
               </div>
             </div>
 

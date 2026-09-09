@@ -2,13 +2,14 @@ import { createClient } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import { computeComplianceFlags } from "@/lib/compliance";
 import { deriveSessionPot } from "@/lib/session-pot";
-import { deriveChronologicalPositions, sessionChronologicalLabel } from "@/lib/session-chronological-order";
 import { sessionWorkoutName } from "@/lib/session-display";
 import { buildExerciseHistory } from "@/lib/exercise-history";
 import { deriveBlockStatus } from "@/lib/block-status";
 import { deriveSessionStatus } from "@/lib/session-status";
 import { trainerizeResultsToSetLogs } from "@/lib/trainerize-adapter";
+import { getClientProgramState } from "@/lib/programs/queue";
 import type { SetLog, DBClientReview } from "@/types";
+import type { QueueState } from "@/lib/programs/types";
 import { ReviewFlowClient } from "./ReviewFlowClient";
 
 export const dynamic = "force-dynamic";
@@ -96,14 +97,7 @@ export default async function ReviewPage({ params }: { params: { id: string } })
   const activeBlockSessions = activeBlock ? sessions.filter((s) => s.block_id === activeBlock.id) : [];
   const pot = deriveSessionPot(activeBlockSessions, client.sessions_purchased, client.pot_baseline_used ?? 0);
 
-  const positions = deriveChronologicalPositions(activeBlockSessions);
-  const chronologicalTotal = Array.from(positions.values())[0]?.total ?? 0;
-
-  // BUG-EF-151 — use deriveSessionStatus instead of ad-hoc status check.
-  const completedSessions = activeBlockSessions.filter((s) => {
-    if (s.parent_session_id) return false;
-    return deriveSessionStatus(s) === "completed";
-  });
+  const chronologicalTotal = 0; // Replaced by programmeState.totalSlots in the window-scoped section
 
   // BUG-EF-151 — fetch combined hub + Trainerize set-log source (same as
   // clients/[id]/page.tsx:120-145) so PBs match the Progress drawer.
@@ -122,35 +116,116 @@ export default async function ReviewPage({ params }: { params: { id: string } })
     ...trainerizeResultsToSetLogs((trainerizeWorkoutResults ?? []) as any),
   ];
 
-  // Compute personal bests from combined source scoped to the review period.
-  const blockStartedAt = activeBlock?.scheduled_start;
+  // ── Review window (BUG-EF-151 R2) ────────────────────────────────────────
+  // Scope stats to a meaningful period, not the (possibly future) active block.
+  const { data: reviews } = await supabase
+    .from("client_reviews")
+    .select("*")
+    .eq("client_id", client.id)
+    .order("created_at", { ascending: false });
+
+  const allCompletedSessions = (sessions ?? []).filter((s: any) => {
+    if (s.parent_session_id) return false;
+    return deriveSessionStatus(s) === "completed";
+  });
+
+  const now = new Date();
+  const FORTY_TWO_DAYS_MS = 42 * 24 * 60 * 60 * 1000;
+  const previousReview = (reviews ?? [])[0] ?? null;
+
+  let windowStart: Date;
+  let windowSource: "review" | "default" | "fallback" = "review";
+
+  if (previousReview) {
+    windowStart = new Date(previousReview.created_at);
+  } else {
+    const defaultStart = new Date(now.getTime() - FORTY_TWO_DAYS_MS);
+    const hasInDefault = allCompletedSessions.some(
+      (s) => s.completed_at && new Date(s.completed_at) >= defaultStart,
+    );
+    if (hasInDefault) {
+      windowStart = defaultStart;
+      windowSource = "default";
+    } else {
+      // Find the most recent 42-day span containing the latest completed session
+      const sorted = [...allCompletedSessions].sort(
+        (a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime(),
+      );
+      const latest = sorted[0];
+      if (latest?.completed_at) {
+        const latestDate = new Date(latest.completed_at);
+        windowStart = new Date(latestDate.getTime() - FORTY_TWO_DAYS_MS);
+      } else {
+        windowStart = defaultStart;
+      }
+      windowSource = "fallback";
+    }
+  }
+
+  const reviewWindowSessions = allCompletedSessions.filter((s) => {
+    if (!s.completed_at) return false;
+    return new Date(s.completed_at) >= windowStart;
+  });
+
+  // PBs scoped to review window, across all blocks
   let pbsCount = 0;
-  if (blockStartedAt) {
+  {
     const scopedLogs = combinedSetLogs.filter((log) => {
       if (!log.logged_at) return false;
-      return new Date(log.logged_at) >= new Date(blockStartedAt);
+      return new Date(log.logged_at) >= windowStart;
     });
     const exerciseHistory = buildExerciseHistory(scopedLogs);
     pbsCount = exerciseHistory.reduce((count, entry) => {
       return count + entry.personalBests.filter((pb) => {
-        return new Date(pb.achievedAt) >= new Date(blockStartedAt);
+        return new Date(pb.achievedAt) >= windowStart;
       }).length;
     }, 0);
-  } else {
-    const exerciseHistory = buildExerciseHistory(combinedSetLogs);
-    pbsCount = exerciseHistory.reduce((count, entry) => count + entry.personalBests.length, 0);
   }
 
-  const completedWithNames = completedSessions.map((s) => {
-    const pos = positions.get(s.id);
-    return {
-      id: s.id,
-      name: sessionWorkoutName(s.data),
-      scheduled_at: s.scheduled_at,
-      position: pos ? sessionChronologicalLabel(pos.position, pos.total) : "",
-    };
-  });
+  // Window label
+  const fmtDate = (d: Date) =>
+    d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  const fmtDateFull = (d: Date) =>
+    d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  const isToday = (d: Date) =>
+    d.toISOString().slice(0, 10) === now.toISOString().slice(0, 10);
 
+  let windowLabel: string;
+  if (windowSource === "review") {
+    const endLabel = isToday(now) ? "today" : fmtDateFull(now);
+    windowLabel = `Since last review, ${fmtDate(windowStart)} – ${endLabel}`;
+  } else if (windowSource === "default") {
+    windowLabel = "Last 6 weeks";
+  } else {
+    const endLabel = isToday(now) ? "today" : fmtDateFull(now);
+    const startLabel = fmtDate(windowStart);
+    windowLabel = `${startLabel} – ${endLabel}`;
+  }
+
+  // Completed session names in the window (for ProgressStep)
+  const completedWithNames = reviewWindowSessions.map((s) => ({
+    id: s.id,
+    name: sessionWorkoutName(s.data),
+    scheduled_at: s.scheduled_at,
+    position: "",
+  }));
+
+  // Position: programme-based, never from the (possibly empty) active block
+  let programmeState: QueueState | null = null;
+  try {
+    programmeState = await getClientProgramState(client.id);
+  } catch {
+    programmeState = null;
+  }
+
+  // First scheduled date of the active block, for "not started" label
+  const firstScheduledDate = activeBlockSessions
+    .map((s) => s.scheduled_at)
+    .filter((d): d is string => !!d)
+    .sort()[0] ?? null;
+
+  // Unreviewed cancellations and lapsed sessions (still active-block-scoped —
+  // these are action items, not stats)
   const unreviewedCancellations = activeBlockSessions.filter((s) => {
     return deriveSessionStatus(s) === "cancelled" && s.charged_free == null && !s.parent_session_id;
   });
@@ -159,21 +234,49 @@ export default async function ReviewPage({ params }: { params: { id: string } })
     (s) => s.lapse_flagged_at && !s.parent_session_id,
   );
 
-  const { data: reviews } = await supabase
-    .from("client_reviews")
-    .select("*")
-    .eq("client_id", client.id)
-    .order("created_at", { ascending: false });
-
   const extensionHistory = (client as any).block_expiry_extensions ?? [];
 
-  const hasDeliveredSessions = completedSessions.length > 0;
+  const hasDeliveredSessions = reviewWindowSessions.length > 0;
 
   // BUG-EF-151 — EmptyState must only show when the client has NEVER had a
   // completed session anywhere, not just in the current block.
-  const hasAnyCompletedSessions = (sessions ?? []).some(
-    (s: any) => deriveSessionStatus(s) === "completed" && !s.parent_session_id,
-  );
+  const hasAnyCompletedSessions = allCompletedSessions.length > 0;
+
+  // Recent sessions: 5 most recent completed in window, with set-log counts
+  const recentSessionIds = reviewWindowSessions
+    .sort((a, b) => {
+      const aTime = a.completed_at ? new Date(a.completed_at).getTime() : 0;
+      const bTime = b.completed_at ? new Date(b.completed_at).getTime() : 0;
+      return bTime - aTime;
+    })
+    .slice(0, 5)
+    .map((s) => s.id);
+
+  let setLogCountBySession = new Map<string, number>();
+  if (recentSessionIds.length > 0) {
+    const { data: recentSetLogs } = await supabase
+      .from("set_logs")
+      .select("session_id")
+      .in("session_id", recentSessionIds);
+    for (const log of recentSetLogs ?? []) {
+      const sid = (log as any).session_id;
+      if (sid) setLogCountBySession.set(sid, (setLogCountBySession.get(sid) ?? 0) + 1);
+    }
+  }
+
+  const recentSessionsData = reviewWindowSessions
+    .filter((s) => recentSessionIds.includes(s.id))
+    .sort((a, b) => {
+      const aTime = a.completed_at ? new Date(a.completed_at).getTime() : 0;
+      const bTime = b.completed_at ? new Date(b.completed_at).getTime() : 0;
+      return bTime - aTime;
+    })
+    .map((s) => ({
+      id: s.id,
+      name: sessionWorkoutName(s.data),
+      completed_at: s.completed_at,
+      setLogCount: setLogCountBySession.get(s.id) ?? 0,
+    }));
 
   return (
     <ReviewFlowClient
@@ -194,6 +297,10 @@ export default async function ReviewPage({ params }: { params: { id: string } })
       blockExpiryDate={client.block_expiry_date}
       clientNumber={numericId}
       currentUserName={currentUserName}
+      windowLabel={windowLabel}
+      recentSessions={recentSessionsData}
+      programmePosition={programmeState ? { completedCount: programmeState.completedCount, totalSlots: programmeState.totalSlots } : null}
+      programmeFirstDate={firstScheduledDate}
     />
   );
 }
