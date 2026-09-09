@@ -248,7 +248,7 @@ export async function GET(
       if (e.delta != null && e.delta < 0) {
         runningCount -= e.delta; // delta is negative for consumption events
       }
-      return { date: e.date, event: e.event, delta: e.delta, remaining: null, used: runningCount + baselineUsed, tags: e.tags };
+      return { date: e.date, event: e.event, delta: e.delta, remaining: null, used: runningCount, tags: e.tags };
     } else {
       runningCount =
         e.delta !== null ? Math.max(0, runningCount + e.delta) : runningCount;

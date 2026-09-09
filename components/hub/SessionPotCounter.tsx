@@ -36,7 +36,7 @@ export function SessionPotCounter({ pot, blockExpiryDate, extended, originalExpi
   const expiryStatus: "past" | "today" | "future" | null = days === null ? null : days < 0 ? "past" : days === 0 ? "today" : "future";
 
   const segments = [
-    { label: "Completed", count: completed, color: "#087E8B" },
+    { label: "Completed", count: completed, color: "var(--color-teal)" },
     { label: "Charged cancellation", count: chargedCancellations, color: "#8A4E63" },
     { label: "Free to book", count: Math.max(0, remaining), color: "#E4E7EC" },
   ].filter((s) => s.count > 0);
@@ -96,7 +96,7 @@ export function SessionPotCounter({ pot, blockExpiryDate, extended, originalExpi
                   className="h-full first:rounded-l-pill last:rounded-r-pill"
                   style={{
                     width: `${(completed / Math.max(used, 1)) * 100}%`,
-                    backgroundColor: "#087E8B",
+                    backgroundColor: "var(--color-teal)",
                     borderRight: "1.5px solid var(--hub-card)",
                   }}
                 />
@@ -120,7 +120,7 @@ export function SessionPotCounter({ pot, blockExpiryDate, extended, originalExpi
           <div className="flex flex-wrap gap-1 mt-2">
             {isOngoing ? (
               <span className="flex items-center gap-1.5 text-xs text-body">
-                <span className="w-2.5 h-2.5 rounded-control shrink-0" style={{ backgroundColor: "#087E8B" }} />
+                <span className="w-2.5 h-2.5 rounded-control shrink-0" style={{ backgroundColor: "var(--color-teal)" }} />
                 Completed <b className="text-foreground font-bold tabular-nums">{completed}</b>
               </span>
             ) : (
