@@ -12,6 +12,7 @@ import type { DBClient, DBBlock, DBClientReview, ReviewDecision } from "@/types"
 import type { SessionPotBreakdown } from "@/lib/session-pot";
 import type { ComplianceFlags } from "@/lib/compliance";
 import { formatFrequency } from "@/types";
+import { REVIEW_DECISIONS, consequenceTitle, consequenceBody, confirmationWhereText } from "@/lib/review-decisions";
 
 interface ReviewFlowClientProps {
   client: DBClient;
@@ -34,24 +35,6 @@ interface ReviewFlowClientProps {
 }
 
 const STEPS = ["Progress", "Outstanding", "Position", "Health check-in", "Decision"] as const;
-
-const DECISIONS: Record<ReviewDecision, { label: string; desc: string; tone: string }> = {
-  continue: {
-    label: "Continue as is",
-    desc: "No changes to the plan. Confirms things are on track and closes this review.",
-    tone: "success",
-  },
-  adjust: {
-    label: "Adjust the programme",
-    desc: "Something needs to change — equipment, intensity, or a specific exercise — without starting over.",
-    tone: "primary",
-  },
-  restart: {
-    label: "Start a new programme",
-    desc: "What has been delivered no longer fits — record the decision and set up a new programme manually.",
-    tone: "warning",
-  },
-};
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -188,7 +171,7 @@ export function ReviewFlowClient({
         {lastReview ? (
           <span>
             Last reviewed <span className="font-semibold text-foreground">{formatDate(lastReview.created_at)}</span> — decision:{" "}
-            <span className="font-semibold text-foreground">{DECISIONS[lastReview.decision]?.label ?? lastReview.decision}</span>
+            <span className="font-semibold text-foreground">{REVIEW_DECISIONS[lastReview.decision]?.label ?? lastReview.decision}</span>
           </span>
         ) : (
           <span>
@@ -260,8 +243,8 @@ export function ReviewFlowClient({
             <div className="space-y-4">
               {/* Decision options */}
               <div className="space-y-2" role="radiogroup" aria-label="Review decision">
-                {(Object.keys(DECISIONS) as ReviewDecision[]).map((key) => {
-                  const d = DECISIONS[key];
+                {(Object.keys(REVIEW_DECISIONS) as ReviewDecision[]).map((key) => {
+                  const d = REVIEW_DECISIONS[key];
                   const selected = decision === key;
                   return (
                     <button
@@ -316,13 +299,10 @@ export function ReviewFlowClient({
                 </div>
                 <div className="min-w-0">
                   <p className="text-[13px] font-bold text-foreground">
-                    {decision ? `${DECISIONS[decision].label} — selected` : "Choose one to see what happens next."}
+                    {consequenceTitle(decision)}
                   </p>
                   <p className="text-[12.5px] text-foreground/75 mt-0.5 leading-relaxed">
-                    {decision === "continue" && `Recorded as on track for ${firstName(client.name)}. No follow-up task is created.`}
-                    {decision === "adjust" && `Takes you to Add a workout for ${firstName(client.name)} next, to bring in the change — the same short flow used to add any workout, nothing else to set up first.`}
-                    {decision === "restart" && `Records the decision to start fresh. The current programme stays open — you end it and set up the new one from Add a workout, which is available on the next screen.`}
-                    {!decision && "Nothing is recorded until you confirm below."}
+                    {consequenceBody(decision, firstName(client.name))}
                   </p>
                 </div>
               </div>
@@ -900,16 +880,14 @@ function ConfirmationPanel({
           <p className="text-[13.5px] text-muted-foreground">The review for {client.name} is closed.</p>
 
           <dl className="max-w-[440px] mx-auto mt-5 text-left space-y-0">
-            <DataRow label="Decision" value={DECISIONS[decision]?.label ?? decision} />
+            <DataRow label="Decision" value={REVIEW_DECISIONS[decision]?.label ?? decision} />
             <DataRow label="Note" value={review.note} muted />
             <DataRow label="Recorded by" value={`${review.recorded_by_name} · ${formatDateTime(review.created_at)}`} muted />
           </dl>
 
           <div className="max-w-[440px] mx-auto mt-4 text-left text-[12.5px] text-foreground/75 bg-[var(--hub-hover)] border border-[var(--hub-border)] rounded-nested p-3 leading-relaxed">
             <span className="font-bold text-foreground">Where this shows up: </span>
-            {client.name}&apos;s overview panel as the latest review outcome, and in the review history below.
-            {decision !== "continue" && <> Add a workout for {firstName(client.name)} is available on the next screen if you are ready to set up the new programme.</>}
-            {decision === "continue" && <> No further action is scheduled.</>}
+            {confirmationWhereText(decision, client.name, firstName(client.name))}
           </div>
 
           <div className="flex items-center justify-center gap-2.5 mt-5">
@@ -946,7 +924,7 @@ function ConfirmationPanel({
             </span>
             <div className="flex-1 min-w-0">
               <p className="text-[13px] font-semibold text-foreground">
-                {DECISIONS[review.decision]?.label ?? review.decision}
+                {REVIEW_DECISIONS[review.decision]?.label ?? review.decision}
                 <span className="ml-1.5 inline-flex items-center h-[22px] px-2.5 rounded-pill bg-[var(--status-success-bg)] border border-[var(--status-success-border)] text-[11.5px] font-semibold text-[var(--status-success-text)]">
                   Just recorded
                 </span>
@@ -962,7 +940,7 @@ function ConfirmationPanel({
               </span>
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-semibold text-foreground">
-                  {DECISIONS[r.decision]?.label ?? r.decision}
+                  {REVIEW_DECISIONS[r.decision]?.label ?? r.decision}
                 </p>
                 {r.note && <p className="text-[12px] text-muted-foreground mt-0.5">{r.note}</p>}
               </div>
