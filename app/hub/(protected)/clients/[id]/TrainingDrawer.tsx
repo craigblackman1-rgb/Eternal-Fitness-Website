@@ -808,6 +808,12 @@ export function TrainingDrawer({
               >
                 Back
               </button>
+              <a
+                href="/hub/workouts"
+                className="inline-flex items-center justify-center gap-1.5 rounded-control border border-[var(--color-rose)] bg-transparent text-[var(--color-rose)] font-[inherit] text-xs font-semibold no-underline px-3.5 py-1.5 hover:bg-[var(--color-rose)]/10 transition-colors"
+              >
+                Open the library
+              </a>
               <span className="flex-1" />
             </>
           }
