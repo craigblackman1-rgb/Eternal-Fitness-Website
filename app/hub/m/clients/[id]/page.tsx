@@ -7,7 +7,7 @@ import { buildMedicalFlags, type ClientFlag } from "@/lib/mobile-client-flags";
 import { deriveSessionStatus } from "@/lib/session-status";
 import { deriveBlockStatus } from "@/lib/block-status";
 import { blockNameOrSpan } from "@/lib/block-name";
-import { sessionWorkoutName } from "@/lib/session-display";
+import { sessionWorkoutName, sessionHasNoExercises, isOutlookPlaceholder, isTrainerizeImported } from "@/lib/session-display";
 import { deriveChronologicalPositions } from "@/lib/session-chronological-order";
 import { deriveSessionPot } from "@/lib/session-pot";
 import { sessionDurationMinutes } from "@/lib/scheduling";
@@ -71,6 +71,7 @@ interface SessionRow {
   data: {
     focus_label?: string | null;
     time_tier?: string | null;
+    coaching_notes?: string | null;
     versions?: {
       studio?: { warm_up?: unknown[]; main_block?: unknown[]; cooldown?: unknown[] };
       home?: { warm_up?: unknown[]; main_block?: unknown[]; cooldown?: unknown[] };
@@ -394,9 +395,10 @@ export default async function MobileClientModePage({ params }: { params: { id: s
     };
   });
 
-  /* ── CR-EF-113: Session pot view ── */
+  /* ── CR-EF-113: Session pot view (BUG-EF-159 — derive across ALL blocks,
+     matching desktop TrainingSection which also uses allSessions) ── */
   const pot = deriveSessionPot(
-    currentBlockSessions.map((s) => ({
+    sessions.map((s) => ({
       status: s.status as DBSession["status"],
       cancelled_at: s.cancelled_at,
       charged_free: s.charged_free,
@@ -421,19 +423,22 @@ export default async function MobileClientModePage({ params }: { params: { id: s
     ).length,
   };
 
-  /* ── CR-EF-113: Pool workout view ── */
-  // One pool entry per session (no archetype de-duplication). Sub-sessions
-  // (parent_session_id set) and placeholders ("No workout assigned yet") are
-  // excluded — sub-sessions are supplementary work and never occupy a pool slot.
+  /* ── CR-EF-113 / BUG-EF-159: Pool workout view ── */
+  // One pool entry per session with a real workout (no archetype de-duplication).
+  // Excludes: sub-sessions (parent_session_id set), Outlook placeholders,
+  // sessions with no exercises, and Trainerize imports. This matches desktop
+  // TrainingSection's sessionsWithWorkouts filter.
   // Pool status: "used" (completed), "assigned" (scheduled, not cancelled),
   // "unused" (not scheduled), or "next" (first unused in session_number order).
   const poolWorkouts: PoolWorkoutView[] = [];
   const sortedBlockSessions = [...currentBlockSessions].sort((a, b) => a.session_number - b.session_number);
   for (const s of sortedBlockSessions) {
-    const name = sessionWorkoutName(s);
-    if (name === "No workout assigned yet") continue;
     if (s.parent_session_id) continue;
+    if (isOutlookPlaceholder(s)) continue;
+    if (sessionHasNoExercises(s.data)) continue;
+    if (isTrainerizeImported(s)) continue;
 
+    const name = sessionWorkoutName(s);
     const isCompleted = !!s.data?.session_log?.completed_at;
     const isAssigned = !!s.scheduled_at && !s.cancelled_at;
 
@@ -454,10 +459,10 @@ export default async function MobileClientModePage({ params }: { params: { id: s
 
   const unusedCount = poolWorkouts.filter((w) => w.status === "unused" || w.status === "next").length;
 
-  // Earliest scheduled session with no workout attached — used by the Pool
-  // nextcard to show "Earliest session without a workout is {date}"
+  // BUG-EF-159 — earliest scheduled session with no workout attached (matching
+  // desktop TrainingSection's sessionsWithWorkouts filter).
   const earliestUnattached = currentBlockSessions
-    .filter((s) => s.scheduled_at && !s.cancelled_at && sessionWorkoutName(s) === "No workout assigned yet")
+    .filter((s) => s.scheduled_at && !s.cancelled_at && !s.parent_session_id && (isOutlookPlaceholder(s) || sessionHasNoExercises(s.data) || isTrainerizeImported(s)))
     .sort((a, b) => new Date(a.scheduled_at as string).getTime() - new Date(b.scheduled_at as string).getTime())[0] ?? null;
 
   /* ── CR-EF-167: programme queue state ── */

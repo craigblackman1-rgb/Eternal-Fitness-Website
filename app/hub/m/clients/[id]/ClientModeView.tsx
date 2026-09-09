@@ -369,14 +369,25 @@ export function ClientModeView({
               <span className="panel-h-t">Sessions left</span>
             </div>
             <div className="panel-b">
-              <div className={`pot-hero${(potView.remaining ?? 99) <= 2 ? " low" : ""}`}>
-                <span className="pot-hero-fig">{potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining ?? "?"}</span>
-                <span className="pot-hero-label">left</span>
-                <span className="pot-hero-of">
-                  {potView.used} of {potView.purchasedIsEstimate ? potView.estimatedPurchase : potView.purchased ?? "?"} used
-                </span>
+              <div className={`pot-hero${(potView.purchased == null && !potView.purchasedIsEstimate) ? "" : (potView.remaining ?? 99) <= 2 ? " low" : ""}`}>
+                {(potView.purchased == null && !potView.purchasedIsEstimate) ? (
+                  <>
+                    <span className="pot-hero-fig">{potView.used}</span>
+                    <span className="pot-hero-label">sessions used</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="pot-hero-fig">{potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining ?? "?"}</span>
+                    <span className="pot-hero-label">left</span>
+                    <span className="pot-hero-of">
+                      {potView.used} of {potView.purchasedIsEstimate ? potView.estimatedPurchase : potView.purchased ?? "?"} used
+                    </span>
+                  </>
+                )}
               </div>
-              {potView.purchased != null && (
+              {(potView.purchased == null && !potView.purchasedIsEstimate) ? (
+                <p className="pot-hero-s">Ongoing package — no session cap.</p>
+              ) : potView.purchased != null && (
                 <div className="pot-hero-bar">
                   <i style={{ width: `${Math.min(((potView.purchased - (potView.remaining ?? 0)) / potView.purchased) * 100, 100)}%` }} />
                 </div>
@@ -440,19 +451,19 @@ export function ClientModeView({
                   <div className="panel-b">
                     <div className="noplan-m">
                       <p className="noplan-m-t">No workouts assigned yet</p>
-                      <p className="noplan-m-s">Nothing is queued for {firstName}, so nothing is shown here.</p>
+                      <p className="noplan-m-s">No programme set up for {firstName} yet — nothing to show here.</p>
                       <Link className="btn btn-outline" href={`/hub/clients/${clientNumber}`} style={{ width: "100%" }}>
-                        Build queue on desktop
+                        Plan the programme on desktop
                       </Link>
                     </div>
-                    {(potView.remaining ?? 0) > 0 && (
+                    {(potView.purchased == null && !potView.purchasedIsEstimate || (potView.remaining ?? 0) > 0) && (
                       <div className="mrecon-m">
-                        <span><b>{totalQueued} queued · {potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining ?? "?"} session{(potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining) !== 1 ? "s" : ""} left.</b> {totalQueued === 0 ? "Nothing queued." : ""}</span>
+                        <span><b>{totalQueued} in the programme · {potView.purchased == null && !potView.purchasedIsEstimate ? "Ongoing" : `${potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining ?? "?"} session${(potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining) !== 1 ? "s" : ""} left`}.</b></span>
                       </div>
                     )}
                   </div>
                   <div className="panel-f" style={{ borderTop: "1px solid var(--border)", padding: "10px 14px", background: "var(--hover)", fontSize: 12, color: "var(--muted)" }}>
-                    Building a queue is a desk job — the phone says so rather than offering a version that doesn&apos;t work one-handed.
+                    Planning a programme works best on desktop — the phone keeps it simple.
                   </div>
                 </div>
               );
@@ -475,12 +486,12 @@ export function ClientModeView({
                   ))}
                   {totalQueued > 3 && (
                     <button className="qmore" type="button">
-                      See all {totalQueued} in the queue ›
+                      See all {totalQueued} in the programme ›
                     </button>
                   )}
                 </div>
                 <div className="panel-f" style={{ borderTop: "1px solid var(--border)", padding: "10px 14px", background: "var(--hover)", fontSize: 12, color: "var(--muted)" }}>
-                  {totalQueued} queued · {potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining ?? "?"} session{(potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining) !== 1 ? "s" : ""} left. The plan and the pot agree.
+                  {totalQueued} in the programme · {potView.purchased == null && !potView.purchasedIsEstimate ? "Ongoing" : `${potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining ?? "?"} session${(potView.purchasedIsEstimate ? potView.estimatedRemaining : potView.remaining) !== 1 ? "s" : ""} left`}. The plan and the pot agree.
                 </div>
               </div>
             );
