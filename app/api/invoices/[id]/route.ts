@@ -35,11 +35,27 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     .single();
 
   if (!existing) return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+
+  const body = await request.json();
+
+  // Mobile mark-paid: accepts { status: "paid" } for sent/overdue invoices.
+  // Mirrors what reconciliation/confirm does (status + updated_at) without
+  // requiring a transaction_id — the mobile flow has no bank-match link.
+  if (body.status === "paid") {
+    if (existing.status !== "sent" && existing.status !== "overdue") {
+      return NextResponse.json({ error: "Only sent or overdue invoices can be marked paid" }, { status: 400 });
+    }
+    await supabase
+      .from("invoices")
+      .update({ status: "paid", updated_at: new Date().toISOString() })
+      .eq("id", params.id);
+    return NextResponse.json({ success: true });
+  }
+
   if (existing.status !== "draft") {
     return NextResponse.json({ error: "Only draft invoices can be edited" }, { status: 400 });
   }
 
-  const body = await request.json();
   const { issue_date, due_date, notes, line_items } = body;
 
   const lines: { description: string; quantity: number; unit_price: number }[] =
