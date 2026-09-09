@@ -11,7 +11,7 @@ export default async function CommsComposerPage({ params }: { params: { id: stri
 
   const { data: client } = await supabase
     .from("clients")
-    .select("id, client_number, name, sessions_purchased, sessions_used")
+    .select("id, client_number, name, gender, sessions_purchased, sessions_used")
     .eq("client_number", clientNumber)
     .single();
 
@@ -27,6 +27,7 @@ export default async function CommsComposerPage({ params }: { params: { id: stri
     <CommsComposerClient
       clientNumber={clientNumber}
       clientName={client.name}
+      gender={client.gender}
       sessionsPurchased={client.sessions_purchased}
       sessionsUsed={client.sessions_used}
       updates={(updates || []) as SentUpdate[]}

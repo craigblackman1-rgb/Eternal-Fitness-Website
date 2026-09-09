@@ -5,6 +5,7 @@ import { useState } from "react";
 import BackLink from "@/components/hub/BackLink";
 import { IconChevronLeft, IconChevronRight, IconSend, IconFileText, IconClipboardList, IconMail, IconEye } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
+import { pronouns } from "@/lib/pronouns";
 import type { SentUpdate } from "@/types";
 
 function firstName(name: string): string {
@@ -18,6 +19,7 @@ function formatShortDate(iso: string): string {
 interface CommsComposerClientProps {
   clientNumber: number;
   clientName: string;
+  gender: string | null;
   sessionsPurchased: number | null;
   sessionsUsed: number | null;
   updates: SentUpdate[];
@@ -26,12 +28,14 @@ interface CommsComposerClientProps {
 export function CommsComposerClient({
   clientNumber,
   clientName,
+  gender,
   sessionsPurchased,
   sessionsUsed,
   updates,
 }: CommsComposerClientProps) {
   const [showAll, setShowAll] = useState(false);
   const name = firstName(clientName);
+  const p = pronouns(gender);
 
   const sentUpdates = updates
     .filter((u) => u.status === "sent" && u.sent_at)
@@ -167,7 +171,7 @@ export function CommsComposerClient({
           </div>
           <div className="flex-1 min-w-[180px]">
             <p className="text-[10.5px] font-extrabold uppercase tracking-[.08em] text-muted-foreground m-0 mb-1">2 · Preview</p>
-            <p className="text-[12.5px] text-muted-foreground m-0">Exactly what {name} receives, in the house wrapper. Nothing sends until you say so.</p>
+            <p className="text-[12.5px] text-muted-foreground m-0">Exactly what {name} receive{p.verb === "has" ? "s" : ""}, in the house wrapper. Nothing sends until you say so.</p>
           </div>
           <div className="flex-1 min-w-[180px]">
             <p className="text-[10.5px] font-extrabold uppercase tracking-[.08em] text-muted-foreground m-0 mb-1">3 · Send &amp; track</p>
