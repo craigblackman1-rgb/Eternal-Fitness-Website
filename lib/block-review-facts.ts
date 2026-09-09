@@ -11,6 +11,7 @@
 
 import type { DBSession, SetLog } from "@/types";
 import { parseExerciseName } from "@/lib/progress";
+import { deriveSessionStatus } from "@/lib/session-status";
 
 export interface AttendanceFacts {
   /** Non-cancelled, non-sub-session bookings in the block. */
@@ -23,6 +24,10 @@ export interface AttendanceFacts {
   dateRangeLabel: string;
   /** True only when every booked session completed — never assumed. */
   isFullAttendance: boolean;
+  /** Sessions with scheduled_at in the past (the "X of Y booked" denominator). */
+  pastSessionCount: number;
+  /** Sessions with scheduled_at in the future (reported separately). */
+  futureSessionCount: number;
 }
 
 function fmtDate(iso: string): string {
@@ -31,12 +36,41 @@ function fmtDate(iso: string): string {
 
 /** Attendance facts for one block, computed from its own sessions rows only —
  *  never inferred from the block's own `status` field (a block can be marked
- *  complete while a session inside it never logged, and the fact must say so). */
+ *  complete while a session inside it never logged, and the fact must say so).
+ *
+ *  BUG-EF-152 — uses deriveSessionStatus for all status checks (not ad-hoc
+ *  cancelled_at / completed_at probes) and splits the denominator by time:
+ *  "X of Y booked" counts only past-dated sessions; future sessions are
+ *  reported separately so the denominator is honest about what has happened. */
 export function computeAttendanceFacts(blockSessions: DBSession[]): AttendanceFacts {
+  const now = new Date();
   const mainSessions = blockSessions.filter((s) => !s.parent_session_id);
-  const cancelled = mainSessions.filter((s) => !!s.cancelled_at);
-  const booked = mainSessions.filter((s) => !s.cancelled_at);
-  const completed = booked.filter((s) => (s.status ?? (s.completed_at ? "completed" : "planned")) === "completed");
+
+  // BUG-EF-152 — derive status from the full source (status column + cancelled_at
+  // + completed_at + data.session_log.completed_at), not ad-hoc heuristics.
+  const derivedStatuses = new Map<string, ReturnType<typeof deriveSessionStatus>>();
+  for (const s of mainSessions) {
+    derivedStatuses.set(s.id, deriveSessionStatus({
+      status: s.status,
+      cancelled_at: s.cancelled_at,
+      completed_at: s.completed_at,
+      scheduled_at: s.scheduled_at,
+      session_log: (s as any).data?.session_log,
+    }));
+  }
+
+  const isCancelled = (s: DBSession) => derivedStatuses.get(s.id) === "cancelled";
+  const isCompleted = (s: DBSession) => derivedStatuses.get(s.id) === "completed";
+
+  // Booked = not cancelled (derived, not just cancelled_at).
+  const booked = mainSessions.filter((s) => !isCancelled(s));
+  const cancelled = mainSessions.filter((s) => isCancelled(s));
+  const completed = booked.filter((s) => isCompleted(s));
+
+  // BUG-EF-152 — split by time: past sessions are the denominator for
+  // "X of Y booked"; future sessions reported separately.
+  const pastBooked = booked.filter((s) => s.scheduled_at && new Date(s.scheduled_at) <= now);
+  const futureBooked = booked.filter((s) => s.scheduled_at && new Date(s.scheduled_at) > now);
 
   const dates = mainSessions
     .map((s) => s.scheduled_at)
@@ -55,6 +89,8 @@ export function computeAttendanceFacts(blockSessions: DBSession[]): AttendanceFa
           ? fmtDate(dates[0])
           : `${fmtDate(dates[0])}–${fmtDate(dates[dates.length - 1])}`,
     isFullAttendance: booked.length > 0 && completed.length === booked.length,
+    pastSessionCount: pastBooked.length,
+    futureSessionCount: futureBooked.length,
   };
 }
 
