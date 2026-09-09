@@ -194,7 +194,7 @@ export function ReviewFlowClient({
       {/* Step panels */}
       {step === 1 && (
         <StepPanel onContinue={() => setStep(2)}>
-          <ProgressStep client={client} completedSessions={completedSessions} hasAnyCompletedSessions={hasAnyCompletedSessions} totalSessions={chronologicalTotal || client.sessions_purchased || 0} pbsCount={pbsCount} windowLabel={windowLabel} programmePosition={programmePosition} programmeFirstDate={programmeFirstDate} />
+          <ProgressStep client={client} completedSessions={completedSessions} hasAnyCompletedSessions={hasAnyCompletedSessions} totalSessions={chronologicalTotal || client.sessions_purchased || 0} pbsCount={pbsCount} windowLabel={windowLabel} programmePosition={programmePosition} programmeFirstDate={programmeFirstDate} recentSessions={recentSessions} />
         </StepPanel>
       )}
 
@@ -451,6 +451,7 @@ function ProgressStep({
   windowLabel,
   programmePosition,
   programmeFirstDate,
+  recentSessions,
 }: {
   client: DBClient;
   completedSessions: { id: string; name: string; scheduled_at: string | null; position: string }[];
@@ -460,6 +461,7 @@ function ProgressStep({
   windowLabel: string;
   programmePosition: { completedCount: number; totalSlots: number } | null;
   programmeFirstDate: string | null;
+  recentSessions: { id: string; name: string; completed_at: string | null; setLogCount: number }[];
 }) {
   const positionText = (() => {
     if (programmePosition && programmePosition.totalSlots > 0) {
@@ -522,6 +524,29 @@ function ProgressStep({
             <p className="text-[12.5px] text-muted-foreground">
               {completedSessions.length} session{completedSessions.length === 1 ? "" : "s"} delivered this period.
             </p>
+
+            {recentSessions.length > 0 && (
+              <div className="mt-4">
+                <div className="flex items-center gap-2.5 mb-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Recent sessions</span>
+                  <span className="flex-1 h-px bg-[var(--hub-section-border)]" />
+                </div>
+                <div className="border border-[var(--hub-border)] rounded-nested overflow-hidden">
+                  {recentSessions.map((s, i) => (
+                    <div key={s.id} className={cn("flex items-center gap-3 px-3.5 py-2.5", i < recentSessions.length - 1 && "border-b border-[var(--hub-border)]")}>
+                      <span className="text-[12.5px] font-bold text-foreground w-[92px] shrink-0 tabular-nums">
+                        {s.completed_at ? new Date(s.completed_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "—"}
+                      </span>
+                      <span className="text-[12.5px] text-foreground flex-1 min-w-0 truncate">{s.name}</span>
+                      <span className="text-[11.5px] text-muted-foreground shrink-0 tabular-nums">
+                        {s.setLogCount} set{s.setLogCount === 1 ? "" : "s"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[11.5px] text-muted-foreground mt-1.5">Full detail in Progress</p>
+              </div>
+            )}
           </>
         )}
       </div>
