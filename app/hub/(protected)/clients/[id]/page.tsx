@@ -55,6 +55,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
   // Hub-used sessions across ALL blocks (not limited to 50) for the pot
   // baseline disagreement check. Counts completed + cancelled-and-charged.
+  const baselineUsed = (client as any).pot_baseline_used ?? 0;
   let hubUsedCount = 0;
   let allHubSessions: any[] = [];
   if (clientBlockIds.length > 0) {
@@ -504,7 +505,6 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   const undatedSessionCount = latestBlockSessions.filter((s) => !s.scheduled_at).length;
 
   // Block session count mismatch: typed pot_used vs (baseline + hub counted)
-  const baselineUsed = (client as any).pot_baseline_used ?? 0;
   const blockSessionCountMismatch = client.sessions_used != null
     && client.sessions_used !== baselineUsed + hubUsedCount;
 
