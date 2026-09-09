@@ -4,6 +4,9 @@ import { ServiceWorkerRegistration } from "@/components/hub/ServiceWorkerRegistr
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
   manifest: "/hub.webmanifest",
+  icons: {
+    apple: "/hub-icon-192.png",
+  },
   appleWebApp: {
     capable: true,
     title: "EF Hub",
