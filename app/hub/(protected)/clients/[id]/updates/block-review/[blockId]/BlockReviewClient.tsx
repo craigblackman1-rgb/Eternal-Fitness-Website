@@ -74,11 +74,11 @@ export function BlockReviewClient({
   const attendanceHtml = attendance.bookedCount === 0
     ? ""
     : attendance.isFullAttendance
-      ? `<p>You made every one of your ${attendance.bookedCount} session${attendance.bookedCount === 1 ? "" : "s"} this block, ${attendance.dateRangeLabel} — nothing missed, nothing rearranged.</p>`
-      : `<p>You completed ${attendance.completedCount} of your ${attendance.bookedCount} booked session${attendance.bookedCount === 1 ? "" : "s"} this block, ${attendance.dateRangeLabel}${attendance.cancelledCount > 0 ? `, with ${attendance.cancelledCount} cancelled` : ""}.</p>`;
+      ? `<p>You made every one of your ${attendance.bookedCount} session${attendance.bookedCount === 1 ? "" : "s"} this programme, ${attendance.dateRangeLabel} — nothing missed, nothing rearranged.</p>`
+      : `<p>You completed ${attendance.completedCount} of your ${attendance.bookedCount} booked session${attendance.bookedCount === 1 ? "" : "s"} this programme, ${attendance.dateRangeLabel}${attendance.cancelledCount > 0 ? `, with ${attendance.cancelledCount} cancelled` : ""}.</p>`;
 
   const whatsNextHtml = nextBlock
-    ? `<p>Block ${nextBlock.blockNumber} ${nextBlock.startDateLabel ? `starts ${nextBlock.startDateLabel}` : "is set up"}${nextBlock.sessionCount > 0 ? ` — ${nextBlock.sessionCount} session${nextBlock.sessionCount === 1 ? "" : "s"} planned` : ""}.</p>`
+    ? `<p>Programme ${nextBlock.blockNumber} ${nextBlock.startDateLabel ? `starts ${nextBlock.startDateLabel}` : "is set up"}${nextBlock.sessionCount > 0 ? ` — ${nextBlock.sessionCount} session${nextBlock.sessionCount === 1 ? "" : "s"} planned` : ""}.</p>`
     : "";
 
   async function saveDecision(): Promise<void> {
@@ -116,7 +116,7 @@ export function BlockReviewClient({
         <div className="min-w-0">
           <div className="flex items-center gap-2.5 flex-wrap">
             <h1 className="m-0 text-[22px] font-bold tracking-[-.015em] text-[var(--color-ink)]">
-              {block.status === "complete" ? `Block ${block.blockNumber} is complete` : `Block ${block.blockNumber} review`}
+              {block.status === "complete" ? `Programme ${block.blockNumber} is complete` : `Programme ${block.blockNumber} review`}
             </h1>
             <span
               className={cn(
@@ -140,7 +140,7 @@ export function BlockReviewClient({
             {clientName} · {attendance.dateRangeLabel}
             {nextBlock && (
               <>
-                {" "}· {firstName(clientName)}&apos;s next block (Block {nextBlock.blockNumber})
+                {" "}· {firstName(clientName)}&apos;s next programme (Programme {nextBlock.blockNumber})
                 {nextBlock.sessionCount > 0 ? ` already has ${nextBlock.sessionCount} sessions` : " is set up"}
                 {nextBlock.startDateLabel ? ` from ${nextBlock.startDateLabel}` : ""}
               </>
@@ -152,7 +152,7 @@ export function BlockReviewClient({
       {/* 1. This block, in facts */}
       <section className="bg-white border border-[var(--hub-border)] rounded-surface shadow-sm overflow-hidden">
         <div className="flex items-center gap-2.5 py-2.5 px-4 border-b border-[var(--hub-border)]">
-          <h2 className="m-0 text-[15px] font-bold text-[var(--color-ink)] tracking-tight">This block, in facts</h2>
+          <h2 className="m-0 text-[15px] font-bold text-[var(--color-ink)] tracking-tight">This programme, in facts</h2>
           <span className="text-xs text-[var(--color-muted-text)]">Pulled from {pronouns(gender).possessive} sessions and set logs — nothing here is typed</span>
         </div>
         <div className="p-4 space-y-3">
@@ -163,7 +163,7 @@ export function BlockReviewClient({
             </div>
             {attendance.cancelledCount === 0 ? (
               <p className="m-0 text-[13px] text-[var(--color-muted-text)]">
-                No session in this block carries a cancellation — a clean run, nothing to explain away.
+                No session in this programme carries a cancellation — a clean run, nothing to explain away.
               </p>
             ) : (
               <ul className="m-0 pl-4 text-[13px] text-[var(--color-muted-text)] space-y-0.5">
@@ -180,7 +180,7 @@ export function BlockReviewClient({
                 {/* BUG-EF-152 — only warn about past sessions that were never logged;
                     future sessions haven't happened yet so the warning is premature. */}
                 {attendance.pastSessionCount - attendance.completedCount > 0
-                  ? `${attendance.pastSessionCount - attendance.completedCount} past session${attendance.pastSessionCount - attendance.completedCount === 1 ? "" : "s"} in this block never logged as completed.`
+                  ? `${attendance.pastSessionCount - attendance.completedCount} past session${attendance.pastSessionCount - attendance.completedCount === 1 ? "" : "s"} in this programme never logged as completed.`
                   : attendance.futureSessionCount > 0
                     ? `${attendance.futureSessionCount} session${attendance.futureSessionCount === 1 ? "" : "s"} still to come.`
                     : null}
@@ -188,7 +188,7 @@ export function BlockReviewClient({
             )}
           </FactCard>
 
-          <FactCard tone="teal" title="Personal bests this block" source="from set logs">
+          <FactCard tone="teal" title="Personal bests this programme" source="from set logs">
             {pbsThisBlock.length === 0 ? (
               <p className="m-0 text-[13px] text-[var(--color-muted-text)]">
                 Nothing was logged inside {attendance.dateRangeLabel} that beat an all-time best, so there is nothing to pull in here automatically. If {pronouns(gender).subject} hit anything worth naming, it needs writing in from memory or the paper log.
@@ -367,7 +367,7 @@ export function BlockReviewClient({
         defaultEmailSource="the client record"
         embedded
         initialDraft={{
-          subject: "Your last block with me 🏋️",
+          subject: "Your last programme with me 🏋️",
           blockNumber: block.blockNumber,
           sections: {
             attendanceSection: attendanceHtml,

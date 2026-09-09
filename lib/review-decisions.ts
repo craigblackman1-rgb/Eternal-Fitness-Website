@@ -47,13 +47,13 @@ export function consequenceBody(
   switch (decision) {
     case "continue":
       return blockNumber
-        ? `Block ${blockNumber} runs as planned — recorded as on track for ${clientFirstName}. No follow-up task is created.`
+        ? `Programme ${blockNumber} runs as planned — recorded as on track for ${clientFirstName}. No follow-up task is created.`
         : `Recorded as on track for ${clientFirstName}. No follow-up task is created.`;
     case "adjust":
       return `Takes you to Add a workout for ${clientFirstName} next, to bring in the change — the same short flow used to add any workout, nothing else to set up first.`;
     case "restart":
       return blockNumber
-        ? `Records the decision to start fresh. Block ${blockNumber} stays open — you end it and set up the new one from Add a workout, which is available on the next screen.`
+        ? `Records the decision to start fresh. Programme ${blockNumber} stays open — you end it and set up the new one from Add a workout, which is available on the next screen.`
         : `Records the decision to start fresh. The current programme stays open — you end it and set up the new one from Add a workout, which is available on the next screen.`;
   }
 }
