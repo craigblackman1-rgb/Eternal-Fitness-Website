@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
 const DESKTOP_PREF_KEY = "ef-desktop-preferred";
+const MOBILE_BREAKPOINT = 768;
 
 const MOBILE_REDIRECTS: Array<{ pattern: RegExp; replacement: string }> = [
   { pattern: /^\/hub\/clients\/(\d+)$/, replacement: "/hub/m/clients/$1" },
@@ -26,10 +27,12 @@ export function MobileRedirect() {
 
     if (pref) return;
 
-    for (const { pattern, replacement } of MOBILE_REDIRECTS) {
-      if (pattern.test(pathname)) {
-        router.replace(pathname.replace(pattern, replacement));
-        return;
+    if (window.innerWidth < MOBILE_BREAKPOINT) {
+      for (const { pattern, replacement } of MOBILE_REDIRECTS) {
+        if (pattern.test(pathname)) {
+          router.replace(pathname.replace(pattern, replacement));
+          return;
+        }
       }
     }
   }, [router, pathname]);
