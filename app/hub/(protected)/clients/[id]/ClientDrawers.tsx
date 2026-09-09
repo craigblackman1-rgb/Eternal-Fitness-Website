@@ -1289,7 +1289,7 @@ function DocumentsDrawer({ clientNumber, clientDocuments, legacyDocumentRows, fl
 
       <div className="fcard acc-ink">
         <div className="fcard-h">On file</div>
-        <div className="fcard-b" style={{ padding: 0 }}>
+        <div className="fcard-b" style={{ padding: "0 16px" }}>
           {allDocs.length > 0 ? (
             allDocs.map((doc: any) => (
               <Link
@@ -2047,7 +2047,7 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
               </div>
             </div>
           )}
-          <div className="fcard-b" style={{ padding: 0 }}>
+        <div className="fcard-b" style={{ padding: "0 16px" }}>
             <div className="ptab-wrap">
               <table className="ptab">
                 <thead>
