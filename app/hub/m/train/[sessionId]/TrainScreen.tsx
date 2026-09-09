@@ -2224,6 +2224,8 @@ function ExerciseCard({
             </button>
           )}
         </div>
+        {exercise.coaching_cue && <p className="ex-cue">{exercise.coaching_cue}</p>}
+        {exercise.modification && <span className="ex-mod">Easier option: {exercise.modification}</span>}
       </div>
 
       <div className="c-cols">
@@ -2390,6 +2392,8 @@ function SupersetBlock({
                       {(st?.displayUnit ?? "kg") === "kg" ? "lb" : "kg"} ⇄
                     </button>
                   )}
+                  {ex.coaching_cue && <p style={{ fontSize: 12, color: "var(--muted)", width: "100%", marginTop: 4 }}>{ex.coaching_cue}</p>}
+                  {ex.modification && <span style={{ display: "inline-flex", marginTop: 4, fontSize: 11, fontWeight: 600, color: "var(--s-warning)", background: "var(--s-warning-bg)", border: "1px solid var(--s-warning-bd)", borderRadius: "var(--r-control-sm, 6px)", padding: "2px 7px" }}>Easier option: {ex.modification}</span>}
                   <div className="rx-actions">
                     {hasVideo ? (
                       <a className="c-skip" href={ex.media?.video_url} target="_blank" rel="noopener noreferrer" aria-label={`Play demo video for ${ex.exercise_name}`}>🎥</a>

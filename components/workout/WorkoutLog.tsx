@@ -1927,6 +1927,11 @@ function SupersetBlock({
                     </div>
                   </div>
                   {ex.coaching_cue && <p className="mt-1 text-[12px] text-muted-foreground">{ex.coaching_cue}</p>}
+                  {ex.modification && (
+                    <span className="mt-1 inline-flex rounded-md border border-[var(--status-warning-border)] bg-[var(--status-warning-bg)] px-1.5 py-0.5 text-[11px] font-semibold text-[var(--status-warning-text)]">
+                      Easier option: {ex.modification}
+                    </span>
+                  )}
                   {noteOpen && (
                     <textarea
                       value={note}
