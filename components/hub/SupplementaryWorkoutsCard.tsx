@@ -44,6 +44,7 @@ interface PronounSet {
   possessive: string;
   possessiveCapitalized: string;
   subject: string;
+  verb: string;
 }
 
 interface Props {
@@ -423,7 +424,7 @@ export function SupplementaryWorkoutsCard({ clientNumber, clientName, sessionsRe
                         </li>
                         <li className="flex gap-2.5 items-start text-[13px] text-[var(--color-body)] leading-relaxed">
                           <IconCheck className="w-4 h-4 text-[var(--status-success-text)] shrink-0 mt-0.5" />
-                          <span>It <b className="text-foreground">does not use one of {p.possessive} sessions.</b> {p.subject.charAt(0).toUpperCase() + p.subject.slice(1)} still has <b className="text-foreground">{sessionsRemaining ?? "—"}</b> remaining — supplementary work is never counted or charged.</span>
+                          <span>It <b className="text-foreground">does not use one of {p.possessive} sessions.</b> {p.subject.charAt(0).toUpperCase() + p.subject.slice(1)} still {p.verb} <b className="text-foreground">{sessionsRemaining ?? "—"}</b> remaining — supplementary work is never counted or charged.</span>
                         </li>
                         <li className="flex gap-2.5 items-start text-[13px] text-[var(--color-body)] leading-relaxed">
                           <IconCheck className="w-4 h-4 text-[var(--status-success-text)] shrink-0 mt-0.5" />

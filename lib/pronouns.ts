@@ -6,6 +6,7 @@ interface Pronouns {
   possessiveStandalone: string; // hers / his / theirs
   object: string;      // her / him / them
   possessiveCapitalized: string; // Her / His / Their
+  verb: string;        // has / have
 }
 
 const FEMALE: Pronouns = {
@@ -14,6 +15,7 @@ const FEMALE: Pronouns = {
   possessiveStandalone: "hers",
   object: "her",
   possessiveCapitalized: "Her",
+  verb: "has",
 };
 
 const MALE: Pronouns = {
@@ -22,6 +24,7 @@ const MALE: Pronouns = {
   possessiveStandalone: "his",
   object: "him",
   possessiveCapitalized: "His",
+  verb: "has",
 };
 
 const THEY: Pronouns = {
@@ -30,6 +33,7 @@ const THEY: Pronouns = {
   possessiveStandalone: "theirs",
   object: "them",
   possessiveCapitalized: "Their",
+  verb: "have",
 };
 
 export function pronouns(gender: Gender | string | "" | null | undefined): Pronouns {
