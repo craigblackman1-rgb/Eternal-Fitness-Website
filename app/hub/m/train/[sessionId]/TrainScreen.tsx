@@ -2247,6 +2247,16 @@ function ExerciseCard({
         />
       ))}
 
+      {noteOpen && (
+        <div className="ex-note-row">
+          <textarea
+            value={note}
+            onChange={(e) => onNoteInput(uid, e.target.value)}
+            placeholder="Quick note about this exercise…"
+          />
+        </div>
+      )}
+
       {!sessionCompleted && (
         <button className="add-set" onClick={() => onAddSet(uid)}>
           {ICO.plus}Add set
@@ -2386,6 +2396,16 @@ function SupersetBlock({
                       <button className="c-skip" onClick={() => onAddSet(uid)}>+ set</button>
                     )}
                   </div>
+                </div>
+              )}
+              {(st?.noteOpen) && st?.note !== undefined && (
+                <div className="ex-note-row" style={{ borderTop: "1px solid var(--border)", padding: "10px 12px" }}>
+                  <textarea
+                    value={st.note}
+                    onChange={(e) => onNoteInput(uid, e.target.value)}
+                    placeholder="Quick note about this exercise…"
+                    style={{ flex: 1, minHeight: 56, resize: "vertical", border: "1px solid var(--field-border)", borderRadius: 9, padding: "8px 10px", fontSize: 13, fontFamily: "inherit", background: "var(--card)", color: "var(--ink)" }}
+                  />
                 </div>
               )}
             </div>
