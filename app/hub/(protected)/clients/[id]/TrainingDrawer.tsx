@@ -123,7 +123,7 @@ export function TrainingDrawer({
   clientId,
 }: TrainingDrawerProps) {
   const router = useRouter();
-  const { closeDrawer, openDrawer } = useDrawerManager();
+  const { closeDrawer, openDrawer, openWorkoutDrawer } = useDrawerManager();
   const p = pronouns(gender);
 
   // ── Dialog state ──
@@ -644,12 +644,9 @@ export function TrainingDrawer({
                                       ? " — applied"
                                       : " — nothing applied"
                           }`}
-                          onClick={() => {
+                          onClick={(e) => {
                             if (isClickable && cellSession) {
-                              openDrawer("dw-workout");
-                              // The DrawerManager + workout page reads selectedSessionId
-                              // For now, navigate to the session
-                              router.push(`/hub/clients/${clientNumber}/blocks/${cellSession.block_id}/sessions/${cellSession.session_number}`);
+                              openWorkoutDrawer(cellSession.id, e.currentTarget);
                             }
                           }}
                         >
