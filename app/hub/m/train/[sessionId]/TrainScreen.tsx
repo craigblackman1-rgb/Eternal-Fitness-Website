@@ -15,8 +15,10 @@ import { sessionDurationMinutes } from "@/lib/scheduling";
 import { defaultUnitForEquipment, isBandEquipment } from "@/lib/units";
 import { sessionWorkoutName } from "@/lib/session-display";
 import { type PendingSetLogEntry } from "@/lib/hub/offline-set-log-queue";
+import { enqueueCompletion } from "@/lib/hub/offline-set-log-queue";
 import { saveSetLog, drainSetLogQueue, type SaveSetLogResult } from "@/lib/workout/save-set-log";
 import { completeSession } from "@/lib/workout/complete-session";
+import { stableSetOpId } from "@/lib/set-log-id";
 import { displayWeight, exerciseRefKey, mmss, type SectionKey, SECTION_DEFS } from "@/lib/workout/helpers";
 import { SwapChooser } from "./SwapChooser";
 import { MoveCancelSheet } from "./MoveCancelSheet";
@@ -360,6 +362,16 @@ export function TrainScreen({
     const started = done > 0;
     const doneExCount = allSets.filter((entry) => entry.sets.every((s) => s.status !== "pending")).length;
     return { total, done, started, doneExCount, pct: total ? Math.round((done / total) * 100) : 0 };
+  }, [allSets]);
+
+  const pendingCount = useMemo(() => {
+    let count = 0;
+    for (const entry of allSets) {
+      for (const s of entry.sets) {
+        if (s.pendingSync) count += 1;
+      }
+    }
+    return count;
   }, [allSets]);
 
   // NOTE (BUG-EF-131): removed mount-time started_at write. The only correct
@@ -861,6 +873,60 @@ export function TrainScreen({
     const d = dataRef.current;
     if (!d) return;
 
+    const mergePatch: Record<string, unknown> = {
+      session_log: {
+        completed_at:
+          offDay?.mode === "booked" ? offDay.scheduledAt : new Date().toISOString(),
+        started_at: sessionLogRef.current?.started_at ?? null,
+        rpe,
+        fatigue,
+        notes: sessionNotes,
+      },
+      exercise_notes: savedNotesRef.current,
+    };
+    const body: Record<string, unknown> = { data_merge: mergePatch };
+    if (offDay) {
+      body.confirm_off_day = true;
+      body.off_day_mode = offDay.mode;
+    }
+
+    // Offline fallback: persist a pending-completion record so the UI can
+    // lock into the completed state immediately and drain when online.
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      const clientOpId = await stableSetOpId(sessionId, "__completion__", 0);
+      try {
+        await enqueueCompletion({
+          kind: "completion",
+          client_op_id: clientOpId,
+          sessionId,
+          body,
+          queuedAt: new Date().toISOString(),
+        });
+      } catch {
+        setCompleting(false);
+        toast.error("Could not save completion — storage may be full.");
+        return;
+      }
+      // Lock UI into completed state immediately.
+      const offlineLog: SessionLog = {
+        completed_at: body.session_log && typeof body.session_log === "object"
+          ? (body.session_log as Record<string, unknown>).completed_at as string
+          : new Date().toISOString(),
+        started_at: sessionLogRef.current?.started_at ?? null,
+        rpe,
+        fatigue,
+        notes: sessionNotes,
+      };
+      dataRef.current = { ...d, session_log: offlineLog, exercise_notes: savedNotesRef.current };
+      sessionLogRef.current = offlineLog;
+      setShowComplete(false);
+      setCompleting(false);
+      try { localStorage.removeItem(`ef-session-draft:${sessionId}`); } catch { /* ignore */ }
+      setOffline(true);
+      setSyncNotice("Completed — will sync when back online");
+      return;
+    }
+
     const result = await completeSession(sessionId, {
       rpe,
       fatigue,
@@ -896,6 +962,36 @@ Cancel — record it as today`,
     }
 
     if (result.kind === "error") {
+      // Network error after online check — queue for retry.
+      if (typeof navigator !== "undefined" && !navigator.onLine) {
+        const clientOpId = await stableSetOpId(sessionId, "__completion__", 0);
+        try {
+          await enqueueCompletion({
+            kind: "completion",
+            client_op_id: clientOpId,
+            sessionId,
+            body,
+            queuedAt: new Date().toISOString(),
+          });
+        } catch {
+          toast.error("Could not save completion — storage may be full.");
+          return;
+        }
+        const offlineLog: SessionLog = {
+          completed_at: new Date().toISOString(),
+          started_at: sessionLogRef.current?.started_at ?? null,
+          rpe,
+          fatigue,
+          notes: sessionNotes,
+        };
+        dataRef.current = { ...d, session_log: offlineLog, exercise_notes: savedNotesRef.current };
+        sessionLogRef.current = offlineLog;
+        setShowComplete(false);
+        try { localStorage.removeItem(`ef-session-draft:${sessionId}`); } catch { /* ignore */ }
+        setOffline(true);
+        setSyncNotice("Completed — will sync when back online");
+        return;
+      }
       toast.error(result.message);
       return;
     }
@@ -1021,11 +1117,16 @@ Cancel — record it as today`,
       return;
     }
 
-    if (result.synced > 0) {
+    if (result.synced > 0 || result.completionsDrained > 0) {
       setSyncNotice(null);
-      toast.success(
-        `${result.synced} ${result.synced === 1 ? "set" : "sets"} synced${result.newPbs > 0 ? ` — ${result.newPbs} new PB` : ""}`,
-      );
+      if (result.synced > 0) {
+        toast.success(
+          `${result.synced} ${result.synced === 1 ? "set" : "sets"} synced${result.newPbs > 0 ? ` — ${result.newPbs} new PB` : ""}`,
+        );
+      }
+      if (result.completionsDrained > 0) {
+        toast.success("Session completion synced.");
+      }
     }
   }, [markSetSynced]);
 
@@ -1212,6 +1313,15 @@ Cancel — record it as today`,
         </div>
 
         <div id="sectionsRoot">
+          {pendingCount > 0 && (
+            <div className="pending-sync-line" role="status" style={{ padding: "6px 12px", marginBottom: 8, background: offline ? "rgba(2,48,71,.04)" : "rgba(33,158,188,.06)", borderRadius: 8, fontSize: 12, color: "var(--muted, #6b7280)", display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: offline ? "#f59e0b" : "#219EBC", flexShrink: 0 }} />
+              {offline
+                ? <>{pendingCount} set{pendingCount !== 1 ? "s" : ""} saved on this phone — syncing when back online</>
+                : <>{pendingCount} syncing…</>
+              }
+            </div>
+          )}
           {SECTION_DEFS.map((sec) => {
             const list = sections[sec.key] || [];
             const blocks = computeGroups(list);
