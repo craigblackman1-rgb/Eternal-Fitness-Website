@@ -298,15 +298,18 @@ export function TrainingSection({
           });
         })()
       )}
-      {upcomingBookings.length > BOOKINGS_INITIAL_COUNT && !showAllBookings && (
-        <button
-          type="button"
-          onClick={() => setShowAllBookings(true)}
-          className="btn-link"
-          style={{ marginTop: 8 }}
-        >
-          Show all {upcomingBookings.length} ›
-        </button>
+      {upcomingBookings.length > BOOKINGS_INITIAL_COUNT && (
+        <div className="drow" style={{ borderTop: "1px solid var(--hub-border)", padding: "10px 16px", justifyContent: "flex-end" }}>
+          <button
+            type="button"
+            onClick={() => setShowAllBookings(!showAllBookings)}
+            className="btn-link"
+          >
+            {showAllBookings
+              ? "Show fewer ‹"
+              : `Show all ${upcomingBookings.length} ›`}
+          </button>
+        </div>
       )}
 
       {/* ── So-far summary line ── */}

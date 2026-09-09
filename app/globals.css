@@ -1612,6 +1612,17 @@ table.eb-table { width: 100%; border-collapse: collapse; font-size: 14px; min-wi
 .fv { flex: 1; min-width: 0; color: var(--color-ink); }
 .fv.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
 
+/* Bl-row: baseline key-value row (same recipe as .frow) */
+.bl-row { display: flex; align-items: baseline; gap: 8px; padding: 5px 0; font-size: 13px; line-height: 1.4; }
+.bl-row + .bl-row { border-top: 1px solid var(--hub-border); }
+.bl-k { flex-shrink: 0; min-width: 110px; color: var(--color-body); font-weight: 500; }
+.bl-v { flex: 1; min-width: 0; color: var(--color-ink); }
+
+/* Goal-row: milestone row with icon */
+.goal-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 13px; line-height: 1.4; color: var(--color-ink); }
+.goal-row + .goal-row { border-top: 1px solid var(--hub-border); }
+.goal-icon { width: 24px; height: 24px; border-radius: 9999px; display: grid; place-items: center; background: var(--status-primary-bg); color: var(--status-primary-text); font-size: 12px; font-weight: 700; flex-shrink: 0; }
+
 /* Fgrid: 2-column key-value grid */
 .fgrid { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; }
 
