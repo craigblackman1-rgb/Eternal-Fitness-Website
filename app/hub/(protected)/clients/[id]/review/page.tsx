@@ -5,6 +5,10 @@ import { deriveSessionPot } from "@/lib/session-pot";
 import { deriveChronologicalPositions, sessionChronologicalLabel } from "@/lib/session-chronological-order";
 import { sessionWorkoutName } from "@/lib/session-display";
 import { buildExerciseHistory } from "@/lib/exercise-history";
+import { deriveBlockStatus } from "@/lib/block-status";
+import { deriveSessionStatus } from "@/lib/session-status";
+import { trainerizeResultsToSetLogs } from "@/lib/trainerize-adapter";
+import { buildExerciseTrends, type TrendSessionMeta } from "@/lib/progress";
 import type { SetLog, DBClientReview } from "@/types";
 import { ReviewFlowClient } from "./ReviewFlowClient";
 
@@ -79,35 +83,72 @@ export default async function ReviewPage({ params }: { params: { id: string } })
     hasSignedAgreementDocument,
   });
 
-  const activeBlock = blocks?.find((b) => b.status === "active");
+  // BUG-EF-151 — derive block status from sessions (same chain as clients/[id]/page.tsx:370-378).
+  const derivedStatusByBlock = new Map<string, import("@/types").BlockStatus>();
+  for (const block of (blocks ?? [])) {
+    const blockSessions = (sessions ?? []).filter((s: any) => s.block_id === block.id);
+    derivedStatusByBlock.set(block.id, deriveBlockStatus(block.status, blockSessions));
+  }
+
+  const activeBlock = (blocks ?? []).find((b) => derivedStatusByBlock.get(b.id) === "active")
+    ?? (blocks ?? []).find((b) => b.status === "approved")
+    ?? (blocks ?? [])[0]
+    ?? null;
   const activeBlockSessions = activeBlock ? sessions.filter((s) => s.block_id === activeBlock.id) : [];
   const pot = deriveSessionPot(activeBlockSessions, client.sessions_purchased, client.pot_baseline_used ?? 0);
 
   const positions = deriveChronologicalPositions(activeBlockSessions);
   const chronologicalTotal = Array.from(positions.values())[0]?.total ?? 0;
+
+  // BUG-EF-151 — use deriveSessionStatus instead of ad-hoc status check.
   const completedSessions = activeBlockSessions.filter((s) => {
     if (s.parent_session_id) return false;
-    const st = (s as any).status ?? (s.cancelled_at ? "cancelled" : "planned");
-    return st === "completed";
+    return deriveSessionStatus(s) === "completed";
   });
 
-  // Compute personal bests from set_logs for completed sessions
-  const completedIds = completedSessions.map((s) => s.id);
+  // BUG-EF-151 — fetch combined hub + Trainerize set-log source (same as
+  // clients/[id]/page.tsx:120-145) so PBs match the Progress drawer.
+  const hubSessionIds = sessions.map((s: any) => s.id);
+  const { data: hubSetLogs } = hubSessionIds.length > 0
+    ? await supabase.from("set_logs").select("*").in("session_id", hubSessionIds).order("logged_at", { ascending: true })
+    : { data: [] as any[] };
+  const { data: trainerizeWorkoutResults } = await supabase
+    .from("trainerize_workout_results")
+    .select("id, trainerize_daily_workout_id, workout_name, performed_date, rpe, trainerize_daily_exercise_id, exercise_name, set_number, reps, weight, duration_seconds")
+    .eq("client_id", client.id)
+    .order("performed_date", { ascending: false });
+
+  const combinedSetLogs: SetLog[] = [
+    ...((hubSetLogs ?? []) as SetLog[]),
+    ...trainerizeResultsToSetLogs((trainerizeWorkoutResults ?? []) as any),
+  ];
+
+  const trendSessionMeta: Record<string, TrendSessionMeta> = {};
+  for (const s of sessions ?? []) {
+    trendSessionMeta[s.id] = {
+      blockNumber: (s as any).blocks?.block_number ?? null,
+      sessionNumber: s.session_number ?? null,
+    };
+  }
+  const exerciseTrends = buildExerciseTrends(combinedSetLogs, trendSessionMeta);
+
+  // Compute personal bests from combined source scoped to the review period.
+  const blockStartedAt = activeBlock?.scheduled_start;
   let pbsCount = 0;
-  if (completedIds.length > 0) {
-    const { data: setLogs } = await supabase
-      .from("set_logs")
-      .select("*")
-      .in("session_id", completedIds);
-    const exerciseHistory = buildExerciseHistory((setLogs ?? []) as SetLog[]);
-    const blockStartedAt = activeBlock?.scheduled_start;
-    pbsCount = blockStartedAt
-      ? exerciseHistory.reduce((count, entry) => {
-          return count + entry.personalBests.filter((pb) => {
-            return new Date(pb.achievedAt) >= new Date(blockStartedAt);
-          }).length;
-        }, 0)
-      : 0;
+  if (blockStartedAt) {
+    const scopedLogs = combinedSetLogs.filter((log) => {
+      if (!log.logged_at) return false;
+      return new Date(log.logged_at) >= new Date(blockStartedAt);
+    });
+    const exerciseHistory = buildExerciseHistory(scopedLogs);
+    pbsCount = exerciseHistory.reduce((count, entry) => {
+      return count + entry.personalBests.filter((pb) => {
+        return new Date(pb.achievedAt) >= new Date(blockStartedAt);
+      }).length;
+    }, 0);
+  } else {
+    const exerciseHistory = buildExerciseHistory(combinedSetLogs);
+    pbsCount = exerciseHistory.reduce((count, entry) => count + entry.personalBests.length, 0);
   }
 
   const completedWithNames = completedSessions.map((s) => {
@@ -121,8 +162,7 @@ export default async function ReviewPage({ params }: { params: { id: string } })
   });
 
   const unreviewedCancellations = activeBlockSessions.filter((s) => {
-    const st = (s as any).status ?? (s.cancelled_at ? "cancelled" : "planned");
-    return st === "cancelled" && s.charged_free == null && !s.parent_session_id;
+    return deriveSessionStatus(s) === "cancelled" && s.charged_free == null && !s.parent_session_id;
   });
 
   const lapsedSessions = activeBlockSessions.filter(
