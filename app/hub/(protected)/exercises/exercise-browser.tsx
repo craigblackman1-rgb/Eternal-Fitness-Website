@@ -206,7 +206,7 @@ export function ExerciseBrowser({
         }
         actions={
           <>
-            <Link href="/hub/workouts" className="text-sm font-medium text-teal hover:underline mr-2">Workouts</Link>
+            <Link href="/hub/workouts" className="btn-ghost text-sm mr-2">Workouts</Link>
             <ExerciseFormDialog
               trigger={
                 <button className="inline-flex items-center gap-1.5 h-9 rounded-lg bg-rose px-3.5 text-sm font-semibold text-white hover:bg-rose/90 transition-colors">

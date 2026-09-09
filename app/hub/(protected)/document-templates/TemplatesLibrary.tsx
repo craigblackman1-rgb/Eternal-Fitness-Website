@@ -199,7 +199,7 @@ export function TemplatesLibrary({ templates, clients }: { templates: DocumentTe
               <button
                 type="button"
                 onClick={resetFilters}
-                className="text-xs font-semibold text-muted-foreground underline underline-offset-2 hover:text-foreground"
+                className="btn-link text-xs text-muted-foreground"
               >
                 Reset
               </button>
