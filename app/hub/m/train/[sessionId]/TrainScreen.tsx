@@ -1950,8 +1950,10 @@ function CondensedSetRow({
   const uid = exercise.uid ?? "";
   const timeBased = isTimeBased(exercise.reps, exercise.log_type);
   const isBand = isBandEquipment(exercise.equipment ?? []);
+  const isDone = set.status === "done";
+  const isSkipped = set.status === "skipped";
 
-  if (set.status === "done") {
+  if (isDone) {
     return (
       <div className="c-set done">
         <div className="c-receipt done">
@@ -1964,7 +1966,7 @@ function CondensedSetRow({
     );
   }
 
-  if (set.status === "skipped") {
+  if (isSkipped) {
     return (
       <div className="c-set">
         <div className="c-receipt skipped">
@@ -2028,10 +2030,10 @@ function CondensedSetRow({
       )}
       {!readOnly && (
         <div className="c-acts">
-          <button type="button" className="c-ok" onClick={() => onSetDone(uid, setIdx)}>
+          <button type="button" className="c-ok" onClick={() => onSetDone(uid, setIdx)} aria-label={`Mark set ${setIdx + 1} done`} aria-pressed={isDone}>
             {ICO.checkSm}
           </button>
-          <button type="button" className="c-skip" onClick={() => onSetSkip(uid, setIdx)}>
+          <button type="button" className="c-skip" onClick={() => onSetSkip(uid, setIdx)} aria-label={`Skip set ${setIdx + 1}`} aria-pressed={isSkipped}>
             {ICO.skip}
           </button>
         </div>
@@ -2355,7 +2357,7 @@ function SupersetBlock({
 
           return (
             <div key={uid} className={`rx-row${isExpanded ? " expanded" : ""}`}>
-              <div className="rx-header" onClick={() => toggleAccordion(uid)}>
+              <button type="button" className="rx-header" onClick={() => toggleAccordion(uid)} aria-expanded={isExpanded} style={{ width: "100%", textAlign: "left", border: "none", background: "none", font: "inherit" }}>
                 {inPick && (
                   <button
                     className="pick-box"
@@ -2374,7 +2376,7 @@ function SupersetBlock({
                   <div className="rx-sub">{presc}{ex.equipment && ex.equipment.length > 0 ? ` · ${ex.equipment[0]}` : ""}</div>
                 </div>
                 <span className="rx-chevron">{isExpanded ? "⌃" : "⌄"}</span>
-              </div>
+              </button>
               {isExpanded && (
                 <div className="rx-detail">
                   <span className="rx-chip">{timeBased ? "Time" : "Reps & weight"}</span>

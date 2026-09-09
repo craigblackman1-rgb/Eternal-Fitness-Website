@@ -1760,6 +1760,8 @@ function ExerciseCard({
                         <button
                           type="button"
                           onClick={() => onSetDone(refKey, sIdx, exercise)}
+                          aria-label={`Mark set ${sIdx + 1} done`}
+                          aria-pressed={set.status === "done"}
                           className={`inline-flex h-[36px] items-center gap-1.5 rounded-lg border px-3 text-[12.5px] font-bold ${
                             set.status === "done" ? "border-teal bg-teal text-white" : "border-[var(--hub-border)] bg-[var(--hub-card)] text-muted-foreground hover:bg-[var(--hub-hover)]"
                           }`}
@@ -1769,6 +1771,8 @@ function ExerciseCard({
                         <button
                           type="button"
                           onClick={() => onSetSkip(refKey, sIdx, exercise)}
+                          aria-label={`Skip set ${sIdx + 1}`}
+                          aria-pressed={set.status === "skipped"}
                           className={`inline-flex h-[36px] items-center gap-1.5 rounded-lg border px-3 text-[12.5px] font-bold ${
                             set.status === "skipped" ? "border-[var(--status-danger)] bg-[var(--status-danger)] text-white" : "border-[var(--hub-border)] bg-[var(--hub-card)] text-muted-foreground hover:bg-[var(--hub-hover)]"
                           }`}
@@ -2058,6 +2062,8 @@ function SupersetBlock({
                           <button
                             type="button"
                             onClick={() => onSetDone(ref, roundIdx, ex)}
+                            aria-label={`Mark set ${roundIdx + 1} done`}
+                            aria-pressed={set.status === "done"}
                             className={`inline-flex h-[36px] items-center gap-1.5 rounded-lg border px-3 text-[12.5px] font-bold ${
                               set.status === "done" ? "border-teal bg-teal text-white" : "border-[var(--hub-border)] bg-[var(--hub-card)] text-muted-foreground hover:bg-[var(--hub-hover)]"
                             }`}
@@ -2067,6 +2073,8 @@ function SupersetBlock({
                           <button
                             type="button"
                             onClick={() => onSetSkip(ref, roundIdx, ex)}
+                            aria-label={`Skip set ${roundIdx + 1}`}
+                            aria-pressed={set.status === "skipped"}
                             className={`inline-flex h-[36px] items-center gap-1.5 rounded-lg border px-3 text-[12.5px] font-bold ${
                               set.status === "skipped" ? "border-[var(--status-danger)] bg-[var(--status-danger)] text-white" : "border-[var(--hub-border)] bg-[var(--hub-card)] text-muted-foreground hover:bg-[var(--hub-hover)]"
                             }`}
