@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { cn } from "@/lib/utils";
 import { HubCard, HubCardHeader, EmptyState } from "@/components/hub";
 import { HubAccordion, HubAccordionItem } from "@/components/hub/HubAccordion";
@@ -154,13 +155,13 @@ export function ReviewFlowClient({
   return (
     <div className="space-y-4 max-w-[900px] mx-auto">
       {/* Back link */}
-      <Link
-        href={`/hub/clients/${clientNumber}`}
+      <BackLink
+        fallback={`/hub/clients/${clientNumber}`}
         className="inline-flex items-center gap-1 text-[12.5px] font-medium text-muted-foreground hover:text-foreground transition-colors rounded-nested px-2 py-0.5 -ml-2"
       >
         <IconChevronLeft className="w-4 h-4" />
         Back to {client.name}
-      </Link>
+      </BackLink>
 
       {/* Page header */}
       <div className="flex items-center gap-3.5">
@@ -882,13 +883,13 @@ function ConfirmationPanel({
 }) {
   return (
     <div className="space-y-4 max-w-[900px] mx-auto">
-      <Link
-        href={`/hub/clients/${clientNumber}`}
+      <BackLink
+        fallback={`/hub/clients/${clientNumber}`}
         className="inline-flex items-center gap-1 text-[12.5px] font-medium text-muted-foreground hover:text-foreground transition-colors rounded-nested px-2 py-0.5 -ml-2"
       >
         <IconChevronLeft className="w-4 h-4" />
         Back to {client.name}
-      </Link>
+      </BackLink>
 
       <HubCard>
         <div className="text-center py-10 px-8">
@@ -912,12 +913,12 @@ function ConfirmationPanel({
           </div>
 
           <div className="flex items-center justify-center gap-2.5 mt-5">
-            <Link
-              href={`/hub/clients/${clientNumber}`}
+            <BackLink
+              fallback={`/hub/clients/${clientNumber}`}
               className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] text-[13px] font-semibold text-foreground hover:bg-[var(--hub-hover)] transition-colors"
             >
               Back to {client.name}
-            </Link>
+            </BackLink>
             {decision !== "continue" && (
               <Link
                 href={`/hub/clients/${clientNumber}/add-workout`}

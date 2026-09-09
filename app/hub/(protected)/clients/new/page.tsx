@@ -24,6 +24,7 @@ import {
   IconX,
 } from "@/components/icons";
 import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { HubCard, HubCardHeader, HubPageHeader } from "@/components/hub";
 import { TagMultiSelect } from "@/components/hub/TagMultiSelect";
 import { InjuryHistoryTable } from "@/components/hub/InjuryHistoryTable";
@@ -705,13 +706,13 @@ export default function NewClientPage() {
     <div className="space-y-5">
       {/* Page header */}
       <div>
-        <Link
-          href="/hub/clients"
+        <BackLink
+          fallback="/hub/clients"
           className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground rounded-nested px-2 py-1 -ml-2 mb-3 transition-colors"
         >
           <IconChevronLeft className="h-3.5 w-3.5" />
           Back to Clients
-        </Link>
+        </BackLink>
         <HubPageHeader
           title="New client"
           subtitle="Five short steps — who they are, their health, their goals, where they train, and their first workouts. Everything here feeds the Plan Agent."

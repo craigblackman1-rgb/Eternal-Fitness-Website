@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { RESOURCES } from "@/lib/resources";
 import { IconChevronLeft, IconEye } from "@/components/icons";
 import CalorieGuideClient from "@/app/portal/(protected)/calorie-guide/CalorieGuideClient";
@@ -21,13 +21,13 @@ export default function ResourcePreviewPage({ params }: { params: { key: string 
   return (
     <div className="space-y-5">
       <div className="space-y-3">
-        <Link
-          href="/hub/resources"
+        <BackLink
+          fallback="/hub/resources"
           className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
         >
           <IconChevronLeft className="h-3.5 w-3.5" />
           Back to Portal Resources
-        </Link>
+        </BackLink>
         <div className="flex items-start gap-2.5 rounded-nested border border-[var(--status-primary-border)] bg-[var(--status-primary-bg)] px-4 py-3">
           <IconEye className="h-4 w-4 mt-0.5 shrink-0 text-rose" />
           <p className="text-[13px] text-[var(--color-body)] leading-relaxed">

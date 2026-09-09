@@ -11,6 +11,7 @@ import { deriveSessionStatus } from "@/lib/session-status";
 import { deriveChronologicalPositions } from "@/lib/session-chronological-order";
 import { sessionWorkoutName, sessionBlockContext } from "@/lib/session-display";
 import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { useSearchParams } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -442,10 +443,10 @@ export default function SessionViewPage({
   return (
     <div className="space-y-6">
       <div>
-        <Link href={`/hub/clients/${params.id}/blocks/${params.blockId}`} className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
+        <BackLink fallback={`/hub/clients/${params.id}/blocks/${params.blockId}`} className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
           <IconChevronLeft className="h-5 w-5" />
           Back to Block
-        </Link>
+        </BackLink>
         {parentSession && (
           <p className="mt-1 text-xs text-muted-foreground">
             Part of{" "}

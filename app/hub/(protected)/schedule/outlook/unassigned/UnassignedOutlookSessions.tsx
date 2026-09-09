@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { IconSearch, IconDumbbell, IconCalendar } from "@/components/icons";
 import { toast } from "sonner";
 import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 
 interface UnassignedSession {
   id: string;
@@ -323,7 +324,7 @@ export function UnassignedOutlookSessions() {
       </HubCard>
 
       <p className="text-xs text-muted-foreground">
-        <Link href="/hub/schedule/outlook" className="underline underline-offset-2">Back to Outlook reconciliation</Link>
+        <BackLink fallback="/hub/schedule/outlook" className="underline underline-offset-2">Back to Outlook reconciliation</BackLink>
       </p>
     </div>
   );

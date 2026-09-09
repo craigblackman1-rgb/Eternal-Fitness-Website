@@ -2,6 +2,7 @@
 
 import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { useSearchParams } from "next/navigation";
 import { RichTextEditor } from "@/components/hub/RichTextEditor";
 import { toast } from "sonner";
@@ -990,12 +991,12 @@ export function AddWorkoutClient({
               >
                 Add another workout
               </button>
-              <Link
-                href={`/hub/clients/${clientNumber}`}
+              <BackLink
+                fallback={`/hub/clients/${clientNumber}`}
                 className="inline-flex items-center justify-center h-9 px-3.5 rounded-lg bg-rose hover:bg-rose/90 text-white text-[13px] font-semibold transition-colors"
               >
                 Back to {clientName}&rsquo;s profile
-              </Link>
+              </BackLink>
             </div>
           </div>
         </div>
