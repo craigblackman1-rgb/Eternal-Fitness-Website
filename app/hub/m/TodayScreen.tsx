@@ -255,7 +255,10 @@ export function TodayScreen({ entries, tasks, currentUserName, resumeSession }: 
             href="/hub"
             onClick={(e) => {
               if (typeof window !== "undefined") {
-                try { localStorage.setItem("ef-desktop-preferred", "1"); } catch {}
+                try {
+                localStorage.setItem("ef-desktop-preferred", "1");
+                localStorage.setItem("ef-desktop-preferred-ts", String(Date.now()));
+              } catch {}
               }
             }}
           >
