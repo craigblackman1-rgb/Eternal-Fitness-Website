@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { HubTable, type HubColumn } from "@/components/hub/HubTable";
 import { HubPageHeader } from "@/components/hub/HubPageHeader";
@@ -42,9 +42,10 @@ export function ProgramsListClient({
 }: {
   programs: ProgramRow[];
   clientContext?: ClientContext | null;
-  inUseProgramIds: Set<string>;
+  inUseProgramIds: string[];
 }) {
   const router = useRouter();
+  const inUseSet = useMemo(() => new Set(inUseProgramIds), [inUseProgramIds]);
   const [creating, setCreating] = useState(false);
   const [applyingId, setApplyingId] = useState<string | null>(null);
   const [showArchived, setShowArchived] = useState(false);
@@ -56,11 +57,11 @@ export function ProgramsListClient({
   );
 
   const archivedCount = programs.filter((p) => p.status === "archived").length;
-  const inUseCount = programs.filter((p) => inUseProgramIds.has(p.id) && p.status !== "archived").length;
+  const inUseCount = programs.filter((p) => inUseSet.has(p.id) && p.status !== "archived").length;
   const libraryCount = programs.filter((p) => p.clients === null && p.status !== "archived").length;
 
   let visiblePrograms = showArchived ? programs : programs.filter((p) => p.status !== "archived");
-  if (filter === "assigned") visiblePrograms = visiblePrograms.filter((p) => inUseProgramIds.has(p.id));
+  if (filter === "assigned") visiblePrograms = visiblePrograms.filter((p) => inUseSet.has(p.id));
   else if (filter === "library") visiblePrograms = visiblePrograms.filter((p) => p.clients === null);
 
   const handleArchive = async (program: ProgramRow) => {
@@ -165,7 +166,7 @@ export function ProgramsListClient({
       render: (row) => (
         <span className="font-medium text-foreground">
           {row.name}
-          {inUseProgramIds.has(row.id) && (
+          {inUseSet.has(row.id) && (
             <TokenPill token="success" label="In use" className="ml-2" />
           )}
           {row.source === "trainerize_import" && (

@@ -83,7 +83,7 @@ export default async function ProgramsPage({
     <ProgramsListClient
       programs={programs}
       clientContext={clientContext}
-      inUseProgramIds={inUseProgramIds}
+      inUseProgramIds={Array.from(inUseProgramIds)}
     />
   );
 }
