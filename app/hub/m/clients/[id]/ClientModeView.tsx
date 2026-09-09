@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect, type ReactNode } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { SessionStatus } from "@/types";
 import type { AggregatedExerciseNote } from "@/lib/exercise-notes";
 import type { SessionNoteData, PinnedNoteRef } from "@/types";
@@ -9,6 +10,7 @@ import type { ClientFlag } from "@/lib/mobile-client-flags";
 import type { ExerciseTrendSummary } from "@/lib/progress";
 import { DayAgenda, type AgendaSession } from "@/components/hub/DayAgenda";
 import { ClientNotesPane } from "./ClientNotesPane";
+import { ClientTabBar } from "./ClientTabBar";
 import { todayLocalISODate, shiftDay } from "@/lib/schedule-dates";
 import { deriveSessionChip } from "@/lib/session-chip";
 
@@ -171,24 +173,6 @@ const ICO = {
       <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
     </svg>
   ),
-  pool: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <path d="M3 9h18M9 9v12" />
-    </svg>
-  ),
-  calendarTab: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="4" width="18" height="18" rx="2" />
-      <path d="M16 2v4M8 2v4M3 10h18" />
-      <path d="M3 15h18M12 15v3" />
-    </svg>
-  ),
-  notes: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </svg>
-  ),
   check: (
     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
       <path d="m5 13 4 4L19 7" />
@@ -221,13 +205,14 @@ function flagIcon(tone: ClientFlag["tone"]) {
 
 /* ── Component ── */
 
-type TabKey = "training" | "calendar" | "notes";
+type TabKey = "training" | "calendar" | "documents" | "comms" | "notes";
 
 interface ClientModeViewProps {
   clientId: string;
   clientNumber: number;
   clientName: string;
   firstName: string;
+  initialTab?: TabKey;
   flags: ClientFlag[];
   activeFlagCount: number;
   block: BlockView | null;
@@ -252,6 +237,7 @@ export function ClientModeView({
   clientNumber,
   clientName,
   firstName,
+  initialTab = "training",
   flags,
   activeFlagCount,
   block,
@@ -270,7 +256,12 @@ export function ClientModeView({
   exerciseTrendSummary,
   programmeQueue = null,
 }: ClientModeViewProps) {
-  const [tab, setTab] = useState<TabKey>("training");
+  const pathname = usePathname();
+
+  // Route-based tabs: documents and comms are separate pages
+  const isDocuments = pathname.endsWith("/documents");
+  const isComms = pathname.endsWith("/comms");
+  const activeTab: TabKey = isDocuments ? "documents" : isComms ? "comms" : initialTab;
 
   /* ── Accordion state for Medical & compliance (CR-EF-164) ── */
   const accStorageKey = `ef-medcomp-acc:${clientId}`;
@@ -349,17 +340,11 @@ export function ClientModeView({
   /* ── Pool view ── */
   const nextPool = poolWorkouts.find((w) => w.status === "next");
 
-  const tabs: { key: TabKey; label: string; icon: ReactNode; badge?: number }[] = [
-    { key: "training", label: "Training", icon: ICO.pool },
-    { key: "calendar", label: "Calendar", icon: ICO.calendarTab },
-    { key: "notes", label: "Notes", icon: ICO.notes },
-  ];
-
   return (
     <>
       <main className="mcontent">
         {/* ══════════════ TRAINING ══════════════ */}
-        <section className={`pane${tab === "training" ? " on" : ""}`}>
+        <section className={`pane${activeTab === "training" ? " on" : ""}`}>
           {/* ── §POT — sessions left (the hero) ── */}
           <div className="panel">
             <div className="panel-h">
@@ -634,7 +619,7 @@ export function ClientModeView({
         </section>
 
         {/* ══════════════ CALENDAR ══════════════ */}
-        <section className={`pane${tab === "calendar" ? " on" : ""}`}>
+        <section className={`pane${activeTab === "calendar" ? " on" : ""}`}>
           <DayAgenda
             sessions={calendarSessions.map(
               (s): AgendaSession => ({
@@ -663,7 +648,7 @@ export function ClientModeView({
         </section>
 
         {/* ══════════════ NOTES ══════════════ */}
-        <section className={`pane${tab === "notes" ? " on" : ""}`}>
+        <section className={`pane${activeTab === "notes" ? " on" : ""}`}>
           <ClientNotesPane
             clientId={clientId}
             clientName={clientName}
@@ -674,23 +659,11 @@ export function ClientModeView({
         </section>
       </main>
 
-      {/* CR-EF-113: 5-tab bottom bar — Overview · Sessions · Pool · Calendar · Notes */}
-      <nav className="tabbar" aria-label="Client">
-        {tabs.map((t) => (
-          <button
-            key={t.key}
-            className={`tab${tab === t.key ? " on" : ""}`}
-            onClick={() => setTab(t.key)}
-            aria-current={tab === t.key ? "true" : undefined}
-          >
-            {t.icon}
-            {t.label}
-            {t.badge != null && t.badge > 0 && (
-              <span className="tab-badge">{t.badge}</span>
-            )}
-          </button>
-        ))}
-      </nav>
+      {/* CR-EF-113: 5-tab bottom bar — Training · Calendar · Documents · Comms · Notes */}
+      <ClientTabBar
+        clientNumber={clientNumber}
+        activeTab={activeTab}
+      />
     </>
   );
 }

@@ -101,9 +101,12 @@ function initialsFor(name: string): string {
     .slice(0, 2);
 }
 
-export default async function MobileClientModePage({ params }: { params: { id: string } }) {
+export default async function MobileClientModePage({ params, searchParams }: { params: { id: string }; searchParams: { tab?: string } }) {
   const supabase = createClient();
   const clientNumber = parseInt(params.id, 10);
+
+  const VALID_TABS = ["training", "calendar", "notes"] as const;
+  const initialTab = VALID_TABS.includes(searchParams.tab as typeof VALID_TABS[number]) ? (searchParams.tab as typeof VALID_TABS[number]) : "training";
 
   const { data: client } = await supabase
     .from("clients")
@@ -523,6 +526,7 @@ export default async function MobileClientModePage({ params }: { params: { id: s
         clientNumber={clientNumber}
         clientName={row.name}
         firstName={row.name.split(" ")[0]}
+        initialTab={initialTab}
         flags={flags}
         activeFlagCount={activeFlagCount}
         block={blockView}

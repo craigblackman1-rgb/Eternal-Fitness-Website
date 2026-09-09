@@ -461,7 +461,6 @@
 .tab.on svg { color: var(--rose); }
 .tab.on::before { content: ''; position: absolute; top: 0; left: 22%; right: 22%; height: 2.5px; border-radius: 0 0 3px 3px; background: var(--rose); }
 .tab svg { width: 21px; height: 21px; }
-.tab-badge { position: absolute; top: 8px; left: 50%; margin-left: 6px; min-width: 16px; height: 16px; border-radius: var(--r-pill); background: var(--rose); color: var(--color-white); font-size: 10px; font-weight: 800; display: grid; place-items: center; padding: 0 4px; }
 
 /* ── Tablet / landscape scale-up additions ────────────────────── */
 @media (min-width: 700px) {
@@ -848,6 +847,23 @@
 .panel-tap:hover .panel-b { background: var(--hover); }
 .panel-tap .panel-h { padding-right: 12px; }
 .panel-chev { margin-left: auto; flex-shrink: 0; color: var(--muted); }
+
+/* ── Documents + Comms tabs (wo-ef-pwa-parity u2) ─────────────── */
+.mcard { background: var(--card); border: 1px solid var(--border); border-radius: var(--r-surface); box-shadow: var(--shadow-sm); overflow: hidden; }
+.mcard + .mcard { margin-top: 12px; }
+.mcard-h { display: flex; align-items: center; gap: 8px; padding: 11px 14px; border-bottom: 1px solid var(--border); font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--ink); }
+.mcard-h .lnk { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--rose); text-transform: none; letter-spacing: normal; text-decoration: none; }
+.mcard-h .lnk:hover { text-decoration: underline; }
+.mrow { display: flex; align-items: center; gap: 10px; padding: 11px 14px; }
+.mrow + .mrow { border-top: 1px solid var(--border); }
+.mrow-t { min-width: 0; flex: 1; font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.mrow-s { font-size: 12px; color: var(--muted); margin-top: 1px; }
+.mrow-body { min-width: 0; flex: 1; }
+.mrow-chevron { flex-shrink: 0; color: var(--muted); }
+.pill.p-ok { background: var(--s-success-bg); border: 1px solid var(--s-success-bd); color: var(--s-success); }
+.pill.p-warn { background: var(--s-warning-bg); border: 1px solid var(--s-warning-bd); color: var(--s-warning); }
+.pill.p-mut { background: var(--hover); border: 1px solid var(--border); color: var(--body); }
+.mnote { font-size: 11.5px; color: var(--muted); line-height: 1.6; padding: 0 14px; margin-top: 10px; }
 
 /* ── CR-EF-u3: Unified Training model ────────────────────────────────
    Pot hero, next workout, queue rows, booked-in, stats.
