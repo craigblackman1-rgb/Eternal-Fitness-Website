@@ -20,8 +20,8 @@ export default async function UpdatesReportPage() {
   const { data, error } = await supabase
     .from("sent_updates")
     .select("*, client:clients(name, client_number, package_type)")
-    .order("sent_at", { ascending: false })
-    .limit(100);
+    .order("created_at", { ascending: false })
+    .limit(500);
 
   if (error) console.error("[reports/updates]", error.message);
 
