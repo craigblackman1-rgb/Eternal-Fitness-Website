@@ -130,6 +130,18 @@ export function TrainingDrawer({
   const [chooserSessionId, setChooserSessionId] = useState<string | null>(null);
   const [chooserBusy, setChooserBusy] = useState(false);
 
+  function openChooser(sessionId: string) {
+    setChooserSessionId(sessionId);
+    openDrawer("dw-pick");
+  }
+
+  function closeChooser() {
+    if (!chooserBusy) {
+      setChooserSessionId(null);
+      closeDrawer();
+    }
+  }
+
   // ── Paid-pot computation ──
   const isOngoing = !sessionsPurchased || packageType === "ongoing";
   const totalSessions = isOngoing ? null : sessionsPurchased;
@@ -298,6 +310,7 @@ export function TrainingDrawer({
       }
       toast.success("Session reassigned to programme slot");
       setChooserSessionId(null);
+      closeDrawer();
       router.refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to reassign");
@@ -353,6 +366,7 @@ export function TrainingDrawer({
 
       toast.success(`Assigned "${tpl.name}" to session`);
       setChooserSessionId(null);
+      closeDrawer();
       router.refresh();
     } catch (err) {
       toast.error(
@@ -365,6 +379,7 @@ export function TrainingDrawer({
 
   function handleReassignOneOff(sessionId: string) {
     setChooserSessionId(null);
+    closeDrawer();
     router.push(`/hub/clients/${clientNumber}/add-workout?view=chooser`);
   }
 
@@ -527,7 +542,7 @@ export function TrainingDrawer({
                           <button
                             type="button"
                             className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] px-3 py-1 min-h-[30px] font-[inherit] text-[12px] font-medium text-[var(--color-body)] cursor-pointer hover:bg-[var(--hub-hover)] transition-colors"
-                            onClick={() => setChooserSessionId(s.id)}
+                            onClick={() => openChooser(s.id)}
                           >
                             Swap
                           </button>
@@ -544,7 +559,7 @@ export function TrainingDrawer({
                           <button
                             type="button"
                             className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--color-rose)] text-white px-3 py-1 min-h-[30px] font-[inherit] text-[12px] font-semibold cursor-pointer hover:bg-[var(--color-rose)]/90 transition-colors"
-                            onClick={() => setChooserSessionId(s.id)}
+                            onClick={() => openChooser(s.id)}
                           >
                             Choose a workout
                           </button>
@@ -770,57 +785,69 @@ export function TrainingDrawer({
         </div>
       </div>
 
-      {/* ═══ SESSION CHOOSER DIALOG ═══ */}
+      {/* ═══ SESSION CHOOSER — stacked dw-pick drawer ═══ */}
       {chooserSessionId && programState && (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-[var(--color-ink)]/40 backdrop-blur-sm"
-            onClick={() => !chooserBusy && setChooserSessionId(null)}
+        <DrawerShell
+          id="dw-pick"
+          title="Choose a workout"
+          subtitle={
+            (() => {
+              const session = scheduledSessions.find((s) => s.id === chooserSessionId);
+              if (session?.scheduled_at) {
+                const d = new Date(session.scheduled_at);
+                return `For ${d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}, ${d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false })}`;
+              }
+              return null;
+            })()
+          }
+          width="md"
+          backLabel="‹ Back to Manage training"
+          footer={
+            <>
+              <button
+                type="button"
+                onClick={closeChooser}
+                className="inline-flex items-center justify-center gap-1.5 rounded-control border border-transparent bg-transparent text-[var(--color-muted)] font-[inherit] text-xs font-semibold cursor-pointer px-3.5 py-1.5 hover:bg-[var(--hub-hover)] hover:text-[var(--color-ink)]"
+              >
+                Back
+              </button>
+              <span className="flex-1" />
+            </>
+          }
+        >
+          <SessionChooser
+            nextSlot={programState.nextSlot}
+            currentWeek={programState.currentWeek ?? 1}
+            programWeeks={programState.program?.weeks ?? 1}
+            slotPosition={programState.nextPosition ?? 1}
+            totalSlots={totalQueueSlots}
+            sessionsRemaining={remaining}
+            programName={programState.program?.name ?? ""}
+            clientNumber={clientNumber}
+            pronouns={p}
+            onConfirmProgram={(slotId) =>
+              handleReassignProgram(chooserSessionId, slotId)
+            }
+            onConfirmTemplate={(templateId, templateName) =>
+              handleReassignTemplate(
+                chooserSessionId,
+                templateId,
+                templateName,
+              )
+            }
+            onConfirmOneOff={() =>
+              handleReassignOneOff(chooserSessionId)
+            }
+            onCancel={closeChooser}
           />
-          <div className="relative w-full max-w-[680px] mx-4 bg-white border border-[var(--hub-border)] rounded-surface shadow-[0_20px_60px_rgba(16,24,40,.18)] max-h-[85vh] overflow-y-auto">
-            <div className="px-5 py-4 border-b border-[var(--hub-border)]">
-              <h3 className="m-0 text-[15.5px] font-bold text-[var(--color-ink)] tracking-tight">
-                Assign this session
-              </h3>
+          {chooserBusy && (
+            <div className="absolute inset-0 bg-white/60 rounded-surface flex items-center justify-center pointer-events-none">
+              <span className="text-[13px] font-semibold text-[var(--color-muted)]">
+                Saving…
+              </span>
             </div>
-            <div className="px-5 py-4">
-              <SessionChooser
-                nextSlot={programState.nextSlot}
-                currentWeek={programState.currentWeek ?? 1}
-                programWeeks={programState.program?.weeks ?? 1}
-                slotPosition={programState.nextPosition ?? 1}
-                totalSlots={totalQueueSlots}
-                sessionsRemaining={remaining}
-                programName={programState.program?.name ?? ""}
-                clientNumber={clientNumber}
-                pronouns={p}
-                onConfirmProgram={(slotId) =>
-                  handleReassignProgram(chooserSessionId, slotId)
-                }
-                onConfirmTemplate={(templateId, templateName) =>
-                  handleReassignTemplate(
-                    chooserSessionId,
-                    templateId,
-                    templateName,
-                  )
-                }
-                onConfirmOneOff={() =>
-                  handleReassignOneOff(chooserSessionId)
-                }
-                onCancel={() =>
-                  !chooserBusy && setChooserSessionId(null)
-                }
-              />
-            </div>
-            {chooserBusy && (
-              <div className="absolute inset-0 bg-white/60 rounded-surface flex items-center justify-center pointer-events-none">
-                <span className="text-[13px] font-semibold text-[var(--color-muted)]">
-                  Saving…
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
+          )}
+        </DrawerShell>
       )}
     </DrawerShell>
   );

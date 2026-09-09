@@ -158,11 +158,12 @@ interface DrawerShellProps {
   width?: "sm" | "md" | "lg";
   children: React.ReactNode;
   footer?: React.ReactNode;
+  backLabel?: string;
 }
 
 const WIDTHS = { sm: "w-[420px]", md: "w-[560px]", lg: "w-[720px]" };
 
-export function DrawerShell({ id, title, subtitle, width = "md", children, footer }: DrawerShellProps) {
+export function DrawerShell({ id, title, subtitle, width = "md", children, footer, backLabel = "‹ Back" }: DrawerShellProps) {
   const { activeDrawer, parentId, closeDrawer } = useDrawerManager();
   const isActive = activeDrawer === id;
   const isParent = parentId === id && activeDrawer !== null;
@@ -199,7 +200,7 @@ export function DrawerShell({ id, title, subtitle, width = "md", children, foote
               onClick={closeDrawer}
               className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-rose)] hover:underline underline-offset-2 mb-0.5 bg-transparent border-0 p-0 cursor-pointer font-[inherit]"
             >
-              ‹ Back
+              {backLabel}
             </button>
           )}
           <h3
