@@ -4,7 +4,7 @@
 import { useDrawerManager } from "./DrawerManager";
 import { HubCard } from "@/components/hub";
 import { deriveSessionPot } from "@/lib/session-pot";
-import { sessionWorkoutName, isOutlookPlaceholder, isTrainerizeImported } from "@/lib/session-display";
+import { sessionWorkoutName, sessionHasNoExercises, isOutlookPlaceholder, isTrainerizeImported } from "@/lib/session-display";
 import type { DBBlock, DBSession } from "@/types";
 import type { QueueState } from "@/lib/programs/types";
 
@@ -100,55 +100,12 @@ export function TrainingSection({
   const purchased = pot.purchased;
   const used = pot.used;
 
-  // ── Queue derivation (kept for data — presentation only changes) ──
-  const queueFromProgram = programState
-    ? programState.slots.map((slot, i) => ({
-        position: i + 1,
-        label: slotLabel(slot),
-        subtitle: `${(slot.data?.sections?.length ?? 0)} section${(slot.data?.sections?.length ?? 0) === 1 ? "" : "s"}`,
-        isCompleted: i < programState.completedCount,
-        isNext: i === programState.completedCount,
-      }))
-    : null;
+  // ── Programme name from program state, falling back to block title ──
+  const programmeName = programState?.program?.name ?? latestBlock?.title ?? null;
 
-  const queueFromBlock = !queueFromProgram && latestBlock
-    ? (() => {
-        const workouts = blockSessions
-          .filter(
-            (s) =>
-              !s.parent_session_id &&
-              !s.cancelled_at &&
-              !isOutlookPlaceholder(s) &&
-              !isTrainerizeImported(s),
-          )
-          .sort((a, b) => (a.session_number ?? 0) - (b.session_number ?? 0));
-
-        let completedSeen = 0;
-        const firstPendingIdx = workouts.findIndex((w) => !w.completed_at);
-        return workouts.map((s) => {
-          const isCompleted = !!s.completed_at;
-          if (isCompleted) completedSeen++;
-          return {
-            position: isCompleted ? completedSeen : completedSeen + 1,
-            label: sessionWorkoutName(s) || `Workout`,
-            subtitle: s.completed_at
-              ? `Completed ${fmtDateShort(s.completed_at)}`
-              : s.scheduled_at
-                ? `Scheduled ${fmtDateShort(s.scheduled_at)}`
-                : undefined,
-            isCompleted,
-            isNext: !isCompleted && workouts.indexOf(s) === firstPendingIdx,
-            sessionId: s.id,
-            scheduledAt: s.scheduled_at,
-          };
-        });
-      })()
-    : null;
-
-  const queue = queueFromProgram ?? queueFromBlock ?? [];
-  const pendingCount = queue.filter((q) => !q.isCompleted).length;
-  const nextItem = queue.find((q) => q.isNext);
-  const completedCount = queue.filter((q) => q.isCompleted).length;
+  // ── Low pot threshold ──
+  const isLow = !isOngoing && remaining <= 2 && remaining > 0;
+  const isEmpty = !isOngoing && remaining === 0;
 
   // ── Scheduled bookings (the dated rows in SEE) ──
   const now = Date.now();
@@ -157,6 +114,7 @@ export function TrainingSection({
       (s) =>
         !s.completed_at &&
         !s.parent_session_id &&
+        !s.cancelled_at &&
         s.scheduled_at &&
         new Date(s.scheduled_at).getTime() >= now,
     )
@@ -165,6 +123,23 @@ export function TrainingSection({
         new Date(a.scheduled_at!).getTime() -
         new Date(b.scheduled_at!).getTime(),
     );
+
+  // ── Sessions with a real workout (for glance + row derivation) ──
+  const sessionsWithWorkouts = blockSessions
+    .filter(
+      (s) =>
+        !s.parent_session_id &&
+        !s.cancelled_at &&
+        !isOutlookPlaceholder(s) &&
+        !sessionHasNoExercises(s.data) &&
+        !isTrainerizeImported(s),
+    )
+    .sort((a, b) => (a.session_number ?? 0) - (b.session_number ?? 0));
+
+  const totalWithWorkouts = sessionsWithWorkouts.length;
+  const completedCount = sessionsWithWorkouts.filter((s) => !!s.completed_at).length;
+  const nextSessionWithWorkout = sessionsWithWorkouts.find((s) => !s.completed_at);
+  const isProgrammeComplete = totalWithWorkouts > 0 && completedCount >= totalWithWorkouts;
 
   // ── Completed sessions count ──
   const sessionsDone = used;
@@ -178,16 +153,6 @@ export function TrainingSection({
     .filter((s) => s.completed_at && !s.parent_session_id)
     .sort((a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime())[0];
 
-  // ── Programme name from program state, falling back to block title ──
-  const programmeName = programState?.program?.name ?? latestBlock?.title ?? null;
-
-  // ── Low pot threshold ──
-  const isLow = !isOngoing && remaining <= 2 && remaining > 0;
-  const isEmpty = !isOngoing && remaining === 0;
-
-  // ── Match upcoming bookings to queue items for workout labels ──
-  const pendingQueueItems = queue.filter((q) => !q.isCompleted);
-
   return (
     <HubCard padded={false}>
       {/* ── Card header ── */}
@@ -196,6 +161,7 @@ export function TrainingSection({
         <span className="t-meta">Read-only. Everything you can change is behind Manage training.</span>
       </div>
 
+      <div className="tsec">
       {/* ── Glance: programme + sessions left ── */}
       <div className="glance">
         <div>
@@ -204,21 +170,25 @@ export function TrainingSection({
             <>
               <b className="g-prog">{programmeName}</b>
               <span className="g-prog-s">
-                {nextItem ? (
-                  <>Position {nextItem.position} of {queue.length || "?"} · next up <b style={{ color: "var(--color-ink)" }}>{nextItem.label}</b></>
+                {isProgrammeComplete ? (
+                  <>Programme complete · {completedCount} of {totalWithWorkouts}</>
+                ) : nextSessionWithWorkout ? (
+                  <>Next up <b style={{ color: "var(--color-ink)" }}>{sessionWorkoutName(nextSessionWithWorkout, "Workout")}</b></>
                 ) : (
-                  <>Programme complete · {completedCount} of {queue.length || "?"}</>
+                  <>No workouts assigned yet</>
                 )}
               </span>
             </>
-          ) : queue.length > 0 ? (
+          ) : totalWithWorkouts > 0 ? (
             <>
               <b className="g-prog">{clientName.split(" ")[0]}&apos;s programme</b>
               <span className="g-prog-s">
-                {nextItem ? (
-                  <>Position {nextItem.position} of {queue.length} · next up <b style={{ color: "var(--color-ink)" }}>{nextItem.label}</b></>
+                {isProgrammeComplete ? (
+                  <>Programme complete · {completedCount} of {totalWithWorkouts}</>
+                ) : nextSessionWithWorkout ? (
+                  <>Next up <b style={{ color: "var(--color-ink)" }}>{sessionWorkoutName(nextSessionWithWorkout, "Workout")}</b></>
                 ) : (
-                  <>Programme complete · {completedCount} of {queue.length}</>
+                  <>No workouts assigned yet</>
                 )}
               </span>
             </>
@@ -275,41 +245,53 @@ export function TrainingSection({
           <span className="drow-s" />
         </div>
       ) : (
-        upcomingBookings.map((booking, idx) => {
-          const queueItem = pendingQueueItems[idx];
-          return (
-            <div key={booking.id} className="drow">
-              <span className="drow-d">
-                {dayOfWeek(booking.scheduled_at!)} {fmtDateShort(booking.scheduled_at!)}, {timeOfDay(booking.scheduled_at!)}
-                <small>{relativeDay(booking.scheduled_at!)}</small>
-              </span>
-              <span className="drow-w">
-                {queueItem ? (
-                  <>
-                    {queueItem.label}
-                    <small>Position {queueItem.position}</small>
-                  </>
-                ) : (
-                  <span className="drow-w none">
-                    No workout applied yet
-                    <small style={{ color: "var(--color-muted)", fontWeight: 400 }}>
-                      Applied on the day, or ahead of time from Manage training
-                    </small>
-                  </span>
-                )}
-              </span>
-              <span className="drow-s">
-                {idx === 0 && queueItem?.isNext ? (
-                  <span className="badge b-primary">Next</span>
-                ) : queueItem ? (
-                  <span className="badge b-neutral">Applied</span>
-                ) : (
-                  <span className="badge b-warning">Open</span>
-                )}
-              </span>
-            </div>
-          );
-        })
+        (() => {
+          let nextFound = false;
+          return upcomingBookings.map((booking) => {
+            const hasWorkout =
+              !isOutlookPlaceholder(booking) &&
+              !sessionHasNoExercises(booking.data) &&
+              !isTrainerizeImported(booking);
+            const workoutName = hasWorkout ? sessionWorkoutName(booking, "") : null;
+            const slot = programState?.slots.find((sl) => sl.id === booking.program_slot_id);
+            const isNext = hasWorkout && !nextFound;
+            if (isNext) nextFound = true;
+            return (
+              <div key={booking.id} className="drow">
+                <span className="drow-d">
+                  {dayOfWeek(booking.scheduled_at!)} {fmtDateShort(booking.scheduled_at!)}, {timeOfDay(booking.scheduled_at!)}
+                  <small>{relativeDay(booking.scheduled_at!)}</small>
+                </span>
+                <span className="drow-w">
+                  {hasWorkout ? (
+                    <>
+                      {workoutName}
+                      {slot && <small>Position {slot.position}</small>}
+                    </>
+                  ) : (
+                    <span className="drow-w none">
+                      No workout applied yet
+                      <small style={{ color: "var(--color-muted)", fontWeight: 400 }}>
+                        Applied on the day, or ahead of time from Manage training
+                      </small>
+                    </span>
+                  )}
+                </span>
+                <span className="drow-s">
+                  {hasWorkout ? (
+                    isNext ? (
+                      <span className="badge b-primary">Next</span>
+                    ) : (
+                      <span className="badge b-neutral">Applied</span>
+                    )
+                  ) : (
+                    <span className="badge b-warning">Open</span>
+                  )}
+                </span>
+              </div>
+            );
+          });
+        })()
       )}
 
       {/* ── So-far summary line ── */}
@@ -344,21 +326,7 @@ export function TrainingSection({
         <span className="spacer" />
         <span className="t-meta" style={{ alignSelf: "center" }}>Manage training applies workouts and programmes · Progress shows results and logs</span>
       </div>
+      </div>
     </HubCard>
   );
-}
-
-/** Short display label for a program slot. */
-function slotLabel(slot: { label?: string | null; position: number }): string {
-  const label = slot.label?.trim();
-  if (label) {
-    const stripped = label.replace(/^(?:Workout|Warm[\s-]*up)\s+/i, "");
-    const match = stripped.match(/^([A-Za-z0-9]+)/);
-    if (match) {
-      const prefix = /^workout\s/i.test(label) ? "W" : "";
-      return prefix + match[1];
-    }
-    return stripped.slice(0, 3);
-  }
-  return String.fromCharCode(64 + slot.position);
 }
