@@ -47,6 +47,7 @@ function resolveCrumb(pathname: string): { section: string | null; label: string
     if (pathname.includes("/sessions/")) return { section: "Clients", label: "Session" };
     return { section: "Clients", label: "Programme" };
   }
+  if (pathname.startsWith("/hub/clients/") && pathname.endsWith("/comms/new")) return { section: "Clients", label: "Write to client" };
   if (pathname.startsWith("/hub/clients/") && pathname.endsWith("/updates/new")) return { section: "Clients", label: "New Update" };
   if (pathname.startsWith("/hub/clients/") && pathname.includes("/updates/") && pathname.endsWith("/edit")) return { section: "Clients", label: "Edit Update" };
   if (pathname.startsWith("/hub/clients/") && pathname.includes("/updates")) return { section: "Clients", label: "Updates" };
