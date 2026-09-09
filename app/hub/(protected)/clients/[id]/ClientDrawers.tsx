@@ -29,6 +29,7 @@ import type {
   TrainerizePerformedWorkoutSummary,
   TrainerizePerformedExerciseDetail,
 } from "@/components/hub";
+import { IconSearch } from "@/components/icons";
 
 /* ── ClientDrawers — real drawer content for the five reference doors plus
    the training content drawers. Each drawer receives data threaded from
@@ -1610,6 +1611,12 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
   const [showAllLog, setShowAllLog] = useState(false);
   const visibleLogSessions = showAllLog ? logSessions : logSessions.slice(0, LOG_INITIAL_COUNT);
 
+  // ── PB + Load search/pager state ──
+  const [pbSearch, setPbSearch] = useState("");
+  const [pbPage, setPbPage] = useState(0);
+  const [loadSearch, setLoadSearch] = useState("");
+  const [loadPage, setLoadPage] = useState(0);
+
   // ── 3. Personal bests ──
   const pbRows = exerciseTrends
     .filter((t) => t.points && t.points.length > 0)
@@ -1646,9 +1653,19 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
       const setWhen = fmtShortDate(best.loggedAt);
       const wasWhat = first !== best ? `${firstValue} on ${fmtShortDate(first.loggedAt)}` : null;
       const subtitle = wasWhat ? `Set ${setWhen} \u00b7 was ${wasWhat}` : `Set ${setWhen}`;
-      return { name: trend.exerciseName, value: currentValue, subtitle, delta, isFlat };
+      return { name: trend.exerciseName, value: currentValue, subtitle, delta, isFlat, sortDate: best.loggedAt ?? "" };
     })
-    .filter((r) => r.delta !== null);
+    .filter((r) => r.delta !== null)
+    .sort((a, b) => (a.sortDate > b.sortDate ? -1 : a.sortDate < b.sortDate ? 1 : 0));
+
+  const PB_PAGE_SIZE = 25;
+  const pbQuery = pbSearch.toLowerCase();
+  const filteredPbRows = pbQuery
+    ? pbRows.filter((r) => r.name.toLowerCase().includes(pbQuery))
+    : pbRows;
+  const pbTotalPages = Math.max(1, Math.ceil(filteredPbRows.length / PB_PAGE_SIZE));
+  const clampedPbPage = Math.min(pbPage, pbTotalPages - 1);
+  const visiblePbRows = filteredPbRows.slice(clampedPbPage * PB_PAGE_SIZE, (clampedPbPage + 1) * PB_PAGE_SIZE);
 
   // ── 3b. Load progression rows (last / best / trend) ──
   const loadRows = exerciseTrends
@@ -1686,8 +1703,19 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
         isBest: last === best || (trend.metric === "weight" && last.topWeightKg === best.topWeightKg && last.repsAtTopWeight === best.repsAtTopWeight),
         trendDir,
         lastDate: fmtShortDate(last.loggedAt),
+        sortDate: last.loggedAt ?? "",
       };
-    }).filter(Boolean);
+    }).filter(Boolean)
+    .sort((a: any, b: any) => (a.sortDate > b.sortDate ? -1 : a.sortDate < b.sortDate ? 1 : 0));
+
+  const LOAD_PAGE_SIZE = 25;
+  const loadQuery = loadSearch.toLowerCase();
+  const filteredLoadRows = loadQuery
+    ? loadRows.filter((r: any) => r.name.toLowerCase().includes(loadQuery))
+    : loadRows;
+  const loadTotalPages = Math.max(1, Math.ceil(filteredLoadRows.length / LOAD_PAGE_SIZE));
+  const clampedLoadPage = Math.min(loadPage, loadTotalPages - 1);
+  const visibleLoadRows = filteredLoadRows.slice(clampedLoadPage * LOAD_PAGE_SIZE, (clampedLoadPage + 1) * LOAD_PAGE_SIZE);
 
   // ── 3c. RPE mini-trend ──
   const rpeData = sessions
@@ -1908,18 +1936,49 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
             {showPbForm ? "Cancel" : "Add one by hand"}
           </button>
         </div>
+        {pbRows.length > 10 && (
+          <div style={{ padding: "10px 16px", borderBottom: "1px solid var(--hub-border)" }}>
+            <div className="relative">
+              <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+              <input
+                type="search"
+                placeholder="Search exercises..."
+                value={pbSearch}
+                onChange={(e) => { setPbSearch(e.target.value); setPbPage(0); }}
+                className="w-full h-8 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] pl-9 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground font-[inherit] outline-none hover:border-[var(--hub-field-border-hover)] focus:outline-none focus:border-[var(--color-rose)] focus:ring-[3px] focus:ring-[rgba(193,131,159,0.3)]"
+              />
+            </div>
+          </div>
+        )}
         <div className="fcard-b">
           {pbRows.length > 0 ? (
-            pbRows.map((pb, i) => (
-              <div key={i} className="pb-row">
-                <span className="pb-row-m">
-                  <span className="pb-row-t">{pb.name}</span>
-                  <span className="pb-row-s">{pb.subtitle}</span>
-                </span>
-                <span className="pb-row-v">{pb.value}</span>
-                <span className={`pb-row-d${pb.isFlat ? " flat" : ""}`}>{pb.delta}</span>
-              </div>
-            ))
+            <>
+              {visiblePbRows.map((pb, i) => (
+                <div key={i} className="pb-row">
+                  <span className="pb-row-m">
+                    <span className="pb-row-t">{pb.name}</span>
+                    <span className="pb-row-s">{pb.subtitle}</span>
+                  </span>
+                  <span className="pb-row-v">{pb.value}</span>
+                  <span className={`pb-row-d${pb.isFlat ? " flat" : ""}`}>{pb.delta}</span>
+                </div>
+              ))}
+              {(pbSearch || pbTotalPages > 1) && (
+                <div className="pager">
+                  <span className="pager-i">
+                    {pbSearch
+                      ? `${filteredPbRows.length} of ${pbRows.length}`
+                      : `${clampedPbPage * PB_PAGE_SIZE + 1}–${Math.min((clampedPbPage + 1) * PB_PAGE_SIZE, filteredPbRows.length)} of ${filteredPbRows.length}`}
+                  </span>
+                  {pbTotalPages > 1 && (
+                    <>
+                      <button type="button" className="pager-b" disabled={clampedPbPage === 0} onClick={() => setPbPage((p) => Math.max(0, p - 1))} style={{ border: "1px solid var(--hub-border)", borderRadius: "var(--r-nested)", background: "var(--hub-card)", padding: "4px 10px", fontSize: 12.5, cursor: clampedPbPage === 0 ? "default" : "pointer", opacity: clampedPbPage === 0 ? 0.4 : 1 }}>Prev</button>
+                      <button type="button" className="pager-b" disabled={clampedPbPage >= pbTotalPages - 1} onClick={() => setPbPage((p) => Math.min(pbTotalPages - 1, p + 1))} style={{ border: "1px solid var(--hub-border)", borderRadius: "var(--r-nested)", background: "var(--hub-card)", padding: "4px 10px", fontSize: 12.5, cursor: clampedPbPage >= pbTotalPages - 1 ? "default" : "pointer", opacity: clampedPbPage >= pbTotalPages - 1 ? 0.4 : 1 }}>Next</button>
+                    </>
+                  )}
+                </div>
+              )}
+            </>
           ) : (
             <p className="miss" style={{ margin: 0 }}>No personal bests recorded yet. As exercises are logged, the best values appear here.</p>
           )}
@@ -1972,6 +2031,20 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
       {loadRows.length > 0 && (
         <div className="fcard acc-teal">
           <div className="fcard-h">Load progression</div>
+          {loadRows.length > 10 && (
+            <div style={{ padding: "10px 16px", borderBottom: "1px solid var(--hub-border)" }}>
+              <div className="relative">
+                <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                <input
+                  type="search"
+                  placeholder="Search exercises..."
+                  value={loadSearch}
+                  onChange={(e) => { setLoadSearch(e.target.value); setLoadPage(0); }}
+                  className="w-full h-8 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] pl-9 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground font-[inherit] outline-none hover:border-[var(--hub-field-border-hover)] focus:outline-none focus:border-[var(--color-rose)] focus:ring-[3px] focus:ring-[rgba(193,131,159,0.3)]"
+                />
+              </div>
+            </div>
+          )}
           <div className="fcard-b" style={{ padding: 0 }}>
             <div className="ptab-wrap">
               <table className="ptab">
@@ -1985,25 +2058,40 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
                   </tr>
                 </thead>
                 <tbody>
-                  {loadRows.map((row, i) => (
+                  {visibleLoadRows.map((row: any, i: number) => (
                     <tr key={i}>
-                      <td>{row!.name}</td>
-                      <td className="n">{row!.lastValue}</td>
+                      <td>{row.name}</td>
+                      <td className="n">{row.lastValue}</td>
                       <td className="n">
-                        {row!.bestValue}
-                        {row!.isBest && <span className="pb ml-1.5">PB</span>}
+                        {row.bestValue}
+                        {row.isBest && <span className="pb ml-1.5">PB</span>}
                       </td>
                       <td>
-                        <span className={`trend ${row!.trendDir}`}>
-                          {row!.trendDir === "up" ? "\u2191" : row!.trendDir === "down" ? "\u2193" : "\u2192"}
+                        <span className={`trend ${row.trendDir}`}>
+                          {row.trendDir === "up" ? "\u2191" : row.trendDir === "down" ? "\u2193" : "\u2192"}
                         </span>
                       </td>
-                      <td className="n w">{row!.lastDate}</td>
+                      <td className="n w">{row.lastDate}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+            {(loadSearch || loadTotalPages > 1) && (
+              <div className="pager">
+                <span className="pager-i">
+                  {loadSearch
+                    ? `${filteredLoadRows.length} of ${loadRows.length}`
+                    : `${clampedLoadPage * LOAD_PAGE_SIZE + 1}–${Math.min((clampedLoadPage + 1) * LOAD_PAGE_SIZE, filteredLoadRows.length)} of ${filteredLoadRows.length}`}
+                </span>
+                {loadTotalPages > 1 && (
+                  <>
+                    <button type="button" className="pager-b" disabled={clampedLoadPage === 0} onClick={() => setLoadPage((p) => Math.max(0, p - 1))} style={{ border: "1px solid var(--hub-border)", borderRadius: "var(--r-nested)", background: "var(--hub-card)", padding: "4px 10px", fontSize: 12.5, cursor: clampedLoadPage === 0 ? "default" : "pointer", opacity: clampedLoadPage === 0 ? 0.4 : 1 }}>Prev</button>
+                    <button type="button" className="pager-b" disabled={clampedLoadPage >= loadTotalPages - 1} onClick={() => setLoadPage((p) => Math.min(loadTotalPages - 1, p + 1))} style={{ border: "1px solid var(--hub-border)", borderRadius: "var(--r-nested)", background: "var(--hub-card)", padding: "4px 10px", fontSize: 12.5, cursor: clampedLoadPage >= loadTotalPages - 1 ? "default" : "pointer", opacity: clampedLoadPage >= loadTotalPages - 1 ? 0.4 : 1 }}>Next</button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
