@@ -19,6 +19,8 @@ export interface TodayEntry {
   completedAt: string | null;
   sessionLogCompletedAt: string | null;
   sessionLogStartedAt: string | null;
+  startedAt: string | null;
+  lapseFlaggedAt: string | null;
   focusLabel: string;
   displayName: string;
 }
@@ -29,7 +31,7 @@ export default async function TodayPage() {
 
   const { data: sessionRows } = await supabase
     .from("sessions")
-    .select("id, block_id, session_number, archetype, data, scheduled_at, cancelled_at, status, completed_at")
+    .select("id, block_id, session_number, archetype, data, scheduled_at, cancelled_at, status, completed_at, started_at, lapse_flagged_at")
     .not("scheduled_at", "is", null)
     .is("cancelled_at", null)
     .is("parent_session_id", null)
@@ -44,6 +46,8 @@ export default async function TodayPage() {
     scheduled_at: string | null;
     status: string | null;
     completed_at: string | null;
+    started_at: string | null;
+    lapse_flagged_at: string | null;
   }> = sessionRows ?? [];
 
   const blockIds = [...new Set(sessions.map((s) => s.block_id).filter(Boolean))];
@@ -82,6 +86,8 @@ export default async function TodayPage() {
         completedAt: s.completed_at,
         sessionLogCompletedAt: sessionLog?.completed_at ?? null,
         sessionLogStartedAt: sessionLog?.started_at ?? null,
+        startedAt: s.started_at ?? null,
+        lapseFlaggedAt: s.lapse_flagged_at ?? null,
         focusLabel: s.data?.focus_label ?? "",
         displayName: sessionWorkoutName(s, `Session ${s.session_number}`),
       };
@@ -98,13 +104,17 @@ export default async function TodayPage() {
   })) as unknown as Task[];
 
 
-  // BUG-EF-135 — find the first in-progress session so the Today screen can
-  // show a "Resume session" banner. Primary signal: status column ('in_progress').
-  // Legacy fallback: old rows where session_log.started_at was set but not completed.
+  // BUG-EF-135 / BUG-EF-173 — find the first in-progress session so the Today screen can
+  // show a "Resume session" banner. Keys off the started_at column (the source of truth),
+  // never the JSONB session_log. Also excludes past and lapse-flagged sessions.
+  const todayISO = new Date().toISOString().slice(0, 10);
   const inProgressEntry = entries.find(
     (e) =>
-      e.status === "in_progress" ||
-      (e.sessionLogStartedAt && !e.sessionLogCompletedAt && !e.completedAt),
+      (e.status === "in_progress" || e.startedAt) &&
+      !e.completedAt &&
+      !e.sessionLogCompletedAt &&
+      !e.lapseFlaggedAt &&
+      e.scheduledAt >= todayISO,
   ) ?? null;
 
   return <TodayScreen entries={entries} tasks={tasks} currentUserName={user?.name ?? null} resumeSession={inProgressEntry} />;

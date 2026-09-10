@@ -360,8 +360,8 @@ export function ClientModeView({
               <div className={`pot-hero${potView.purchasedIsEstimate ? "" : (potView.remaining ?? 99) <= 2 ? " low" : ""}`}>
                 {potView.purchasedIsEstimate ? (
                   <>
-                    <span className="pot-hero-fig">{potView.used}</span>
-                    <span className="pot-hero-label">sessions used</span>
+                    <span className="pot-hero-fig" style={{ fontSize: 42 }}>&infin;</span>
+                    <span className="pot-hero-label">left</span>
                   </>
                 ) : (
                   <>
@@ -391,48 +391,21 @@ export function ClientModeView({
 
           {/* ── §NEXT WORKOUT — what she is doing next ── */}
           {(() => {
-            /* When pool workouts are empty but upcoming sessions have content,
-               derive the next workout from session rows (matching desktop). */
-            if (!nextPool) {
-              const nowMs = Date.now();
-              const nextWithContent = calendarSessions
-                .filter((s) => {
-                  if (s.status !== "scheduled") return false;
-                  if (s.name === "No workout assigned yet") return false;
-                  const end = new Date(s.scheduledAt).getTime() + s.durationMinutes * 60_000;
-                  return nowMs <= end;
-                })
-                .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())[0];
-              if (nextWithContent) {
-                const d = new Date(nextWithContent.scheduledAt);
-                return (
-                  <div className="panel">
-                    <div className="panel-h">
-                      <span className="panel-h-ic teal">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                      </span>
-                      <span className="panel-h-t">Next workout</span>
-                    </div>
-                    <div className="panel-b">
-                      <div className="nw">
-                        <span className="nw-m">
-                          <span className="nw-t">{nextWithContent.name}</span>
-                          <span className="nw-s">
-                            {d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}{d.toDateString() === new Date().toDateString() ? " today" : ""}
-                          </span>
-                        </span>
-                      </div>
-                      <div className="actbar-m">
-                        <Link className="btn btn-primary" href={`/hub/m/train/${nextWithContent.id}`}>
-                          See workout
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-            }
-            if (nextPool) {
+            /* BUG-EF-180: "Next workout" always means next-by-booking — the first
+               upcoming booked session with a workout applied. Only fall back to
+               pool slot position if no booking-based next exists. */
+            const nowMs = Date.now();
+            const nextByBooking = calendarSessions
+              .filter((s) => {
+                if (s.status !== "scheduled") return false;
+                if (s.name === "No workout assigned yet") return false;
+                const end = new Date(s.scheduledAt).getTime() + s.durationMinutes * 60_000;
+                return nowMs <= end;
+              })
+              .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())[0];
+
+            if (nextByBooking) {
+              const d = new Date(nextByBooking.scheduledAt);
               return (
                 <div className="panel">
                   <div className="panel-h">
@@ -440,6 +413,35 @@ export function ClientModeView({
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                     </span>
                     <span className="panel-h-t">Next workout</span>
+                  </div>
+                  <div className="panel-b">
+                    <div className="nw">
+                      <span className="nw-m">
+                        <span className="nw-t">{nextByBooking.name}</span>
+                        <span className="nw-s">
+                          {d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}{d.toDateString() === new Date().toDateString() ? " today" : ""}
+                        </span>
+                      </span>
+                    </div>
+                    <div className="actbar-m">
+                      <Link className="btn btn-primary" href={`/hub/m/train/${nextByBooking.id}`}>
+                        See workout
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            /* Fallback: pool slot position (no upcoming bookings with workouts) */
+            if (nextPool) {
+              return (
+                <div className="panel">
+                  <div className="panel-h">
+                    <span className="panel-h-ic teal">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
+                    <span className="panel-h-t">Next in sequence</span>
                   </div>
                   <div className="panel-b">
                     <div className="nw">
@@ -475,6 +477,13 @@ export function ClientModeView({
             if (queued.length === 0 && !nextPool) {
               /* ── §NOPLAN — programme-aware empty state ── */
               const hasProgramme = !!programmeQueue;
+              // BUG-EF-178: a programme with any logged session is started.
+              // nextSessionIndex is completedCount + 1; null means exhausted.
+              const programmeIsStarted = hasProgramme && (
+                (programmeQueue!.nextSessionIndex !== null && programmeQueue!.nextSessionIndex > 1) ||
+                programmeQueue!.nextSessionIndex === null
+              );
+              const programmeSlotCount = programmeQueue?.totalSessions ?? totalQueued;
               const firstUpcomingDate = calendarSessions
                 .filter((s) => s.status === "scheduled" && new Date(s.scheduledAt).getTime() >= Date.now())
                 .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())[0]?.scheduledAt;
@@ -491,10 +500,15 @@ export function ClientModeView({
                   </div>
                   <div className="panel-b">
                     <div className="noplan-m">
-                      {hasProgramme ? (
+                      {hasProgramme && !programmeIsStarted ? (
                         <>
                           <p className="noplan-m-t">Programme not started{startDate ? ` — begins ${startDate}` : ""}</p>
                           <p className="noplan-m-s">{firstName}&apos;s programme is set up but no sessions have content yet.</p>
+                        </>
+                      ) : hasProgramme ? (
+                        <>
+                          <p className="noplan-m-t">{programmeQueue!.programName}</p>
+                          <p className="noplan-m-s">All workouts are assigned — check the calendar for upcoming sessions.</p>
                         </>
                       ) : (
                         <>
@@ -508,7 +522,7 @@ export function ClientModeView({
                     </div>
                     {(potView.purchasedIsEstimate || (potView.remaining ?? 0) > 0) && (
                       <div className="mrecon-m">
-                        <span><b>{totalQueued} in the programme · {potView.purchasedIsEstimate ? "Ongoing" : `${potView.remaining ?? "?"} session${potView.remaining !== 1 ? "s" : ""} left`}.</b></span>
+                        <span><b>{programmeSlotCount} in the programme · {potView.purchasedIsEstimate ? "Ongoing" : `${potView.remaining ?? "?"} session${potView.remaining !== 1 ? "s" : ""} left`}.</b></span>
                       </div>
                     )}
                   </div>
