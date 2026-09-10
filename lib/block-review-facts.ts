@@ -68,9 +68,14 @@ export function computeAttendanceFacts(blockSessions: DBSession[]): AttendanceFa
   const completed = booked.filter((s) => isCompleted(s));
 
   // BUG-EF-152 — split by time: past sessions are the denominator for
-  // "X of Y booked"; future sessions reported separately.
-  const pastBooked = booked.filter((s) => s.scheduled_at && new Date(s.scheduled_at) <= now);
-  const futureBooked = booked.filter((s) => s.scheduled_at && new Date(s.scheduled_at) > now);
+  // "X of Y booked"; future sessions reported separately. A derived-completed
+  // session counts as occurred even when its scheduled_at is NULL (blocks are
+  // generated undated and completed in place), so a fully-delivered block
+  // with no dates never reads back as "Not started".
+  const hasOccurred = (s: DBSession) =>
+    isCompleted(s) || (s.scheduled_at && new Date(s.scheduled_at) <= now);
+  const pastBooked = booked.filter(hasOccurred);
+  const futureBooked = booked.filter((s) => !hasOccurred(s));
 
   const dates = mainSessions
     .map((s) => s.scheduled_at)
