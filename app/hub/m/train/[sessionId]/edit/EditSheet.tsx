@@ -1599,8 +1599,7 @@ function TemplatePack({
         <span className="pack-b">
           <span className="pack-t">{tmpl.name}</span>
           <span className="pack-s">
-            {tmpl.archetypes.filter(Boolean).join(", ")}
-            {!tmpl.archetypes.length ? ` · ${items.length} exercises` : ` · ${items.length} exercises`}
+            {[tmpl.archetypes.filter(Boolean).join(", "), `${items.length} exercises`].filter(Boolean).join(" · ")}
           </span>
         </span>
         <span className="pack-chev">{ICO.chev}</span>
