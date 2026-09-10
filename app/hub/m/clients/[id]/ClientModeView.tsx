@@ -475,6 +475,13 @@ export function ClientModeView({
             if (queued.length === 0 && !nextPool) {
               /* ── §NOPLAN — programme-aware empty state ── */
               const hasProgramme = !!programmeQueue;
+              // BUG-EF-178: a programme with any logged session is started.
+              // nextSessionIndex is completedCount + 1; null means exhausted.
+              const programmeIsStarted = hasProgramme && (
+                (programmeQueue!.nextSessionIndex !== null && programmeQueue!.nextSessionIndex > 1) ||
+                programmeQueue!.nextSessionIndex === null
+              );
+              const programmeSlotCount = programmeQueue?.totalSessions ?? totalQueued;
               const firstUpcomingDate = calendarSessions
                 .filter((s) => s.status === "scheduled" && new Date(s.scheduledAt).getTime() >= Date.now())
                 .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())[0]?.scheduledAt;
@@ -491,10 +498,15 @@ export function ClientModeView({
                   </div>
                   <div className="panel-b">
                     <div className="noplan-m">
-                      {hasProgramme ? (
+                      {hasProgramme && !programmeIsStarted ? (
                         <>
                           <p className="noplan-m-t">Programme not started{startDate ? ` — begins ${startDate}` : ""}</p>
                           <p className="noplan-m-s">{firstName}&apos;s programme is set up but no sessions have content yet.</p>
+                        </>
+                      ) : hasProgramme ? (
+                        <>
+                          <p className="noplan-m-t">{programmeQueue!.programName}</p>
+                          <p className="noplan-m-s">All workouts are assigned — check the calendar for upcoming sessions.</p>
                         </>
                       ) : (
                         <>
@@ -508,7 +520,7 @@ export function ClientModeView({
                     </div>
                     {(potView.purchasedIsEstimate || (potView.remaining ?? 0) > 0) && (
                       <div className="mrecon-m">
-                        <span><b>{totalQueued} in the programme · {potView.purchasedIsEstimate ? "Ongoing" : `${potView.remaining ?? "?"} session${potView.remaining !== 1 ? "s" : ""} left`}.</b></span>
+                        <span><b>{programmeSlotCount} in the programme · {potView.purchasedIsEstimate ? "Ongoing" : `${potView.remaining ?? "?"} session${potView.remaining !== 1 ? "s" : ""} left`}.</b></span>
                       </div>
                     )}
                   </div>
