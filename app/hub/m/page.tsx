@@ -19,6 +19,8 @@ export interface TodayEntry {
   completedAt: string | null;
   sessionLogCompletedAt: string | null;
   sessionLogStartedAt: string | null;
+  startedAt: string | null;
+  lapseFlaggedAt: string | null;
   focusLabel: string;
   displayName: string;
 }
@@ -84,6 +86,8 @@ export default async function TodayPage() {
         completedAt: s.completed_at,
         sessionLogCompletedAt: sessionLog?.completed_at ?? null,
         sessionLogStartedAt: sessionLog?.started_at ?? null,
+        startedAt: s.started_at ?? null,
+        lapseFlaggedAt: s.lapse_flagged_at ?? null,
         focusLabel: s.data?.focus_label ?? "",
         displayName: sessionWorkoutName(s, `Session ${s.session_number}`),
       };
@@ -106,10 +110,10 @@ export default async function TodayPage() {
   const todayISO = new Date().toISOString().slice(0, 10);
   const inProgressEntry = entries.find(
     (e) =>
-      (e.status === "in_progress" || (e as any).started_at) &&
+      (e.status === "in_progress" || e.startedAt) &&
       !e.completedAt &&
       !e.sessionLogCompletedAt &&
-      !(e as any).lapse_flagged_at &&
+      !e.lapseFlaggedAt &&
       e.scheduledAt >= todayISO,
   ) ?? null;
 
