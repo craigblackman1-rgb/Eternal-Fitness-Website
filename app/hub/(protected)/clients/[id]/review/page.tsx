@@ -127,6 +127,14 @@ export default async function ReviewPage({ params }: { params: { id: string } })
     return deriveSessionStatus(s) === "completed";
   });
 
+  // BUG-EF-151 — a session derives as completed from three sources (status
+  // column, completed_at column, data.session_log.completed_at). The window
+  // below must never read only the completed_at column, or a real delivery
+  // whose column lags the JSON record is silently dropped and the review
+  // reports "0 sessions" while check-ins exist. Normalise to one instant.
+  const completedAtOf = (s: any): string | null =>
+    s.completed_at ?? (s.data as any)?.session_log?.completed_at ?? null;
+
   const now = new Date();
   const FORTY_TWO_DAYS_MS = 42 * 24 * 60 * 60 * 1000;
   const previousReview = (reviews ?? [])[0] ?? null;
@@ -139,7 +147,10 @@ export default async function ReviewPage({ params }: { params: { id: string } })
   } else {
     const defaultStart = new Date(now.getTime() - FORTY_TWO_DAYS_MS);
     const hasInDefault = allCompletedSessions.some(
-      (s) => s.completed_at && new Date(s.completed_at) >= defaultStart,
+      (s) => {
+        const at = completedAtOf(s);
+        return at && new Date(at) >= defaultStart;
+      },
     );
     if (hasInDefault) {
       windowStart = defaultStart;
@@ -147,11 +158,12 @@ export default async function ReviewPage({ params }: { params: { id: string } })
     } else {
       // Find the most recent 42-day span containing the latest completed session
       const sorted = [...allCompletedSessions].sort(
-        (a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime(),
+        (a, b) => new Date(completedAtOf(b)!).getTime() - new Date(completedAtOf(a)!).getTime(),
       );
       const latest = sorted[0];
-      if (latest?.completed_at) {
-        const latestDate = new Date(latest.completed_at);
+      const latestAt = latest ? completedAtOf(latest) : null;
+      if (latestAt) {
+        const latestDate = new Date(latestAt);
         windowStart = new Date(latestDate.getTime() - FORTY_TWO_DAYS_MS);
       } else {
         windowStart = defaultStart;
@@ -161,8 +173,9 @@ export default async function ReviewPage({ params }: { params: { id: string } })
   }
 
   const reviewWindowSessions = allCompletedSessions.filter((s) => {
-    if (!s.completed_at) return false;
-    return new Date(s.completed_at) >= windowStart;
+    const at = completedAtOf(s);
+    if (!at) return false;
+    return new Date(at) >= windowStart;
   });
 
   // PBs scoped to review window, across all blocks
@@ -190,9 +203,10 @@ export default async function ReviewPage({ params }: { params: { id: string } })
     windowLabel = `Last 6 weeks — ${fmtDate(windowStart)} – today`;
   } else {
     const latestCompleted = [...reviewWindowSessions]
-      .filter((s) => s.completed_at)
-      .sort((a, b) => new Date(b.completed_at!).getTime() - new Date(a.completed_at!).getTime())[0];
-    const endLabel = latestCompleted?.completed_at ? fmtDate(new Date(latestCompleted.completed_at)) : "today";
+      .filter((s) => completedAtOf(s))
+      .sort((a, b) => new Date(completedAtOf(b)!).getTime() - new Date(completedAtOf(a)!).getTime())[0];
+    const latestAt = latestCompleted ? completedAtOf(latestCompleted) : null;
+    const endLabel = latestAt ? fmtDate(new Date(latestAt)) : "today";
     windowLabel = `Last training period, ${fmtDate(windowStart)} – ${endLabel}`;
   }
 
@@ -241,8 +255,8 @@ export default async function ReviewPage({ params }: { params: { id: string } })
   // Recent sessions: 5 most recent completed in window, with set-log counts
   const recentSessionIds = reviewWindowSessions
     .sort((a, b) => {
-      const aTime = a.completed_at ? new Date(a.completed_at).getTime() : 0;
-      const bTime = b.completed_at ? new Date(b.completed_at).getTime() : 0;
+      const aTime = completedAtOf(a) ? new Date(completedAtOf(a)!).getTime() : 0;
+      const bTime = completedAtOf(b) ? new Date(completedAtOf(b)!).getTime() : 0;
       return bTime - aTime;
     })
     .slice(0, 5)
@@ -263,14 +277,14 @@ export default async function ReviewPage({ params }: { params: { id: string } })
   const recentSessionsData = reviewWindowSessions
     .filter((s) => recentSessionIds.includes(s.id))
     .sort((a, b) => {
-      const aTime = a.completed_at ? new Date(a.completed_at).getTime() : 0;
-      const bTime = b.completed_at ? new Date(b.completed_at).getTime() : 0;
+      const aTime = completedAtOf(a) ? new Date(completedAtOf(a)!).getTime() : 0;
+      const bTime = completedAtOf(b) ? new Date(completedAtOf(b)!).getTime() : 0;
       return bTime - aTime;
     })
     .map((s) => ({
       id: s.id,
       name: sessionWorkoutName(s.data),
-      completed_at: s.completed_at,
+      completed_at: completedAtOf(s),
       setLogCount: setLogCountBySession.get(s.id) ?? 0,
     }));
 
