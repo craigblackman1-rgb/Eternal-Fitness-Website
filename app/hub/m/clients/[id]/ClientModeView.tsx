@@ -391,48 +391,21 @@ export function ClientModeView({
 
           {/* ── §NEXT WORKOUT — what she is doing next ── */}
           {(() => {
-            /* When pool workouts are empty but upcoming sessions have content,
-               derive the next workout from session rows (matching desktop). */
-            if (!nextPool) {
-              const nowMs = Date.now();
-              const nextWithContent = calendarSessions
-                .filter((s) => {
-                  if (s.status !== "scheduled") return false;
-                  if (s.name === "No workout assigned yet") return false;
-                  const end = new Date(s.scheduledAt).getTime() + s.durationMinutes * 60_000;
-                  return nowMs <= end;
-                })
-                .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())[0];
-              if (nextWithContent) {
-                const d = new Date(nextWithContent.scheduledAt);
-                return (
-                  <div className="panel">
-                    <div className="panel-h">
-                      <span className="panel-h-ic teal">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                      </span>
-                      <span className="panel-h-t">Next workout</span>
-                    </div>
-                    <div className="panel-b">
-                      <div className="nw">
-                        <span className="nw-m">
-                          <span className="nw-t">{nextWithContent.name}</span>
-                          <span className="nw-s">
-                            {d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}{d.toDateString() === new Date().toDateString() ? " today" : ""}
-                          </span>
-                        </span>
-                      </div>
-                      <div className="actbar-m">
-                        <Link className="btn btn-primary" href={`/hub/m/train/${nextWithContent.id}`}>
-                          See workout
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-            }
-            if (nextPool) {
+            /* BUG-EF-180: "Next workout" always means next-by-booking — the first
+               upcoming booked session with a workout applied. Only fall back to
+               pool slot position if no booking-based next exists. */
+            const nowMs = Date.now();
+            const nextByBooking = calendarSessions
+              .filter((s) => {
+                if (s.status !== "scheduled") return false;
+                if (s.name === "No workout assigned yet") return false;
+                const end = new Date(s.scheduledAt).getTime() + s.durationMinutes * 60_000;
+                return nowMs <= end;
+              })
+              .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())[0];
+
+            if (nextByBooking) {
+              const d = new Date(nextByBooking.scheduledAt);
               return (
                 <div className="panel">
                   <div className="panel-h">
@@ -440,6 +413,35 @@ export function ClientModeView({
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                     </span>
                     <span className="panel-h-t">Next workout</span>
+                  </div>
+                  <div className="panel-b">
+                    <div className="nw">
+                      <span className="nw-m">
+                        <span className="nw-t">{nextByBooking.name}</span>
+                        <span className="nw-s">
+                          {d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}{d.toDateString() === new Date().toDateString() ? " today" : ""}
+                        </span>
+                      </span>
+                    </div>
+                    <div className="actbar-m">
+                      <Link className="btn btn-primary" href={`/hub/m/train/${nextByBooking.id}`}>
+                        See workout
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            /* Fallback: pool slot position (no upcoming bookings with workouts) */
+            if (nextPool) {
+              return (
+                <div className="panel">
+                  <div className="panel-h">
+                    <span className="panel-h-ic teal">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </span>
+                    <span className="panel-h-t">Next in sequence</span>
                   </div>
                   <div className="panel-b">
                     <div className="nw">

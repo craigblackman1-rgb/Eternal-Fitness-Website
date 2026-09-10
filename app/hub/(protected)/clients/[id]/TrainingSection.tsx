@@ -138,7 +138,14 @@ export function TrainingSection({
 
   const totalWithWorkouts = sessionsWithWorkouts.length;
   const completedCount = sessionsWithWorkouts.filter((s) => !!s.completed_at).length;
-  const nextSessionWithWorkout = sessionsWithWorkouts.find((s) => !s.completed_at);
+  // BUG-EF-180: "Next up" must be booking-based (first upcoming booking with a workout),
+  // not slot-position-based. For a trainer walking in, "next" means the next booked session.
+  const nextSessionWithWorkout = upcomingBookings.find(
+    (s) =>
+      !isOutlookPlaceholder(s) &&
+      !sessionHasNoExercises(s.data) &&
+      !isTrainerizeImported(s),
+  );
   const isProgrammeComplete = totalWithWorkouts > 0 && completedCount >= totalWithWorkouts;
 
   // ── Completed sessions count ──
