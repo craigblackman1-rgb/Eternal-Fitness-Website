@@ -5,6 +5,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { DrawerShell, useDrawerManager } from "./DrawerManager";
 import { sessionWorkoutName, isOutlookPlaceholder, isTrainerizeImported } from "@/lib/session-display";
+import { deriveSessionStatus } from "@/lib/session-status";
 import { UpdateIntervalControl } from "./UpdateIntervalControl";
 import { ClientTasksPanel, type ClientTasksPanelHandle } from "./ClientTasksPanel";
 import { PortalAccountCard } from "./PortalAccountCard";
@@ -1788,11 +1789,17 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
   const sortedBlocks = [...blocks].sort((a, b) => b.block_number - a.block_number);
 
   // BUG-EF-152 — route the review button to the most recent block that HAS
-  // past-dated sessions, not blindly sortedBlocks[0]. If only a future block
-  // exists, link to it (the review screen will say "this block hasn't started yet").
+  // past activity, not blindly sortedBlocks[0]. Activity = a derived-completed
+  // session (status completed / completed_at / data.session_log.completed_at —
+  // a completed-undated session is still a delivered session) or a past-dated
+  // booking. If only a future block exists, link to it (the review screen
+  // will say "this block hasn't started yet").
   const now = new Date();
   const reviewableBlock = sortedBlocks.find((block) =>
-    sessions.some((s: any) => s.block_id === block.id && s.scheduled_at && new Date(s.scheduled_at) <= now && !s.parent_session_id)
+    sessions.some((s: any) =>
+      !s.parent_session_id &&
+      (deriveSessionStatus(s) === "completed" || (s.scheduled_at && new Date(s.scheduled_at) <= now))
+    )
   ) ?? sortedBlocks[0] ?? null;
 
   // PB entry form state
