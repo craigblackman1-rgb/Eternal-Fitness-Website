@@ -12,12 +12,9 @@ import { getPool } from "@/lib/pg-client";
  */
 
 function deriveCloneName(sourceName: string, targetFirstName: string): string {
-  // "X — dates — title" or "X — title" → replace leading name segment
-  const dash = sourceName.indexOf("—");
-  if (dash !== -1) {
-    return `${targetFirstName} —${sourceName.slice(dash + 1)}`;
-  }
-  return `${targetFirstName} — ${sourceName}`;
+  // Strip any leading "Name — ", "Name - ", or "Name: " so we don't double-prefix.
+  const stripped = sourceName.replace(/^[^\s—\-:]+\s*[—\-:]\s*/, "");
+  return `${targetFirstName} — ${stripped}`;
 }
 
 export async function POST(

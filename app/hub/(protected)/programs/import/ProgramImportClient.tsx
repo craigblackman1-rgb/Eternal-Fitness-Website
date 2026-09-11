@@ -178,7 +178,12 @@ export function ProgramImportClient({ clientNumber, clientName, from }: ProgramI
         }
         if (result) {
           setParsed(result);
-          setProgramName(result.name || "");
+          let name = result.name || "";
+          if (clientName && name) {
+            const re = new RegExp(`^${clientName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*[-—:]\\s*`, "i");
+            name = name.replace(re, "").trim();
+          }
+          setProgramName(name);
         } else {
           throw new Error("Parse returned nothing — try again");
         }
