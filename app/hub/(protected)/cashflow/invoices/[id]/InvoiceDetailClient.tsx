@@ -76,6 +76,12 @@ export function InvoiceDetailClient({ invoice, lineItems, deliveryHistory }: Inv
       router.refresh();
     });
 
+  const markPaid = () =>
+    act("paid", () => fetch(`/api/invoices/${invoice.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "paid" }) }), () => {
+      toast.success("Invoice marked paid");
+      router.refresh();
+    });
+
   const voidInvoice = () =>
     act("void", () => fetch(`/api/invoices/${invoice.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "void" }) }), () => {
       toast.success("Invoice voided");
@@ -170,6 +176,35 @@ export function InvoiceDetailClient({ invoice, lineItems, deliveryHistory }: Inv
             ) : null}
             {!isDraft && (invoice.status === "sent" || invoice.status === "overdue") && (
               <>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      className="rounded-lg gap-1.5 bg-rose text-white hover:bg-rose/90"
+                      disabled={busy !== null}
+                      aria-label="Mark invoice as paid"
+                    >
+                      {busy === "paid" ? "…" : "Mark paid"}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Mark this invoice as paid?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Use this when the client has paid outside the bank feed (cash, or a transfer you've already seen). Bank reconciliation will not try to match it again.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={markPaid}
+                        disabled={busy !== null}
+                        className="bg-rose text-white hover:bg-rose/90"
+                      >
+                        {busy === "paid" ? "Saving…" : "Mark paid"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
                 {invoice.status === "sent" && !invoice.client_documents?.emailed && (
                   <Button
                     variant="outline"
