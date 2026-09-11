@@ -81,6 +81,7 @@ export function ClientRecordHeader({
   onRenewal,
   blockNumber,
   blockExpiryDate,
+  programmeLine,
 }: {
   client: DBClient;
   status: string | null;
@@ -92,6 +93,7 @@ export function ClientRecordHeader({
   onRenewal?: () => void;
   blockNumber?: number | null;
   blockExpiryDate?: string | null;
+  programmeLine: string;
 }) {
   const [showBookDialog, setShowBookDialog] = useState(false);
   const initials = client.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
@@ -229,7 +231,7 @@ export function ClientRecordHeader({
           clientNumber={client.client_number!}
           clientName={client.name}
           potLine={`${sessionsRemaining ?? 0} of ${sessionsPurchased ?? 0} sessions left${blockNumber ? ` · Block ${blockNumber}` : ""}${blockExpiryDate ? ` · expires ${new Date(blockExpiryDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : ""}`}
-          programmeLine="Programme assigns the workout on the day"
+          programmeLine={programmeLine}
           onClose={() => setShowBookDialog(false)}
         />
       )}

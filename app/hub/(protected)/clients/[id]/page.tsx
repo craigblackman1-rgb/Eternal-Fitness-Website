@@ -594,6 +594,23 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
     ? await getClientProgramState(client.id)
     : null;
 
+  // ── CR-EF-199: Programme line for BookSessionsDialog ──
+  let programmeLine: string | null = null;
+  if (client.active_program_id) {
+    const { data: program } = await supabase
+      .from("programs")
+      .select("id, name, weeks")
+      .eq("id", client.active_program_id)
+      .maybeSingle();
+    if (program) {
+      const { count: slotCount } = await supabase
+        .from("program_slots")
+        .select("id", { count: "exact", head: true })
+        .eq("program_id", program.id);
+      programmeLine = `Programme: ${program.name} \u00b7 ${slotCount ?? 0} workouts, ${program.weeks} weeks`;
+    }
+  }
+
   // Flagged sessions: completed sessions with zero set_logs rows.
   // setLogs is already loaded above (all set_logs for this client's sessions).
   // Build a map of session_id → set_log count, then flag any completed session
@@ -678,6 +695,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       programState={programState}
       flaggedSessionIds={flaggedSessionIds}
       activeProgramId={client.active_program_id ?? null}
+      programmeLine={programmeLine ?? "No programme applied yet \u2014 sessions will be booked empty"}
       sessionsPurchased={client.sessions_purchased ?? null}
       updateInterval={(client.update_interval as import("@/lib/updates-due").UpdateInterval) ?? null}
       updateIntervalWeeks={(client as any).update_interval_weeks ?? null}

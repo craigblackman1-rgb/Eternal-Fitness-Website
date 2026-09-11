@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { syncSessionCalendarEvent } from "@/lib/calendar-sync";
 import { getAvailabilityOverrides } from "@/lib/availability";
-import { sessionDurationMinutes } from "@/lib/scheduling";
 import { londonDayKey } from "@/lib/schedule-dates";
 
 /**
@@ -139,15 +138,25 @@ export async function POST(request: Request, { params }: { params: { id: string 
   let nextSessionNumber = slotRows.reduce((max, s) => Math.max(max, s.session_number), 0) + 1;
 
   // ── Clash check: ALL non-cancelled sessions across all clients ─────
+  // sessions has no client_id — resolve via block_id → blocks.client_id.
+  // Restrict to sessions within 1 day before the requested range to avoid
+  // pulling every session ever.
+  const clashRangeStart = body.mode === "single" && body.single
+    ? new Date(new Date(body.single.date).getTime() - 86_400_000).toISOString()
+    : body.mode === "pattern" && body.pattern
+      ? new Date(new Date(body.pattern.start_date).getTime() - 86_400_000).toISOString()
+      : new Date(Date.now() - 86_400_000).toISOString();
+
   const { data: allSessions } = await supabase
     .from("sessions")
-    .select("id, scheduled_at, cancelled_at, block_id, client_id")
+    .select("id, scheduled_at, cancelled_at, block_id, blocks(client_id)")
     .not("scheduled_at", "is", null)
     .is("cancelled_at", null)
-    .is("parent_session_id", null);
+    .is("parent_session_id", null)
+    .gte("scheduled_at", clashRangeStart);
 
   // Resolve client names for clash messages
-  const allClientIds = [...new Set((allSessions ?? []).map((s: { client_id: string }) => s.client_id).filter(Boolean))];
+  const allClientIds = [...new Set((allSessions ?? []).map((s: any) => s.blocks?.client_id).filter(Boolean))];
   const { data: nameRows } = allClientIds.length
     ? await supabase.from("clients").select("id, name").in("id", allClientIds)
     : { data: [] };
@@ -169,12 +178,6 @@ export async function POST(request: Request, { params }: { params: { id: string 
     }
   }
 
-  // Map from block_id to client_id (for resolving names on clash)
-  const blockToClient = new Map<string, string>();
-  for (const s of allSessions ?? []) {
-    if (s.block_id && s.client_id) blockToClient.set(s.block_id, s.client_id);
-  }
-
   function checkClash(dateStr: string, timeStr: string): SkippedDate | null {
     const [h, m] = timeStr.split(":").map(Number);
     const startMs = new Date(dateStr + "T" + timeStr + ":00").getTime();
@@ -189,14 +192,14 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
       if (occupiedWindows.has(key)) {
         // Find which client/session occupies it
-        const conflict = (allSessions ?? []).find((s) => {
+        const conflict = (allSessions ?? []).find((s: any) => {
           if (!s.scheduled_at || s.cancelled_at) return false;
           const sd = new Date(s.scheduled_at);
           const ed = new Date(sd.getTime() + SESSION_LENGTH_MIN * 60_000);
           return t >= sd && t < ed;
         });
         if (conflict) {
-          const cid = blockToClient.get(conflict.block_id) ?? conflict.client_id;
+          const cid = conflict.blocks?.client_id ?? "unknown";
           const clientName = nameMap.get(cid) ?? "another client";
           return { date: dateStr, reason: `clashes with ${clientName}` };
         }
@@ -248,12 +251,11 @@ export async function POST(request: Request, { params }: { params: { id: string 
         sessions: clash ? [] : [{ scheduled_at: scheduledAt }],
         skipped: clash ? [clash] : [],
         total: clash ? 0 : 1,
-        over_pot: 0,
+        over_pot: 0, // single mode: 1 session can never exceed pot
       } satisfies BookResponse);
     }
 
     // Insert the session
-    const week = slotRows.reduce((max, s) => Math.max(max, 0), 0) + 1;
     const sessionData = {
       session_id: crypto.randomUUID(),
       block_id: activeBlock.id,
@@ -361,9 +363,10 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
   // ── Dry run ────────────────────────────────────────────────────────
   if (body.dry_run) {
-    const overPot = pat.until.kind === "pot" && candidates.length > (client.sessions_remaining ?? 0)
-      ? candidates.length - (client.sessions_remaining ?? 0)
-      : 0;
+    const available = client.sessions_remaining != null
+      ? client.sessions_remaining - futureScheduled.length
+      : Infinity;
+    const overPot = available === Infinity ? 0 : Math.max(0, candidates.length - available);
 
     return NextResponse.json({
       block_id: activeBlock.id,
@@ -385,14 +388,13 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
   for (const c of candidates) {
     const scheduledAt = new Date(`${c.date}T${c.time}:00`).toISOString();
-    const week = 1;
     const sessionData = {
       session_id: crypto.randomUUID(),
       block_id: activeBlock.id,
       client_id: client.id,
       session_number: sessionNum,
       archetype: null,
-      week,
+      week: 1,
       phase: null,
       focus_label: null,
       time_tier: "standard",
@@ -410,7 +412,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
         block_id: activeBlock.id,
         session_number: sessionNum,
         archetype: null,
-        week,
+        week: 1,
         phase: null,
         data: sessionData,
         scheduled_at: scheduledAt,
@@ -438,9 +440,10 @@ export async function POST(request: Request, { params }: { params: { id: string 
     }
   }
 
-  const overPot = pat.until.kind === "pot" && booked.length > (client.sessions_remaining ?? 0)
-    ? booked.length - (client.sessions_remaining ?? 0)
-    : 0;
+  const available = client.sessions_remaining != null
+    ? client.sessions_remaining - futureScheduled.length
+    : Infinity;
+  const overPot = available === Infinity ? 0 : Math.max(0, booked.length - available);
 
   return NextResponse.json({
     block_id: activeBlock.id,
