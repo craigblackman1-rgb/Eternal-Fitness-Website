@@ -12,7 +12,6 @@ import { IconArrowLeft, IconX } from "@/components/icons";
 import type { ParsedProgram, ParsedSlot, SlotData, ProgramSection, ProgramExercise } from "@/lib/programs/types";
 
 interface ProgramImportClientProps {
-  initialText?: string;
   clientNumber?: number;
   clientName?: string;
   from?: string;
@@ -99,7 +98,7 @@ function SectionPreview({ section, slotIndex }: { section: ProgramSection; slotI
   );
 }
 
-export function ProgramImportClient({ initialText, clientNumber, clientName, from }: ProgramImportClientProps) {
+export function ProgramImportClient({ clientNumber, clientName, from }: ProgramImportClientProps) {
   const router = useRouter();
   const [pastedText, setPastedText] = useState("");
   const [parsing, setParsing] = useState(false);

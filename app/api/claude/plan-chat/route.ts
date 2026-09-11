@@ -149,8 +149,8 @@ FORMATTING:
 Your replies render as markdown. Structure every plan with ## session headings, and present exercises
 as markdown tables with columns: Exercise | Sets | Reps | Tempo | Rest | Modification. Use bullet
 lists for rationale and flags, bold for key clinical cautions. Never return one unstructured block of prose.
-When a finished plan will be handed to the programme import, also list each exercise on its own line
-as "Exercise — sets x reps @ load, rest" beneath the table so the parser gets clean input.`;
+Whenever you present a finished plan (a full block or programme), also list each exercise on its own line
+as "Exercise — sets x reps @ load, rest" under a heading per session, beneath any table, so the programme import parser gets clean input.`;
 }
 
 export async function POST(request: Request) {
