@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { HubCard, HubCardHeader } from "@/components/hub";
 import { Badge } from "@/components/ui/badge";
@@ -188,6 +187,17 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
   const lastMessageIsAssistant = messages[messages.length - 1]?.role === "assistant";
   const paceLabel = paceMode.charAt(0).toUpperCase() + paceMode.slice(1);
 
+  function handOffToImport() {
+    const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
+    if (lastAssistant) {
+      sessionStorage.setItem(
+        `plan-agent-import-${clientNumber}`,
+        JSON.stringify({ text: lastAssistant.content, clientNumber, clientName, savedAt: Date.now() })
+      );
+      router.push(`/hub/programs/import?client=${clientNumber}&from=plan-agent`);
+    }
+  }
+
   return (
     <HubCard padded={false} className="overflow-hidden">
       <HubCardHeader
@@ -199,12 +209,12 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
         className="px-5 pt-5"
         action={
           hasConversation && lastMessageIsAssistant && !streaming ? (
-            <Link
-              href={`/hub/programs?client=${clientNumber}`}
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-rose hover:bg-rose/90 text-white h-9 px-3.5 text-sm font-semibold no-underline transition-colors"
+            <button
+              onClick={handOffToImport}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-rose hover:bg-rose/90 text-white h-9 px-3.5 text-sm font-semibold transition-colors"
             >
-              Programs replace generated blocks
-            </Link>
+              Turn this into a programme
+            </button>
           ) : undefined
         }
       />
@@ -306,12 +316,14 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
             {messages.filter((m) => m.role === "user").length} messages
           </Badge>
           <span>
-            Programs now manage training blocks.{" "}
-            <Link href={`/hub/programs?client=${clientNumber}`} className="text-rose font-semibold hover:underline">
-              Apply a program
-            </Link>{" "}
-            to assign workouts from the programme.
+            When the draft looks right, turn it into a programme — you&apos;ll review the parsed sessions before anything is saved.
           </span>
+          <button
+            onClick={handOffToImport}
+            className="ml-auto inline-flex items-center justify-center gap-1.5 rounded-lg bg-rose hover:bg-rose/90 text-white h-8 px-3 text-xs font-semibold transition-colors"
+          >
+            Turn this into a programme
+          </button>
         </div>
       )}
 

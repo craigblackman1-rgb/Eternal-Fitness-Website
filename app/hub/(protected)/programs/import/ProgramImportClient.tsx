@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HubPageHeader } from "@/components/hub/HubPageHeader";
@@ -8,8 +8,14 @@ import { HubCard } from "@/components/hub/HubCard";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { IconArrowLeft } from "@/components/icons";
+import { IconArrowLeft, IconX } from "@/components/icons";
 import type { ParsedProgram, ParsedSlot, SlotData, ProgramSection, ProgramExercise } from "@/lib/programs/types";
+
+interface ProgramImportClientProps {
+  clientNumber?: number;
+  clientName?: string;
+  from?: string;
+}
 
 const slotLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -92,7 +98,7 @@ function SectionPreview({ section, slotIndex }: { section: ProgramSection; slotI
   );
 }
 
-export function ProgramImportClient() {
+export function ProgramImportClient({ clientNumber, clientName, from }: ProgramImportClientProps) {
   const router = useRouter();
   const [pastedText, setPastedText] = useState("");
   const [parsing, setParsing] = useState(false);
@@ -100,6 +106,26 @@ export function ProgramImportClient() {
   const [parseError, setParseError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [programName, setProgramName] = useState("");
+  const [planAgentBanner, setPlanAgentBanner] = useState<string | null>(null);
+
+  // Prefill from sessionStorage when arriving from the Plan Agent
+  useEffect(() => {
+    if (from !== "plan-agent" || !clientNumber || typeof window === "undefined") return;
+    const key = `plan-agent-import-${clientNumber}`;
+    try {
+      const raw = sessionStorage.getItem(key);
+      if (raw) {
+        const data = JSON.parse(raw) as { text: string; clientNumber: number; clientName: string; savedAt: number };
+        if (data.text) setPastedText(data.text);
+        if (data.clientName && !programName) setProgramName(`${data.clientName} — Plan Agent draft`);
+        if (data.clientName) setPlanAgentBanner(data.clientName);
+        sessionStorage.removeItem(key);
+      }
+    } catch {
+      // corrupted sessionStorage — ignore, Esther can paste manually
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [from, clientNumber]);
 
   const handleParse = async () => {
     if (!pastedText.trim()) return;
@@ -192,7 +218,11 @@ export function ProgramImportClient() {
       if (!res.ok) throw new Error("Save failed");
       const { id } = await res.json();
       toast.success("Program saved");
-      router.push(`/hub/programs/${id}`);
+      if (clientNumber) {
+        router.push(`/hub/programs?client=${clientNumber}`);
+      } else {
+        router.push(`/hub/programs/${id}`);
+      }
     } catch {
       toast.error("Failed to save program");
       setSaving(false);
@@ -213,6 +243,21 @@ export function ProgramImportClient() {
         title="Import a programme"
         subtitle="Paste a programme from Trainerize, a coach's plan, or plain text — we'll read the structure and show you exactly what will be saved."
       />
+
+      {planAgentBanner && (
+        <div className="flex items-center gap-2 rounded-nested border border-teal/20 bg-teal/5 px-4 py-2.5 text-sm text-foreground">
+          <span className="flex-1">
+            Draft from the Plan Agent for <strong>{planAgentBanner}</strong> — check it and press Parse.
+          </span>
+          <button
+            onClick={() => setPlanAgentBanner(null)}
+            className="inline-flex h-5 w-5 items-center justify-center rounded-pill hover:bg-teal/10"
+            aria-label="Dismiss"
+          >
+            <IconX className="h-3 w-3" />
+          </button>
+        </div>
+      )}
 
       <HubCard>
         <div className="p-4">
