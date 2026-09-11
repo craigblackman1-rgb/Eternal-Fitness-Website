@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HubCard, HubCardHeader, HubPageHeader, StatusBadge } from "@/components/hub";
 import {
   AlertDialog,
@@ -16,7 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { IconChevronLeft, IconMail, IconTrash2, IconEdit3, IconFileText, IconEye } from "@/components/icons";
+import { IconChevronLeft, IconMail, IconTrash2, IconEdit3, IconFileText, IconEye, IconRefreshCw, IconArrowLeft } from "@/components/icons";
 import { InvoicePreviewDialog } from "./InvoicePreviewDialog";
 import { toast } from "sonner";
 import type { DBInvoice, DBInvoiceLineItem } from "@/types";
@@ -33,9 +34,50 @@ export function InvoiceDetailClient({ invoice, lineItems, deliveryHistory }: Inv
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [statusAction, setStatusAction] = useState<string | null>(null);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+
+  useEffect(() => {
+    if (!statusDialogOpen) setStatusAction(null);
+  }, [statusDialogOpen]);
 
   const isDraft = invoice.status === "draft";
   const client = invoice.clients;
+
+  type StatusOption = { label: string; value: string; action: string };
+
+  const statusOptions: StatusOption[] = (() => {
+    switch (invoice.status) {
+      case "draft":
+        return [{ label: "Mark paid", value: "paid", action: "paid" }];
+      case "sent":
+        return [
+          { label: "Mark paid", value: "paid", action: "paid" },
+          { label: "Void", value: "void", action: "void" },
+          ...(invoice.client_documents?.emailed ? [] : [{ label: "Back to draft", value: "draft", action: "revert" }]),
+        ];
+      case "overdue":
+        return [
+          { label: "Mark paid", value: "paid", action: "paid" },
+          { label: "Void", value: "void", action: "void" },
+        ];
+      case "paid":
+        return [{ label: "Back to unpaid (sent)", value: "sent", action: "undo-paid" }];
+      case "void":
+        return [{ label: "Reinstate as draft", value: "draft", action: "void-reinstate" }];
+      default:
+        return [];
+    }
+  })();
+
+  const handleStatusChange = (val: string) => {
+    const opt = statusOptions.find((o) => o.value === val);
+    if (!opt) return;
+    setStatusAction(opt.action);
+    setStatusDialogOpen(true);
+  };
+
+  const actionLabel = statusOptions.find((o) => o.action === statusAction)?.label ?? "";
 
   const act = async (label: string, run: () => Promise<Response>, onOk: (data: unknown) => void) => {
     setBusy(label);
@@ -72,18 +114,21 @@ export function InvoiceDetailClient({ invoice, lineItems, deliveryHistory }: Inv
 
   const revertToDraft = () =>
     act("revert", () => fetch(`/api/invoices/${invoice.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "draft" }) }), () => {
+      setStatusDialogOpen(false);
       toast.success("Invoice reverted to draft");
       router.refresh();
     });
 
   const markPaid = () =>
     act("paid", () => fetch(`/api/invoices/${invoice.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "paid" }) }), () => {
+      setStatusDialogOpen(false);
       toast.success("Invoice marked paid");
       router.refresh();
     });
 
   const voidInvoice = () =>
     act("void", () => fetch(`/api/invoices/${invoice.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "void" }) }), () => {
+      setStatusDialogOpen(false);
       toast.success("Invoice voided");
       router.refresh();
     });
@@ -108,6 +153,19 @@ export function InvoiceDetailClient({ invoice, lineItems, deliveryHistory }: Inv
               <IconEye className="h-4 w-4" />
               Preview
             </Button>
+            {statusOptions.length > 0 && (
+              <Select onValueChange={handleStatusChange} value={invoice.status}>
+                <SelectTrigger className="h-9 w-44 rounded-lg border-[var(--hub-field-border)] bg-[var(--hub-card)] text-xs focus:border-rose focus:ring-rose/30">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={invoice.status} disabled>{invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}</SelectItem>
+                  {statusOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
             {isDraft ? (
               <>
                 <Link href={`/hub/cashflow/invoices/${invoice.id}/edit`}>
@@ -134,35 +192,14 @@ export function InvoiceDetailClient({ invoice, lineItems, deliveryHistory }: Inv
                     </>
                   )}
                 </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      className="rounded-lg gap-1.5 bg-rose text-white hover:bg-rose/90"
-                      disabled={busy !== null}
-                      aria-label="Mark invoice as paid"
-                    >
-                      {busy === "paid" ? "…" : "Mark paid"}
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Mark this invoice as paid?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This records the invoice as paid without emailing it — use it for cash or an invoice you&apos;ve already handed over. It will not be sent to the client.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={markPaid}
-                        disabled={busy !== null}
-                        className="bg-rose text-white hover:bg-rose/90"
-                      >
-                        {busy === "paid" ? "Saving…" : "Mark paid"}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <Button
+                  className="rounded-lg gap-1.5 bg-rose text-white hover:bg-rose/90"
+                  onClick={() => { setStatusAction("paid"); setStatusDialogOpen(true); }}
+                  disabled={busy !== null}
+                  aria-label="Mark invoice as paid"
+                >
+                  {busy === "paid" ? "…" : "Mark paid"}
+                </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
@@ -205,84 +242,198 @@ export function InvoiceDetailClient({ invoice, lineItems, deliveryHistory }: Inv
             ) : null}
             {!isDraft && (invoice.status === "sent" || invoice.status === "overdue") && (
               <>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      className="rounded-lg gap-1.5 bg-rose text-white hover:bg-rose/90"
-                      disabled={busy !== null}
-                      aria-label="Mark invoice as paid"
-                    >
-                      {busy === "paid" ? "…" : "Mark paid"}
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Mark this invoice as paid?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Use this when the client has paid outside the bank feed (cash, or a transfer you've already seen). Bank reconciliation will not try to match it again.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={markPaid}
-                        disabled={busy !== null}
-                        className="bg-rose text-white hover:bg-rose/90"
-                      >
-                        {busy === "paid" ? "Saving…" : "Mark paid"}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <Button
+                  className="rounded-lg gap-1.5 bg-rose text-white hover:bg-rose/90"
+                  onClick={() => { setStatusAction("paid"); setStatusDialogOpen(true); }}
+                  disabled={busy !== null}
+                  aria-label="Mark invoice as paid"
+                >
+                  {busy === "paid" ? "…" : "Mark paid"}
+                </Button>
                 {invoice.status === "sent" && !invoice.client_documents?.emailed && (
                   <Button
                     variant="outline"
                     className="rounded-lg gap-1.5"
-                    onClick={revertToDraft}
+                    onClick={() => { setStatusAction("revert"); setStatusDialogOpen(true); }}
                     disabled={busy !== null}
                     aria-label="Revert to draft"
                   >
                     {busy === "revert" ? "…" : "Revert to draft"}
                   </Button>
                 )}
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="rounded-lg gap-1.5"
-                      style={{
-                        color: "var(--status-danger-solid)",
-                        borderColor: "var(--status-danger-solid)",
-                      }}
-                      disabled={busy !== null}
-                      aria-label="Void invoice"
-                    >
-                      {busy === "void" ? "…" : "Void"}
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Void this invoice?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        It stays on record but no longer counts as owed.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={voidInvoice}
-                        disabled={busy !== null}
-                        style={{
-                          backgroundColor: "var(--status-danger-solid)",
-                          color: "var(--status-danger-solid-fg)",
-                        }}
-                      >
-                        {busy === "void" ? "Voiding…" : "Void"}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <Button
+                  variant="outline"
+                  className="rounded-lg gap-1.5"
+                  style={{
+                    color: "var(--status-danger-solid)",
+                    borderColor: "var(--status-danger-solid)",
+                  }}
+                  onClick={() => { setStatusAction("void"); setStatusDialogOpen(true); }}
+                  disabled={busy !== null}
+                  aria-label="Void invoice"
+                >
+                  {busy === "void" ? "…" : "Void"}
+                </Button>
               </>
+            )}
+            {isDraft && (
+              <AlertDialog open={statusDialogOpen && statusAction === "paid"} onOpenChange={setStatusDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <span />
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Mark this invoice as paid?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This records the invoice as paid without emailing it — use it for cash or an invoice you&apos;ve already handed over. It will not be sent to the client.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={markPaid}
+                      disabled={busy !== null}
+                      className="bg-rose text-white hover:bg-rose/90"
+                    >
+                      {busy === "paid" ? "Saving…" : "Mark paid"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            {!isDraft && (invoice.status === "sent" || invoice.status === "overdue") && (
+              <AlertDialog open={statusDialogOpen && statusAction === "paid"} onOpenChange={setStatusDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <span />
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Mark this invoice as paid?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Use this when the client has paid outside the bank feed (cash, or a transfer you&apos;ve already seen). Bank reconciliation will not try to match it again.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={markPaid}
+                      disabled={busy !== null}
+                      className="bg-rose text-white hover:bg-rose/90"
+                    >
+                      {busy === "paid" ? "Saving…" : "Mark paid"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            {!isDraft && invoice.status === "sent" && !invoice.client_documents?.emailed && (
+              <AlertDialog open={statusDialogOpen && statusAction === "revert"} onOpenChange={setStatusDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <span />
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Revert to draft?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will move the invoice back to draft status so you can edit and send it again.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={revertToDraft} disabled={busy !== null}>
+                      {busy === "revert" ? "Saving…" : "Revert to draft"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            {!isDraft && (invoice.status === "sent" || invoice.status === "overdue") && (
+              <AlertDialog open={statusDialogOpen && statusAction === "void"} onOpenChange={setStatusDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <span />
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Void this invoice?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      It stays on record but no longer counts as owed.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={voidInvoice}
+                      disabled={busy !== null}
+                      style={{
+                        backgroundColor: "var(--status-danger-solid)",
+                        color: "var(--status-danger-solid-fg)",
+                      }}
+                    >
+                      {busy === "void" ? "Voiding…" : "Void"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            {invoice.status === "paid" && (
+              <AlertDialog open={statusDialogOpen && statusAction === "undo-paid"} onOpenChange={setStatusDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <span />
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Move this invoice back to unpaid?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This reverses the paid mark — the invoice goes back to sent status. Use this if it was marked paid by mistake.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() =>
+                        act("undo-paid", () => fetch(`/api/invoices/${invoice.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "sent" }) }), () => {
+                          setStatusDialogOpen(false);
+                          toast.success("Invoice moved back to unpaid");
+                          router.refresh();
+                        })
+                      }
+                      disabled={busy !== null}
+                    >
+                      {busy === "undo-paid" ? "Saving…" : "Back to unpaid"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            {invoice.status === "void" && (
+              <AlertDialog open={statusDialogOpen && statusAction === "void-reinstate"} onOpenChange={setStatusDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <span />
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Reinstate this draft?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This moves the invoice from void back to draft so you can edit and send it again.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() =>
+                        act("void-reinstate", () => fetch(`/api/invoices/${invoice.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "draft" }) }), () => {
+                          setStatusDialogOpen(false);
+                          toast.success("Invoice reinstated as draft");
+                          router.refresh();
+                        })
+                      }
+                      disabled={busy !== null}
+                    >
+                      {busy === "void-reinstate" ? "Saving…" : "Reinstate"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
           </div>
         }
