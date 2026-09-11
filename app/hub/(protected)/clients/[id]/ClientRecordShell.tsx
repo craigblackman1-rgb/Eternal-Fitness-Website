@@ -109,6 +109,7 @@ interface ClientRecordShellProps {
   sessionsPurchased: number | null;
   baselineUsed: number;
   hubUsedCount: number;
+  programmeLine: string;
 }
 
 export function ClientRecordShell({
@@ -188,6 +189,7 @@ export function ClientRecordShell({
   sessionsPurchased,
   baselineUsed,
   hubUsedCount,
+  programmeLine,
 }: ClientRecordShellProps) {
   const [showRenewal, setShowRenewal] = useState(false);
   const latestBlock = latestBlockProp;
@@ -255,6 +257,9 @@ export function ClientRecordShell({
           paymentStatus={paymentStatus}
           packageType={packageType}
           onRenewal={() => setShowRenewal(true)}
+          blockNumber={latestBlock?.block_number ?? null}
+          blockExpiryDate={client.block_expiry_date ?? null}
+          programmeLine={programmeLine}
         />
 
         <ClientDrawerStrip
