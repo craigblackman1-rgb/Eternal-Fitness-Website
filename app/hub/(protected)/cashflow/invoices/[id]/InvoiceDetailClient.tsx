@@ -24,7 +24,7 @@ import type { DBInvoice, DBInvoiceLineItem } from "@/types";
 const fmt = (n: number) => `£${n.toFixed(2)}`;
 
 interface InvoiceDetailClientProps {
-  invoice: DBInvoice & { clients?: { name: string; client_number: number } | null };
+  invoice: DBInvoice & { clients?: { name: string; client_number: number } | null; client_documents?: { emailed: boolean } | null };
   lineItems: DBInvoiceLineItem[];
   deliveryHistory?: ReactNode;
 }
@@ -68,6 +68,18 @@ export function InvoiceDetailClient({ invoice, lineItems, deliveryHistory }: Inv
     act("delete", () => fetch(`/api/invoices/${invoice.id}`, { method: "DELETE" }), () => {
       toast.success("Invoice deleted");
       router.push("/hub/cashflow/invoices");
+    });
+
+  const revertToDraft = () =>
+    act("revert", () => fetch(`/api/invoices/${invoice.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "draft" }) }), () => {
+      toast.success("Invoice reverted to draft");
+      router.refresh();
+    });
+
+  const voidInvoice = () =>
+    act("void", () => fetch(`/api/invoices/${invoice.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "void" }) }), () => {
+      toast.success("Invoice voided");
+      router.refresh();
     });
 
   return (
@@ -156,6 +168,58 @@ export function InvoiceDetailClient({ invoice, lineItems, deliveryHistory }: Inv
                 </AlertDialog>
               </>
             ) : null}
+            {!isDraft && (invoice.status === "sent" || invoice.status === "overdue") && (
+              <>
+                {invoice.status === "sent" && !invoice.client_documents?.emailed && (
+                  <Button
+                    variant="outline"
+                    className="rounded-lg gap-1.5"
+                    onClick={revertToDraft}
+                    disabled={busy !== null}
+                    aria-label="Revert to draft"
+                  >
+                    {busy === "revert" ? "…" : "Revert to draft"}
+                  </Button>
+                )}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="rounded-lg gap-1.5"
+                      style={{
+                        color: "var(--status-danger-solid)",
+                        borderColor: "var(--status-danger-solid)",
+                      }}
+                      disabled={busy !== null}
+                      aria-label="Void invoice"
+                    >
+                      {busy === "void" ? "…" : "Void"}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Void this invoice?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        It stays on record but no longer counts as owed.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={voidInvoice}
+                        disabled={busy !== null}
+                        style={{
+                          backgroundColor: "var(--status-danger-solid)",
+                          color: "var(--status-danger-solid-fg)",
+                        }}
+                      >
+                        {busy === "void" ? "Voiding…" : "Void"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </>
+            )}
           </div>
         }
       />

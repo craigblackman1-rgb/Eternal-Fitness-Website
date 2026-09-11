@@ -22,6 +22,8 @@ function actionLabel(status: string, id: string): { label: string; href: string 
       return { label: "Chase", href: `/hub/cashflow/invoices/${id}` };
     case "paid":
       return { label: "View", href: `/hub/cashflow/invoices/${id}` };
+    case "void":
+      return { label: "View", href: `/hub/cashflow/invoices/${id}` };
     default:
       return { label: "Open", href: `/hub/cashflow/invoices/${id}` };
   }

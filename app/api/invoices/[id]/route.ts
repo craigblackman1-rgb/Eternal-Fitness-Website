@@ -52,6 +52,51 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ success: true });
   }
 
+  // Revert to draft: only allowed for sent invoices where the linked document
+  // was never actually emailed (or there is no linked document at all).
+  if (body.status === "draft") {
+    if (existing.status !== "sent") {
+      return NextResponse.json({ error: "Only sent invoices can be reverted to draft" }, { status: 400 });
+    }
+    const { data: fullInvoice } = await supabase
+      .from("invoices")
+      .select("client_document_id")
+      .eq("id", params.id)
+      .single();
+    if (fullInvoice?.client_document_id) {
+      const { data: doc } = await supabase
+        .from("client_documents")
+        .select("emailed")
+        .eq("id", fullInvoice.client_document_id)
+        .single();
+      if (doc?.emailed) {
+        return NextResponse.json({ error: "This invoice was emailed to the client — void it and raise a new one instead." }, { status: 400 });
+      }
+      // Reset the linked document back to draft too
+      await supabase
+        .from("client_documents")
+        .update({ status: "draft", sent_at: null })
+        .eq("id", fullInvoice.client_document_id);
+    }
+    await supabase
+      .from("invoices")
+      .update({ status: "draft", updated_at: new Date().toISOString() })
+      .eq("id", params.id);
+    return NextResponse.json({ success: true });
+  }
+
+  // Void: allowed for sent or overdue invoices (any emailed state).
+  if (body.status === "void") {
+    if (existing.status !== "sent" && existing.status !== "overdue") {
+      return NextResponse.json({ error: "Only sent or overdue invoices can be voided" }, { status: 400 });
+    }
+    await supabase
+      .from("invoices")
+      .update({ status: "void", updated_at: new Date().toISOString() })
+      .eq("id", params.id);
+    return NextResponse.json({ success: true });
+  }
+
   if (existing.status !== "draft") {
     return NextResponse.json({ error: "Only draft invoices can be edited" }, { status: 400 });
   }

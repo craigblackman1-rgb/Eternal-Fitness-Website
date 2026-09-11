@@ -182,7 +182,7 @@ export default async function CashflowOverviewPage() {
   // ── Finance KPIs (§7 — same anatomy as compliance/updates) ───────────
   const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
   const kpiInvoiced = allInvoices
-    .filter((inv) => inv.issue_date >= thisMonthStart)
+    .filter((inv) => inv.issue_date >= thisMonthStart && inv.status !== "void")
     .reduce((sum, inv) => sum + inv.total, 0);
   const kpiPaid = allInvoices
     .filter((inv) => inv.status === "paid" && inv.issue_date >= thisMonthStart)

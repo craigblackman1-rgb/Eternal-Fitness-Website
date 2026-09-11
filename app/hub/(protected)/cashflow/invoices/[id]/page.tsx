@@ -8,7 +8,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
 
   const { data: invoice } = await supabase
     .from("invoices")
-    .select("*, clients(name, client_number)")
+    .select("*, clients(name, client_number), client_documents(emailed)")
     .eq("id", params.id)
     .single();
 
@@ -22,7 +22,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
 
   return (
     <InvoiceDetailClient
-      invoice={invoice as DBInvoice & { clients?: { name: string; client_number: number } | null }}
+      invoice={invoice as DBInvoice & { clients?: { name: string; client_number: number } | null; client_documents?: { emailed: boolean } | null }}
       lineItems={(lineItems ?? []) as DBInvoiceLineItem[]}
     />
   );
