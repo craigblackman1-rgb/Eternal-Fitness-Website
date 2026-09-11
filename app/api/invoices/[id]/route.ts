@@ -62,18 +62,41 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ success: true });
   }
 
-  // Revert to draft: only allowed for sent invoices where the linked document
-  // was never actually emailed (or there is no linked document at all).
+  // Void: allowed for sent or overdue invoices (any emailed state).
+  if (body.status === "void") {
+    if (existing.status !== "sent" && existing.status !== "overdue") {
+      return NextResponse.json({ error: "Only sent or overdue invoices can be voided" }, { status: 400 });
+    }
+    await supabase
+      .from("invoices")
+      .update({ status: "void", updated_at: new Date().toISOString() })
+      .eq("id", params.id);
+    return NextResponse.json({ success: true });
+  }
+
+  // Undo mark-paid: sent back to sent status (does not touch client_documents).
+  if (body.status === "sent") {
+    if (existing.status !== "paid") {
+      return NextResponse.json({ error: "Use Send to send an invoice" }, { status: 400 });
+    }
+    await supabase
+      .from("invoices")
+      .update({ status: "sent", updated_at: new Date().toISOString() })
+      .eq("id", params.id);
+    return NextResponse.json({ success: true });
+  }
+
+  // Reinstate as draft: void -> draft (no emailed check needed).
   if (body.status === "draft") {
-    if (existing.status !== "sent") {
-      return NextResponse.json({ error: "Only sent invoices can be reverted to draft" }, { status: 400 });
+    if (existing.status !== "sent" && existing.status !== "void") {
+      return NextResponse.json({ error: "Only sent or void invoices can be reverted to draft" }, { status: 400 });
     }
     const { data: fullInvoice } = await supabase
       .from("invoices")
       .select("client_document_id")
       .eq("id", params.id)
       .single();
-    if (fullInvoice?.client_document_id) {
+    if (existing.status === "sent" && fullInvoice?.client_document_id) {
       const { data: doc } = await supabase
         .from("client_documents")
         .select("emailed")
@@ -91,18 +114,6 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     await supabase
       .from("invoices")
       .update({ status: "draft", updated_at: new Date().toISOString() })
-      .eq("id", params.id);
-    return NextResponse.json({ success: true });
-  }
-
-  // Void: allowed for sent or overdue invoices (any emailed state).
-  if (body.status === "void") {
-    if (existing.status !== "sent" && existing.status !== "overdue") {
-      return NextResponse.json({ error: "Only sent or overdue invoices can be voided" }, { status: 400 });
-    }
-    await supabase
-      .from("invoices")
-      .update({ status: "void", updated_at: new Date().toISOString() })
       .eq("id", params.id);
     return NextResponse.json({ success: true });
   }
