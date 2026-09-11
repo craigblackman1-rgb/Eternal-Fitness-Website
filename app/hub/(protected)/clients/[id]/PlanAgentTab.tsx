@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { HubCard, HubCardHeader } from "@/components/hub";
 import { Badge } from "@/components/ui/badge";
@@ -107,10 +107,27 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Restore any draft conversation for this client on mount / client switch.
+  // Restore conversation on mount / client switch: server first, localStorage fallback.
   useEffect(() => {
-    setMessages(loadDraft(clientNumber));
-    setDraftRestored(true);
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/clients/${clientNumber}/plan-agent-conversation`);
+        if (res.ok) {
+          const data = await res.json();
+          if (!cancelled && Array.isArray(data.messages) && data.messages.length > 0) {
+            setMessages(data.messages);
+            setDraftRestored(true);
+            return;
+          }
+        }
+      } catch { /* fall through to localStorage */ }
+      if (!cancelled) {
+        setMessages(loadDraft(clientNumber));
+        setDraftRestored(true);
+      }
+    })();
+    return () => { cancelled = true; };
   }, [clientNumber]);
 
   // Persist on every change, once the initial restore has happened (so we
@@ -173,6 +190,17 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
       setMessages((prev) => prev.slice(0, -1));
     } finally {
       setStreaming(false);
+      // Persist the completed conversation to the server.
+      // Capture final messages directly — setStreaming(false) runs before
+      // React has applied the setMessages from inside the stream loop.
+      setMessages((prev) => {
+        fetch(`/api/clients/${clientNumber}/plan-agent-conversation`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: prev }),
+        }).catch(() => {});
+        return prev;
+      });
     }
   }
 
@@ -197,6 +225,15 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
       router.push(`/hub/programs/import?client=${clientNumber}&from=plan-agent`);
     }
   }
+
+  const startOver = useCallback(() => {
+    if (!window.confirm("Start a fresh conversation? The current one is kept in the log.")) return;
+    fetch(`/api/clients/${clientNumber}/plan-agent-conversation`, { method: "DELETE" }).catch(() => {});
+    setMessages([]);
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(draftStorageKey(clientNumber));
+    }
+  }, [clientNumber]);
 
   return (
     <HubCard padded={false} className="overflow-hidden">
@@ -315,6 +352,12 @@ export function PlanAgentTab({ clientNumber, clientName, paceMode }: PlanAgentTa
           <Badge variant="outline" className="rounded-pill text-xs">
             {messages.filter((m) => m.role === "user").length} messages
           </Badge>
+          <button
+            onClick={startOver}
+            className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors"
+          >
+            Start over
+          </button>
           <span>
             When the draft looks right, turn it into a programme — you&apos;ll review the parsed sessions before anything is saved.
           </span>
