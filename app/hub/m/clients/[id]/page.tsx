@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { DesktopLink } from "@/components/hub/DesktopLink";
 import type { ClientProfile, DBClient, DBSession, SignedAgreement, SignedPARQ, SessionNoteData, PinnedNoteRef, SetLog } from "@/types";
 import { computeComplianceFlags } from "@/lib/compliance";
 import { buildMedicalFlags, type ClientFlag } from "@/lib/mobile-client-flags";
@@ -508,10 +509,10 @@ export default async function MobileClientModePage({ params, searchParams }: { p
           <span className="mbrand-sub" style={{ flex: 1, minWidth: 0 }}>
             Trainer Hub · client mode
           </span>
-          <Link className="desktop-link" href={`/hub/clients/${clientNumber}`}>
+          <DesktopLink className="desktop-link" href={`/hub/clients/${clientNumber}`}>
             {ICO.monitor}
             Desktop
-          </Link>
+          </DesktopLink>
         </div>
       </header>
 

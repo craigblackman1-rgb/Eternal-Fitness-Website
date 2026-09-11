@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { DesktopLink } from "@/components/hub/DesktopLink";
 import { toast } from "sonner";
 import type { Task } from "@/types";
 import type { TodayEntry } from "./page";
@@ -250,21 +251,13 @@ export function TodayScreen({ entries, tasks, currentUserName, resumeSession }: 
             <img src="/images/ef-heart-logo.svg" alt="Eternal Fitness" />
             <span className="mbrand-sub">Trainer Hub</span>
           </div>
-          <Link
+          <DesktopLink
             className="desktop-link"
             href="/hub"
-            onClick={(e) => {
-              if (typeof window !== "undefined") {
-                try {
-                localStorage.setItem("ef-desktop-preferred", "1");
-                localStorage.setItem("ef-desktop-preferred-ts", String(Date.now()));
-              } catch {}
-              }
-            }}
           >
             {ICO.monitor}
             Desktop site
-          </Link>
+          </DesktopLink>
         </div>
         <div className="daynav">
           <button className="daynav-btn" onClick={() => setDay(shiftDay(day, -1))} aria-label="Previous day">

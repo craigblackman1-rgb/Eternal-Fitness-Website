@@ -3,8 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
-const DESKTOP_PREF_KEY = "ef-desktop-preferred";
-const DESKTOP_PREF_TS_KEY = "ef-desktop-preferred-ts";
+export const DESKTOP_PREF_KEY = "ef-desktop-preferred";
+export const DESKTOP_PREF_TS_KEY = "ef-desktop-preferred-ts";
 const MOBILE_BREAKPOINT = 768;
 const PREF_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 

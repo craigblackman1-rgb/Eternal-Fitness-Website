@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { DesktopLink } from "@/components/hub/DesktopLink";
 import type { SessionStatus } from "@/types";
 import type { AggregatedExerciseNote } from "@/lib/exercise-notes";
 import type { SessionNoteData, PinnedNoteRef } from "@/types";
@@ -516,9 +517,9 @@ export function ClientModeView({
                           <p className="noplan-m-s">No programme set up for {firstName} yet — nothing to show here.</p>
                         </>
                       )}
-                      <Link className="btn btn-outline" href={`/hub/clients/${clientNumber}`} style={{ width: "100%" }}>
+                      <DesktopLink className="btn btn-outline" href={`/hub/clients/${clientNumber}`} style={{ width: "100%" }}>
                         {hasProgramme ? "Manage programme on desktop" : "Plan the programme on desktop"}
-                      </Link>
+                      </DesktopLink>
                     </div>
                     {(potView.purchasedIsEstimate || (potView.remaining ?? 0) > 0) && (
                       <div className="mrecon-m">
@@ -739,7 +740,7 @@ export function ClientModeView({
             <b>True admin stays on desktop</b>
             Documents, PAR-Q editing, cashflow, email updates and invoicing still live on the desktop
             hub. Client mode is for session-shaped work — training, booking, notes and review.{" "}
-            <Link href={`/hub/clients/${clientNumber}`}>Open the full record on desktop</Link>.
+            <DesktopLink href={`/hub/clients/${clientNumber}`}>Open the full record on desktop</DesktopLink>.
           </div>
         </section>
 

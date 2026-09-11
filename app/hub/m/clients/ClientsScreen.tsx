@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { DesktopLink } from "@/components/hub/DesktopLink";
 import type { MobileClientListItem } from "./page";
 
 const ICO = {
@@ -65,10 +66,10 @@ export function ClientsScreen({ items }: { items: MobileClientListItem[] }) {
             <div className="mtop-t">Clients</div>
             <div className="mtop-s">Read-only — a glance before a session</div>
           </div>
-          <Link className="desktop-link" href="/hub/clients">
+          <DesktopLink className="desktop-link" href="/hub/clients">
             {ICO.monitor}
             Desktop
-          </Link>
+          </DesktopLink>
         </div>
         <div className="searchwrap">
           <input
