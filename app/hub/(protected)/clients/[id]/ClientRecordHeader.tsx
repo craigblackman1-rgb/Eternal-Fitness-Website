@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import BackLink from "@/components/hub/BackLink";
 import { IconChevronLeft, IconPencil, IconCalendar, IconMail } from "@/components/icons";
@@ -5,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/hub/StatusBadge";
 import { lookupStatus } from "@/lib/hubStatus";
 import { useDrawerManager } from "./DrawerManager";
+import { BookSessionsDialog } from "@/components/hub/BookSessionsDialog";
 import type { DBClient } from "@/types";
 
 /* ── ClientRecordHeader — single-screen header replacing HubQuickActions +
@@ -75,6 +79,8 @@ export function ClientRecordHeader({
   paymentStatus,
   packageType,
   onRenewal,
+  blockNumber,
+  blockExpiryDate,
 }: {
   client: DBClient;
   status: string | null;
@@ -84,7 +90,10 @@ export function ClientRecordHeader({
   paymentStatus: string;
   packageType: string | null;
   onRenewal?: () => void;
+  blockNumber?: number | null;
+  blockExpiryDate?: string | null;
 }) {
+  const [showBookDialog, setShowBookDialog] = useState(false);
   const initials = client.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
   const subline = buildSubline(client);
   const complianceLookup = status ? lookupStatus(status) : null;
@@ -205,14 +214,24 @@ export function ClientRecordHeader({
               </Button>
             </Link>
           ) : (
-            <Link href="/hub/schedule">
-              <Button className="bg-rose hover:bg-rose/90 text-white rounded-lg px-3.5 py-1.5 h-auto text-sm font-semibold gap-1.5">
-                <IconCalendar className="w-4 h-4" /> Book session
-              </Button>
-            </Link>
+            <Button
+              onClick={() => setShowBookDialog(true)}
+              className="bg-rose hover:bg-rose/90 text-white rounded-lg px-3.5 py-1.5 h-auto text-sm font-semibold gap-1.5"
+            >
+              <IconCalendar className="w-4 h-4" /> Book session
+            </Button>
           )}
         </div>
       </div>
+      )}
+      {showBookDialog && !isHomeTraining && (
+        <BookSessionsDialog
+          clientNumber={client.client_number!}
+          clientName={client.name}
+          potLine={`${sessionsRemaining ?? 0} of ${sessionsPurchased ?? 0} sessions left${blockNumber ? ` · Block ${blockNumber}` : ""}${blockExpiryDate ? ` · expires ${new Date(blockExpiryDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : ""}`}
+          programmeLine="Programme assigns the workout on the day"
+          onClose={() => setShowBookDialog(false)}
+        />
       )}
     </>
   );

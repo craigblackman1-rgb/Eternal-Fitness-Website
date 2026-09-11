@@ -255,6 +255,8 @@ export function ClientRecordShell({
           paymentStatus={paymentStatus}
           packageType={packageType}
           onRenewal={() => setShowRenewal(true)}
+          blockNumber={latestBlock?.block_number ?? null}
+          blockExpiryDate={client.block_expiry_date ?? null}
         />
 
         <ClientDrawerStrip
