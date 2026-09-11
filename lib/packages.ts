@@ -25,11 +25,12 @@ export function defaultExpiryDate(): string {
   return d.toISOString().split("T")[0];
 }
 
-/** Build a block title from a date range like "Oct–Dec 2026". */
+/** Build a block title from a date range like "Oct–Dec 2026" or "Nov 2026–Jan 2027". */
 export function blockTitleFromDateRange(start: string, end: string): string {
-  const fmt = (iso: string) => {
-    const d = new Date(iso);
-    return d.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
-  };
-  return `${fmt(start)}–${fmt(end).split(" ")[1]}`;
+  const fmtMonth = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { month: "short" });
+  const fmtYear = (iso: string) => new Date(iso).getFullYear();
+  if (fmtYear(start) === fmtYear(end)) {
+    return `${fmtMonth(start)}–${fmtMonth(end)} ${fmtYear(start)}`;
+  }
+  return `${fmtMonth(start)} ${fmtYear(start)}–${fmtMonth(end)} ${fmtYear(end)}`;
 }
