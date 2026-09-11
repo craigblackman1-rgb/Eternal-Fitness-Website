@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { HubPageHeader, HubCard, HubCardHeader, EmptyState } from "@/components/hub";
+import { HubPageHeader, HubCard, HubCardHeader, EmptyState, StatusBadge } from "@/components/hub";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { IconChevronLeft, IconPlus, IconTrash2, IconFileText, IconSave } from "@/components/icons";
@@ -109,6 +109,11 @@ export function EditInvoiceClient({ invoice, lineItems }: EditInvoiceClientProps
           </Link>
         }
       />
+
+      <div className="flex items-center gap-3">
+        <StatusBadge status={invoice.status} />
+        <p className="text-sm text-muted-foreground">Change the status (send, mark paid, void) from the invoice page after saving.</p>
+      </div>
 
       {/* Client (read-only) */}
       <HubCard>

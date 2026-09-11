@@ -38,16 +38,26 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
   const body = await request.json();
 
-  // Mobile mark-paid: accepts { status: "paid" } for sent/overdue invoices.
-  // Mirrors what reconciliation/confirm does (status + updated_at) without
-  // requiring a transaction_id — the mobile flow has no bank-match link.
+  // Mark paid: accepts { status: "paid" } for draft, sent, or overdue invoices.
+  // Drafts are marked paid without emailing or creating a client_documents row.
   if (body.status === "paid") {
-    if (existing.status !== "sent" && existing.status !== "overdue") {
-      return NextResponse.json({ error: "Only sent or overdue invoices can be marked paid" }, { status: 400 });
+    if (existing.status !== "draft" && existing.status !== "sent" && existing.status !== "overdue") {
+      return NextResponse.json({ error: "Only draft, sent or overdue invoices can be marked paid" }, { status: 400 });
+    }
+    const paidUpdate: Record<string, unknown> = { status: "paid", updated_at: new Date().toISOString() };
+    if (existing.status === "draft") {
+      const { data: fullInvoice } = await supabase
+        .from("invoices")
+        .select("issue_date")
+        .eq("id", params.id)
+        .single();
+      if (!fullInvoice?.issue_date) {
+        paidUpdate.issue_date = new Date().toISOString().slice(0, 10);
+      }
     }
     await supabase
       .from("invoices")
-      .update({ status: "paid", updated_at: new Date().toISOString() })
+      .update(paidUpdate)
       .eq("id", params.id);
     return NextResponse.json({ success: true });
   }

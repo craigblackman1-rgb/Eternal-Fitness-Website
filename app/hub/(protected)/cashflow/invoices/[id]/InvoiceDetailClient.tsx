@@ -137,6 +137,35 @@ export function InvoiceDetailClient({ invoice, lineItems, deliveryHistory }: Inv
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
+                      className="rounded-lg gap-1.5 bg-rose text-white hover:bg-rose/90"
+                      disabled={busy !== null}
+                      aria-label="Mark invoice as paid"
+                    >
+                      {busy === "paid" ? "…" : "Mark paid"}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Mark this invoice as paid?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This records the invoice as paid without emailing it — use it for cash or an invoice you&apos;ve already handed over. It will not be sent to the client.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={markPaid}
+                        disabled={busy !== null}
+                        className="bg-rose text-white hover:bg-rose/90"
+                      >
+                        {busy === "paid" ? "Saving…" : "Mark paid"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
                       variant="outline"
                       className="rounded-lg gap-1.5"
                       style={{
