@@ -11,9 +11,18 @@ import { getPool } from "@/lib/pg-client";
  * programme simply re-links it (no duplicate).
  */
 
-function deriveCloneName(sourceName: string, targetFirstName: string): string {
-  // Strip any leading "Name — ", "Name - ", or "Name: " so we don't double-prefix.
-  const stripped = sourceName.replace(/^[^\s—\-:]+\s*[—\-:]\s*/, "");
+// Test cases:
+// deriveCloneName("Upper-Lower Split",        "Craig", "Craig Blackman")  → "Craig — Upper-Lower Split"
+// deriveCloneName("Sarah — Aug–Oct 2026 — Training", "Craig", "Craig Blackman")  → "Craig — Aug–Oct 2026 — Training"
+// deriveCloneName("Craig Blackman - 6-Week Block",   "Craig", "Craig Blackman")  → "Craig — 6-Week Block"
+// deriveCloneName("craig: Strength",                  "Craig", "Craig Blackman")  → "Craig — Strength"
+function deriveCloneName(sourceName: string, targetFirstName: string, targetFullName: string): string {
+  // 1. Strip a leading "<anything> — " only when the separator is an em dash (the app's own clone prefix convention).
+  let stripped = sourceName.replace(/^[^—]+—\s*/, "");
+  // 2. Strip a leading "<targetFullName>" or "<targetFirstName>" followed by \s*[-—:]\s* (case-insensitive).
+  const escaped = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const nameRe = new RegExp(`^(${escaped(targetFullName)}|${escaped(targetFirstName)})\\s*[-—:]\\s*`, "i");
+  stripped = stripped.replace(nameRe, "");
   return `${targetFirstName} — ${stripped}`;
 }
 
@@ -81,8 +90,9 @@ export async function POST(
       [program_id],
     );
 
-    const targetFirstName = (client.name ?? "").split(/\s+/)[0] || "Client";
-    const newName = deriveCloneName(program.name, targetFirstName);
+    const targetFullName = (client.name ?? "").trim() || "Client";
+    const targetFirstName = targetFullName.split(/\s+/)[0];
+    const newName = deriveCloneName(program.name, targetFirstName, targetFullName);
     const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
     const cloneNote = `\nCloned from ${program.name} (${program_id}) on apply, ${today}.`;
     const notes = program.notes ? `${program.notes}\n${cloneNote}` : cloneNote.trim();
