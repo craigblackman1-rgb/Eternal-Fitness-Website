@@ -152,7 +152,8 @@ export async function POST(
       if (!isNaN(num)) seq = num + 1;
     }
     const invoiceNumber = `${prefix}${String(seq).padStart(4, "0")}`;
-    const unitPrice = pkg.pricePence / pkg.sessions;
+    const pricePounds = pkg.pricePence / 100;
+    const unitPrice = pkg.sessions ? Math.round((pricePounds / pkg.sessions) * 100) / 100 : 0;
 
     const { data: invoice, error: invErr } = await supabase
       .from("invoices")
@@ -162,9 +163,9 @@ export async function POST(
         issue_date: today,
         due_date: invoice_due_date || today,
         status: "draft",
-        subtotal: pkg.pricePence,
+        subtotal: pricePounds,
         vat_total: 0,
-        total: pkg.pricePence,
+        total: pricePounds,
         notes: `Renewal — ${pkg.label}`,
       })
       .select("id")
@@ -181,7 +182,7 @@ export async function POST(
         quantity: pkg.sessions,
         unit_price: unitPrice,
         vat_rate: 0,
-        line_total: pkg.pricePence,
+        line_total: pricePounds,
         sort_order: 0,
       };
       const { error: linesErr } = await supabase.from("invoice_line_items").insert(lineItem);
