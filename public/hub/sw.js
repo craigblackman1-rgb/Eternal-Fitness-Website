@@ -1,0 +1,95 @@
+const CACHE_NAME = "hub-shell-__SW_VERSION__";
+
+const STATIC_PREFIXES = [
+  "/_next/static/",
+  "/hub-icon-",
+  "/hub.webmanifest",
+];
+
+const API_PREFIX = "/api/";
+
+function isStaticAsset(url) {
+  var path = new URL(url).pathname;
+  return STATIC_PREFIXES.some(function (prefix) {
+    return path.startsWith(prefix);
+  });
+}
+
+function isApiRequest(url) {
+  var path = new URL(url).pathname;
+  return path.startsWith(API_PREFIX);
+}
+
+self.addEventListener("install", function (event) {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(function (cache) {
+      return cache.addAll(["/hub.webmanifest", "/hub/offline.html"]);
+    })
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", function (event) {
+  event.waitUntil(
+    caches.keys().then(function (keys) {
+      return Promise.all(
+        keys
+          .filter(function (key) {
+            return key !== CACHE_NAME;
+          })
+          .map(function (key) {
+            return caches.delete(key);
+          })
+      );
+    })
+  );
+  self.clients.claim();
+});
+
+self.addEventListener("message", function (event) {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
+self.addEventListener("fetch", function (event) {
+  if (event.request.method !== "GET") {
+    return;
+  }
+
+  var url = event.request.url;
+
+  if (isApiRequest(url)) {
+    return;
+  }
+
+  if (isStaticAsset(url)) {
+    event.respondWith(
+      caches.match(event.request).then(function (cached) {
+        if (cached) {
+          return cached;
+        }
+        return fetch(event.request).then(function (response) {
+          if (response && response.status === 200) {
+            var clone = response.clone();
+            caches.open(CACHE_NAME).then(function (cache) {
+              cache.put(event.request, clone);
+            });
+          }
+          return response;
+        });
+        // Network errors for uncached chunks propagate — the chunk-load
+        // error boundary in ServiceWorkerRegistration.tsx catches these.
+      })
+    );
+    return;
+  }
+
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request).catch(function () {
+        return caches.match("/hub/offline.html");
+      })
+    );
+  }
+});
