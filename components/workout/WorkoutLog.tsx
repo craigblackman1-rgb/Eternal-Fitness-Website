@@ -1186,22 +1186,6 @@ Cancel — record it as today`,
             </div>
           </div>
 
-          {/* Band key card */}
-          {bands.length > 0 && (
-            <div className="mt-4 rounded-[16px] border border-[var(--hub-border)] bg-[var(--hub-card)] p-4 shadow-sm">
-              <h2 className="text-[12px] font-extrabold uppercase tracking-widest text-foreground">Band set</h2>
-              <p className="mb-3 mt-1 text-[12px] text-muted-foreground leading-relaxed">Prescribe and log the <b>colour</b>; tension is reference only.</p>
-              <div className="flex flex-col gap-2">
-                {bands.map((b) => (
-                  <div key={b.id} className="flex items-center gap-2">
-                    <BandDot band={b} />
-                    <span className="text-[12px] font-bold text-foreground">{b.colour}</span>
-                    <span className="ml-auto text-[11px] font-semibold tabular-nums text-muted-foreground">{b.tension_label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </aside>
       </div>
 
