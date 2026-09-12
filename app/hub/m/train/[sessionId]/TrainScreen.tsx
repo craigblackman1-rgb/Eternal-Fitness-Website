@@ -139,7 +139,7 @@ export function TrainScreen({
   sessionId: string;
   sessionNumber: number;
   archetype: string;
-  phase: string;
+  phase: string | null;
   week: number;
   hasProgram: boolean;
   data: Session | null;
@@ -1270,7 +1270,7 @@ Cancel — record it as today`,
             <div className="top-client">{clientName}</div>
             <div className="top-meta">
               {sessionWorkoutName({ archetype, data, week, phase }, `Session ${sessionNumber}`)}
-              {` · ${phase}`}
+              {phase ? ` · ${phase}` : ""}
               {scheduledAt ? ` · ${new Date(scheduledAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : hasProgram && week != null ? ` · Wk ${week}` : ""}
             </div>
           </div>
