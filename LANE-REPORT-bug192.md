@@ -3,7 +3,7 @@
 ## BUG-EF-192 — PWA blank screen resilience
 
 **Branch:** `lane/ef-bug192-pwa-resilience`
-**Commits:** 5 (one per section + lane report)
+**Commits:** 6 (one per section + lane report)
 **Status:** Done
 
 ---
@@ -12,10 +12,12 @@
 
 | File | Change |
 |---|---|
-| `public/hub/sw.js` | `CACHE_NAME` → `__SW_VERSION__` placeholder; added `message` listener for `SKIP_WAITING`; static-asset fetch errors now propagate |
-| `public/portal/sw.js` | Same changes as hub SW |
-| `scripts/stamp-sw.cjs` | **New.** Replaces `__SW_VERSION__` with git short hash, runs `next build`, restores originals in `finally` block |
-| `package.json` | `build` script changed from bare `next build` to `node scripts/stamp-sw.cjs` |
+| `app/hub/sw.js/route.ts` | **New.** Route handler serves hub SW with per-deploy `CACHE_NAME` (VERSION from `SOURCE_COMMIT` or `Date.now()`) |
+| `app/portal/sw.js/route.ts` | **New.** Route handler serves portal SW with per-deploy `CACHE_NAME` |
+| `public/hub/sw.js` | **Deleted.** Replaced by route handler |
+| `public/portal/sw.js` | **Deleted.** Replaced by route handler |
+| `scripts/stamp-sw.cjs` | **Deleted.** Build-time stamp replaced by per-boot route version |
+| `package.json` | `build` script restored to `next build` (was `node scripts/stamp-sw.cjs`) |
 | `components/hub/ServiceWorkerRegistration.tsx` | Detects SW update → reloads once (module-level guard); catches chunk load errors → reloads once per 30s (sessionStorage) |
 | `components/portal/service-worker-registration.tsx` | Same as hub twin |
 | `components/hub/MobileErrorPanel.tsx` | **New.** Shared error boundary UI: mobile-style full-height panel with error message, Reload button, Back link |
@@ -23,13 +25,17 @@
 | `app/hub/m/train/[sessionId]/error.tsx` | **New.** Error boundary for train screen, links back to Training |
 | `app/hub/m/train/[sessionId]/TrainScreen.tsx` | Line 1273: `{` · ${phase}`}` → `{phase ? ` · ${phase}` : ""}`; `phase` prop type → `string | null` |
 
-## SW versioning approach
+## SW versioning approach (revised)
 
-Source files (`public/hub/sw.js`, `public/portal/sw.js`) contain the literal string `__SW_VERSION__` in `CACHE_NAME`. At build time, `scripts/stamp-sw.cjs` replaces this with `git rev-parse --short HEAD`, runs `next build` (which copies the stamped files from `public/` into the standalone output), then restores the originals in a `finally` block.
+The original build-time stamp approach failed in production because:
+1. `Dockerfile` copies `public/` straight from the builder — `stamp-sw.cjs` restores originals after `next build`, so the deployed SW had the literal `__SW_VERSION__` placeholder
+2. `.dockerignore` excludes `.git` and the production Docker image has no `git`, so `execSync("git rev-parse")` throws and the build fails
 
-**Repo stays clean:** source files always contain `__SW_VERSION__`. The stamped hash only exists in the build output. The `finally` block guarantees restore even if the build fails.
+**New approach:** Each SW is served from a Next.js route handler (`app/hub/sw.js/route.ts`, `app/portal/sw.js/route.ts`). The `CACHE_NAME` is interpolated at module load from `process.env.SOURCE_COMMIT` (first 8 chars) or `Date.now().toString(36)` as fallback. Every container boot gets a fresh cache name, which is the entire requirement. `force-dynamic` is used since VERSION is not a compile-time constant.
 
-**Cache lifecycle:** Every deploy produces a unique cache name (e.g. `hub-shell-9435258`). The existing `skipWaiting()` + `clients.claim()` in `install`/`activate` already ensured immediate takeover. The new `message` listener adds a second path for `SKIP_WAITING`. Old caches are deleted on `activate` by the existing `key !== CACHE_NAME` filter.
+**Middleware finding:** `middleware.ts` already bypasses `/hub/sw.js` and `/portal/sw.js` (lines 12-14) — the SW is served without auth redirect. No changes needed.
+
+**Cache lifecycle:** Every deploy produces a unique cache name (e.g. `hub-shell-m1a2b3c4`). The existing `skipWaiting()` + `clients.claim()` in `install`/`activate` ensures immediate takeover. The `message` listener adds a second path for `SKIP_WAITING`. Old caches are deleted on `activate` by the `key !== CACHE_NAME` filter.
 
 ## Build/tsc output
 
@@ -41,8 +47,6 @@ npm warn Unknown project config "only-built-dependencies". ...
 
 ### `npm run build`
 ```
-[stamp-sw] public\hub\sw.js → 9435258
-[stamp-sw] public\portal\sw.js → 9435258
 ✓ Compiled successfully
   Skipping linting
   Checking validity of types ...
@@ -55,13 +59,17 @@ npm warn Unknown project config "only-built-dependencies". ...
   code issue; Coolify's Linux Docker build is fine")
 ```
 
+Build output includes both SW routes:
+```
+.next/server/app/hub/sw.js
+.next/server/app/portal/sw.js
+```
+
 ## git status after build
 ```
 On branch lane/ef-bug192-pwa-resilience
-Your branch is ahead of 'origin/main' by 5 commits.
-Changes not staged for commit:
-  modified:   LANE_PROMPT.md   (task prompt, not code)
-  modified:   LANE_PROMPT_FIXUP.md   (task prompt, not code)
+Your branch is ahead of 'origin/main' by 6 commits.
+nothing to commit, working tree clean
 ```
 
 ## Commits
@@ -70,7 +78,8 @@ Changes not staged for commit:
 2. `fix(BUG-EF-192-2): reload on SW update + catch chunk load errors` — both ServiceWorkerRegistration.tsx
 3. `fix(BUG-EF-192-3): error boundaries replace blank page on crash` — MobileErrorPanel.tsx, both error.tsx
 4. `fix(BUG-EF-192-4): hide null phase in train header subtitle` — TrainScreen.tsx
-5. `docs(BUG-EF-192): lane report` — this file
+5. `fix(BUG-EF-192-1-fixup): serve the service worker from a route handler with a per-deploy cache version (replaces build-time stamp)` — route handlers, delete stamp-sw.cjs, delete public SW files, restore package.json
+6. `docs(BUG-EF-192): lane report` — this file
 
 ## What was NOT done
 
