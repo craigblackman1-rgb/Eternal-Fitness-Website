@@ -309,7 +309,7 @@
 .round-ex-name { font-size: 12.5px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
 
 /* ── Exercise card ────────────────────────────────────────────── */
-.ex { background: var(--card); border: 1px solid var(--border); border-radius: 13px; padding: 11px; }
+.ex { display: block; background: var(--card); border: 1px solid var(--border); border-radius: 13px; padding: 11px; }
 .ex.complete { border-color: var(--s-success-bd); background: linear-gradient(180deg, var(--s-success-bg), var(--card) 64px); }
 .ex.picked { border-color: var(--rose); box-shadow: 0 0 0 2px var(--s-primary-bd); }
 .pick-box { flex-shrink: 0; width: 26px; height: 26px; margin-top: 3px; border-radius: 7px; border: 1.5px solid var(--field-border); background: var(--card); color: transparent; display: grid; place-items: center; cursor: pointer; padding: 0; }
