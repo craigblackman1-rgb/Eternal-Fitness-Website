@@ -1,4 +1,4 @@
-const CACHE_NAME = "hub-shell-v2";
+const CACHE_NAME = "hub-shell-__SW_VERSION__";
 
 const STATIC_PREFIXES = [
   "/_next/static/",
@@ -46,6 +46,12 @@ self.addEventListener("activate", function (event) {
   self.clients.claim();
 });
 
+self.addEventListener("message", function (event) {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener("fetch", function (event) {
   if (event.request.method !== "GET") {
     return;
@@ -60,18 +66,20 @@ self.addEventListener("fetch", function (event) {
   if (isStaticAsset(url)) {
     event.respondWith(
       caches.match(event.request).then(function (cached) {
-        return (
-          cached ||
-          fetch(event.request).then(function (response) {
-            if (response && response.status === 200) {
-              var clone = response.clone();
-              caches.open(CACHE_NAME).then(function (cache) {
-                cache.put(event.request, clone);
-              });
-            }
-            return response;
-          })
-        );
+        if (cached) {
+          return cached;
+        }
+        return fetch(event.request).then(function (response) {
+          if (response && response.status === 200) {
+            var clone = response.clone();
+            caches.open(CACHE_NAME).then(function (cache) {
+              cache.put(event.request, clone);
+            });
+          }
+          return response;
+        });
+        // Network errors for uncached chunks propagate — the chunk-load
+        // error boundary in ServiceWorkerRegistration.tsx catches these.
       })
     );
     return;
