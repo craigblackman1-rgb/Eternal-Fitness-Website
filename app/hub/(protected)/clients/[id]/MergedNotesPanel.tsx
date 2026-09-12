@@ -11,7 +11,7 @@ import {
   IconExternalLink,
   IconChevronRight,
 } from "@/components/icons";
-import type { ClientNote, SessionNoteData, MergedNote, NoteOrigin, PinnedNoteRef } from "@/types";
+import type { ClientNote, SessionNoteData, MergedNote, NoteOrigin, PinnedNoteRef, DBSession } from "@/types";
 import type { AggregatedExerciseNote } from "@/lib/exercise-notes";
 
 // ── Icons (inline SVGs not in the icon library) ────────────────────────
@@ -95,9 +95,11 @@ const OPEN_MONTHS = 2;
 interface MergedNotesPanelProps {
   clientId: string;
   clientName: string;
+  clientNumber: number;
   sessionNotes: SessionNoteData[];
   exerciseNotes: AggregatedExerciseNote[];
   pinnedNoteRefs: PinnedNoteRef[];
+  sessions: import("@/types").DBSession[];
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────
@@ -150,9 +152,11 @@ function dateOnly(iso: string): string {
 export function MergedNotesPanel({
   clientId,
   clientName,
+  clientNumber,
   sessionNotes,
   exerciseNotes,
   pinnedNoteRefs,
+  sessions,
 }: MergedNotesPanelProps) {
   const [profileNotes, setProfileNotes] = useState<ClientNote[]>([]);
   const [loading, setLoading] = useState(true);
@@ -569,6 +573,8 @@ export function MergedNotesPanel({
               onPin={handlePinToggle}
               onDelete={handleDelete}
               savingPin={savingPin}
+              clientNumber={clientNumber}
+              sessions={sessions}
             />
           )}
         </div>
@@ -598,11 +604,15 @@ function NoteTimeline({
   onPin,
   onDelete,
   savingPin,
+  clientNumber,
+  sessions,
 }: {
   notes: MergedNote[];
   onPin: (note: MergedNote) => void;
   onDelete: (id: string) => void;
   savingPin: string | null;
+  clientNumber: number;
+  sessions: DBSession[];
 }) {
   const [openDetails, setOpenDetails] = useState<Set<string>>(new Set());
   const query = ""; // Not needed here — search is handled upstream
@@ -653,6 +663,8 @@ function NoteTimeline({
                     onPin={onPin}
                     onDelete={onDelete}
                     savingPin={savingPin}
+                    clientNumber={clientNumber}
+                    sessions={sessions}
                   />
                 ))}
               </div>
@@ -696,6 +708,8 @@ function NoteTimeline({
                     onPin={onPin}
                     onDelete={onDelete}
                     savingPin={savingPin}
+                    clientNumber={clientNumber}
+                    sessions={sessions}
                   />
                 ))}
               </div>
@@ -712,11 +726,15 @@ function NoteRow({
   onPin,
   onDelete,
   savingPin,
+  clientNumber,
+  sessions,
 }: {
   note: MergedNote;
   onPin: (note: MergedNote) => void;
   onDelete: (id: string) => void;
   savingPin: string | null;
+  clientNumber: number;
+  sessions: DBSession[];
 }) {
   const o = ORIGIN_META[note.origin];
   const IconComp = o.Icon;
@@ -735,9 +753,16 @@ function NoteRow({
         ? `${note.sessionPos ?? ""}${note.sessionPos ? " · " : ""}${note.when}`
         : note.when;
 
-  const sessionLink = note.sessionId
-    ? `/hub/sessions/${note.sessionId}`
-    : null;
+  const sessionLink = (() => {
+    if (!note.sessionId) return null;
+    const session = sessions.find((s) => s.id === note.sessionId);
+    if (!session) return null;
+    if (session.session_number != null) {
+      const base = `/hub/clients/${clientNumber}/blocks/${session.block_id}/sessions/${session.session_number}`;
+      return session.parent_session_id ? `${base}?session=${session.id}` : base;
+    }
+    return `/hub/clients/${clientNumber}/blocks/${session.block_id}`;
+  })();
 
   return (
     <div className="flex items-start gap-3 py-[13px] px-1 border-t border-[var(--hub-border)] first:border-t-0 hover:bg-[var(--hub-hover)] transition-colors group">

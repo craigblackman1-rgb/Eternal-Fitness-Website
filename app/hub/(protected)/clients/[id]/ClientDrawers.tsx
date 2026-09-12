@@ -116,17 +116,29 @@ function daysUntil(iso: string | null): number | null {
   return Math.ceil((d.getTime() - Date.now()) / 86_400_000);
 }
 
+/** Build the correct session page URL for a session. Falls back to the block
+ *  page when session_number is absent. */
+function sessionPageUrl(session: DBSession, clientNumber: number): string {
+  const blockId = session.block_id;
+  if (session.session_number != null) {
+    const base = `/hub/clients/${clientNumber}/blocks/${blockId}/sessions/${session.session_number}`;
+    return session.parent_session_id ? `${base}?session=${session.id}` : base;
+  }
+  return `/hub/clients/${clientNumber}/blocks/${blockId}`;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    PROFILE — identity only
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function ProfileDrawer({ client, portalAccount, clientNotes, sessionNotes, exerciseNotes, pinnedNoteRefs }: {
+function ProfileDrawer({ client, portalAccount, clientNotes, sessionNotes, exerciseNotes, pinnedNoteRefs, sessions }: {
   client: any;
   portalAccount: any;
   clientNotes: any[];
   sessionNotes: SessionNoteData[];
   exerciseNotes: AggregatedExerciseNote[];
   pinnedNoteRefs: PinnedNoteRef[];
+  sessions: DBSession[];
 }) {
   const p = client.profile;
   const emergency = p?.emergency_contact;
@@ -227,9 +239,11 @@ function ProfileDrawer({ client, portalAccount, clientNotes, sessionNotes, exerc
       <MergedNotesPanel
         clientId={client.id}
         clientName={client.name}
+        clientNumber={client.client_number}
         sessionNotes={sessionNotes}
         exerciseNotes={exerciseNotes}
         pinnedNoteRefs={pinnedNoteRefs}
+        sessions={sessions}
       />
 
       {/* Record */}
@@ -1934,14 +1948,14 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
                     <span className="lrow2-a">
                       {hasLog ? (
                         <Link
-                          href={`/hub/sessions/${s.id}`}
+                          href={sessionPageUrl(s, clientNumber)}
                           className="inline-flex items-center justify-center h-[var(--h-control-sm)] px-2.5 rounded-control-sm border-0 bg-transparent text-[var(--color-body)] text-[12.5px] font-semibold cursor-pointer font-[inherit] hover:bg-[var(--hub-hover)] hover:text-[var(--color-ink)] transition-colors"
                         >
                           Open
                         </Link>
                       ) : (
                         <Link
-                          href={`/hub/sessions/${s.id}`}
+                          href={sessionPageUrl(s, clientNumber)}
                           className="inline-flex items-center justify-center h-[var(--h-control-sm)] px-2.5 rounded-control-sm border border-[var(--hub-border)] bg-white text-[var(--color-body)] text-[12.5px] font-semibold cursor-pointer font-[inherit] hover:bg-[var(--hub-hover)] hover:border-[var(--hub-field-border)] transition-colors"
                         >
                           Log the sets
@@ -2311,6 +2325,7 @@ export function ClientDrawers(props: ClientDrawersProps) {
         sessionNotes={props.sessionNotes}
         exerciseNotes={props.exerciseNotes}
         pinnedNoteRefs={props.pinnedNoteRefs}
+        sessions={props.sessions}
       />
       <HealthDrawer
         client={props.client}
