@@ -1,4 +1,10 @@
-const CACHE_NAME = "hub-shell-v2";
+import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
+
+const VERSION = (process.env.SOURCE_COMMIT ?? "").slice(0, 8) || Date.now().toString(36);
+
+const SW_SOURCE = String.raw`const CACHE_NAME = "hub-shell-${VERSION}";
 
 const STATIC_PREFIXES = [
   "/_next/static/",
@@ -46,6 +52,12 @@ self.addEventListener("activate", function (event) {
   self.clients.claim();
 });
 
+self.addEventListener("message", function (event) {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener("fetch", function (event) {
   if (event.request.method !== "GET") {
     return;
@@ -60,18 +72,18 @@ self.addEventListener("fetch", function (event) {
   if (isStaticAsset(url)) {
     event.respondWith(
       caches.match(event.request).then(function (cached) {
-        return (
-          cached ||
-          fetch(event.request).then(function (response) {
-            if (response && response.status === 200) {
-              var clone = response.clone();
-              caches.open(CACHE_NAME).then(function (cache) {
-                cache.put(event.request, clone);
-              });
-            }
-            return response;
-          })
-        );
+        if (cached) {
+          return cached;
+        }
+        return fetch(event.request).then(function (response) {
+          if (response && response.status === 200) {
+            var clone = response.clone();
+            caches.open(CACHE_NAME).then(function (cache) {
+              cache.put(event.request, clone);
+            });
+          }
+          return response;
+        });
       })
     );
     return;
@@ -85,3 +97,14 @@ self.addEventListener("fetch", function (event) {
     );
   }
 });
+`;
+
+export function GET() {
+  return new NextResponse(SW_SOURCE, {
+    headers: {
+      "Content-Type": "application/javascript; charset=utf-8",
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Service-Worker-Allowed": "/hub/",
+    },
+  });
+}
