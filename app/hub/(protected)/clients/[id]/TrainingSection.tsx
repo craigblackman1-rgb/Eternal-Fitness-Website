@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useDrawerManager } from "./DrawerManager";
 import { HubCard } from "@/components/hub";
@@ -116,12 +117,17 @@ export function TrainingSection({
         !s.parent_session_id &&
         !s.cancelled_at &&
         s.scheduled_at &&
-        new Date(s.scheduled_at).getTime() >= now,
+        (s.status === "in_progress" || s.started_at || new Date(s.scheduled_at).getTime() >= now),
     )
     .sort(
-      (a, b) =>
-        new Date(a.scheduled_at!).getTime() -
-        new Date(b.scheduled_at!).getTime(),
+      (a, b) => {
+        // In-progress sessions sort first
+        const aInProgress = a.status === "in_progress" || !!a.started_at;
+        const bInProgress = b.status === "in_progress" || !!b.started_at;
+        if (aInProgress && !bInProgress) return -1;
+        if (!aInProgress && bInProgress) return 1;
+        return new Date(a.scheduled_at!).getTime() - new Date(b.scheduled_at!).getTime();
+      },
     );
 
   // ── Sessions with a real workout (for glance + row derivation) ──
@@ -268,6 +274,8 @@ export function TrainingSection({
             const slot = programState?.slots.find((sl) => sl.id === booking.program_slot_id);
             const isNext = hasWorkout && !nextFound;
             if (isNext) nextFound = true;
+            const isInProgress = booking.status === "in_progress" || !!booking.started_at;
+            const sessionUrl = `/hub/clients/${clientNumber}/blocks/${booking.block_id}/sessions/${booking.session_number}`;
             return (
               <div key={booking.id} className="drow">
                 <span className="drow-d">
@@ -290,7 +298,9 @@ export function TrainingSection({
                   )}
                 </span>
                 <span className="drow-s">
-                  {hasWorkout ? (
+                  {isInProgress ? (
+                    <Link href={sessionUrl} className="badge b-primary">In progress</Link>
+                  ) : hasWorkout ? (
                     isNext ? (
                       <span className="badge b-primary">Next</span>
                     ) : (
