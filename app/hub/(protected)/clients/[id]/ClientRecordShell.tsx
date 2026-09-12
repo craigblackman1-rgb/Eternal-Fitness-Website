@@ -9,7 +9,7 @@ import { TrainingSection } from "./TrainingSection";
 import { TrainingDrawer } from "./TrainingDrawer";
 import { ClientDrawers } from "./ClientDrawers";
 import { RenewalFlow } from "./RenewalFlow";
-import type { DBBlock, DBSession } from "@/types";
+import type { DBBlock, DBSession, SetLog } from "@/types";
 import type { ExerciseTrend } from "@/lib/progress";
 import type { ComplianceFlags } from "@/lib/compliance";
 import type { UpdateInterval, UpdateDueInfo } from "@/lib/updates-due";
@@ -110,6 +110,7 @@ interface ClientRecordShellProps {
   baselineUsed: number;
   hubUsedCount: number;
   programmeLine: string;
+  setLogs: SetLog[];
 }
 
 export function ClientRecordShell({
@@ -190,6 +191,7 @@ export function ClientRecordShell({
   baselineUsed,
   hubUsedCount,
   programmeLine,
+  setLogs,
 }: ClientRecordShellProps) {
   const [showRenewal, setShowRenewal] = useState(false);
   const latestBlock = latestBlockProp;
@@ -389,6 +391,7 @@ export function ClientRecordShell({
         pinnedNoteRefs={pinnedNoteRefs}
         baselineUsed={baselineUsed}
         hubUsedCount={hubUsedCount}
+        setLogs={setLogs}
       />
 
       {/* C1a — Renewal flow dialog */}

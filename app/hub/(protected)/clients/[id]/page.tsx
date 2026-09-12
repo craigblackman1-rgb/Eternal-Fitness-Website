@@ -707,6 +707,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       pinnedNoteRefs={pinnedNoteRefs}
       baselineUsed={baselineUsed}
       hubUsedCount={hubUsedCount}
+      setLogs={combinedSetLogs}
     />
     </CrumbNameSetter>
   );

@@ -20,7 +20,7 @@ import { PackagePaymentsCard } from "@/components/hub/PackagePaymentsCard";
 import { GracePeriodExtension } from "@/components/hub/GracePeriodExtension";
 import { PotLedger } from "./PotLedger";
 import { pronouns } from "@/lib/pronouns";
-import type { DBBlock, DBSession, SessionNoteData, PinnedNoteRef } from "@/types";
+import type { DBBlock, DBSession, SessionNoteData, PinnedNoteRef, SetLog } from "@/types";
 import type { ExerciseTrend } from "@/lib/progress";
 import type { ComplianceFlags } from "@/lib/compliance";
 import type { UpdateInterval, UpdateDueInfo } from "@/lib/updates-due";
@@ -93,6 +93,7 @@ interface ClientDrawersProps {
   pinnedNoteRefs: PinnedNoteRef[];
   baselineUsed: number;
   hubUsedCount: number;
+  setLogs: SetLog[];
 }
 
 function fmtDate(iso: string | null): string {
@@ -1549,7 +1550,7 @@ function WorkoutDrawer({ sessions, ruleTypesById }: { sessions: DBSession[]; rul
    programme reviews. Rebuilt to training-progress-drawer-v1.html (CR-EF-186).
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks, clientNumber, client }: {
+function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks, clientNumber, client, setLogs }: {
   exerciseTrends: ExerciseTrend[];
   exerciseTrendSummary?: {
     totalExercisesLogged: number;
@@ -1562,6 +1563,7 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
   blocks: DBBlock[];
   clientNumber: number;
   client: any;
+  setLogs: SetLog[];
 }) {
   const { closeDrawer } = useDrawerManager();
   // ── Shared: main sessions only (exclude sub-sessions, Outlook placeholders, Trainerize imports) ──
@@ -1574,22 +1576,11 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
     (s) => s.status === "completed" || s.completed_at,
   );
 
-  // ── Set logs per session (from exercise trends — each point is one session's logs) ──
+  // ── Set logs per session — count directly from set_logs by session_id ──
   const sessionSetCounts = new Map<string, number>();
-  for (const s of completedSessions) {
-    let count = 0;
-    for (const trend of exerciseTrends) {
-      for (const pt of trend.points) {
-        if (pt.loggedAt && s.completed_at) {
-          const ptDate = new Date(pt.loggedAt).getTime();
-          const sDate = new Date(s.completed_at).getTime();
-          if (Math.abs(ptDate - sDate) < 86_400_000) {
-            count += pt.completedSets;
-          }
-        }
-      }
-    }
-    sessionSetCounts.set(s.id, count);
+  for (const log of setLogs) {
+    const sid = (log as any).session_id;
+    if (sid) sessionSetCounts.set(sid, (sessionSetCounts.get(sid) ?? 0) + 1);
   }
 
   // ── 1. How it's going ──
@@ -1919,7 +1910,7 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
       <div className="fcard acc-ink">
         <div className="fcard-h">
           Session log
-          <span className="sub">{sessionsCompleted} completed \u00b7 newest first</span>
+          <span className="sub">{sessionsCompleted} completed {"\u00b7"} newest first</span>
         </div>
         <div className="fcard-b">
           {visibleLogSessions.length > 0 ? (
@@ -2210,7 +2201,7 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
             </>
           ) : (
             <div className="miss">
-              No baseline recorded \u00b7 <Link href={`/hub/clients/${clientNumber}/edit`} className="text-[var(--color-rose)] hover:underline">Add on Edit</Link>
+              No baseline recorded {"\u00b7"} <Link href={`/hub/clients/${clientNumber}/edit`} className="text-[var(--color-rose)] hover:underline">Add on Edit</Link>
             </div>
           )}
         </div>
@@ -2228,7 +2219,7 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
             ))
           ) : (
             <div className="miss">
-              No milestones set \u00b7 <Link href={`/hub/clients/${clientNumber}/edit`} className="text-[var(--color-rose)] hover:underline">Add on Edit</Link>
+              No milestones set {"\u00b7"} <Link href={`/hub/clients/${clientNumber}/edit`} className="text-[var(--color-rose)] hover:underline">Add on Edit</Link>
             </div>
           )}
         </div>
@@ -2247,7 +2238,7 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
             <span>Cancelled, charged<b>{cancelledCharged}</b></span>
           </div>
           <p className="miss" style={{ marginTop: 12 }}>
-            Only the {sessionsCompleted} completed took a session from the pot. The free cancellation{cancelledNotCharged !== 1 ? "s" : ""} took none \u2014 the rule is unchanged.
+            Only the {sessionsCompleted} completed took a session from the pot. The free cancellation{cancelledNotCharged !== 1 ? "s" : ""} took none {"\u2014"} the rule is unchanged.
           </p>
         </div>
       </div>
@@ -2276,7 +2267,7 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
                   <span className="hrow2-m">
                     <span className="hrow2-n">{block.title || `Block ${block.block_number}`}</span>
                     <span className="hrow2-s">
-                      {isCurrent ? "Current" : "Complete"} \u00b7 {completedInBlock} of {totalInBlock}
+                      {isCurrent ? "Current" : "Complete"} {"\u00b7"} {completedInBlock} of {totalInBlock}
                     </span>
                   </span>
                   <span className="hrow2-a">
@@ -2389,6 +2380,7 @@ export function ClientDrawers(props: ClientDrawersProps) {
         blocks={props.blocks}
         clientNumber={props.client.client_number}
         client={props.client}
+        setLogs={props.setLogs}
       />
       {/* C1a — Pot ledger drawer */}
       <PotLedgerDrawer
