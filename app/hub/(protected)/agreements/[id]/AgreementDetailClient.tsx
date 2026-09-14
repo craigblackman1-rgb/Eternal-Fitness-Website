@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import BackLink from "@/components/hub/BackLink";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -250,12 +252,13 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         <div className="flex items-center gap-4 flex-1">
-          <Link href="/hub/agreements">
-            <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg">
-              <IconArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
-          </Link>
+          <BackLink
+            fallbackHref="/hub/agreements"
+            className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "gap-1.5 rounded-lg")}
+          >
+            <IconArrowLeft className="w-4 h-4" />
+            Back
+          </BackLink>
           <div>
             <h1 className="text-xl font-bold tracking-tight text-foreground">{data.client_name}</h1>
             <p className="text-sm text-muted-foreground mt-0.5">Signed {formatDate(data.signed_at)}</p>
@@ -291,12 +294,13 @@ export default function AgreementDetailClient({ agreement, clientNumber }: { agr
             )}
           </Button>
           {clientNumber != null && (
-            <Link href={`/hub/clients/${clientNumber}`}>
-              <Button variant="outline" size="sm" className="gap-1.5 rounded-lg">
-                <IconArrowLeft className="w-4 h-4" />
-                Open client profile
-              </Button>
-            </Link>
+            <BackLink
+              fallbackHref={`/hub/clients/${clientNumber}`}
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-1.5 rounded-lg")}
+            >
+              <IconArrowLeft className="w-4 h-4" />
+              Open client profile
+            </BackLink>
           )}
         </div>
       </div>

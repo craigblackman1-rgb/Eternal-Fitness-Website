@@ -166,7 +166,7 @@ export default async function PlanNewProgrammePage({
       <div className="max-w-[1100px] mx-auto">
         {/* Back link */}
         <BackLink
-          fallback={`/hub/clients/${client.client_number}`}
+          fallbackHref={`/hub/clients/${client.client_number}`}
           className="inline-flex items-center gap-1 text-[12.5px] text-[var(--color-body)] hover:text-[var(--color-ink)] no-underline mb-[7px]"
         >
           &#8249; {client.name}

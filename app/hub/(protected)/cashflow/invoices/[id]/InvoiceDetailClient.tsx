@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HubCard, HubCardHeader, HubPageHeader, StatusBadge } from "@/components/hub";
@@ -137,10 +138,13 @@ export function InvoiceDetailClient({ invoice, lineItems, deliveryHistory }: Inv
     <div className="space-y-6">
       <HubPageHeader
         title={
-          <Link href="/hub/cashflow/invoices" className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
+          <BackLink
+            fallbackHref="/hub/cashflow/invoices"
+            className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
+          >
             <IconChevronLeft className="w-4 h-4" />
             Invoice {invoice.invoice_number}
-          </Link>
+          </BackLink>
         }
         actions={
           <div className="flex items-center gap-2">

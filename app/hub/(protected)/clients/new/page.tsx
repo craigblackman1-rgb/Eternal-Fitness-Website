@@ -707,7 +707,7 @@ export default function NewClientPage() {
       {/* Page header */}
       <div>
         <BackLink
-          fallback="/hub/clients"
+          fallbackHref="/hub/clients"
           className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground rounded-nested px-2 py-1 -ml-2 mb-3 transition-colors"
         >
           <IconChevronLeft className="h-3.5 w-3.5" />

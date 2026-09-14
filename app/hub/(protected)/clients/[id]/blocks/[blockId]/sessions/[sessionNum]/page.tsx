@@ -443,7 +443,7 @@ export default function SessionViewPage({
   return (
     <div className="space-y-6">
       <div>
-        <BackLink fallback={`/hub/clients/${params.id}/blocks/${params.blockId}`} className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
+        <BackLink fallbackHref={`/hub/clients/${params.id}/blocks/${params.blockId}`} className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
           <IconChevronLeft className="h-5 w-5" />
           Back to Block
         </BackLink>

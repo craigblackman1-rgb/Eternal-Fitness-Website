@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { IconChevronLeft } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { PrintButton } from "./print-button";
@@ -72,12 +72,12 @@ export default async function BlockPrintPage({
       `}</style>
 
       <div className="no-print flex items-center gap-4 mb-6">
-        <Link
-          href={`/hub/clients/${client?.client_number || params.id}/blocks/${params.blockId}`}
+        <BackLink
+          fallbackHref={`/hub/clients/${client?.client_number || params.id}/blocks/${params.blockId}`}
           className="text-muted-foreground hover:text-foreground"
         >
           <IconChevronLeft className="h-5 w-5" />
-        </Link>
+        </BackLink>
         <div className="flex-1">
           <h1 className="text-2xl font-semibold tracking-tight">
             Block {block.block_number} &mdash; Print View

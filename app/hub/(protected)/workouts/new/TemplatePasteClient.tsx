@@ -2,6 +2,7 @@
 
 import { Fragment, useRef, useState } from "react";
 import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { Button } from "@/components/ui/button";
 import { HubCard, HubCardHeader } from "@/components/hub";
 import { RichTextEditor } from "@/components/hub/RichTextEditor";
@@ -199,9 +200,12 @@ export function TemplatePasteClient({ startBlank = false }: { startBlank?: boole
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/hub/workouts" className="text-muted-foreground hover:text-foreground">
+        <BackLink
+          fallbackHref="/hub/workouts"
+          className="text-muted-foreground hover:text-foreground"
+        >
           <IconChevronLeft className="h-5 w-5" />
-        </Link>
+        </BackLink>
         <div>
           <h1 className="text-xl font-semibold tracking-tight">New workout template</h1>
           <p className="text-muted-foreground">

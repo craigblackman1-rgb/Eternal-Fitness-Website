@@ -147,7 +147,7 @@ export function ReviewFlowClient({
     <div className="space-y-4 max-w-[900px] mx-auto">
       {/* Back link */}
       <BackLink
-        fallback={`/hub/clients/${clientNumber}`}
+        fallbackHref={`/hub/clients/${clientNumber}`}
         className="inline-flex items-center gap-1 text-[12.5px] font-medium text-muted-foreground hover:text-foreground transition-colors rounded-nested px-2 py-0.5 -ml-2"
       >
         <IconChevronLeft className="w-4 h-4" />
@@ -923,7 +923,7 @@ function ConfirmationPanel({
   return (
     <div className="space-y-4 max-w-[900px] mx-auto">
       <BackLink
-        fallback={`/hub/clients/${clientNumber}`}
+        fallbackHref={`/hub/clients/${clientNumber}`}
         className="inline-flex items-center gap-1 text-[12.5px] font-medium text-muted-foreground hover:text-foreground transition-colors rounded-nested px-2 py-0.5 -ml-2"
       >
         <IconChevronLeft className="w-4 h-4" />
@@ -951,7 +951,7 @@ function ConfirmationPanel({
 
           <div className="flex items-center justify-center gap-2.5 mt-5">
             <BackLink
-              fallback={`/hub/clients/${clientNumber}`}
+              fallbackHref={`/hub/clients/${clientNumber}`}
               className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] text-[13px] font-semibold text-foreground hover:bg-[var(--hub-hover)] transition-colors"
             >
               Back to {client.name}

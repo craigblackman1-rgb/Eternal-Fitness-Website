@@ -324,7 +324,7 @@ export function UnassignedOutlookSessions() {
       </HubCard>
 
       <p className="text-xs text-muted-foreground">
-        <BackLink fallback="/hub/schedule/outlook" className="underline underline-offset-2">Back to Outlook reconciliation</BackLink>
+        <BackLink fallbackHref="/hub/schedule/outlook" className="underline underline-offset-2">Back to Outlook reconciliation</BackLink>
       </p>
     </div>
   );

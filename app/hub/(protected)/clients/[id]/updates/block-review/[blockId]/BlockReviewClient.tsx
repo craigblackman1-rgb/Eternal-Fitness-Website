@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { cn } from "@/lib/utils";
 import { IconChevronLeft, IconCheckCircle, IconTriangleAlert, IconClipboardList, IconRefreshCw, IconClock } from "@/components/icons";
 import { NewUpdateClient } from "../../new/NewUpdateClient";
@@ -100,13 +100,13 @@ export function BlockReviewClient({
 
   return (
     <div className="w-full space-y-3.5">
-      <Link
-        href={`/hub/clients/${clientNumber}`}
+      <BackLink
+        fallbackHref={`/hub/clients/${clientNumber}`}
         className="inline-flex items-center gap-1 text-[12.5px] font-medium text-[var(--color-body)] hover:text-[var(--color-ink)] transition-colors -ml-2 px-2 py-0.5"
       >
         <IconChevronLeft className="w-4 h-4" />
         {clientName}
-      </Link>
+      </BackLink>
 
       {/* Header */}
       <div className="flex items-start gap-3.5">

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { HubCard, HubCardHeader } from "@/components/hub";
@@ -45,9 +46,12 @@ export default async function UpdatesHistoryPage({ params }: { params: { id: str
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href={`/hub/clients/${params.id}`} className="text-muted-foreground hover:text-foreground">
+        <BackLink
+          fallbackHref={`/hub/clients/${params.id}`}
+          className="text-muted-foreground hover:text-foreground"
+        >
           <IconChevronLeft className="h-5 w-5" />
-        </Link>
+        </BackLink>
         <div className="flex-1">
           <h1 className="text-xl font-semibold tracking-tight">Updates</h1>
           <p className="text-muted-foreground">{client.name}</p>

@@ -22,7 +22,7 @@ export default function ResourcePreviewPage({ params }: { params: { key: string 
     <div className="space-y-5">
       <div className="space-y-3">
         <BackLink
-          fallback="/hub/resources"
+          fallbackHref="/hub/resources"
           className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
         >
           <IconChevronLeft className="h-3.5 w-3.5" />

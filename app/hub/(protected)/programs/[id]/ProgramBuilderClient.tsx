@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { HubPageHeader } from "@/components/hub/HubPageHeader";
 import { HubCard } from "@/components/hub/HubCard";
 import { TokenPill } from "@/components/hub/StatusBadge";
@@ -936,13 +936,13 @@ export function ProgramBuilderClient({
 
   return (
     <div className="space-y-4">
-      <Link
-        href="/hub/programs"
+      <BackLink
+        fallbackHref="/hub/programs"
         className="inline-flex items-center gap-1.5 text-[12.5px] text-body hover:text-foreground"
       >
         <IconArrowLeft className="h-3.5 w-3.5" />
         Programs
-      </Link>
+      </BackLink>
 
       <HubPageHeader
         title={

@@ -117,7 +117,7 @@ export function ClientRecordHeader({
   return (
     <>
       <BackLink
-        fallback="/hub/clients"
+        fallbackHref="/hub/clients"
         className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-body)] no-underline hover:text-[var(--color-ink)] mb-1.5"
       >
         ‹ Clients

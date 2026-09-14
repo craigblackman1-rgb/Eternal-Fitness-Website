@@ -314,7 +314,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
       {/* Header */}
       <div className="mb-5">
         <BackLink
-          fallback={`/hub/clients/${params.id}`}
+          fallbackHref={`/hub/clients/${params.id}`}
           className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground rounded-nested px-2 py-1 -ml-2 mb-3 transition-colors"
         >
           &lsaquo; {name || "client"}

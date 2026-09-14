@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase-server";
-import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { notFound } from "next/navigation";
 import { IconChevronLeft } from "@/components/icons";
 import { PlanAgentTab } from "../PlanAgentTab";
@@ -18,13 +18,13 @@ export default async function PlanAgentPage({ params }: { params: { id: string }
 
   return (
     <div className="space-y-6 pb-24">
-      <Link
-        href={`/hub/clients/${client.client_number}`}
+      <BackLink
+        fallbackHref={`/hub/clients/${client.client_number}`}
         className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--color-body)] no-underline hover:text-[var(--color-ink)]"
       >
         <IconChevronLeft className="h-4 w-4" />
         {firstName}&apos;s record
-      </Link>
+      </BackLink>
 
       <PlanAgentTab
         clientNumber={client.client_number}

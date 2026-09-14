@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { notFound } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -52,9 +53,12 @@ export default async function ClientDocumentsPage({ params }: { params: { id: st
     <CrumbNameSetter name={client.name}>
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href={`/hub/clients/${clientNumber}`} className="text-muted-foreground hover:text-foreground">
+        <BackLink
+          fallbackHref={`/hub/clients/${clientNumber}`}
+          className="text-muted-foreground hover:text-foreground"
+        >
           <IconChevronLeft className="h-5 w-5" />
-        </Link>
+        </BackLink>
         <div className="flex-1">
           <h1 className="text-xl font-semibold tracking-tight">Documents</h1>
           <p className="text-muted-foreground">{client.name}</p>

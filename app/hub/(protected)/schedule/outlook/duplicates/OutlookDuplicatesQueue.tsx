@@ -192,7 +192,7 @@ export function OutlookDuplicatesQueue() {
       </HubCard>
 
       <p className="text-xs text-muted-foreground">
-        Sync paused on open rows · check +15 min. <BackLink fallback="/hub/schedule" className="underline underline-offset-2">Back to schedule</BackLink>
+        Sync paused on open rows · check +15 min. <BackLink fallbackHref="/hub/schedule" className="underline underline-offset-2">Back to schedule</BackLink>
       </p>
     </div>
   );

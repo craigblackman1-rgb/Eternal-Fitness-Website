@@ -294,7 +294,7 @@ export function OutlookBookingsQueue() {
       </HubCard>
 
       <p className="text-xs text-muted-foreground">
-        Synced with Outlook every 15 minutes. <BackLink fallback="/hub/schedule" className="underline underline-offset-2">Back to schedule</BackLink>
+        Synced with Outlook every 15 minutes. <BackLink fallbackHref="/hub/schedule" className="underline underline-offset-2">Back to schedule</BackLink>
       </p>
 
       <BlockPickerDialog

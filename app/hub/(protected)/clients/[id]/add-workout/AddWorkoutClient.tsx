@@ -992,7 +992,7 @@ export function AddWorkoutClient({
                 Add another workout
               </button>
               <BackLink
-                fallback={`/hub/clients/${clientNumber}`}
+                fallbackHref={`/hub/clients/${clientNumber}`}
                 className="inline-flex items-center justify-center h-9 px-3.5 rounded-lg bg-rose hover:bg-rose/90 text-white text-[13px] font-semibold transition-colors"
               >
                 Back to {clientName}&rsquo;s profile

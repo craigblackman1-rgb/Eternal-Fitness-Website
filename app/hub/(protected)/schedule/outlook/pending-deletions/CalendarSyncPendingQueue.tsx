@@ -195,7 +195,7 @@ export function CalendarSyncPendingQueue() {
       {/* Quick actions */}
       <div className="flex items-center gap-3 flex-wrap">
         <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Quick actions</span>
-        <BackLink fallback="/hub/schedule" className="inline-flex items-center gap-2 min-h-[40px] px-3.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] text-sm font-semibold text-foreground hover:border-[var(--color-rose)] hover:bg-[var(--status-primary-bg)] transition-colors">
+        <BackLink fallbackHref="/hub/schedule" className="inline-flex items-center gap-2 min-h-[40px] px-3.5 rounded-lg border border-[var(--hub-field-border)] bg-[var(--hub-card)] text-sm font-semibold text-foreground hover:border-[var(--color-rose)] hover:bg-[var(--status-primary-bg)] transition-colors">
           <IconCalendar className="h-4 w-4 text-[var(--color-rose)]" />
           Back to schedule
         </BackLink>

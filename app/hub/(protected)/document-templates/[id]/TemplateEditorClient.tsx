@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -61,9 +62,12 @@ export function TemplateEditorClient({ template, clients }: { template: Document
     <div className="space-y-6">
       <div className="flex items-start gap-4 justify-between">
         <div className="flex items-start gap-4 min-w-0 flex-1">
-          <Link href="/hub/document-templates" className="text-muted-foreground hover:text-foreground shrink-0 mt-1">
+          <BackLink
+            fallbackHref="/hub/document-templates"
+            className="text-muted-foreground hover:text-foreground shrink-0 mt-1"
+          >
             <IconChevronLeft className="h-5 w-5" />
-          </Link>
+          </BackLink>
           <div className="min-w-0">
             <h1 className="text-xl font-semibold tracking-tight">Edit template</h1>
             <p className="text-muted-foreground text-sm mt-1">Changes apply to documents created from now on. Already-signed documents keep the version they were signed against.</p>

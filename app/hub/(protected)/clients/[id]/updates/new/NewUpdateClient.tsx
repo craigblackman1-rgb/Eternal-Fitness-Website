@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { IconChevronLeft, IconSend, IconAlertTriangle, IconEye, IconEyeOff, IconSave, IconMail, IconClock, IconSparkles } from "@/components/icons";
-import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { toast } from "sonner";
 import { UpdateChatPanel } from "./UpdateChatPanel";
 import { RichTextEditor } from "@/components/hub/RichTextEditor";
@@ -438,9 +438,12 @@ export function NewUpdateClient({
     <div className="space-y-6">
       {!embedded && (
         <div className="flex items-center gap-4">
-          <Link href={`/hub/clients/${clientNumber}/updates`} className="text-muted-foreground hover:text-foreground">
+          <BackLink
+            fallbackHref={`/hub/clients/${clientNumber}/updates`}
+            className="text-muted-foreground hover:text-foreground"
+          >
             <IconChevronLeft className="h-5 w-5" />
-          </Link>
+          </BackLink>
           <div>
             <h1 className="text-xl font-semibold tracking-tight">{isEdit ? "Edit Update" : "New Update"}</h1>
             <p className="text-muted-foreground">

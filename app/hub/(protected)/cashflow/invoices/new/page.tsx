@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { toast } from "sonner";
 import { HubPageHeader, HubCard, HubCardHeader, EmptyState } from "@/components/hub";
 import { Button } from "@/components/ui/button";
@@ -179,10 +180,13 @@ export default function NewInvoicePage() {
     <div className="space-y-6">
       <HubPageHeader
         title={
-          <Link href="/hub/cashflow/invoices" className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
+          <BackLink
+            fallbackHref="/hub/cashflow/invoices"
+            className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
+          >
             <IconChevronLeft className="w-4 h-4" />
             New invoice
-          </Link>
+          </BackLink>
         }
       />
 

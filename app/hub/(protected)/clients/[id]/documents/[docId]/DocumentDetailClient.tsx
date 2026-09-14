@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import BackLink from "@/components/hub/BackLink";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { HubCard, HubCardHeader, HubPageHeader } from "@/components/hub";
@@ -134,9 +134,12 @@ export function DocumentDetailClient({
       <HubPageHeader
         title={
           <span className="flex items-center gap-1.5 flex-wrap">
-            <Link href={`/hub/clients/${clientNumber}/documents`} className="text-muted-foreground hover:text-foreground transition-colors">
+            <BackLink
+              fallbackHref={`/hub/clients/${clientNumber}/documents`}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
               <IconChevronLeft className="h-5 w-5" />
-            </Link>
+            </BackLink>
             <span className="flex items-center gap-2 flex-wrap">
               {doc.title}
               <StatusBadge status={doc.status} />

@@ -1,9 +1,10 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { HubPageHeader, HubCard, EmptyState, StatusBadge } from "@/components/hub";
 import { IconChevronLeft } from "@/components/icons";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import BackLink from "@/components/hub/BackLink";
 import { TransactionTable } from "./transaction-table";
 
 interface ImportDetailPageProps {
@@ -53,12 +54,13 @@ export default async function ImportDetailPage({ params }: ImportDetailPageProps
           </span>
         }
         actions={
-          <Link href="/hub/cashflow/transactions">
-            <Button variant="outline" size="sm" className="rounded-lg gap-1.5">
-              <IconChevronLeft className="w-4 h-4" />
-              Back
-            </Button>
-          </Link>
+          <BackLink
+            fallbackHref="/hub/cashflow/transactions"
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }), "rounded-lg gap-1.5")}
+          >
+            <IconChevronLeft className="w-4 h-4" />
+            Back
+          </BackLink>
         }
       />
 
