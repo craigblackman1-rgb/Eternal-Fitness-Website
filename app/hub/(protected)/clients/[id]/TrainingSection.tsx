@@ -94,8 +94,10 @@ export function TrainingSection({
   const { openDrawer } = useDrawerManager();
 
   // ── Session pot derivation (BUG-EF-142 — baseline is mandatory) ──
+  // BUG-EF-184 — derive pot from block-scoped sessions so completed/used
+  // counts reflect only the current block, not all historical blocks.
   const isOngoing = !sessionsPurchased || packageType === "ongoing";
-  const potSessions = allSessions.filter((s) => !s.parent_session_id);
+  const potSessions = blockSessions.filter((s) => !s.parent_session_id);
   const pot = deriveSessionPot(potSessions, sessionsPurchased ?? null, baselineUsed);
   const remaining = pot.remaining ?? 0;
   const purchased = pot.purchased;
@@ -146,19 +148,28 @@ export function TrainingSection({
   const completedCount = sessionsWithWorkouts.filter((s) => !!s.completed_at).length;
   // BUG-EF-180: "Next up" must be booking-based (first upcoming booking with a workout),
   // not slot-position-based. For a trainer walking in, "next" means the next booked session.
+  // BUG-EF-195: exclude sessions already in progress or started — "next" must be the
+  // first upcoming booking strictly after now, never one whose start has passed.
   const nextSessionWithWorkout = upcomingBookings.find(
     (s) =>
       !isOutlookPlaceholder(s) &&
       !sessionHasNoExercises(s.data) &&
-      !isTrainerizeImported(s),
+      !isTrainerizeImported(s) &&
+      !(s.status === "in_progress" || !!s.started_at),
   );
   const isProgrammeComplete = totalWithWorkouts > 0 && completedCount >= totalWithWorkouts;
 
   // ── Completed sessions count ──
-  const sessionsDone = used;
+  // BUG-EF-184 — "sessions completed" must reflect actual completions (pot.completed),
+  // not pot.used which includes baseline + charged cancellations.
+  // Attendance denominator = completed + charged cancellations + unreviewed
+  // cancellations (all non-free, non-sub sessions that count against the pot).
+  const sessionsCompleted = pot.completed;
+  const attendanceDenominator =
+    pot.completed + pot.chargedCancellations + pot.unreviewedCancellations;
   const attendanceRate =
-    sessionsDone > 0
-      ? Math.round((pot.completed / sessionsDone) * 100)
+    attendanceDenominator > 0
+      ? Math.round((sessionsCompleted / attendanceDenominator) * 100)
       : null;
 
   // ── Last logged date ──
@@ -333,7 +344,7 @@ export function TrainingSection({
       <div className="drow" style={{ color: "var(--color-muted)", fontSize: 12.5 }}>
         <span className="drow-d">&nbsp;</span>
         <span className="drow-w" style={{ fontSize: 12.5, color: "var(--color-muted)" }}>
-          {sessionsDone} session{sessionsDone === 1 ? "" : "s"} completed
+          {sessionsCompleted} session{sessionsCompleted === 1 ? "" : "s"} completed
           {attendanceRate !== null && <> · {attendanceRate}% attendance</>}
           {lastCompleted?.completed_at && <> · last logged {fmtDateShort(lastCompleted.completed_at)}</>}
         </span>

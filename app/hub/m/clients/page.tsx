@@ -146,10 +146,21 @@ export default async function MobileClientsPage() {
       const flagCount = medicalFlags.length + (complianceFlagged ? 1 : 0);
 
       const clientBlocks = (blocksByClient.get(client.id) ?? []).slice().sort((a, b) => b.block_number - a.block_number);
-      const currentBlock =
-        clientBlocks.find((b) => b.status === "active") ??
-        clientBlocks.find((b) => b.status === "approved") ??
-        clientBlocks[0];
+
+      // BUG-EF-182 — prefer the block containing the nearest upcoming or
+      // in-progress session, not just the first by status. A stale "active"
+      // block with no upcoming sessions should yield to a newer block that
+      // has real upcoming bookings.
+      const clientSessionsAll = (sessionsByClient.get(client.id) ?? []);
+      const nearestUpcomingBlockId = clientSessionsAll
+        .filter((s) => s.scheduled_at && !s.cancelled_at && !s.parent_session_id)
+        .filter((s) => new Date(s.scheduled_at as string).getTime() >= now.getTime())
+        .sort((a, b) => new Date(a.scheduled_at as string).getTime() - new Date(b.scheduled_at as string).getTime())[0]?.block_id ?? null;
+
+      const currentBlock = (nearestUpcomingBlockId ? clientBlocks.find((b) => b.id === nearestUpcomingBlockId) : null)
+        ?? clientBlocks.find((b) => b.status === "active")
+        ?? clientBlocks.find((b) => b.status === "approved")
+        ?? clientBlocks[0];
 
       let blockLabel: string | null = null;
       if (currentBlock) {
