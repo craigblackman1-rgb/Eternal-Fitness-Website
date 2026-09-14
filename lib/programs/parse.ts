@@ -12,6 +12,7 @@
 
 import { getAiConfig, aiChat } from "@/lib/ai-client";
 import type { ParsedProgram, ParsedSlot, SlotData, ProgramSection, ProgramExercise } from "./types";
+import { dedupeWorkoutsByContent } from "./dedupe-workouts";
 
 type SlotParseResult = ParsedSlot | { failed: true; label: string };
 
@@ -403,7 +404,8 @@ export async function parseProgram(text: string): Promise<ParsedProgram | null> 
 
     if (slots.length > 0) {
       const resolved = resolveCrossSlotReferences(slots);
-      return assembleProgram(resolved);
+      const deduped = dedupeWorkoutsByContent(resolved);
+      return assembleProgram(deduped);
     }
     // All parallel calls failed — fall through to whole-text parse as fallback
   }
@@ -462,5 +464,7 @@ export async function parseProgram(text: string): Promise<ParsedProgram | null> 
     throw new Error(`Could not parse AI response: ${parseError ?? "unknown"}`);
   }
 
-  return normalizeProgram(parsed);
+  const normalized = normalizeProgram(parsed);
+  normalized.slots = dedupeWorkoutsByContent(normalized.slots);
+  return normalized;
 }
