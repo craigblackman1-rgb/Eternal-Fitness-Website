@@ -124,6 +124,21 @@ const nextConfig = {
       { source: "/exercising-with-a-medical-condition", destination: "/specialist-training", permanent: true },
       { source: "/terms-conditions", destination: "/terms", permanent: true },
 
+      // Legacy WordPress media and infrastructure paths (CR-INF-013).
+      // Google Search Console still shows /wp-content/uploads/* URLs ranking.
+      // PDFs were pricing/offer sheets — nearest live page is /personal-training.
+      { source: "/wp-content/uploads/:path(.*\\.pdf)", destination: "/personal-training", permanent: true },
+      { source: "/wp-content/uploads/:path*", destination: "/", permanent: true },
+      { source: "/wp-content/:path*", destination: "/", permanent: true },
+      { source: "/wp-includes/:path*", destination: "/", permanent: true },
+      { source: "/wp-admin/:path*", destination: "/", permanent: true },
+      { source: "/wp-json/:path*", destination: "/", permanent: true },
+      { source: "/feed", destination: "/blog", permanent: true },
+      { source: "/feed/:path*", destination: "/blog", permanent: true },
+      { source: "/comments/feed", destination: "/blog", permanent: true },
+      { source: "/xmlrpc.php", destination: "/", permanent: true },
+      { source: "/wp-login.php", destination: "/", permanent: true },
+
       // --- Specialist pages restructure (2026-08-10) ---
       // The business narrowed to three specialisms: blind/partially sighted,
       // cancer rehabilitation, and strength/balance for older adults. The old
