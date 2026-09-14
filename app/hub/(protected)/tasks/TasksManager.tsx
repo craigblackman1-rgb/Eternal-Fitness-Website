@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HubCard, HubCardHeader, EmptyState } from "@/components/hub";
 import { Toolbar, toolbarSelectClasses } from "@/components/hub/Toolbar";
 import { Button } from "@/components/ui/button";
@@ -163,13 +163,25 @@ export function TasksManager({ initialTasks, initialBuckets, currentUserName, cl
   const [clientFilter, setClientFilter] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<SortKey>("due_date");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
-  // Default to "my tasks" whenever the logged-in user's name matches an assignee option
-  // (e.g. Esther logging in as "Esther Fair") — otherwise show everything.
-  const [showOnlyMine, setShowOnlyMine] = useState(
-    () => !!currentUserName && ASSIGNEE_OPTIONS.includes(currentUserName),
-  );
+  const [showOnlyMine, setShowOnlyMine] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      const stored = localStorage.getItem("ef.tasks.myTasksOnly");
+      return stored === "true";
+    } catch {
+      return false;
+    }
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [showManageBuckets, setShowManageBuckets] = useState(false);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("ef.tasks.myTasksOnly", String(showOnlyMine));
+    } catch {
+      // storage unavailable — ignore
+    }
+  }, [showOnlyMine]);
   const [editingBucketId, setEditingBucketId] = useState<string | null>(null);
   const [bucketNameDraft, setBucketNameDraft] = useState("");
   const [bucketBusy, setBucketBusy] = useState(false);
