@@ -102,6 +102,43 @@ export function sessionHasNoExercises(data: {
 }
 
 /**
+ * Single source of truth for "does this session have a workout applied?"
+ * (BUG-EF-145 — table and drawer must agree.)
+ *
+ * Decision: a Trainerize-imported session that resolves to a programme slot
+ * with exercises IS a workout — the import is real content, now deduped by
+ * BUG-EF-139. `isTrainerizeImported` may still hide the "imported from
+ * Trainerize" label, but must not by itself turn a real workout into
+ * "No workout applied yet".
+ *
+ * Outlook placeholders and sessions with no exercises are always "nothing
+ * applied".
+ */
+export function sessionHasWorkout(
+  session: {
+    archetype?: string | null;
+    week?: number | null;
+    phase?: string | null;
+    program_slot_id?: string | null;
+    data?: {
+      focus_label?: string;
+      coaching_notes?: string;
+      versions?: {
+        studio?: { warm_up?: unknown[]; main_block?: unknown[]; cooldown?: unknown[] };
+        home?: { warm_up?: unknown[]; main_block?: unknown[]; cooldown?: unknown[] };
+      };
+    };
+  },
+  slot?: { id: string } | null,
+): boolean {
+  if (isOutlookPlaceholder(session)) return false;
+  if (sessionHasNoExercises(session.data ?? {})) return false;
+  // Trainerize import without a slot — not a real workout
+  if (isTrainerizeImported(session) && !slot && !session.program_slot_id) return false;
+  return true;
+}
+
+/**
  * Format the secondary block context line: "Block 1 · Session 3 of 6".
  * Returns an empty string when there is no block context to show.
  */

@@ -9,9 +9,7 @@ import { SupplementaryWorkoutsCard } from "@/components/hub/SupplementaryWorkout
 import { ensureUids } from "@/lib/exercise-ref";
 import {
   sessionWorkoutName,
-  sessionHasNoExercises,
-  isOutlookPlaceholder,
-  isTrainerizeImported,
+  sessionHasWorkout,
 } from "@/lib/session-display";
 import { pronouns } from "@/lib/pronouns";
 import type { DBBlock, DBSession, Gender, SessionVersion } from "@/types";
@@ -181,7 +179,7 @@ export function TrainingDrawer({
 
   // Count sessions with nothing applied
   const nothingAppliedCount = scheduledSessions.filter((s) => {
-    return isOutlookPlaceholder(s) || sessionHasNoExercises(s.data) || isTrainerizeImported(s);
+    return !sessionHasWorkout(s);
   }).length;
 
   // ── Programme map derivation ──
@@ -268,7 +266,21 @@ export function TrainingDrawer({
         } else if (pos > totalQueueSlots - (totalSessions ? Math.max(0, remaining - (totalQueueSlots - completedCount)) : 0) && totalSessions) {
           state = "beyond";
         } else if (dateStr) {
-          state = "applied";
+          // BUG-EF-145: only mark "applied" if the session actually has a workout.
+          // Previously any scheduled session with a date was treated as applied,
+          // causing the drawer header to claim "All 6 booked dates have a workout"
+          // while the table showed "No workout applied yet" for Trainerize imports
+          // with no exercises.
+          const cellSession = blockSessions.find((s) => {
+            if (!s.scheduled_at || s.completed_at || s.cancelled_at || s.parent_session_id) return false;
+            const sl = s.program_slot_id ? slots.find((x) => x.id === s.program_slot_id) : null;
+            if (sl && s.week) {
+              const p = (s.week - 1) * slotCount + sl.position;
+              return p === pos;
+            }
+            return false;
+          });
+          state = cellSession && sessionHasWorkout(cellSession) ? "applied" : "empty";
         }
 
         cells.push({ position: pos, label: slotLbl, dateLabel, state });
@@ -480,8 +492,8 @@ export function TrainingDrawer({
             <>
               {/* Pure chronological: soonest first (CR-EF-188) */}
               {visibleSessions.map((s) => {
-                const hasWorkout =
-                  !isOutlookPlaceholder(s) && !sessionHasNoExercises(s.data) && !isTrainerizeImported(s);
+                const slot = slots.find((sl) => sl.id === s.program_slot_id);
+                const hasWorkout = sessionHasWorkout(s, slot);
                 const workoutName = sessionWorkoutName(s, "");
                 const dateStr = s.scheduled_at!;
                 const d = new Date(dateStr);

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useDrawerManager } from "./DrawerManager";
 import { HubCard } from "@/components/hub";
 import { deriveSessionPot } from "@/lib/session-pot";
-import { sessionWorkoutName, sessionHasNoExercises, isOutlookPlaceholder, isTrainerizeImported } from "@/lib/session-display";
+import { sessionWorkoutName, sessionHasWorkout } from "@/lib/session-display";
 import type { DBBlock, DBSession } from "@/types";
 import type { QueueState } from "@/lib/programs/types";
 
@@ -138,9 +138,7 @@ export function TrainingSection({
       (s) =>
         !s.parent_session_id &&
         !s.cancelled_at &&
-        !isOutlookPlaceholder(s) &&
-        !sessionHasNoExercises(s.data) &&
-        !isTrainerizeImported(s),
+        sessionHasWorkout(s, programState?.slots.find((sl) => sl.id === s.program_slot_id)),
     )
     .sort((a, b) => (a.session_number ?? 0) - (b.session_number ?? 0));
 
@@ -152,9 +150,7 @@ export function TrainingSection({
   // first upcoming booking strictly after now, never one whose start has passed.
   const nextSessionWithWorkout = upcomingBookings.find(
     (s) =>
-      !isOutlookPlaceholder(s) &&
-      !sessionHasNoExercises(s.data) &&
-      !isTrainerizeImported(s) &&
+      sessionHasWorkout(s, programState?.slots.find((sl) => sl.id === s.program_slot_id)) &&
       !(s.status === "in_progress" || !!s.started_at),
   );
   const isProgrammeComplete = totalWithWorkouts > 0 && completedCount >= totalWithWorkouts;
@@ -277,12 +273,9 @@ export function TrainingSection({
         (() => {
           let nextFound = false;
           return visibleBookings.map((booking) => {
-            const hasWorkout =
-              !isOutlookPlaceholder(booking) &&
-              !sessionHasNoExercises(booking.data) &&
-              !isTrainerizeImported(booking);
-            const workoutName = hasWorkout ? sessionWorkoutName(booking, "") : null;
             const slot = programState?.slots.find((sl) => sl.id === booking.program_slot_id);
+            const hasWorkout = sessionHasWorkout(booking, slot);
+            const workoutName = hasWorkout ? sessionWorkoutName(booking, "") : null;
             const isNext = hasWorkout && !nextFound;
             if (isNext) nextFound = true;
             const isInProgress = booking.status === "in_progress" || !!booking.started_at;
