@@ -163,7 +163,7 @@ export function PotLedger({ clientNumber, clientName }: PotLedgerProps) {
                       <td className="px-2.5 py-2 border-b border-[var(--hub-border)] font-semibold text-[var(--color-ink)] text-right whitespace-nowrap">
                         {c.ongoing
                           ? `${entry.used ?? 0} used`
-                          : `${entry.remaining} remaining`}
+                          : entry.remaining === null ? "—" : `${entry.remaining} remaining`}
                       </td>
                     </tr>
                   ))}
