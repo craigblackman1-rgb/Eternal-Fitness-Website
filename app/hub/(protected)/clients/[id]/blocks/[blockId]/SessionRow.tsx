@@ -276,7 +276,7 @@ export function SessionRow({
               </span>
             )}
             {chargedFree === "free" && (
-              <span className="inline-flex items-center rounded-pill bg-[var(--status-success-bg)] text-[var(--teal)] border border-[var(--status-success-border)] px-2 py-0 text-[10px] font-bold">
+              <span className="inline-flex items-center rounded-pill bg-[var(--status-success-bg)] text-[var(--color-teal)] border border-[var(--status-success-border)] px-2 py-0 text-[10px] font-bold">
                 Free
               </span>
             )}

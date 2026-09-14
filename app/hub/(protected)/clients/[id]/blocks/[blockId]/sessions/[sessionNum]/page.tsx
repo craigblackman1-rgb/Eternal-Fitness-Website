@@ -694,7 +694,7 @@ export default function SessionViewPage({
                 stateClass = "text-[var(--status-warning-text)] bg-[var(--status-warning-bg)] border-[var(--status-warning-border)]";
               } else if (hasLogged) {
                 stateLabel = "Logged";
-                stateClass = "text-[var(--teal)] bg-[var(--status-success-bg)] border-[var(--status-success-border)]";
+                stateClass = "text-[var(--color-teal)] bg-[var(--status-success-bg)] border-[var(--status-success-border)]";
               } else if (isSettled) {
                 stateLabel = "Never logged";
                 stateClass = "text-[var(--status-danger)] bg-[var(--status-danger-bg)] border-[var(--status-danger-border)]";

@@ -676,7 +676,7 @@ function SlotCard({
         className={cn(
           "flex items-center gap-3 w-full px-3 py-2.5 border rounded-nested bg-white text-left transition-colors",
           expanded
-            ? "border-rose shadow-[inset_0_0_0_1px_var(--rose)]"
+            ? "border-rose shadow-[inset_0_0_0_1px_var(--color-rose)]"
             : "border-[var(--hub-border)] hover:bg-[var(--hub-hover)]",
         )}
       >

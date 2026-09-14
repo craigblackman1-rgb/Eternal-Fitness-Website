@@ -40,7 +40,7 @@ export function SubSessionRow({ subSession, clientId, blockId }: SubSessionRowPr
   let stateClass: string;
   if (hasSessionLog) {
     stateLabel = "Logged";
-    stateClass = "text-[var(--teal)] bg-[var(--status-success-bg)] border-[var(--status-success-border)]";
+    stateClass = "text-[var(--color-teal)] bg-[var(--status-success-bg)] border-[var(--status-success-border)]";
   } else if (isSettled && !hasStarted) {
     stateLabel = "Never logged";
     stateClass = "text-[var(--status-danger)] bg-[var(--status-danger-bg)] border-[var(--status-danger-border)]";

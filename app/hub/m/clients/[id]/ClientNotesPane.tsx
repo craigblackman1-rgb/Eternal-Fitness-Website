@@ -376,7 +376,7 @@ export function ClientNotesPane({
                 disabled={savingPin === n.id}
                 aria-label={n.pinned ? "Unpin note" : "Pin note"}
                 title={n.pinned ? "Pinned" : "Pin note"}
-                style={n.pinned ? { color: "var(--rose)" } : undefined}
+                style={n.pinned ? { color: "var(--color-rose)" } : undefined}
               >
                 {ICO.pin}
               </button>

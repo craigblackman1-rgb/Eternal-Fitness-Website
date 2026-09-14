@@ -351,7 +351,7 @@ export function ReviewFlowClient({
               className={cn(
                 "inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg border text-[13px] font-semibold transition-colors",
                 canRecord && !saving
-                  ? "bg-rose border-rose text-white hover:bg-[color-mix(in_oklch,var(--rose)_82%,var(--ink))]"
+                  ? "bg-rose border-rose text-white hover:bg-[color-mix(in_oklch,var(--color-rose)_82%,var(--color-ink))]"
                   : "bg-[var(--hub-hover)] border-[var(--hub-border)] text-muted-foreground cursor-not-allowed pointer-events-none",
               )}
             >
@@ -432,7 +432,7 @@ function StepPanel({
           <button
             type="button"
             onClick={onContinue}
-            className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg border border-rose bg-rose text-white text-[13px] font-semibold hover:bg-[color-mix(in_oklch,var(--rose)_82%,var(--ink))] transition-colors"
+            className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg border border-rose bg-rose text-white text-[13px] font-semibold hover:bg-[color-mix(in_oklch,var(--color-rose)_82%,var(--color-ink))] transition-colors"
           >
             Continue
           </button>
@@ -958,7 +958,7 @@ function ConfirmationPanel({
             </BackLink>
             <Link
               href={`/hub/clients/${clientNumber}/comms/new`}
-              className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg border border-rose bg-rose text-white text-[13px] font-semibold hover:bg-[color-mix(in_oklch,var(--rose)_82%,var(--ink))] transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg border border-rose bg-rose text-white text-[13px] font-semibold hover:bg-[color-mix(in_oklch,var(--color-rose)_82%,var(--color-ink))] transition-colors"
             >
               Write the update
             </Link>

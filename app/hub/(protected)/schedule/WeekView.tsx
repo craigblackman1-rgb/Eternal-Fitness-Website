@@ -229,7 +229,7 @@ export function WeekView({ entries, plannedEntries, unconfirmedCount, onSelectSe
                 )}
                 style={{
                   borderColor: isToday ? undefined : "var(--hub-border)",
-                  borderLeftColor: isToday ? "var(--rose)" : "var(--muted)",
+                  borderLeftColor: isToday ? "var(--color-rose)" : "var(--muted)",
                   background: "var(--hub-card)",
                 }}
               >
@@ -240,7 +240,7 @@ export function WeekView({ entries, plannedEntries, unconfirmedCount, onSelectSe
                 >
                   <span
                     className="text-[11.5px] font-extrabold uppercase tracking-[.06em]"
-                    style={{ color: isToday ? "var(--rose-text)" : "var(--ink)" }}
+                    style={{ color: isToday ? "var(--rose-text)" : "var(--color-ink)" }}
                   >
                     {dt.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}
                   </span>

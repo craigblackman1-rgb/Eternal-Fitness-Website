@@ -2398,7 +2398,7 @@ function SupersetBlock({
                     value={st.note}
                     onChange={(e) => onNoteInput(uid, e.target.value)}
                     placeholder="Quick note about this exercise…"
-                    style={{ flex: 1, minHeight: 56, resize: "vertical", border: "1px solid var(--field-border)", borderRadius: 9, padding: "8px 10px", fontSize: 13, fontFamily: "inherit", background: "var(--card)", color: "var(--ink)" }}
+                    style={{ flex: 1, minHeight: 56, resize: "vertical", border: "1px solid var(--field-border)", borderRadius: 9, padding: "8px 10px", fontSize: 13, fontFamily: "inherit", background: "var(--card)", color: "var(--color-ink)" }}
                   />
                 </div>
               )}
@@ -2428,10 +2428,10 @@ function SupersetBlock({
                   {ex.load && (() => {
                     const p = parseLoad(ex.load);
                     if (!p) return null;
-                    if (p.kind === "weight") return <span style={{ display: "inline-flex", alignItems: "baseline", gap: 2, borderRadius: "var(--r-nested, 12px)", border: "1px solid rgba(193,131,159,.2)", background: "rgba(193,131,159,.05)", padding: "1px 4px", fontSize: 10, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: "var(--rose)" }}>{p.value}<span style={{ fontSize: 9, color: "rgba(193,131,159,.8)" }}>{p.unit}</span></span>;
-                    if (p.kind === "pair") return <span style={{ display: "inline-flex", alignItems: "baseline", gap: 2, borderRadius: "var(--r-nested, 12px)", border: "1px solid rgba(193,131,159,.2)", background: "rgba(193,131,159,.05)", padding: "1px 4px", fontSize: 10, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: "var(--rose)" }}>{p.multiplier}×{p.value}<span style={{ fontSize: 9, color: "rgba(193,131,159,.8)" }}>{p.unit}</span></span>;
-                    if (p.kind === "token") return <span style={{ display: "inline-flex", alignItems: "center", borderRadius: "var(--r-nested, 12px)", border: "1px solid rgba(193,131,159,.2)", background: "rgba(193,131,159,.05)", padding: "1px 4px", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".05em", color: "var(--rose)" }}>{p.label}</span>;
-                    if (p.kind === "band") return <span style={{ display: "inline-flex", alignItems: "center", gap: 2, borderRadius: "var(--r-nested, 12px)", border: "1px solid rgba(193,131,159,.2)", background: "rgba(193,131,159,.05)", padding: "1px 4px", fontSize: 10, fontWeight: 700, color: "var(--rose)" }}>{p.colour}</span>;
+                    if (p.kind === "weight") return <span style={{ display: "inline-flex", alignItems: "baseline", gap: 2, borderRadius: "var(--r-nested, 12px)", border: "1px solid rgba(193,131,159,.2)", background: "rgba(193,131,159,.05)", padding: "1px 4px", fontSize: 10, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: "var(--color-rose)" }}>{p.value}<span style={{ fontSize: 9, color: "rgba(193,131,159,.8)" }}>{p.unit}</span></span>;
+                    if (p.kind === "pair") return <span style={{ display: "inline-flex", alignItems: "baseline", gap: 2, borderRadius: "var(--r-nested, 12px)", border: "1px solid rgba(193,131,159,.2)", background: "rgba(193,131,159,.05)", padding: "1px 4px", fontSize: 10, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: "var(--color-rose)" }}>{p.multiplier}×{p.value}<span style={{ fontSize: 9, color: "rgba(193,131,159,.8)" }}>{p.unit}</span></span>;
+                    if (p.kind === "token") return <span style={{ display: "inline-flex", alignItems: "center", borderRadius: "var(--r-nested, 12px)", border: "1px solid rgba(193,131,159,.2)", background: "rgba(193,131,159,.05)", padding: "1px 4px", fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".05em", color: "var(--color-rose)" }}>{p.label}</span>;
+                    if (p.kind === "band") return <span style={{ display: "inline-flex", alignItems: "center", gap: 2, borderRadius: "var(--r-nested, 12px)", border: "1px solid rgba(193,131,159,.2)", background: "rgba(193,131,159,.05)", padding: "1px 4px", fontSize: 10, fontWeight: 700, color: "var(--color-rose)" }}>{p.colour}</span>;
                     return null;
                   })()}
                 </div>

@@ -100,7 +100,7 @@ export function CommsComposerClient({
           <div className="border-t border-[var(--hub-border)] p-3">
             <Link
               href={`/hub/clients/${clientNumber}/updates/new`}
-              className="flex items-center justify-center w-full h-9 rounded-lg bg-rose text-white text-[13px] font-semibold hover:bg-[color-mix(in_oklch,var(--rose)_82%,var(--ink))] transition-colors no-underline"
+              className="flex items-center justify-center w-full h-9 rounded-lg bg-rose text-white text-[13px] font-semibold hover:bg-[color-mix(in_oklch,var(--color-rose)_82%,var(--color-ink))] transition-colors no-underline"
             >
               Start writing
             </Link>

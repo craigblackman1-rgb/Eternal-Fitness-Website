@@ -581,7 +581,7 @@ export function ClientModeView({
                       </span>
                       <span className="panel-h-t">Booked in</span>
                       <span className="panel-h-s">{upcoming.length} upcoming</span>
-                      <Link className="btn-link" href="/hub/m/calendar" style={{ marginLeft: "auto", fontSize: 12, fontWeight: 700, color: "var(--rose)" }}>
+                      <Link className="btn-link" href="/hub/m/calendar" style={{ marginLeft: "auto", fontSize: 12, fontWeight: 700, color: "var(--color-rose)" }}>
                         Calendar ›
                       </Link>
                     </div>

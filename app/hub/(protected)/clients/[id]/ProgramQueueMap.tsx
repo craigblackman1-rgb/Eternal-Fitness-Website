@@ -101,8 +101,8 @@ export function ProgramQueueMap({
                 cursor-pointer font-[inherit] p-0
                 transition-[border-color,box-shadow] duration-[120ms]
                 ${isNext
-                  ? "bg-[var(--status-primary-bg)] border-rose shadow-[inset_0_0_0_1px_var(--rose)]"
-                  : "border-[var(--hub-border)] hover:border-rose hover:shadow-[0_0_0_1px_var(--rose)]"
+                  ? "bg-[var(--status-primary-bg)] border-rose shadow-[inset_0_0_0_1px_var(--color-rose)]"
+                  : "border-[var(--hub-border)] hover:border-rose hover:shadow-[0_0_0_1px_var(--color-rose)]"
                 }
               `}
             >

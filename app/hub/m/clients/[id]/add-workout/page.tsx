@@ -622,7 +622,7 @@ export default function AddWorkoutPage() {
               Review before adding
             </h1>
             <p className="step-sub" style={{ margin: "0 0 14px", color: "var(--muted)" }}>
-              {preview.name} will land on <b style={{ color: "var(--ink)" }}>{fmtDay(targetDay)}</b>.
+              {preview.name} will land on <b style={{ color: "var(--color-ink)" }}>{fmtDay(targetDay)}</b>.
             </p>
 
             <div className="preview-card">

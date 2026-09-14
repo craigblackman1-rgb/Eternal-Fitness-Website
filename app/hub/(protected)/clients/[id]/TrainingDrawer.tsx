@@ -20,7 +20,7 @@ import type { QueueState } from "@/lib/programs/types";
 /* ── TrainingDrawer — the Manage training drawer (DO rung).
    Four sections in mockup order (v4.1):
      1. Apply a workout to a date
-     2. His programme
+     2. Their programme
      3. Supplementary
      4. Standing rules
    Handlers/API calls unchanged — this is chrome + arrangement. ────── */

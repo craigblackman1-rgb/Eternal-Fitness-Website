@@ -353,7 +353,7 @@ export function AvailabilityScreen({
                             {clashes.length} clash{clashes.length !== 1 ? "es" : ""}
                           </span>
                         ) : (
-                          <span className="pill" style={{ background: "var(--s-success-bg)", border: "1px solid var(--s-success-bd)", color: "var(--teal)" }}>
+                          <span className="pill" style={{ background: "var(--s-success-bg)", border: "1px solid var(--s-success-bd)", color: "var(--color-teal)" }}>
                             No sessions affected
                           </span>
                         )}
@@ -467,7 +467,7 @@ export function AvailabilityScreen({
                   return (
                     <div key={o.id} className="override-row">
                       <div className="override-head">
-                        <div className="override-ic" style={{ background: "var(--s-success-bg)", color: "var(--teal)" }}>
+                        <div className="override-ic" style={{ background: "var(--s-success-bg)", color: "var(--color-teal)" }}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 5v14M5 12h14" />
                           </svg>
@@ -478,7 +478,7 @@ export function AvailabilityScreen({
                         </div>
                       </div>
                       <div className="override-badges">
-                        <span className="pill" style={{ background: "var(--s-primary-bg)", border: "1px solid var(--s-primary-bd)", color: "var(--rose)" }}>
+                        <span className="pill" style={{ background: "var(--s-primary-bg)", border: "1px solid var(--s-primary-bd)", color: "var(--color-rose)" }}>
                           Extra availability
                         </span>
                       </div>

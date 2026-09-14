@@ -235,7 +235,7 @@ export function TrainingSummary({
             </p>
             <Link
               href={`/hub/clients/${clientNumber}/programs/new`}
-              className="mt-2 inline-flex items-center justify-center gap-1.5 rounded-control bg-rose text-white font-[inherit] text-xs font-semibold cursor-pointer px-3.5 py-1.5 no-underline hover:bg-[color-mix(in_oklab,var(--rose)_88%,var(--ink))] transition-colors"
+              className="mt-2 inline-flex items-center justify-center gap-1.5 rounded-control bg-rose text-white font-[inherit] text-xs font-semibold cursor-pointer px-3.5 py-1.5 no-underline hover:bg-[color-mix(in_oklab,var(--color-rose)_88%,var(--color-ink))] transition-colors"
             >
               Apply a program
             </Link>

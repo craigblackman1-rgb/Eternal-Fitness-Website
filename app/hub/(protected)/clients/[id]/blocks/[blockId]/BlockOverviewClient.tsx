@@ -294,7 +294,7 @@ export function BlockOverviewClient({
             <button
               type="button"
               onClick={() => setApproveOpen(true)}
-              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-control bg-[var(--rose)] hover:bg-[color-mix(in_oklab,var(--rose)_88%,var(--ink))] text-white text-[13px] font-semibold transition-colors"
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-control bg-[var(--color-rose)] hover:bg-[color-mix(in_oklab,var(--color-rose)_88%,var(--color-ink))] text-white text-[13px] font-semibold transition-colors"
             >
               <IconCheck className="w-4 h-4" /> Review and approve
             </button>
@@ -344,7 +344,7 @@ export function BlockOverviewClient({
                       key={s.id}
                       className={`w-[24px] h-[24px] rounded-control-sm flex items-center justify-center text-[11.5px] font-bold border ${
                         isFirstIncomplete
-                          ? "bg-[var(--s-primary-bg)] text-[var(--rose-text)] border-[var(--rose)] shadow-[inset_0_0_0_1px_var(--rose)]"
+                          ? "bg-[var(--s-primary-bg)] text-[var(--rose-text)] border-[var(--color-rose)] shadow-[inset_0_0_0_1px_var(--color-rose)]"
                           : "bg-[var(--hub-card)] border-[var(--hub-border)] text-[var(--muted)]"
                       }`}
                     >
@@ -679,7 +679,7 @@ export function BlockOverviewClient({
               type="button"
               onClick={doApprove}
               disabled={approving}
-              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg bg-[var(--rose)] hover:bg-[color-mix(in_oklab,var(--rose)_88%,var(--ink))] text-white text-[13px] font-semibold transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg bg-[var(--color-rose)] hover:bg-[color-mix(in_oklab,var(--color-rose)_88%,var(--color-ink))] text-white text-[13px] font-semibold transition-colors disabled:opacity-50"
             >
               <IconCheck className="w-4 h-4" /> Approve block
             </button>

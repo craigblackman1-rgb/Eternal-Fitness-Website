@@ -112,7 +112,7 @@ export function SessionChooser({
             text-left border rounded-nested bg-white p-3.5 cursor-pointer font-[inherit]
             transition-[border-color,box-shadow] duration-[120ms]
             ${choice === "program"
-              ? "border-rose shadow-[inset_0_0_0_1px_var(--rose)] bg-[var(--status-primary-bg)]"
+              ? "border-rose shadow-[inset_0_0_0_1px_var(--color-rose)] bg-[var(--status-primary-bg)]"
               : "border-[var(--hub-border)] hover:border-rose"
             }
           `}
@@ -140,7 +140,7 @@ export function SessionChooser({
             text-left border rounded-nested bg-white p-3.5 cursor-pointer font-[inherit]
             transition-[border-color,box-shadow] duration-[120ms]
             ${choice === "template"
-              ? "border-rose shadow-[inset_0_0_0_1px_var(--rose)] bg-[var(--status-primary-bg)]"
+              ? "border-rose shadow-[inset_0_0_0_1px_var(--color-rose)] bg-[var(--status-primary-bg)]"
               : "border-[var(--hub-border)] hover:border-rose"
             }
           `}
@@ -168,7 +168,7 @@ export function SessionChooser({
             text-left border rounded-nested bg-white p-3.5 cursor-pointer font-[inherit]
             transition-[border-color,box-shadow] duration-[120ms]
             ${choice === "oneoff"
-              ? "border-rose shadow-[inset_0_0_0_1px_var(--rose)] bg-[var(--status-primary-bg)]"
+              ? "border-rose shadow-[inset_0_0_0_1px_var(--color-rose)] bg-[var(--status-primary-bg)]"
               : "border-[var(--hub-border)] hover:border-rose"
             }
           `}
@@ -236,7 +236,7 @@ export function SessionChooser({
                     onClick={() => setSelectedTemplateId(t.id === selectedTemplateId ? null : t.id)}
                     className={`w-full text-left border rounded-control p-2.5 cursor-pointer font-[inherit] transition-[border-color] duration-[100ms] ${
                       selectedTemplateId === t.id
-                        ? "border-rose bg-white shadow-[inset_0_0_0_1px_var(--rose)]"
+                        ? "border-rose bg-white shadow-[inset_0_0_0_1px_var(--color-rose)]"
                         : "border-[var(--hub-border)] bg-white hover:border-rose"
                     }`}
                   >
@@ -285,7 +285,7 @@ export function SessionChooser({
               onConfirmOneOff();
             }
           }}
-          className="inline-flex items-center justify-center gap-1.5 rounded-control bg-rose text-white font-[inherit] text-xs font-semibold cursor-pointer px-3.5 py-1.5 hover:bg-[color-mix(in_oklab,var(--rose)_88%,var(--ink))] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center gap-1.5 rounded-control bg-rose text-white font-[inherit] text-xs font-semibold cursor-pointer px-3.5 py-1.5 hover:bg-[color-mix(in_oklab,var(--color-rose)_88%,var(--color-ink))] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {choice === "program" && nextSlotLabel
             ? `Assign Workout ${nextSlotLabel} to this session`
