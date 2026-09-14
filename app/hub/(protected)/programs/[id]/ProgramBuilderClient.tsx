@@ -959,8 +959,8 @@ export function ProgramBuilderClient({
         }
         subtitle={
           assignedClient
-            ? `Assigned to ${assignedClient.name} · ${slotCount} slot${slotCount !== 1 ? "s" : ""} in rotation · ${totalSessions} sessions`
-            : `Library programme · ${slotCount} slot${slotCount !== 1 ? "s" : ""} in rotation · ${totalSessions} sessions`
+            ? `Assigned to ${assignedClient.name} · ${slotCount} workout slot${slotCount !== 1 ? "s" : ""} · ${totalSessions} sessions`
+            : `Library programme · ${slotCount} workout slot${slotCount !== 1 ? "s" : ""} · ${totalSessions} sessions`
         }
         actions={
           <div className="flex items-center gap-2">
