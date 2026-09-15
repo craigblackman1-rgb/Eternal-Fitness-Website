@@ -1244,11 +1244,13 @@ Cancel — record it as today`,
         ? "In progress"
         : "Not started";
 
-  const topStatusClass = progress.doneExCount === allSets.length
+  const topStatusClass = sessionCompleted
     ? "done"
-    : progress.started
-      ? "progress"
-      : "pending";
+    : progress.doneExCount === allSets.length
+      ? "done"
+      : progress.started
+        ? "progress"
+        : "pending";
 
   const secIconEl = (color: "teal" | "rose" | "navy") => {
     const cls = color === "teal" ? "ic-teal" : color === "rose" ? "ic-rose" : "ic-navy";

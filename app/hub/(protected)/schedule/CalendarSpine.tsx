@@ -399,7 +399,7 @@ export function CalendarSpine({ entries, showCancelled, onSelectSession, selecte
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-4 px-4 py-2.5 border-t border-[var(--hub-border)] text-xs text-muted-foreground">
         <LegendSwatch background="#F2F3F5" borderColor="rgba(82,90,97,.3)" label="Planned" />
-        <LegendSwatch background="#FBF3F7" borderColor="rgba(193,131,159,.45)" label="Scheduled" />
+        <LegendSwatch background="#FBF3F7" borderColor="rgba(193,131,159,.45)" label="Booked" />
         <LegendSwatch background="#FFFDF7" borderColor="rgba(176,138,62,.6)" borderStyle="dashed" borderLeftStyle="solid" label="Unconfirmed" />
         <LegendSwatch background="#F7EFDD" borderColor="rgba(176,138,62,.5)" label="In progress" />
         <LegendSwatch background="#E9F4F5" borderColor="rgba(8,126,139,.4)" label="Completed" />

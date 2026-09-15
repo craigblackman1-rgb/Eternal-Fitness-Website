@@ -93,7 +93,7 @@ export function deriveSessionChip(
       return { label: "Next", variant: "next" };
     }
     if (hasWorkout(displayName)) {
-      return { label: "Scheduled", variant: "scheduled" };
+      return { label: "Booked", variant: "scheduled" };
     }
     return { label: "Open", variant: "open" };
   }
