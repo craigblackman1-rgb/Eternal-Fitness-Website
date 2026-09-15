@@ -41,6 +41,7 @@ export default async function MobileMoneyPage() {
   let outstanding = 0;
   let actionQueue: import("@/lib/hub/money-summary").MoneyActionItem[] = [];
   let draftCount = 0;
+  let summaryError = false;
   try {
     const summary = await getMoneySummary();
     collected = summary.collected;
@@ -48,7 +49,7 @@ export default async function MobileMoneyPage() {
     actionQueue = summary.actionQueue;
     draftCount = summary.draftCount;
   } catch {
-    // If the helper throws, show zero values — not a reassuring empty state.
+    summaryError = true;
   }
 
   return (
@@ -58,6 +59,7 @@ export default async function MobileMoneyPage() {
       outstanding={outstanding}
       actionQueue={actionQueue}
       draftCount={draftCount}
+      summaryError={summaryError}
     />
   );
 }

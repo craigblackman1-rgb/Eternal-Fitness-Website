@@ -236,6 +236,8 @@ interface ClientModeViewProps {
   programmeQueue?: ProgrammeQueueView | null;
   /** BUG-EF-181 — "Needs you" items from the shared helper. */
   needsYouItems?: import("@/lib/hub/build-needs-you").QueueItem[];
+  /** True when the needs helper threw — show "Could not load" instead of hiding the section. */
+  needsError?: boolean;
 }
 
 export function ClientModeView({
@@ -262,6 +264,7 @@ export function ClientModeView({
   exerciseTrendSummary,
   programmeQueue = null,
   needsYouItems = [],
+  needsError = false,
 }: ClientModeViewProps) {
   const pathname = usePathname();
 
@@ -353,7 +356,7 @@ export function ClientModeView({
         {/* ══════════════ TRAINING ══════════════ */}
         <section className={`pane${activeTab === "training" ? " on" : ""}`}>
           {/* BUG-EF-181 — "Needs you" section from the shared helper */}
-          {needsYouItems.length > 0 && (
+          {(needsYouItems.length > 0 || needsError) && (
             <div className="panel" style={{ marginBottom: 12 }}>
               <div className="panel-h">
                 <span className="panel-h-ic ic-rose">
@@ -364,27 +367,35 @@ export function ClientModeView({
                 </span>
                 <span className="panel-h-t">Needs you</span>
                 <span style={{ fontSize: 11, color: "var(--muted)", marginLeft: "auto" }}>
-                  {needsYouItems.length} thing{needsYouItems.length === 1 ? "" : "s"}
+                  {needsError && needsYouItems.length === 0
+                    ? "Could not load"
+                    : `${needsYouItems.length} thing${needsYouItems.length === 1 ? "" : "s"}`}
                 </span>
               </div>
-              <div className="tlist">
-                {needsYouItems.map((item) => (
-                  <div key={item.id} className="trow">
-                    <span className={`tcheck ${item.dot === "due" ? "alert-ic-rose" : item.dot === "warn" ? "alert-ic-amber" : ""}`}>
-                      {item.dot === "due" ? ICO.med : ICO.warn}
-                    </span>
-                    <div className="tbody">
-                      <div className="ttitle">{item.headline}</div>
-                      {item.subline && <div className="tmeta">{item.subline}</div>}
+              {needsError && needsYouItems.length === 0 ? (
+                <div style={{ padding: "8px 14px", fontSize: 12, color: "var(--muted)" }}>
+                  Could not load \u2014 pull to refresh
+                </div>
+              ) : (
+                <div className="tlist">
+                  {needsYouItems.map((item) => (
+                    <div key={item.id} className="trow">
+                      <span className={`tcheck ${item.dot === "due" ? "alert-ic-rose" : item.dot === "warn" ? "alert-ic-amber" : ""}`}>
+                        {item.dot === "due" ? ICO.med : ICO.warn}
+                      </span>
+                      <div className="tbody">
+                        <div className="ttitle">{item.headline}</div>
+                        {item.subline && <div className="tmeta">{item.subline}</div>}
+                      </div>
+                      {item.actionHref && (
+                        <Link href={item.actionHref} className="tcheck" style={{ textDecoration: "none" }}>
+                          {ICO.arrowRight}
+                        </Link>
+                      )}
                     </div>
-                    {item.actionHref && (
-                      <Link href={item.actionHref} className="tcheck" style={{ textDecoration: "none" }}>
-                        {ICO.arrowRight}
-                      </Link>
-                    )}
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

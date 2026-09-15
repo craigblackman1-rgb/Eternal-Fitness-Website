@@ -122,13 +122,13 @@ export default async function TodayPage() {
   // the desktop hub page uses, so both surfaces always show the same numbers.
   let alerts: import("@/lib/hub/alerts").AlertItem[] = [];
   let weekCount = 0;
+  let alertsError = false;
   try {
     const result = await getTodayAlertsAndWeekCount();
     alerts = result.alerts;
     weekCount = result.weekCount;
   } catch {
-    // If the helper throws, leave alerts empty — do not show a reassuring
-    // "all clear" when data is simply absent.
+    alertsError = true;
   }
 
   return (
@@ -139,6 +139,7 @@ export default async function TodayPage() {
       resumeSession={inProgressEntry}
       alerts={alerts}
       weekCount={weekCount}
+      alertsError={alertsError}
     />
   );
 }

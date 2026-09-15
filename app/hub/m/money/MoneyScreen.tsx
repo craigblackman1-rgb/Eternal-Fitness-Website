@@ -84,9 +84,10 @@ interface Props {
   outstanding: number;
   actionQueue?: import("@/lib/hub/money-summary").MoneyActionItem[];
   draftCount?: number;
+  summaryError?: boolean;
 }
 
-export function MoneyScreen({ invoices, collected, outstanding, actionQueue = [], draftCount = 0 }: Props) {
+export function MoneyScreen({ invoices, collected, outstanding, actionQueue = [], draftCount = 0, summaryError = false }: Props) {
   const [seg, setSeg] = useState<Segment>("outstanding");
   const [openId, setOpenId] = useState<string | null>(null);
   const [detailInv, setDetailInv] = useState<InvoiceListItem | null>(null);
@@ -251,12 +252,12 @@ export function MoneyScreen({ invoices, collected, outstanding, actionQueue = []
             <div className="empty-ic">{ICO.empty}</div>
             <p className="empty-t">
               {seg === "outstanding"
-                ? (actionQueue.length > 0 ? "No overdue invoices" : "All clear")
+                ? (summaryError ? "Could not load" : actionQueue.length > 0 ? "No overdue invoices" : "All clear")
                 : seg === "paid" ? "No paid invoices" : "No drafts"}
             </p>
             <p className="empty-d">
               {seg === "outstanding"
-                ? (actionQueue.length > 0 ? "See the action items above." : "No outstanding invoices right now.")
+                ? (summaryError ? "Pull to refresh to try again." : actionQueue.length > 0 ? "See the action items above." : "No outstanding invoices right now.")
                 : seg === "paid"
                 ? "Paid invoices will appear here."
                 : "Draft invoices will appear here."}

@@ -185,9 +185,11 @@ interface TodayScreenProps {
   alerts?: AlertItem[];
   /** BUG-EF-174 — week session count from the shared helper. */
   weekCount?: number;
+  /** True when the alerts helper threw — show "Could not load" instead of hiding the section. */
+  alertsError?: boolean;
 }
 
-export function TodayScreen({ entries, tasks, currentUserName, resumeSession, alerts = [], weekCount = 0 }: TodayScreenProps) {
+export function TodayScreen({ entries, tasks, currentUserName, resumeSession, alerts = [], weekCount = 0, alertsError = false }: TodayScreenProps) {
   const router = useRouter();
   const [day, setDay] = useState<string>(todayISO());
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -419,7 +421,17 @@ export function TodayScreen({ entries, tasks, currentUserName, resumeSession, al
         </div>
 
         {/* BUG-EF-174 — Alerts section, same data as desktop */}
-        {alerts.length > 0 && (
+        {alertsError && alerts.length === 0 ? (
+          <div className="m-section">
+            <div className="m-section-h" style={{ cursor: "default" }}>
+              <div className="sec-h-ic ic-rose">{ICO.warnSm}</div>
+              <div>
+                <div className="sec-h-t">Alerts</div>
+                <div className="sec-h-s" style={{ color: "var(--muted)" }}>Could not load \u2014 pull to refresh</div>
+              </div>
+            </div>
+          </div>
+        ) : alerts.length > 0 && (
           <div className={`m-section${collapsed.alerts ? " collapsed" : ""}`}>
             <button
               type="button"
@@ -459,7 +471,7 @@ export function TodayScreen({ entries, tasks, currentUserName, resumeSession, al
               </div>
             )}
           </div>
-        )}
+        ) : null}
 
         {dayTasks.length > 0 && (
           <div className={`m-section${collapsed.tasks ? " collapsed" : ""}`}>

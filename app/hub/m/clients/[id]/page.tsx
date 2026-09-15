@@ -503,11 +503,12 @@ export default async function MobileClientModePage({ params, searchParams }: { p
   // BUG-EF-181 — "Needs you" queue from the same shared helper the desktop
   // client record page uses, so both surfaces show the same items.
   let needsYouItems: ReturnType<typeof import("@/lib/hub/build-needs-you").buildNeedsYouItems> = [];
+  let needsError = false;
   try {
     const { items } = await getClientNeeds(row.id, clientNumber);
     needsYouItems = items;
   } catch {
-    // If the helper throws, leave the section absent — not a reassuring "all clear".
+    needsError = true;
   }
 
   return (
@@ -563,6 +564,7 @@ export default async function MobileClientModePage({ params, searchParams }: { p
         exerciseTrendSummary={exerciseTrendSummary}
         programmeQueue={programmeQueue}
         needsYouItems={needsYouItems}
+        needsError={needsError}
       />
     </>
   );
