@@ -458,6 +458,9 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
 
   // Clean up any Outlook event before dropping the mapping row (cascades on
   // session delete) so a cancelled session doesn't leave an orphaned event.
+  // BUG-EF-A746B457: skip for adopted (linked) events — those are Esther's
+  // real Outlook bookings, not hub-created. Only hub-created events should be
+  // removed when the session is deleted.
   const { data: mapRow } = await supabase
     .from("session_calendar_events")
     .select("event_id")
@@ -465,10 +468,19 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
     .maybeSingle();
 
   if (mapRow?.event_id) {
-    try {
-      await deleteEvent(mapRow.event_id as string);
-    } catch (err) {
-      console.error("Calendar event delete failed (session will still be removed):", err);
+    const { data: candidate } = await supabase
+      .from("outlook_duplicate_candidates")
+      .select("status")
+      .eq("session_id", params.id)
+      .eq("status", "linked")
+      .maybeSingle();
+
+    if (!candidate) {
+      try {
+        await deleteEvent(mapRow.event_id as string);
+      } catch (err) {
+        console.error("Calendar event delete failed (session will still be removed):", err);
+      }
     }
   }
 
