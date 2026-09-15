@@ -234,6 +234,8 @@ interface ClientModeViewProps {
   earliestUnattached?: { scheduledAt: string } | null;
   exerciseTrendSummary?: ExerciseTrendSummary;
   programmeQueue?: ProgrammeQueueView | null;
+  /** BUG-EF-181 — "Needs you" items from the shared helper. */
+  needsYouItems?: import("@/lib/hub/build-needs-you").QueueItem[];
 }
 
 export function ClientModeView({
@@ -259,6 +261,7 @@ export function ClientModeView({
   earliestUnattached = null,
   exerciseTrendSummary,
   programmeQueue = null,
+  needsYouItems = [],
 }: ClientModeViewProps) {
   const pathname = usePathname();
 
@@ -349,6 +352,42 @@ export function ClientModeView({
       <main className="mcontent">
         {/* ══════════════ TRAINING ══════════════ */}
         <section className={`pane${activeTab === "training" ? " on" : ""}`}>
+          {/* BUG-EF-181 — "Needs you" section from the shared helper */}
+          {needsYouItems.length > 0 && (
+            <div className="panel" style={{ marginBottom: 12 }}>
+              <div className="panel-h">
+                <span className="panel-h-ic ic-rose">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>
+                    <path d="M12 9v4M12 17h.01"/>
+                  </svg>
+                </span>
+                <span className="panel-h-t">Needs you</span>
+                <span style={{ fontSize: 11, color: "var(--muted)", marginLeft: "auto" }}>
+                  {needsYouItems.length} thing{needsYouItems.length === 1 ? "" : "s"}
+                </span>
+              </div>
+              <div className="tlist">
+                {needsYouItems.map((item) => (
+                  <div key={item.id} className="trow">
+                    <span className={`tcheck ${item.dot === "due" ? "alert-ic-rose" : item.dot === "warn" ? "alert-ic-amber" : ""}`}>
+                      {item.dot === "due" ? ICO.med : ICO.warn}
+                    </span>
+                    <div className="tbody">
+                      <div className="ttitle">{item.headline}</div>
+                      {item.subline && <div className="tmeta">{item.subline}</div>}
+                    </div>
+                    {item.actionHref && (
+                      <Link href={item.actionHref} className="tcheck" style={{ textDecoration: "none" }}>
+                        {ICO.arrowRight}
+                      </Link>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* ── §POT — sessions left (the hero) ── */}
           <div className="panel">
             <div className="panel-h">

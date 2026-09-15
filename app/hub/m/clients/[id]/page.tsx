@@ -17,6 +17,7 @@ import { aggregateExerciseNotes, type AggregatedExerciseNote } from "@/lib/exerc
 import { buildExerciseTrends, buildExerciseTrendSummary, type TrendSessionMeta } from "@/lib/progress";
 import { trainerizeResultsToSetLogs } from "@/lib/trainerize-adapter";
 import { getClientProgramState, slotLetter } from "@/lib/programs/queue";
+import { getClientNeeds } from "@/lib/hub/client-needs";
 import { ClientModeView } from "./ClientModeView";
 import type {
   BlockView,
@@ -499,6 +500,16 @@ export default async function MobileClientModePage({ params, searchParams }: { p
       }
     : null;
 
+  // BUG-EF-181 — "Needs you" queue from the same shared helper the desktop
+  // client record page uses, so both surfaces show the same items.
+  let needsYouItems: ReturnType<typeof import("@/lib/hub/build-needs-you").buildNeedsYouItems> = [];
+  try {
+    const { items } = await getClientNeeds(row.id, clientNumber);
+    needsYouItems = items;
+  } catch {
+    // If the helper throws, leave the section absent — not a reassuring "all clear".
+  }
+
   return (
     <>
       <header className="mtop">
@@ -551,6 +562,7 @@ export default async function MobileClientModePage({ params, searchParams }: { p
         earliestUnattached={earliestUnattached ? { scheduledAt: earliestUnattached.scheduled_at as string } : null}
         exerciseTrendSummary={exerciseTrendSummary}
         programmeQueue={programmeQueue}
+        needsYouItems={needsYouItems}
       />
     </>
   );
