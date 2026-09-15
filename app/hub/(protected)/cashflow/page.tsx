@@ -2,14 +2,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase-server";
 import { StatusBadge, KpiTile } from "@/components/hub";
 import { IconCheckCircle, IconCheck, IconClock, IconTriangleAlert } from "@/components/icons";
-import {
-  findSuggestedMatches,
-  type MatchTransaction,
-  type MatchInvoice,
-} from "@/lib/cashflow-matching";
 import { computeForecast } from "@/lib/cashflow-forecast";
 import { currentTaxYear, getTaxYearBounds } from "@/lib/cashflow-tax";
-import { deriveSessionPot } from "@/lib/session-pot";
 import { getMoneySummary } from "@/lib/hub/money-summary";
 import { ForecastSection } from "./ForecastSection";
 import { TaxSection } from "./TaxSection";
@@ -47,62 +41,11 @@ function fmtDate(d: string | null): string {
   return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
-function daysBetween(a: Date, b: Date): number {
-  return Math.round((a.getTime() - b.getTime()) / (1000 * 60 * 60 * 24));
-}
-
-interface ClientRow {
-  id: string;
-  name: string;
-  client_number: number;
-  client_status: string | null;
-  block_expiry_date: string | null;
-  sessions_remaining: number | null;
-  sessions_purchased: number | null;
-  pot_baseline_used: number | null;
-  client_rate: number | null;
-  session_duration: number | null;
-}
-
-interface InvoiceRow {
-  id: string;
-  invoice_number: string;
-  status: string;
-  total: number;
-  issue_date: string;
-  due_date: string;
-  updated_at: string;
-  created_at: string;
-  clients: { name: string; client_number: number; display_code: string | null } | null;
-}
-
-type QueueTone = "due" | "warn" | "quiet";
-
-interface QueueItem {
-  id: string;
-  tone: QueueTone;
-  headline: string;
-  subline: string;
-  actionLabel: string;
-  href: string;
-}
-
-const DOT: Record<QueueTone, string> = {
+const DOT: Record<string, string> = {
   due: "bg-rose",
   warn: "bg-[var(--status-warning)]",
   quiet: "bg-[var(--status-success)]",
 };
-
-// A block within this many days of its expiry (or already past it) with
-// sessions still unused is a "sell the next one now, or let it lapse"
-// decision. No prior screen in this codebase defines this window, so 14
-// days is a deliberate choice here — roughly two weeks' notice.
-const BLOCK_ENDING_WINDOW_DAYS = 14;
-
-// The standard session length. clients.session_duration defaults to 60;
-// a client trained at any other length with no client_rate override means
-// every invoice for them defaults to the wrong price (CR-EF-135).
-const STANDARD_SESSION_DURATION = 60;
 
 export default async function CashflowOverviewPage() {
   const supabase = createClient();
@@ -112,7 +55,7 @@ export default async function CashflowOverviewPage() {
   const taxYear = currentTaxYear();
   const taxBounds = getTaxYearBounds(taxYear);
 
-  const [clientsRes, invoicesRes, unmatchedTxnRes, dismissedRes, invoiceCountRes, forecast, taxCalcRes] =
+  const [clientsRes, invoicesRes, invoiceCountRes, forecast, taxCalcRes] =
     await Promise.all([
       supabase
         .from("clients")
@@ -124,8 +67,6 @@ export default async function CashflowOverviewPage() {
         .from("invoices")
         .select("id, invoice_number, status, total, issue_date, due_date, updated_at, created_at, clients(name, client_number, display_code)")
         .order("updated_at", { ascending: false }),
-      supabase.from("bank_transactions").select("*").is("matched_invoice_id", null),
-      supabase.from("dismissed_matches").select("bank_transaction_id, invoice_id"),
       supabase.from("invoices").select("id", { count: "exact", head: true }),
       computeForecast(),
       supabase
@@ -138,47 +79,9 @@ export default async function CashflowOverviewPage() {
         .maybeSingle(),
     ]);
 
-  const clients = (clientsRes.data ?? []) as ClientRow[];
-  const allInvoices = (invoicesRes.data ?? []) as InvoiceRow[];
+  const clients = clientsRes.data ?? [];
+  const allInvoices = invoicesRes.data ?? [];
   const invoiceTotalCount = invoiceCountRes.count ?? allInvoices.length;
-
-  // BUG-EF-142 — derive remaining for all active clients from session data.
-  // Batch-fetch blocks and sessions to avoid N+1 queries.
-  const clientIds = clients.map((c) => c.id);
-  const derivedRemainingByClientId = new Map<string, number | null>();
-  if (clientIds.length > 0) {
-    const { data: allClientBlocks } = await supabase
-      .from("blocks")
-      .select("id, client_id")
-      .in("client_id", clientIds);
-    const allBlockIds = (allClientBlocks ?? []).map((b: { id: string }) => b.id);
-    const blockToClientId = new Map<string, string>();
-    for (const b of allClientBlocks ?? []) blockToClientId.set(b.id, b.client_id);
-    if (allBlockIds.length > 0) {
-      const { data: allClientSessions } = await supabase
-        .from("sessions")
-        .select("status, charged_free, cancelled_at, completed_at, parent_session_id, scheduled_at, data, block_id")
-        .in("block_id", allBlockIds);
-      // Group sessions by client_id
-      const sessionsByClientId = new Map<string, any[]>();
-      for (const s of allClientSessions ?? []) {
-        const cid = blockToClientId.get(s.block_id);
-        if (cid) {
-          if (!sessionsByClientId.has(cid)) sessionsByClientId.set(cid, []);
-          sessionsByClientId.get(cid)!.push(s);
-        }
-      }
-      for (const c of clients) {
-        const cSessions = sessionsByClientId.get(c.id);
-        if (cSessions && cSessions.length > 0) {
-          const pot = deriveSessionPot(cSessions, c.sessions_purchased ?? null, c.pot_baseline_used ?? 0);
-          derivedRemainingByClientId.set(c.id, pot.remaining);
-        } else {
-          derivedRemainingByClientId.set(c.id, null);
-        }
-      }
-    }
-  }
 
   // ── Finance KPIs — from the same shared helper the PWA money page uses ──
   const summary = await getMoneySummary(now);
@@ -186,132 +89,7 @@ export default async function CashflowOverviewPage() {
   const kpiPaid = summary.collected;
   const kpiOutstanding = summary.outstanding;
   const kpiOverdue = summary.overdue;
-
-  // ── Bank matches actually confirmed — the one non-guessable signal ──────
-  const matchedInvoiceRes = await supabase
-    .from("bank_transactions")
-    .select("matched_invoice_id")
-    .not("matched_invoice_id", "is", null);
-  const confirmedMatchedIds = new Set(
-    ((matchedInvoiceRes.data ?? []) as { matched_invoice_id: string }[]).map((r) => r.matched_invoice_id),
-  );
-
-  const queue: QueueItem[] = [];
-
-  // 1) A block ending (or already ended) with sessions left unused — sell
-  // the next one now, or let it lapse. (clients.block_expiry_date, derived remaining)
-  const endingClients = clients
-    .filter((c) => {
-      if (!c.block_expiry_date) return false;
-      const remaining = derivedRemainingByClientId.get(c.id) ?? 0;
-      if (remaining <= 0) return false;
-      const expiry = new Date(c.block_expiry_date);
-      const daysUntil = daysBetween(expiry, now);
-      return daysUntil <= BLOCK_ENDING_WINDOW_DAYS; // includes already-past expiries
-    })
-    .sort((a, b) => new Date(a.block_expiry_date!).getTime() - new Date(b.block_expiry_date!).getTime());
-
-  for (const c of endingClients) {
-    const expiry = new Date(c.block_expiry_date!);
-    const daysUntil = daysBetween(expiry, now);
-    const remaining = derivedRemainingByClientId.get(c.id) ?? 0;
-    const purchased = c.sessions_purchased ?? remaining;
-    const whenText =
-      daysUntil >= 0
-        ? `ends in ${daysUntil} day${daysUntil === 1 ? "" : "s"}`
-        : `ended ${Math.abs(daysUntil)} day${Math.abs(daysUntil) === 1 ? "" : "s"} ago`;
-    queue.push({
-      id: `block-${c.id}`,
-      tone: "due",
-      headline: `${c.name}'s program ${whenText}`,
-      subline: `${remaining} of ${purchased} session${purchased === 1 ? "" : "s"} unused. Decide whether to sell the next program now.`,
-      actionLabel: "Raise invoice",
-      href: "/hub/cashflow/invoices/new",
-    });
-  }
-
-  // 2) An invoice drafted and never sent — it cannot be paid by any route
-  // until it's sent. (invoices.status = 'draft')
-  const draftInvoices = allInvoices.filter((inv) => inv.status === "draft");
-  for (const inv of draftInvoices) {
-    const ageDays = daysBetween(now, new Date(inv.issue_date));
-    queue.push({
-      id: `draft-${inv.id}`,
-      tone: "warn",
-      headline: `${inv.clients?.name ?? "Unknown client"}'s invoice (${fmt(inv.total)}) has been a draft for ${ageDays} day${ageDays === 1 ? "" : "s"}`,
-      subline: "invoices.status = 'draft'. A draft cannot be paid by any route until it's sent.",
-      actionLabel: "Send invoice",
-      href: `/hub/cashflow/invoices/${inv.id}`,
-    });
-  }
-
-  // 3) An overdue invoice with no matching bank line — a status check, not
-  // an accusation. (invoices.status/due_date + no confirmed match)
-  const overdueUnmatched = allInvoices.filter(
-    (inv) =>
-      (inv.status === "overdue" || (inv.status === "sent" && inv.due_date < today)) &&
-      !confirmedMatchedIds.has(inv.id),
-  );
-  for (const inv of overdueUnmatched) {
-    const daysOverdue = daysBetween(now, new Date(inv.due_date));
-    queue.push({
-      id: `overdue-${inv.id}`,
-      tone: "warn",
-      headline: `${inv.clients?.name ?? "Unknown client"}'s invoice (${fmt(inv.total)}) is ${daysOverdue} day${daysOverdue === 1 ? "" : "s"} past due, and no bank line has matched it`,
-      subline: "If they've already paid another way, mark it — otherwise send a reminder. Not an accusation, a status check.",
-      actionLabel: "Open invoice",
-      href: `/hub/cashflow/invoices/${inv.id}`,
-    });
-  }
-
-  // 4) Bank lines that look like they match unpaid invoices — confirm or
-  // dismiss. (bank_transactions unmatched + findSuggestedMatches heuristic)
-  const candidateInvoicesRes = await supabase
-    .from("invoices")
-    .select("*, clients(name, client_number, display_code)")
-    .in("status", ["sent", "overdue"]);
-  const unmatchedTxns = (unmatchedTxnRes.data ?? []) as MatchTransaction[];
-  const candidateInvoices = (candidateInvoicesRes.data ?? []) as (MatchInvoice & {
-    clients: { name: string; client_number: number; display_code: string } | null;
-  })[];
-  const dismissedSet = new Set(
-    (dismissedRes.data ?? []).map(
-      (d: { bank_transaction_id: string; invoice_id: string }) => `${d.bank_transaction_id}::${d.invoice_id}`,
-    ),
-  );
-  const suggestionPairs = findSuggestedMatches({
-    transactions: unmatchedTxns,
-    invoices: candidateInvoices,
-    dismissedSet,
-  });
-  if (suggestionPairs.length > 0) {
-    const n = suggestionPairs.length;
-    queue.push({
-      id: "recon",
-      tone: "quiet",
-      headline: `${n} bank line${n === 1 ? "" : "s"} look${n === 1 ? "s" : ""} like ${n === 1 ? "it matches" : "they match"} unpaid invoices`,
-      subline: "Reviewing a suggested match takes less time than chasing something already paid.",
-      actionLabel: "Review matches",
-      href: "/hub/cashflow/reconciliation",
-    });
-  }
-
-  // 5) A client training at a non-standard session length with no
-  // client_rate override — every invoice for them defaults to the wrong
-  // price. (clients.client_rate IS NULL + session_duration != 60)
-  const noRateClients = clients.filter(
-    (c) => c.client_rate == null && c.session_duration != null && c.session_duration !== STANDARD_SESSION_DURATION,
-  );
-  for (const c of noRateClients) {
-    queue.push({
-      id: `rate-${c.id}`,
-      tone: "quiet",
-      headline: `${c.name} has no rate set`,
-      subline: `Trains in ${c.session_duration}-minute sessions, not the standard ${STANDARD_SESSION_DURATION}, but has no rate set — so every invoice for ${c.name.split(" ")[0]} falls back to the standard rate.`,
-      actionLabel: "Set rate",
-      href: `/hub/clients/${c.client_number}`,
-    });
-  }
+  const queue = summary.actionQueue;
 
   const needCount = queue.length;
   const recentInvoices = allInvoices.slice(0, 7);
