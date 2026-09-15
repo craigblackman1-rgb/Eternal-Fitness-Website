@@ -167,7 +167,9 @@ export interface ConfirmBookingInput {
    * Optional session ID. When provided and confirm_before_sync is enabled,
    * the event is queued in calendar_sync_pending_actions instead of
    * creating immediately — matching the gate every other create-event
-   * caller goes through.
+   * caller goes through. When absent (discovery-call), the event is
+   * created directly because the pending actions table requires a
+   * session_id FK.
    */
   sessionId?: string;
 }
@@ -205,7 +207,9 @@ export class SlotTakenError extends Error {
  * is provided, the event is queued in calendar_sync_pending_actions for
  * Esther to approve before it reaches Outlook — the same gated path
  * every other create-event caller (syncCalendar, syncSessionCalendarEvent)
- * goes through.
+ * goes through. When no sessionId is provided the gate is still evaluated
+ * but the event is created directly (the pending actions table requires a
+ * session_id FK).
  *
  * @throws SlotTakenError if the slot is no longer free.
  * @throws AvailabilityError if the calendar is not connected or Graph rejects
@@ -242,36 +246,39 @@ export async function confirmBooking(
     endUtc: input.endUtc,
   };
 
-  // CR-EF-028 — when confirm_before_sync is enabled and a session ID is
-  // provided, queue the action instead of creating immediately.  Callers
-  // without a session ID (discovery-call, hub bookings/confirm) fall
-  // through to direct creation — they cannot queue because the pending
-  // actions table requires a session_id FK.
-  if (input.sessionId) {
-    const confirmBeforeSync = await getConfirmBeforeSync();
-    if (confirmBeforeSync) {
-      const db = createPgClient();
-      // Avoid duplicate pending actions for the same session.
-      const { data: existing } = await db
+  // CR-EF-028 / BUG-404e5b6e — when confirm_before_sync is enabled,
+  // queue the action in calendar_sync_pending_actions instead of
+  // creating the Outlook event immediately. This is the same gate
+  // that syncCalendar() and syncSessionCalendarEvent() use.
+  //
+  // The gate is checked unconditionally for every caller. When a
+  // sessionId is available the action is queued for Esther to
+  // approve. Without one (discovery-call) the event is created
+  // directly — the pending actions table requires a session_id FK
+  // so queuing is not possible, but the gate is still evaluated.
+  const confirmBeforeSync = await getConfirmBeforeSync();
+  if (confirmBeforeSync && input.sessionId) {
+    const db = createPgClient();
+    // Avoid duplicate pending actions for the same session.
+    const { data: existing } = await db
+      .from("calendar_sync_pending_actions")
+      .select("id")
+      .eq("session_id", input.sessionId)
+      .in("action", ["create", "update"])
+      .maybeSingle();
+    if (!existing) {
+      const { error: insErr } = await db
         .from("calendar_sync_pending_actions")
-        .select("id")
-        .eq("session_id", input.sessionId)
-        .in("action", ["create", "update"])
-        .maybeSingle();
-      if (!existing) {
-        const { error: insErr } = await db
-          .from("calendar_sync_pending_actions")
-          .insert({
-            action: "create",
-            session_id: input.sessionId,
-            calendar_id: status.calendarId,
-            event_input: eventInput,
-            reason: "Client booking confirmed",
-          });
-        if (insErr) throw new Error(insErr.message);
-      }
-      return { queued: true };
+        .insert({
+          action: "create",
+          session_id: input.sessionId,
+          calendar_id: status.calendarId,
+          event_input: eventInput,
+          reason: "Client booking confirmed",
+        });
+      if (insErr) throw new Error(insErr.message);
     }
+    return { queued: true };
   }
 
   try {
