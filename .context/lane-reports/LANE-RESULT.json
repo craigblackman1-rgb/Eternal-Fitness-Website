@@ -1,22 +1,21 @@
 {
-  "lane": "ef-u22-disconnect-preserve",
-  "wo": "wo-ef-consolidated-2026-09-08",
-  "unit": "u22",
+  "lane": "ef-u12-pwa-train-tab",
+  "wo": "wo-ef-pwa-parity-2026-09-09",
+  "unit": "u12",
   "commits": [
     {
-      "sha": "e9cb147",
-      "subject": "fix: preserve session_calendar_events across Microsoft disconnect"
+      "sha": "4e0f38a",
+      "subject": "fix(u12): Train tab session list replaces redirect to Today"
     }
   ],
   "filesChanged": [
-    "lib/graph-client.ts",
-    "app/api/integrations/microsoft/disconnect/route.ts",
-    ".context/lane-reports/LANE-NOTES-u22-disconnect-preserve.md"
+    "app/hub/m/train/page.tsx",
+    "app/hub/m/train/TrainScreen.tsx"
   ],
   "verify": {
-    "tsc": "clean (exit 0)",
-    "tests": "pass — 26 files, 280 tests, all green (vitest)",
-    "escapeGrep": "0 hits — no blanket session_calendar_events deletes remain in graph-client.ts; remaining deletes are targeted by session_id in calendar-sync.ts and outlook-duplicates.ts"
+    "tsc": "clean",
+    "tests": "n/a",
+    "escapeGrep": "0 hits — 2 occurrences of \\u00B7 in TrainScreen.tsx are inside template literals (proper JS string context), not raw JSX text"
   },
   "deviations": [],
   "blockers": [],
