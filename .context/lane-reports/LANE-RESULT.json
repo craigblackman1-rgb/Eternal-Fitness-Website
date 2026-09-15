@@ -1,15 +1,17 @@
 {
-  "lane": "bug-ef-a746b457-delete-session-ungated",
+  "lane": "bug-ef-404e5b6e-booking-dialog-gate",
   "wo": "wo-ef-consolidated-2026-09-08",
   "unit": "",
   "commits": [
     {
-      "sha": "46b66c9",
-      "subject": "fix: gate DELETE /api/sessions/[id] to skip Outlook event removal for adopted events"
+      "sha": "17425a5",
+      "subject": "fix(booking): route confirmBooking through confirm_before_sync gate"
     }
   ],
   "filesChanged": [
-    "app/api/sessions/[id]/route.ts"
+    "lib/booking-availability.ts",
+    "app/api/portal/bookings/confirm/route.ts",
+    "app/api/discovery-call/route.ts"
   ],
   "verify": {
     "tsc": "clean (0 errors)",
