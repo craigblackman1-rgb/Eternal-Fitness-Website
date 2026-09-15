@@ -1,0 +1,22 @@
+{
+  "lane": "ef068-u23-booking-dialog-sync-gate",
+  "wo": "wo-ef-consolidated-2026-09-08",
+  "unit": "u23",
+  "commits": [
+    {
+      "sha": "b8dd385",
+      "subject": "fix: make confirm_before_sync gate unconditional in confirmBooking()"
+    }
+  ],
+  "filesChanged": [
+    "lib/booking-availability.ts"
+  ],
+  "verify": {
+    "tsc": "clean (0 errors)",
+    "tests": "n/a (no test files for booking-availability.ts)",
+    "escapeGrep": "0 hits"
+  },
+  "deviations": [],
+  "blockers": [],
+  "done": true
+}
