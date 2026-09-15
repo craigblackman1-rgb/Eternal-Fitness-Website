@@ -158,9 +158,10 @@ export async function setConfirmBeforeSync(enabled: boolean): Promise<void> {
 
 export async function disconnect(): Promise<void> {
   const db = createPgClient();
-  // Mapping rows are meaningless without a connection to manage the events.
-  const { error: evErr } = await db.from("session_calendar_events").delete().neq("event_id", "");
-  if (evErr) throw new Error(`session_calendar_events clear failed: ${evErr.message}`);
+  // session_calendar_events rows are PRESERVED — they serve as the dedup index
+  // for the inbound Outlook booking sync (syncOutlookBookings). If these were
+  // deleted, reconnecting would re-ingest every previously-adopted event as a
+  // new booking, creating duplicates (bug a1a65afe).
   const { error } = await db.from("integration_tokens").delete().eq("provider", PROVIDER);
   if (error) throw new Error(`integration_tokens delete failed: ${error.message}`);
 }

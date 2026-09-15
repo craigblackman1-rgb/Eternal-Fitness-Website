@@ -5,7 +5,10 @@ import { disconnect } from "@/lib/graph-client";
 export const dynamic = "force-dynamic";
 
 /**
- * Removes the stored Microsoft connection and the session→event mapping rows.
+ * Removes the stored Microsoft connection (tokens, calendar selection). The
+ * session→event mapping rows (session_calendar_events) are preserved so the
+ * inbound Outlook booking sync recognises previously-adopted events on
+ * reconnect instead of creating duplicate bookings.
  * Events already in the Outlook calendar are left in place — the dedicated
  * "Eternal Fitness" calendar can simply be deleted in Outlook if unwanted.
  */
