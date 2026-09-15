@@ -1,22 +1,33 @@
 {
-  "lane": "ef-u11-pwa-session-chips-fix",
+  "lane": "ef-u10-pwa-today-parity",
   "wo": "wo-ef-pwa-parity-2026-09-09",
-  "unit": "u11",
+  "unit": "u10",
   "commits": [
-    {
-      "sha": "1ba3db5",
-      "subject": "fix: completed-session pill class + standardize chip label to 'Booked'"
-    }
+    {"sha": "c2e906c", "subject": "BUG-EF-174: PWA Today screen now shows alerts and week session count via shared helper"},
+    {"sha": "6de58ee", "subject": "BUG-EF-176: PWA Money now shows action queue and correct KPIs via shared helper"},
+    {"sha": "c5cc9bb", "subject": "BUG-EF-181: PWA client mode now shows 'Needs you' block via shared helper"},
+    {"sha": "9a783ff", "subject": "Fix tsc errors: import Link in MoneyScreen, fix icon name, cast group_type"}
   ],
   "filesChanged": [
-    "app/hub/m/train/[sessionId]/TrainScreen.tsx",
-    "lib/session-chip.ts",
-    "app/hub/(protected)/schedule/CalendarSpine.tsx"
+    "lib/hub/alerts.ts",
+    "lib/hub/money-summary.ts",
+    "lib/hub/client-needs.ts",
+    "lib/hub/build-needs-you.ts",
+    "app/hub/(protected)/page.tsx",
+    "app/hub/(protected)/cashflow/page.tsx",
+    "app/hub/(protected)/clients/[id]/NeedsYouQueue.tsx",
+    "app/hub/m/page.tsx",
+    "app/hub/m/TodayScreen.tsx",
+    "app/hub/m/mobile.css",
+    "app/hub/m/money/page.tsx",
+    "app/hub/m/money/MoneyScreen.tsx",
+    "app/hub/m/clients/[id]/page.tsx",
+    "app/hub/m/clients/[id]/ClientModeView.tsx"
   ],
   "verify": {
-    "tsc": "clean",
+    "tsc": "clean (0 errors)",
     "tests": "n/a",
-    "escapeGrep": "0 hits"
+    "escapeGrep": "0 hits in .tsx files (\\u2014 em-dash in .ts string literals only — valid JS syntax)"
   },
   "deviations": [],
   "blockers": [],
