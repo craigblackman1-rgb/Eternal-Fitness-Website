@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase-server";
+import { getMoneySummary } from "@/lib/hub/money-summary";
 import { MoneyScreen } from "./MoneyScreen";
 
 export interface InvoiceListItem {
@@ -34,17 +35,29 @@ export default async function MobileMoneyPage() {
     };
   });
 
-  const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
-  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
+  // BUG-EF-176 — use the same shared helper the desktop cashflow page uses
+  // for KPIs and action queue, so both surfaces show the same numbers.
+  let collected = 0;
+  let outstanding = 0;
+  let actionQueue: import("@/lib/hub/money-summary").MoneyActionItem[] = [];
+  let draftCount = 0;
+  try {
+    const summary = await getMoneySummary();
+    collected = summary.collected;
+    outstanding = summary.outstanding;
+    actionQueue = summary.actionQueue;
+    draftCount = summary.draftCount;
+  } catch {
+    // If the helper throws, show zero values — not a reassuring empty state.
+  }
 
-  const collected = list
-    .filter((inv) => inv.status === "paid" && inv.issue_date >= monthStart && inv.issue_date <= monthEnd)
-    .reduce((sum, inv) => sum + inv.total, 0);
-
-  const outstanding = list
-    .filter((inv) => inv.status === "sent" && inv.issue_date >= monthStart)
-    .reduce((sum, inv) => sum + inv.total, 0);
-
-  return <MoneyScreen invoices={list} collected={collected} outstanding={outstanding} />;
+  return (
+    <MoneyScreen
+      invoices={list}
+      collected={collected}
+      outstanding={outstanding}
+      actionQueue={actionQueue}
+      draftCount={draftCount}
+    />
+  );
 }

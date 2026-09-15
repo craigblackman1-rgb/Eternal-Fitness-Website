@@ -81,9 +81,11 @@ interface Props {
   invoices: InvoiceListItem[];
   collected: number;
   outstanding: number;
+  actionQueue?: import("@/lib/hub/money-summary").MoneyActionItem[];
+  draftCount?: number;
 }
 
-export function MoneyScreen({ invoices, collected, outstanding }: Props) {
+export function MoneyScreen({ invoices, collected, outstanding, actionQueue = [], draftCount = 0 }: Props) {
   const [seg, setSeg] = useState<Segment>("outstanding");
   const [openId, setOpenId] = useState<string | null>(null);
   const [detailInv, setDetailInv] = useState<InvoiceListItem | null>(null);
@@ -198,6 +200,37 @@ export function MoneyScreen({ invoices, collected, outstanding }: Props) {
           </div>
         </div>
 
+        {/* BUG-EF-176 — Action queue from the shared helper, same as desktop cashflow */}
+        {actionQueue.length > 0 && (
+          <div className="panel" style={{ marginBottom: 14 }}>
+            <div className="sec-label" style={{ padding: "8px 12px 4px" }}>
+              <h2 style={{ margin: 0, fontSize: 14, fontWeight: 700 }}>Needs you</h2>
+              <span style={{ fontSize: 11, color: "var(--muted)" }}>
+                {actionQueue.length} thing{actionQueue.length === 1 ? "" : "s"}
+              </span>
+            </div>
+            <div className="tlist">
+              {actionQueue.map((item) => (
+                <Link
+                  key={item.id}
+                  className="trow"
+                  href={item.href}
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <span className={`tcheck ${item.tone === "due" ? "alert-ic-rose" : item.tone === "warn" ? "alert-ic-amber" : ""}`}>
+                    {item.tone === "due" ? ICO.checkSm : ICO.send}
+                  </span>
+                  <div className="tbody">
+                    <div className="ttitle">{item.headline}</div>
+                    <div className="tmeta">{item.subline}</div>
+                  </div>
+                  <span className="schev">{ICO.chev}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="seg" style={{ marginBottom: 14 }}>
           {SEGMENTS.map((s) => (
             <button
@@ -216,11 +249,13 @@ export function MoneyScreen({ invoices, collected, outstanding }: Props) {
           <div className="empty">
             <div className="empty-ic">{ICO.empty}</div>
             <p className="empty-t">
-              {seg === "outstanding" ? "All clear" : seg === "paid" ? "No paid invoices" : "No drafts"}
+              {seg === "outstanding"
+                ? (actionQueue.length > 0 ? "No overdue invoices" : "All clear")
+                : seg === "paid" ? "No paid invoices" : "No drafts"}
             </p>
             <p className="empty-d">
               {seg === "outstanding"
-                ? "No outstanding invoices right now."
+                ? (actionQueue.length > 0 ? "See the action items above." : "No outstanding invoices right now.")
                 : seg === "paid"
                 ? "Paid invoices will appear here."
                 : "Draft invoices will appear here."}

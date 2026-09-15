@@ -10,6 +10,7 @@ import {
 import { computeForecast } from "@/lib/cashflow-forecast";
 import { currentTaxYear, getTaxYearBounds } from "@/lib/cashflow-tax";
 import { deriveSessionPot } from "@/lib/session-pot";
+import { getMoneySummary } from "@/lib/hub/money-summary";
 import { ForecastSection } from "./ForecastSection";
 import { TaxSection } from "./TaxSection";
 
@@ -179,20 +180,12 @@ export default async function CashflowOverviewPage() {
     }
   }
 
-  // ── Finance KPIs (§7 — same anatomy as compliance/updates) ───────────
-  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
-  const kpiInvoiced = allInvoices
-    .filter((inv) => inv.issue_date >= thisMonthStart && inv.status !== "void")
-    .reduce((sum, inv) => sum + inv.total, 0);
-  const kpiPaid = allInvoices
-    .filter((inv) => inv.status === "paid" && inv.issue_date >= thisMonthStart)
-    .reduce((sum, inv) => sum + inv.total, 0);
-  const kpiOutstanding = allInvoices
-    .filter((inv) => inv.status === "sent" && inv.issue_date >= thisMonthStart)
-    .reduce((sum, inv) => sum + inv.total, 0);
-  const kpiOverdue = allInvoices
-    .filter((inv) => inv.status === "overdue" || (inv.status === "sent" && inv.due_date < today))
-    .reduce((sum, inv) => sum + inv.total, 0);
+  // ── Finance KPIs — from the same shared helper the PWA money page uses ──
+  const summary = await getMoneySummary(now);
+  const kpiInvoiced = summary.invoiced;
+  const kpiPaid = summary.collected;
+  const kpiOutstanding = summary.outstanding;
+  const kpiOverdue = summary.overdue;
 
   // ── Bank matches actually confirmed — the one non-guessable signal ──────
   const matchedInvoiceRes = await supabase
