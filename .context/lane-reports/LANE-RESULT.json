@@ -2,7 +2,12 @@
   "lane": "ef-u11-pwa-session-chips",
   "wo": "wo-ef-pwa-parity-2026-09-09",
   "unit": "u11",
-  "commits": [],
+  "commits": [
+    {
+      "sha": "d023c99",
+      "subject": "fix: PWA session state chips — unified vocabulary, train header pill, resume banner, pot hero fontSize"
+    }
+  ],
   "filesChanged": [
     "lib/session-chip.ts",
     "app/hub/m/mobile.css",
