@@ -1,70 +1,97 @@
 import { createClient } from "@/lib/supabase-server";
-import { redirect } from "next/navigation";
+import { sessionDurationMinutes } from "@/lib/scheduling";
+import { sessionWorkoutName } from "@/lib/session-display";
 import { toIsoTimestamp } from "@/lib/pg-timestamp";
+import type { Session, TimeTier } from "@/types";
+import { TrainScreen } from "./TrainScreen";
+
+export interface TrainEntry {
+  id: string;
+  clientId: string | null;
+  clientName: string;
+  clientNumber: number | null;
+  complianceStatus: string | null;
+  sessionNumber: number;
+  archetype: string;
+  blockNumber: number | null;
+  scheduledAt: string;
+  durationMinutes: number;
+  status: string | null;
+  completedAt: string | null;
+  sessionLogCompletedAt: string | null;
+  sessionLogStartedAt: string | null;
+  startedAt: string | null;
+  lapseFlaggedAt: string | null;
+  focusLabel: string;
+  displayName: string;
+}
 
 export default async function TrainTabPage() {
   const supabase = createClient();
 
   const { data: sessionRows } = await supabase
     .from("sessions")
-    .select("id, data, scheduled_at, cancelled_at, status, completed_at, started_at, lapse_flagged_at")
+    .select("id, block_id, session_number, archetype, data, scheduled_at, cancelled_at, status, completed_at, started_at, lapse_flagged_at")
     .not("scheduled_at", "is", null)
     .is("cancelled_at", null)
-    .is("parent_session_id", null);
+    .is("parent_session_id", null)
+    .order("scheduled_at", { ascending: true });
 
-  const sessions = (sessionRows ?? []) as {
+  const sessions: Array<{
     id: string;
-    data: {
-      session_log?: { started_at?: string | null; completed_at?: string | null } | null;
-    } | null;
-    scheduled_at: string;
-    status?: string | null;
-    completed_at?: string | null;
-    started_at?: string | null;
-    lapse_flagged_at?: string | null;
-  }[];
+    block_id: string;
+    session_number: number;
+    archetype: string | null;
+    data: Session | null;
+    scheduled_at: string | null;
+    status: string | null;
+    completed_at: string | null;
+    started_at: string | null;
+    lapse_flagged_at: string | null;
+  }> = sessionRows ?? [];
 
-  // Normalise to strict ISO-8601 (offset-preserving) so WebKit (iOS Safari)
-  // doesn't render "Invalid Date" — see lib/pg-timestamp.ts.
-  for (const s of sessions) {
-    s.scheduled_at = toIsoTimestamp(s.scheduled_at) as string;
-  }
+  const blockIds = [...new Set(sessions.map((s) => s.block_id).filter(Boolean))];
+  const { data: blockRows } = blockIds.length
+    ? await supabase.from("blocks").select("id, client_id, block_number").in("id", blockIds)
+    : { data: [] as { id: string; client_id: string; block_number: number }[] };
+  const blocks = blockRows ?? [];
+  const blockById = new Map(blocks.map((b) => [b.id, b]));
 
-  const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const todayEnd = new Date(todayStart.getTime() + 86_400_000);
+  const clientIds = [...new Set(blocks.map((b) => b.client_id).filter(Boolean))];
+  const { data: clientRows } = clientIds.length
+    ? await supabase.from("clients").select("id, name, client_number, compliance_status").in("id", clientIds)
+    : { data: [] as { id: string; name: string; client_number: number | null; compliance_status: string | null }[] };
+  const clients = clientRows ?? [];
+  const clientById = new Map(clients.map((c) => [c.id, c]));
 
-  const todaySessions = sessions
-    .filter((s) => {
-      const at = new Date(s.scheduled_at);
-      return at >= todayStart && at < todayEnd;
-    })
-    .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime());
+  const entries: TrainEntry[] = sessions
+    .filter((s) => s.scheduled_at)
+    .map((s) => {
+      const block = blockById.get(s.block_id);
+      const client = block ? clientById.get(block.client_id) : undefined;
+      const timeTier = (s.data?.time_tier ?? null) as TimeTier | null;
+      const sessionLog = s.data?.session_log ?? null;
+      return {
+        id: s.id,
+        clientId: block?.client_id ?? null,
+        clientName: client?.name ?? "Unknown client",
+        clientNumber: client?.client_number ?? null,
+        complianceStatus: client?.compliance_status ?? null,
+        sessionNumber: s.session_number,
+        archetype: s.archetype,
+        blockNumber: block?.block_number ?? null,
+        scheduledAt: toIsoTimestamp(s.scheduled_at) as string,
+        durationMinutes: sessionDurationMinutes(timeTier),
+        status: s.status,
+        completedAt: s.completed_at,
+        sessionLogCompletedAt: sessionLog?.completed_at ?? null,
+        sessionLogStartedAt: sessionLog?.started_at ?? null,
+        startedAt: s.started_at ?? null,
+        lapseFlaggedAt: s.lapse_flagged_at ?? null,
+        focusLabel: s.data?.focus_label ?? "",
+        displayName: sessionWorkoutName(s, `Session ${s.session_number}`),
+      };
+    });
 
-  // BUG-EF-173: key off the started_at column (source of truth), not JSONB session_log.
-  // Also exclude completed sessions (check both column and JSONB), lapse-flagged sessions,
-  // and past-dated sessions so this predicate agrees with app/hub/m/page.tsx.
-  const isCompleted = (s: typeof todaySessions[number]) =>
-    s.status === "completed" || !!s.completed_at || !!s.data?.session_log?.completed_at;
-  const inProgress = todaySessions.find(
-    (s) =>
-      (s.status === "in_progress" || s.started_at) &&
-      !isCompleted(s) &&
-      !s.lapse_flagged_at,
-  );
-  const nextUpcoming = todaySessions.find((s) => !isCompleted(s));
-
-  // Intent rule: jump to a session only if one is in progress now or starts
-  // within 30 minutes.  Otherwise land on the Today day list (/hub/m) so the
-  // trainer sees the full day context rather than a dead-end empty state.
-  const THIRTY_MIN = 30 * 60 * 1000;
-  const target =
-    inProgress ??
-    (nextUpcoming &&
-    new Date(nextUpcoming.scheduled_at).getTime() - now.getTime() <= THIRTY_MIN
-      ? nextUpcoming
-      : null);
-
-  if (target) redirect(`/hub/m/train/${target.id}`);
-  redirect("/hub/m");
+  return <TrainScreen entries={entries} />;
 }
