@@ -1,13 +1,22 @@
 {
-  "lane": "ef-cr127-language-sweep",
+  "lane": "ef-u22-disconnect-preserve",
   "wo": "wo-ef-consolidated-2026-09-08",
-  "unit": "u6",
-  "commits": [],
-  "filesChanged": [],
+  "unit": "u22",
+  "commits": [
+    {
+      "sha": "e9cb147",
+      "subject": "fix: preserve session_calendar_events across Microsoft disconnect"
+    }
+  ],
+  "filesChanged": [
+    "lib/graph-client.ts",
+    "app/api/integrations/microsoft/disconnect/route.ts",
+    ".context/lane-reports/LANE-NOTES-u22-disconnect-preserve.md"
+  ],
   "verify": {
-    "tsc": "clean (no changes made)",
-    "tests": "n/a (no code changes)",
-    "escapeGrep": "0 hits — all remaining 'pool' matches are code identifiers (getPool, pool.query, ICO.pool) or comments; all 'rotation' matches are comments; no rendered UI strings contain either word"
+    "tsc": "clean (exit 0)",
+    "tests": "pass — 26 files, 280 tests, all green (vitest)",
+    "escapeGrep": "0 hits — no blanket session_calendar_events deletes remain in graph-client.ts; remaining deletes are targeted by session_id in calendar-sync.ts and outlook-duplicates.ts"
   },
   "deviations": [],
   "blockers": [],
