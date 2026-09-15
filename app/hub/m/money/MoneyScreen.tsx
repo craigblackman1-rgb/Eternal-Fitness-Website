@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import type { InvoiceListItem } from "./page";
 
 const ICO = {
@@ -218,7 +219,7 @@ export function MoneyScreen({ invoices, collected, outstanding, actionQueue = []
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <span className={`tcheck ${item.tone === "due" ? "alert-ic-rose" : item.tone === "warn" ? "alert-ic-amber" : ""}`}>
-                    {item.tone === "due" ? ICO.checkSm : ICO.send}
+                    {item.tone === "due" ? ICO.check : ICO.send}
                   </span>
                   <div className="tbody">
                     <div className="ttitle">{item.headline}</div>

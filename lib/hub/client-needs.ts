@@ -108,7 +108,7 @@ export async function getClientNeeds(
 
   // Missing band set
   const missingBandSet =
-    latestBlock?.group_type === "band" && !client.band_set_id;
+    (latestBlock as any)?.group_type === "band" && !client.band_set_id;
 
   // Compliance flags
   const { rows: parqs } = await pool.query(
