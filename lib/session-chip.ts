@@ -11,7 +11,7 @@ export type ChipVariant =
   | "cancelled"
   | "not-logged"
   | "next"
-  | "applied"
+  | "scheduled"
   | "open"
   | "in-progress";
 
@@ -93,7 +93,7 @@ export function deriveSessionChip(
       return { label: "Next", variant: "next" };
     }
     if (hasWorkout(displayName)) {
-      return { label: "Applied", variant: "applied" };
+      return { label: "Scheduled", variant: "scheduled" };
     }
     return { label: "Open", variant: "open" };
   }

@@ -286,20 +286,33 @@ export function TodayScreen({ entries, tasks, currentUserName, resumeSession }: 
 
       <main className="mcontent">
         {/* BUG-EF-135 — Resume session banner */}
-        {resumeSession && (
-          <Link
-            className="alert a-info"
-            href={`/hub/m/train/${resumeSession.id}`}
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            <span className="alert-ic">{ICO.live}</span>
-            <div>
-              <b>Resume session</b>
-              {resumeSession.clientName} — {resumeSession.displayName} is in progress.
-            </div>
-            <span className="schev">{ICO.chev}</span>
-          </Link>
-        )}
+        {resumeSession && (() => {
+          const resumeChip = deriveSessionChip(
+            resumeSession.status ?? "planned",
+            resumeSession.scheduledAt,
+            resumeSession.durationMinutes,
+            resumeSession.displayName,
+            {
+              sessionLogStartedAt: resumeSession.sessionLogStartedAt,
+              sessionLogCompletedAt: resumeSession.sessionLogCompletedAt,
+              completedAt: resumeSession.completedAt,
+            },
+          );
+          return (
+            <Link
+              className="alert a-info"
+              href={`/hub/m/train/${resumeSession.id}`}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <span className="alert-ic">{ICO.live}</span>
+              <div>
+                <b>Resume session</b>
+                {resumeSession.clientName} — {resumeSession.displayName} ({resumeChip.label}).
+              </div>
+              <span className="schev">{ICO.chev}</span>
+            </Link>
+          );
+        })()}
 
         {clashCount > 0 && (
           <div className="alert a-warning">

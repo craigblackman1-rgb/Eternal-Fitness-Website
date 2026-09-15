@@ -361,7 +361,7 @@ export function ClientModeView({
               <div className={`pot-hero${potView.purchasedIsEstimate ? "" : (potView.remaining ?? 99) <= 2 ? " low" : ""}`}>
                 {potView.purchasedIsEstimate ? (
                   <>
-                    <span className="pot-hero-fig" style={{ fontSize: 42 }}>&infin;</span>
+                    <span className="pot-hero-fig pot-hero-fig--sm">&infin;</span>
                     <span className="pot-hero-label">left</span>
                   </>
                 ) : (

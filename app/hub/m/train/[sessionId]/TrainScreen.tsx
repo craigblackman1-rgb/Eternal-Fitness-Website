@@ -1236,11 +1236,13 @@ Cancel — record it as today`,
   );
 
   // ── Render helpers ─────────────────────────────────────────────
-  const topStatusLabel = progress.doneExCount === allSets.length
-    ? "All logged"
-    : progress.started
-      ? "In progress"
-      : "Not started";
+  const topStatusLabel = sessionCompleted
+    ? "Completed"
+    : progress.doneExCount === allSets.length
+      ? "All logged"
+      : progress.started
+        ? "In progress"
+        : "Not started";
 
   const topStatusClass = progress.doneExCount === allSets.length
     ? "done"
