@@ -32,8 +32,8 @@ const localBusinessSchema = {
     "@type": "OfferCatalog",
     "name": "Personal Training Services",
     "itemListElement": [
-      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Block of 12 Personal Training Sessions", "description": "12 x 60-minute one-to-one personal training sessions, in the studio or online, with programme review and adjustment." }, "price": "480", "priceCurrency": "GBP" },
-      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Block of 24 Personal Training Sessions", "description": "24 x 60-minute one-to-one personal training sessions, in the studio or online, with ongoing programme management and priority scheduling." }, "price": "840", "priceCurrency": "GBP" }
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Package of 12 Personal Training Sessions", "description": "12 x 60-minute one-to-one personal training sessions, in the studio or online, with programme review and adjustment." }, "price": "480", "priceCurrency": "GBP" },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Package of 24 Personal Training Sessions", "description": "24 x 60-minute one-to-one personal training sessions, in the studio or online, with ongoing programme management and priority scheduling." }, "price": "840", "priceCurrency": "GBP" }
     ]
   }
 };

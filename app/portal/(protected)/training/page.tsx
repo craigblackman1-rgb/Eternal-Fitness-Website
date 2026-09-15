@@ -38,7 +38,7 @@ export default async function PortalTrainingPage() {
           <EmptyState
             icon={<IconActivity className="w-7 h-7" />}
             title="No training plan yet"
-            description="Esther hasn't published a training block for you yet. Check back soon — your sessions will appear here as soon as your plan is ready."
+            description="Esther hasn't published your training plan yet. Check back soon — your sessions will appear here as soon as your plan is ready."
           />
         </HubCard>
       </div>

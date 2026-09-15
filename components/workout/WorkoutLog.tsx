@@ -28,7 +28,7 @@ import { ExerciseHistoryDrawer } from "./ExerciseHistoryDrawer";
 
 const SECTION_DEFS: { key: SectionKey; label: string; color: "teal" | "rose" | "navy" }[] = [
   { key: "warm_up", label: "Warm-up", color: "teal" },
-  { key: "main_block", label: "Main block", color: "rose" },
+  { key: "main_block", label: "Main set", color: "rose" },
   { key: "cooldown", label: "Cool-down", color: "navy" },
 ];
 

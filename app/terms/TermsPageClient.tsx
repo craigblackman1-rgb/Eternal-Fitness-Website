@@ -10,7 +10,7 @@ const tocItems = [
   { id: "payments", label: "Payments" },
   { id: "cancellations", label: "Cancellations and missed sessions" },
   { id: "cooling-off", label: "Your right to cancel (14-day cooling-off period)" },
-  { id: "packages", label: "Packages, blocks, and expiry" },
+  { id: "packages", label: "Packages and expiry" },
   { id: "results", label: "Results and expectations" },
   { id: "studio-rules", label: "Studio rules and conduct" },
   { id: "liability", label: "Liability and assumption of risk" },
@@ -77,7 +77,7 @@ export default function TermsPageClient() {
       </LegalSection>
 
       <LegalSection id="payments" n={5} title="Payments">
-        <p>Payment terms — including whether sessions are billed individually, in blocks, or on an ongoing basis — are confirmed at booking or following your initial consultation. Prices are quoted in GBP (&pound;). Payments must be made by the agreed due date. Late payment may result in pausing future bookings until the balance is cleared.</p>
+        <p>Payment terms — including whether sessions are billed individually, in packages, or on an ongoing basis — are confirmed at booking or following your initial consultation. Prices are quoted in GBP (&pound;). Payments must be made by the agreed due date. Late payment may result in pausing future bookings until the balance is cleared.</p>
       </LegalSection>
 
       <LegalSection id="cancellations" n={6} title="Cancellations, rescheduling, and missed sessions">
@@ -102,17 +102,17 @@ export default function TermsPageClient() {
       </LegalSection>
 
       <LegalSection id="cooling-off" n={7} title="Your right to cancel (14-day cooling-off period)">
-        <p>If you book and pay for a block of sessions online or over the phone (a "distance contract" under the Consumer Contracts Regulations 2013), you have a legal right to cancel within 14 days of that booking, for any reason, and receive a full refund — this is separate from, and in addition to, the session-by-session cancellation policy above.</p>
+        <p>If you book and pay for a package of sessions online or over the phone (a "distance contract" under the Consumer Contracts Regulations 2013), you have a legal right to cancel within 14 days of that booking, for any reason, and receive a full refund — this is separate from, and in addition to, the session-by-session cancellation policy above.</p>
         <ol>
           <li>To cancel under this right, just tell us clearly — by email, message, or phone — that you want to cancel. You don't need a reason.</li>
           <li>If no sessions have started yet, you'll get a full refund.</li>
           <li>If you'd like training to begin before the 14 days are up, we'll ask you to confirm that in writing first. In that case, if you then cancel partway through the 14 days, you'll be refunded for the unused sessions, minus a fair amount for whatever's already been delivered.</li>
         </ol>
-        <p>This 14-day right doesn't apply to a booking made in person at the studio, or once a block of sessions has been fully completed.</p>
+        <p>This 14-day right doesn't apply to a booking made in person at the studio, or once a package of sessions has been fully completed.</p>
       </LegalSection>
 
-      <LegalSection id="packages" n={8} title="Packages, blocks, and expiry">
-        <p>If you purchase a block or package of sessions: packages are personal to you and cannot be transferred to another person unless agreed in writing. Any expiry period will be communicated at the point of purchase. Refunds on partially used packages are handled on a case-by-case basis and may be subject to an administration fee, except where consumer law requires otherwise.</p>
+      <LegalSection id="packages" n={8} title="Packages and expiry">
+        <p>If you purchase a package of sessions: packages are personal to you and cannot be transferred to another person unless agreed in writing. Any expiry period will be communicated at the point of purchase. Refunds on partially used packages are handled on a case-by-case basis and may be subject to an administration fee, except where consumer law requires otherwise.</p>
       </LegalSection>
 
       <LegalSection id="results" n={9} title="Results and expectations">

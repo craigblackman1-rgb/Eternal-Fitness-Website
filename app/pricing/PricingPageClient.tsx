@@ -39,7 +39,7 @@ export default function PricingPageClient() {
   ];
   const plans = [
     {
-      name: "Block of 12",
+      name: "Package of 12",
       price: "£480",
       per: "£40 per session",
       popular: true,
@@ -53,7 +53,7 @@ export default function PricingPageClient() {
       cta: "Book a Free Consultation",
     },
     {
-      name: "Block of 24",
+      name: "Package of 24",
       price: "£840",
       per: "£35 per session",
       save: "Best value — save £120",
@@ -95,7 +95,7 @@ export default function PricingPageClient() {
         imageObjectPositionWide="50% 32%"
         eyebrow={"Pricing"}
         heading={<>Simple, <em>Straightforward</em> Pricing</>}
-        subhead={"One-to-one training, in blocks of 12 or 24 sessions — in the studio or online. I start with a free consultation, so you only book what you actually need."}
+        subhead={"One-to-one training, in packages of 12 or 24 sessions — in the studio or online. I start with a free consultation, so you only book what you actually need."}
         primaryCta={{ label: "Book a Free Consultation", href: BOOKINGS_URL, arrow: true }}
         secondaryCta={{ label: "See Pricing", href: "#pricing" }}
         imageDescription={"A one-to-one session in the middle of the studio. The client kneels on one knee on a padded mat, holding the free end of a barbell whose other end is anchored into the rack behind her. Esther stands two paces in front holding one hand out flat at chest height as a height to work to, and is not touching the client at any point. The whiteboard, the kettlebell shelves and the mirror run along the wall behind them."}
@@ -118,7 +118,7 @@ export default function PricingPageClient() {
           ))}
         </Reveal>
         <p className="ds-invest-note">
-          {"The first conversation is always free. After that, I'll recommend the block that actually fits your goals — not the most expensive option."}
+          {"The first conversation is always free. After that, I'll recommend the package that actually fits your goals — not the most expensive option."}
         </p>
         <div className="ds-invest-cta">
           <button type="button" onClick={openBookingModal} className="ef-btn ef-btn-outline">Book a Free Consultation</button>
@@ -137,7 +137,7 @@ export default function PricingPageClient() {
           <div className="ds-opt-mark" aria-hidden="true">A</div>
           <div>
             <div className="ds-opt-kicker">Option A</div>
-            <h3 className="ds-opt-title">{"Fixed Session Blocks"}</h3>
+            <h3 className="ds-opt-title">{"Fixed Session Packages"}</h3>
             <p className="ds-opt-desc">{"Perfect for those who want a structured runway to build momentum, or individuals navigating specific health boundaries at a set pace."}</p>
           </div>
         </div>

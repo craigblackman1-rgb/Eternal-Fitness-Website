@@ -534,7 +534,7 @@ export function ExerciseHistoryDrawer({
                     ) : (
                       <>
                         {pb.session_number != null ? (
-                          <>Logged · <b className="text-foreground">Session {pb.session_number}</b> · Block {pb.block_number} · {fmtShort(pb.achieved_at)}</>
+                          <>Logged · <b className="text-foreground">Session {pb.session_number}</b> · Programme {pb.block_number} · {fmtShort(pb.achieved_at)}</>
                         ) : pb.origin === "trainerize_import" ? (
                           <>Imported from Trainerize · {fmtShort(pb.achieved_at)}</>
                         ) : (

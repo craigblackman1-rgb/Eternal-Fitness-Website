@@ -61,8 +61,8 @@ const SESSION_TYPES: SessionType[] = [
     location: "The studio, Worthing",
     length: 60,
     description:
-      "A full health screen and movement assessment, taken at your pace. You leave knowing what is realistic and what a first block of sessions would look like.",
-    note: "Nothing is taken today. Fees and block sizes are agreed with you after the assessment, once we both know what you actually need.",
+      "A full health screen and movement assessment, taken at your pace. You leave knowing what is realistic and what a first package of sessions would look like.",
+    note: "Nothing is taken today. Fees and package sizes are agreed with you after the assessment, once we both know what you actually need.",
   },
 ];
 
@@ -708,7 +708,7 @@ export function PublicBookingClient() {
             </div>
             <div>
               <h4 className="text-[11px] font-extrabold uppercase tracking-[.11em] text-[var(--charcoal, #2D3436)] m-0 mb-2.5">Already training here?</h4>
-              <a href="/portal/login" className="block text-[14.5px] leading-[1.7] text-[var(--body, #525A61)] no-underline hover:text-[var(--ink, #131313)] hover:underline">Sign in and book from your block</a>
+              <a href="/portal/login" className="block text-[14.5px] leading-[1.7] text-[var(--body, #525A61)] no-underline hover:text-[var(--ink, #131313)] hover:underline">Sign in and book from your sessions</a>
             </div>
           </div>
           <p className="text-[12.5px] text-[var(--muted, #7E8088)] leading-relaxed pt-4 border-t border-[var(--warm-bd, #E4DDD7)]">

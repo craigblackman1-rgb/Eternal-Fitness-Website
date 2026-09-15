@@ -15,8 +15,8 @@ const ptSchema = {
   "hasOfferCatalog": {
     "@type": "OfferCatalog", "name": "Personal Training Sessions",
     "itemListElement": [
-      { "@type": "Offer", "name": "Block of 12", "price": "480", "priceCurrency": "GBP" },
-      { "@type": "Offer", "name": "Block of 24", "price": "840", "priceCurrency": "GBP" }
+      { "@type": "Offer", "name": "Package of 12", "price": "480", "priceCurrency": "GBP" },
+      { "@type": "Offer", "name": "Package of 24", "price": "840", "priceCurrency": "GBP" }
     ]
   }
 };

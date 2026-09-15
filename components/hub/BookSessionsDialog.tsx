@@ -509,7 +509,7 @@ export function BookSessionsDialog({
                       className="mt-0.5 accent-[var(--color-rose)] w-4 h-4 shrink-0"
                     />
                     <span className="min-w-0">
-                      <span className="text-[13.5px] font-bold text-[var(--color-ink)]">Block expiry</span>
+                      <span className="text-[13.5px] font-bold text-[var(--color-ink)]">Package expiry</span>
                     </span>
                   </label>
                   <label

@@ -774,11 +774,11 @@ function AgreementPageInner() {
                 <div>
                   <h3 className="font-semibold text-[#087E8B]">4.1 Session packages</h3>
                   <ul className="mt-1 list-disc list-inside space-y-1">
-                    <li>A block of 12 personal training sessions is valid for 120 days from the date of purchase.</li>
-                    <li>A block of 24 personal training sessions is valid for 240 days from the date of purchase.</li>
+                    <li>A package of 12 personal training sessions is valid for 120 days from the date of purchase.</li>
+                    <li>A package of 24 personal training sessions is valid for 240 days from the date of purchase.</li>
                     <li>Sessions not used within the validity period are forfeited without refund.</li>
-                    <li>Full payment is required before the block commences. No sessions will be delivered without prior payment.</li>
-                    <li>A non-refundable deposit of £100 is required to secure time slots, deductible from the total cost of the first block.</li>
+                    <li>Full payment is required before the package commences. No sessions will be delivered without prior payment.</li>
+                    <li>A non-refundable deposit of £100 is required to secure time slots, deductible from the total cost of the first package.</li>
                   </ul>
                 </div>
 

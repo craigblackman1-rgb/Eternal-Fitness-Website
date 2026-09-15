@@ -1117,7 +1117,7 @@ function ArrangementDrawer({ client, latestBlock, bandSetName, missingBandSet, s
     });
   }
   if (missingBandSet) {
-    thingsToSort.push({ headline: "No band set chosen, and the current block is a band block" });
+    thingsToSort.push({ headline: "No band set chosen, and the current session set uses bands" });
   }
   if (client.client_rate == null && latestBlock) {
     thingsToSort.push({ headline: "Rate not set on the record" });
@@ -1207,7 +1207,7 @@ function ArrangementDrawer({ client, latestBlock, bandSetName, missingBandSet, s
             <span className="fv">
               {bandSetName
                 ? bandSetName
-                : <span className="miss" style={{ fontWeight: 400 }}>None chosen{missingBandSet ? ", and the current block is a band block" : ""}.</span>}
+                : <span className="miss" style={{ fontWeight: 400 }}>None chosen{missingBandSet ? ", and the current session set uses bands" : ""}.</span>}
             </span>
           </div>
           <div className="frow">
@@ -2265,7 +2265,7 @@ function ProgressDrawer({ exerciseTrends, exerciseTrendSummary, sessions, blocks
                 <div key={block.id} className="hrow2">
                   <span className="hrow2-t">{block.block_number}</span>
                   <span className="hrow2-m">
-                    <span className="hrow2-n">{block.title || `Block ${block.block_number}`}</span>
+                    <span className="hrow2-n">{block.title || `Session set ${block.block_number}`}</span>
                     <span className="hrow2-s">
                       {isCurrent ? "Current" : "Complete"} {"\u00b7"} {completedInBlock} of {totalInBlock}
                     </span>

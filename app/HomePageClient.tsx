@@ -73,7 +73,7 @@ export default function HomePageClient() {
             <span key={dup} style={{ display: "flex" }}>
               <span className="ti">{"Private One-to-One Personal Training"}</span><span className="ti ts">✦</span>
               <span className="ti">{"No Gym Floor"}</span><span className="ti ts">✦</span>
-              <span className="ti">{"Blocks of 12 or 24 Sessions"}</span><span className="ti ts">✦</span>
+              <span className="ti">{"Packages of 12 or 24 Sessions"}</span><span className="ti ts">✦</span>
               <span className="ti">{"Level 4 Cancer & Exercise Rehabilitation"}</span><span className="ti ts">✦</span>
               <span className="ti">{"Private Studio or Live Online"}</span><span className="ti ts">✦</span>
               <span className="ti">{"Based in Worthing"}</span><span className="ti ts">✦</span>
