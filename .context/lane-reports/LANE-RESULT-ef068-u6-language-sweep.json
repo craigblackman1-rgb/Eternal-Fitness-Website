@@ -1,0 +1,37 @@
+{
+  "lane": "ef068-u6-language-sweep",
+  "wo": "wo-ef-consolidated-2026-09-08",
+  "unit": "u6",
+  "commits": [
+    {
+      "sha": "f2f594f",
+      "subject": "CR-EF-127: language sweep — remove 'block', 'pool', 'rotation' from rendered UI copy"
+    }
+  ],
+  "filesChanged": [
+    "app/HomePageClient.tsx",
+    "app/agreement/page.tsx",
+    "app/book/PublicBookingClient.tsx",
+    "app/faqs/FAQsPageClient.tsx",
+    "app/hub/(protected)/clients/[id]/ClientDrawers.tsx",
+    "app/page.tsx",
+    "app/parq/edit/[id]/ParqEditClient.tsx",
+    "app/personal-training/page.tsx",
+    "app/portal/(protected)/training/page.tsx",
+    "app/pricing/PricingPageClient.tsx",
+    "app/pricing/page.tsx",
+    "app/terms/TermsPageClient.tsx",
+    "components/FAQSection.tsx",
+    "components/hub/BookSessionsDialog.tsx",
+    "components/workout/ExerciseHistoryDrawer.tsx",
+    "components/workout/WorkoutLog.tsx"
+  ],
+  "verify": {
+    "tsc": "clean",
+    "tests": "pass: 26 files, 280 tests",
+    "escapeGrep": "0 hits — all remaining 'block' matches are code identifiers (display:block, Tailwind utilities, scrollIntoView API, variable names, CSS values) or cookie policy (browser cookie blocking). 'pool' and 'rotation' had zero rendered UI hits."
+  },
+  "deviations": [],
+  "blockers": [],
+  "done": true
+}
