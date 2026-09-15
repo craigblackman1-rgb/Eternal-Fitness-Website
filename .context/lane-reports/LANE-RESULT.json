@@ -1,0 +1,22 @@
+{
+  "lane": "bug-ef-a746b457-delete-session-ungated",
+  "wo": "wo-ef-consolidated-2026-09-08",
+  "unit": "",
+  "commits": [
+    {
+      "sha": "46b66c9",
+      "subject": "fix: gate DELETE /api/sessions/[id] to skip Outlook event removal for adopted events"
+    }
+  ],
+  "filesChanged": [
+    "app/api/sessions/[id]/route.ts"
+  ],
+  "verify": {
+    "tsc": "clean (0 errors)",
+    "tests": "n/a",
+    "escapeGrep": "0 hits"
+  },
+  "deviations": [],
+  "blockers": [],
+  "done": true
+}
