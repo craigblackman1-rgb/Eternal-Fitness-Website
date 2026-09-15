@@ -7,6 +7,7 @@ import { DesktopLink } from "@/components/hub/DesktopLink";
 import { toast } from "sonner";
 import type { Task } from "@/types";
 import type { TodayEntry } from "./page";
+import type { AlertItem } from "@/lib/hub/alerts";
 import { deriveSessionChip } from "@/lib/session-chip";
 
 // ── date/time helpers (mirrors ScheduleCalendar) ───────────────
@@ -180,9 +181,13 @@ interface TodayScreenProps {
   currentUserName: string | null;
   /** BUG-EF-135 — the first in-progress session for today, if any. */
   resumeSession: TodayEntry | null;
+  /** BUG-EF-174 — alerts from the shared helper, same as desktop. */
+  alerts?: AlertItem[];
+  /** BUG-EF-174 — week session count from the shared helper. */
+  weekCount?: number;
 }
 
-export function TodayScreen({ entries, tasks, currentUserName, resumeSession }: TodayScreenProps) {
+export function TodayScreen({ entries, tasks, currentUserName, resumeSession, alerts = [], weekCount = 0 }: TodayScreenProps) {
   const router = useRouter();
   const [day, setDay] = useState<string>(todayISO());
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -335,7 +340,7 @@ export function TodayScreen({ entries, tasks, currentUserName, resumeSession }: 
             <div className="sec-h-ic ic-rose">{ICO.calSm}</div>
             <div>
               <div className="sec-h-t">Sessions</div>
-              <div className="sec-h-s">{dayEntries.length === 0 ? "Nothing booked" : `${dayEntries.length} ${dayEntries.length === 1 ? "session" : "sessions"}`}</div>
+              <div className="sec-h-s">{dayEntries.length === 0 ? "Nothing booked" : `${dayEntries.length} ${dayEntries.length === 1 ? "session" : "sessions"} · ${weekCount} this week`}</div>
             </div>
             <span className="m-section-chev">{ICO.chev}</span>
           </button>
@@ -412,6 +417,49 @@ export function TodayScreen({ entries, tasks, currentUserName, resumeSession }: 
             </div>
           )}
         </div>
+
+        {/* BUG-EF-174 — Alerts section, same data as desktop */}
+        {alerts.length > 0 && (
+          <div className={`m-section${collapsed.alerts ? " collapsed" : ""}`}>
+            <button
+              type="button"
+              className="m-section-h"
+              onClick={() => setCollapsed((p) => ({ ...p, alerts: !p.alerts }))}
+              aria-expanded={!collapsed.alerts}
+            >
+              <div className="sec-h-ic ic-rose">{ICO.warnSm}</div>
+              <div>
+                <div className="sec-h-t">Alerts</div>
+                <div className="sec-h-s">{alerts.length} thing{alerts.length === 1 ? "" : "s"} need{alerts.length === 1 ? "s" : ""} a decision</div>
+              </div>
+              <span className="m-section-chev">{ICO.chev}</span>
+            </button>
+
+            {!collapsed.alerts && (
+              <div className="m-section-b">
+                <div className="tlist">
+                  {alerts.map((a) => (
+                    <Link
+                      key={a.id}
+                      className="trow"
+                      href={a.href}
+                      style={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      <span className={`tcheck ${a.dot === "due" ? "alert-ic-rose" : "alert-ic-amber"}`}>
+                        {a.dot === "due" ? ICO.warnSm : ICO.med}
+                      </span>
+                      <div className="tbody">
+                        <div className="ttitle">{a.headline}</div>
+                        {a.subline && <div className="tmeta">{a.subline}</div>}
+                      </div>
+                      <span className="schev">{ICO.chev}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {dayTasks.length > 0 && (
           <div className={`m-section${collapsed.tasks ? " collapsed" : ""}`}>

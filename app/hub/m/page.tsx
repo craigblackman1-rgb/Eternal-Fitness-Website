@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase-server";
 import { sessionDurationMinutes } from "@/lib/scheduling";
 import { sessionWorkoutName } from "@/lib/session-display";
+import { getTodayAlertsAndWeekCount } from "@/lib/hub/alerts";
 import type { Session, TimeTier, Task } from "@/types";
 import { TodayScreen } from "./TodayScreen";
 
@@ -117,5 +118,27 @@ export default async function TodayPage() {
       e.scheduledAt >= todayISO,
   ) ?? null;
 
-  return <TodayScreen entries={entries} tasks={tasks} currentUserName={user?.name ?? null} resumeSession={inProgressEntry} />;
+  // BUG-EF-174 — alerts and week session count from the same shared helper
+  // the desktop hub page uses, so both surfaces always show the same numbers.
+  let alerts: import("@/lib/hub/alerts").AlertItem[] = [];
+  let weekCount = 0;
+  try {
+    const result = await getTodayAlertsAndWeekCount();
+    alerts = result.alerts;
+    weekCount = result.weekCount;
+  } catch {
+    // If the helper throws, leave alerts empty — do not show a reassuring
+    // "all clear" when data is simply absent.
+  }
+
+  return (
+    <TodayScreen
+      entries={entries}
+      tasks={tasks}
+      currentUserName={user?.name ?? null}
+      resumeSession={inProgressEntry}
+      alerts={alerts}
+      weekCount={weekCount}
+    />
+  );
 }

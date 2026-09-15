@@ -1208,6 +1208,10 @@
 .a-info { background: var(--s-success-bg); border-color: var(--s-success-bd); color: var(--color-teal); }
 .a-info .alert-ic { color: var(--color-teal); }
 
+/* BUG-EF-174 — alert icon colors for the Today alerts section */
+.alert-ic-rose { color: var(--color-rose); }
+.alert-ic-amber { color: var(--status-warning); }
+
 /* ── Availability page ───────────────────────────────────────── */
 
 /* Header variants */
