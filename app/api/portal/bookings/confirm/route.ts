@@ -102,20 +102,11 @@ export async function POST(request: Request) {
       endUtc,
       transactionId,
       subject,
+      sessionId,
     });
 
-    // Resolve the real Microsoft Graph calendar id — the same value
-    // calendar-sync.ts uses for comparison. Writing the literal 'portal'
-    // here caused every future sync pass to treat the mapping as stale.
-    const status = await getIntegrationStatus();
-    if (!status.connected || !status.calendarId) {
-      throw new AvailabilityError(
-        "Calendar not connected — cannot persist event mapping",
-        "NOT_CONNECTED",
-      );
-    }
-    const calendarId = status.calendarId;
-
+    // Always mark the session as booked — the client sees their booking
+    // immediately regardless of whether the Outlook event was created or queued.
     await pool.query(
       `UPDATE sessions
           SET scheduled_at = $1, status = 'scheduled'
@@ -123,19 +114,33 @@ export async function POST(request: Request) {
       [startUtc, sessionId],
     );
 
-    // Upsert the calendar event mapping.
-    const syncHash = createHash("sha256")
-      .update([subject, startUtc, endUtc].join("|"))
-      .digest("hex");
-    await pool.query(
-      `INSERT INTO session_calendar_events
-         (session_id, event_id, calendar_id, sync_hash, synced_at)
-       VALUES ($1, $2, $4, $3, NOW())
-       ON CONFLICT (session_id) DO UPDATE
-         SET event_id = $2, calendar_id = $4,
-             sync_hash = $3, synced_at = NOW()`,
-      [sessionId, result.eventId, syncHash, calendarId],
-    );
+    if (!result.queued) {
+      // Event was created immediately — write the calendar mapping now.
+      const status = await getIntegrationStatus();
+      if (!status.connected || !status.calendarId) {
+        throw new AvailabilityError(
+          "Calendar not connected — cannot persist event mapping",
+          "NOT_CONNECTED",
+        );
+      }
+      const calendarId = status.calendarId;
+      const syncHash = createHash("sha256")
+        .update([subject, startUtc, endUtc].join("|"))
+        .digest("hex");
+      await pool.query(
+        `INSERT INTO session_calendar_events
+           (session_id, event_id, calendar_id, sync_hash, synced_at)
+         VALUES ($1, $2, $4, $3, NOW())
+         ON CONFLICT (session_id) DO UPDATE
+           SET event_id = $2, calendar_id = $4,
+               sync_hash = $3, synced_at = NOW()`,
+        [sessionId, result.eventId, syncHash, calendarId],
+      );
+    }
+    // When queued (confirm_before_sync is on), the pending action handler
+    // (approveCreate) creates the event and writes session_calendar_events
+    // when Esther approves it. No mapping written here — it would be
+    // premature since the event doesn't exist on Outlook yet.
 
     return NextResponse.json({
       session: {

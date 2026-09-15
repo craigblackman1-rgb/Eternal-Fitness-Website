@@ -152,7 +152,7 @@ export async function POST(request: Request) {
 
   // ── Confirm the Outlook calendar booking ─────────────────────────────────
 
-  let eventId: string;
+  let eventId: string | undefined;
   try {
     const result = await confirmBooking({
       startUtc: slotStartUtc,

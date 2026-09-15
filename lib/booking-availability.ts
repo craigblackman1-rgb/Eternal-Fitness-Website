@@ -1,11 +1,13 @@
 import {
   getIntegrationStatus,
+  getConfirmBeforeSync,
   listCalendarView,
   createEvent,
   GraphReconnectError,
   graphConfigured,
   type CalendarEventInput,
 } from "@/lib/graph-client";
+import { createPgClient } from "@/lib/pg-client";
 import { deriveAvailableSlots } from "@/lib/availability";
 
 /**
@@ -161,11 +163,25 @@ export interface ConfirmBookingInput {
   subject: string;
   /** HTML body for the Outlook calendar event. */
   bodyHtml?: string;
+  /**
+   * Optional session ID. When provided and confirm_before_sync is enabled,
+   * the event is queued in calendar_sync_pending_actions instead of
+   * creating immediately — matching the gate every other create-event
+   * caller goes through.
+   */
+  sessionId?: string;
 }
 
 export interface ConfirmBookingResult {
-  /** The Outlook event ID of the created event. */
-  eventId: string;
+  /**
+   * The Outlook event ID of the created event. Present when the event was
+   * created immediately. Absent (undefined) when the action was queued for
+   * approval via confirm_before_sync — the caller should not expect an ID
+   * until the pending action is approved.
+   */
+  eventId?: string;
+  /** True when the event was queued rather than created immediately. */
+  queued: boolean;
 }
 
 /** Typed error for the confirm flow. */
@@ -184,6 +200,12 @@ export class SlotTakenError extends Error {
  * calendar at confirm time. If someone else (or Esther directly) booked
  * the slot in between, we return a SlotTakenError so the caller can
  * prompt the user to pick a different time.
+ *
+ * When confirm_before_sync is enabled on the integration and a sessionId
+ * is provided, the event is queued in calendar_sync_pending_actions for
+ * Esther to approve before it reaches Outlook — the same gated path
+ * every other create-event caller (syncCalendar, syncSessionCalendarEvent)
+ * goes through.
  *
  * @throws SlotTakenError if the slot is no longer free.
  * @throws AvailabilityError if the calendar is not connected or Graph rejects
@@ -204,7 +226,7 @@ export async function confirmBooking(
     throw new SlotTakenError();
   }
 
-  // The slot is confirmed free — create the Outlook event.
+  // The slot is confirmed free — prepare the Outlook event.
   const status = await getIntegrationStatus();
   if (!status.connected || !status.calendarId) {
     throw new AvailabilityError(
@@ -220,13 +242,45 @@ export async function confirmBooking(
     endUtc: input.endUtc,
   };
 
+  // CR-EF-028 — when confirm_before_sync is enabled and a session ID is
+  // provided, queue the action instead of creating immediately.  Callers
+  // without a session ID (discovery-call, hub bookings/confirm) fall
+  // through to direct creation — they cannot queue because the pending
+  // actions table requires a session_id FK.
+  if (input.sessionId) {
+    const confirmBeforeSync = await getConfirmBeforeSync();
+    if (confirmBeforeSync) {
+      const db = createPgClient();
+      // Avoid duplicate pending actions for the same session.
+      const { data: existing } = await db
+        .from("calendar_sync_pending_actions")
+        .select("id")
+        .eq("session_id", input.sessionId)
+        .in("action", ["create", "update"])
+        .maybeSingle();
+      if (!existing) {
+        const { error: insErr } = await db
+          .from("calendar_sync_pending_actions")
+          .insert({
+            action: "create",
+            session_id: input.sessionId,
+            calendar_id: status.calendarId,
+            event_input: eventInput,
+            reason: "Client booking confirmed",
+          });
+        if (insErr) throw new Error(insErr.message);
+      }
+      return { queued: true };
+    }
+  }
+
   try {
     const { id: eventId } = await createEvent(
       status.calendarId,
       eventInput,
       input.transactionId
     );
-    return { eventId };
+    return { eventId, queued: false };
   } catch (err) {
     if (err instanceof GraphReconnectError) {
       throw new AvailabilityError(
