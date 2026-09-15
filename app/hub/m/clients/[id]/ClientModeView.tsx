@@ -374,7 +374,7 @@ export function ClientModeView({
               </div>
               {needsError && needsYouItems.length === 0 ? (
                 <div style={{ padding: "8px 14px", fontSize: 12, color: "var(--muted)" }}>
-                  Could not load \u2014 pull to refresh
+                  Could not load — pull to refresh
                 </div>
               ) : (
                 <div className="tlist">

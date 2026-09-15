@@ -427,11 +427,11 @@ export function TodayScreen({ entries, tasks, currentUserName, resumeSession, al
               <div className="sec-h-ic ic-rose">{ICO.warnSm}</div>
               <div>
                 <div className="sec-h-t">Alerts</div>
-                <div className="sec-h-s" style={{ color: "var(--muted)" }}>Could not load \u2014 pull to refresh</div>
+                <div className="sec-h-s" style={{ color: "var(--muted)" }}>Could not load — pull to refresh</div>
               </div>
             </div>
           </div>
-        ) : alerts.length > 0 && (
+        ) : alerts.length > 0 ? (
           <div className={`m-section${collapsed.alerts ? " collapsed" : ""}`}>
             <button
               type="button"

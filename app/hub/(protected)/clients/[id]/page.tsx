@@ -420,15 +420,12 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
     s.status === "completed" || !!s.completed_at;
   const nextSession = (() => {
     const blockSessions = mergedSessions.filter((s: any) => s.block_id === latestBlock?.id);
-  // ── Needs queue — shared helper (same as PWA client mode) ──
-  const { input: needsInput } = await getClientNeeds(client.id, client.client_number);
-
-  return (
-      blockSessions
-        .filter((s: any) => !sessionIsCompleted(s) && s.scheduled_at)
-        .sort((a: any, b: any) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
-        .find((s: any) => new Date(s.scheduled_at).getTime() >= Date.now()) ?? null
-    );
+      return (
+        blockSessions
+          .filter((s: any) => !sessionIsCompleted(s) && s.scheduled_at)
+          .sort((a: any, b: any) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
+          .find((s: any) => new Date(s.scheduled_at).getTime() >= Date.now()) ?? null
+      );
   })();
   const blockSessionCounts: Record<number, number> = {};
   const blockCompletedCounts: Record<number, number> = {};
@@ -604,6 +601,9 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       flaggedSessionIds.add(s.id);
     }
   }
+
+  // ── Needs queue — shared helper (same as PWA client mode) ──
+  const { input: needsInput } = await getClientNeeds(client.id, client.client_number);
 
   return (
     <CrumbNameSetter name={client.name}>
