@@ -1,22 +1,13 @@
 {
-  "lane": "bug-ef-404e5b6e-booking-dialog-gate",
+  "lane": "ef-cr127-language-sweep",
   "wo": "wo-ef-consolidated-2026-09-08",
-  "unit": "",
-  "commits": [
-    {
-      "sha": "17425a5",
-      "subject": "fix(booking): route confirmBooking through confirm_before_sync gate"
-    }
-  ],
-  "filesChanged": [
-    "lib/booking-availability.ts",
-    "app/api/portal/bookings/confirm/route.ts",
-    "app/api/discovery-call/route.ts"
-  ],
+  "unit": "u6",
+  "commits": [],
+  "filesChanged": [],
   "verify": {
-    "tsc": "clean (0 errors)",
-    "tests": "n/a",
-    "escapeGrep": "0 hits"
+    "tsc": "clean (no changes made)",
+    "tests": "n/a (no code changes)",
+    "escapeGrep": "0 hits — all remaining 'pool' matches are code identifiers (getPool, pool.query, ICO.pool) or comments; all 'rotation' matches are comments; no rendered UI strings contain either word"
   },
   "deviations": [],
   "blockers": [],
