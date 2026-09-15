@@ -4,6 +4,7 @@ import { computeUpdateDue } from "@/lib/updates-due";
 import { isGoneQuiet, HOME_TRAINING_QUIET_DAYS } from "@/lib/progress";
 import { getLastClientLogAt } from "@/lib/progress-db";
 import { deriveBlockStatus } from "@/lib/block-status";
+import { deriveSessionPot } from "@/lib/session-pot";
 import { buildNeedsYouItems, type NeedsYouInput } from "@/lib/hub/build-needs-you";
 import type { DBBlock } from "@/types";
 
@@ -27,7 +28,7 @@ export async function getClientNeeds(
             payment_status, sessions_purchased, sessions_used, pot_baseline_used,
             block_expiry_date, delivery_mode, client_rate, package_type,
             update_interval, update_interval_weeks, update_interval_next_date,
-            active_program_id, profile
+            active_program_id, profile, band_set_id, annual_review_due_date
        FROM clients
       WHERE id = $1`,
     [clientId],
@@ -209,18 +210,22 @@ export async function getClientNeeds(
   const packageUnderSpecified =
     Boolean(client.package_type) && missingPackageTerms.length > 0;
 
-  // Sessions remaining (derived)
-  const potBaselineUsed = client.pot_baseline_used ?? 0;
-  let potUsedCount = 0;
-  for (const s of allSessions) {
-    if (s.status === "completed" || (s.status === "cancelled" && s.charged_free !== "free")) {
-      potUsedCount++;
-    }
-  }
-  const sessionsRemaining =
-    client.sessions_purchased != null
-      ? Math.max(0, client.sessions_purchased - potBaselineUsed - potUsedCount)
-      : null;
+  // Sessions remaining (derived via shared utility)
+  const sessionsRemaining = (() => {
+    if (client.sessions_purchased == null) return null;
+    const pot = deriveSessionPot(
+      allSessions.map((s: any) => ({
+        status: s.status,
+        charged_free: s.charged_free,
+        cancelled_at: s.cancelled_at,
+        parent_session_id: s.parent_session_id,
+        completed_at: s.completed_at,
+      })),
+      client.sessions_purchased,
+      client.pot_baseline_used ?? 0,
+    );
+    return pot.remaining;
+  })();
 
   const input: NeedsYouInput = {
     pendingTaskCount,
