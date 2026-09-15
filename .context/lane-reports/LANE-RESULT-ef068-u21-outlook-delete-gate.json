@@ -1,0 +1,22 @@
+{
+  "lane": "ef068-u21-outlook-delete-gate",
+  "wo": "wo-ef-consolidated-2026-09-08",
+  "unit": "u21",
+  "commits": [
+    {
+      "sha": "46b66c9",
+      "subject": "fix: gate DELETE /api/sessions/[id] to skip Outlook event removal for adopted events"
+    }
+  ],
+  "filesChanged": [
+    "app/api/sessions/[id]/route.ts"
+  ],
+  "verify": {
+    "tsc": "clean (0 errors)",
+    "tests": "n/a",
+    "escapeGrep": "0 hits — deleteEvent only in sessions/[id]/route.ts (gated) and calendar-sync-pending-actions/route.ts (out of scope)"
+  },
+  "deviations": [],
+  "blockers": [],
+  "done": true
+}
