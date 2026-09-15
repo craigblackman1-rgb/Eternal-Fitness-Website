@@ -12,6 +12,7 @@ import { aggregateExerciseNotes } from "@/lib/exercise-notes";
 import { getClientProgramState } from "@/lib/programs/queue";
 import { deriveSessionPot } from "@/lib/session-pot";
 import { sessionWorkoutName } from "@/lib/session-display";
+import { getClientNeeds } from "@/lib/hub/client-needs";
 import type { SessionNoteData, PinnedNoteRef, DBSession, SetLog } from "@/types";
 import { ClientRecordShell } from "./ClientRecordShell";
 import { CrumbNameSetter } from "./CrumbNameSetter";
@@ -382,8 +383,8 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
     : null;
 
   // Full task rows (not just status count)
-  const { data: fullTaskRows } = await supabase.from("tasks").select("id, title, status, due_date, created_at").eq("client_id", client.id).order("created_at", { ascending: false });
-  const allTaskRows = fullTaskRows ?? [];
+  const { data: taskRows } = await supabase.from("tasks").select("id, title, status, due_date, created_at").eq("client_id", client.id).order("created_at", { ascending: false });
+  const allTaskRows = taskRows ?? [];
 
   const p = client.profile;
   const initials = client.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
@@ -419,7 +420,10 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
     s.status === "completed" || !!s.completed_at;
   const nextSession = (() => {
     const blockSessions = mergedSessions.filter((s: any) => s.block_id === latestBlock?.id);
-    return (
+  // ── Needs queue — shared helper (same as PWA client mode) ──
+  const { input: needsInput } = await getClientNeeds(client.id, client.client_number);
+
+  return (
       blockSessions
         .filter((s: any) => !sessionIsCompleted(s) && s.scheduled_at)
         .sort((a: any, b: any) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
@@ -512,45 +516,19 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
   const manualActions = client.outstanding_actions ?? [];
   const outstandingCount = flags.autoOutstanding.length + manualActions.length;
 
-  const { data: taskRows } = await supabase.from("tasks").select("status").eq("client_id", client.id);
-  const pendingTaskCount = (taskRows ?? []).filter((t: any) => t.status !== "done").length;
-
   // ── Derived values for the new single-screen layout ──
 
-  // Draft blocks: blocks whose status is "draft"
-  const draftBlockCount = (blocks ?? []).filter((b) => b.status === "draft").length;
-
-  // Undated sessions in the latest block: sessions with no scheduled_at
+  // Undated sessions in the latest block — kept because latestBlockSessions
+  // is also used for countedCompleted and the block date range.
   const latestBlockSessions = latestBlock
     ? mergedSessions.filter((s) => s.block_id === latestBlock.id && !s.parent_session_id)
     : [];
-  const undatedSessionCount = latestBlockSessions.filter((s) => !s.scheduled_at).length;
-
-  // Block session count mismatch: typed pot_used vs (baseline + hub counted)
-  const blockSessionCountMismatch = client.sessions_used != null
-    && client.sessions_used !== baselineUsed + hubUsedCount;
 
   // Counted completed sessions in the latest block (for the UI)
   const countedCompleted = latestBlockSessions.filter((s) => s.completed_at).length;
 
-  // Unpaid blocks: blocks whose package has payment_status != "paid"
-  // TODO(S0b): This currently checks client-level payment_status. Per-block
-  // payment tracking would need a payments table — not yet available.
-  const unpaidBlocks = client.payment_status !== "paid" && latestBlock
-    ? [`Block ${latestBlock.block_number}`]
-    : [];
-
-  // CR-EF-151 — draft invoice for this client (so the CTA can link to it)
-  const { data: draftInvoiceRows } = await supabase
-    .from("invoices")
-    .select("id, invoice_number")
-    .eq("client_id", client.id)
-    .eq("status", "draft")
-    .limit(1);
-  const draftInvoice = draftInvoiceRows?.[0] ?? null;
-
   // Missing band set: when a block has group_type === "band" but no band set on the client
-  const missingBandSet = latestBlock?.group_type === "band" && !(client as any).band_set;
+  const missingBandSet = latestBlock?.group_type === "band" && !(client as any).band_set_id;
 
   // Training rules count (from profile)
   const trainingRulesCount = p?.programming_adaptations?.length ?? 0;
@@ -637,12 +615,12 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
       blockDateRangeLabel={latestBlockDateRangeLabel}
       nextSession={nextSession ? (nextSession as DBSession) : null}
       trainerizeHistory={trainerizeHistory}
-      pendingTaskCount={pendingTaskCount}
-      draftBlockCount={draftBlockCount}
-      undatedSessionCount={undatedSessionCount}
-      blockSessionCountMismatch={blockSessionCountMismatch}
-      unpaidBlocks={unpaidBlocks}
-      draftInvoice={draftInvoice}
+      pendingTaskCount={needsInput.pendingTaskCount}
+      draftBlockCount={needsInput.draftBlockCount}
+      undatedSessionCount={needsInput.undatedSessionCount}
+      blockSessionCountMismatch={needsInput.blockSessionCountMismatch}
+      unpaidBlocks={needsInput.unpaidBlocks}
+      draftInvoice={needsInput.draftInvoice ?? null}
       outstandingActions={manualActions}
       autoOutstanding={flags.autoOutstanding}
       effectiveStatus={flags.effectiveStatus}
