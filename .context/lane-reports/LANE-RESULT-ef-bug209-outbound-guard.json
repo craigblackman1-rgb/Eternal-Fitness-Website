@@ -1,0 +1,24 @@
+{
+  "lane": "ef-bug209-outbound-guard",
+  "wo": "wo-ef-consolidated-2026-09-08",
+  "unit": null,
+  "commits": [
+    {
+      "sha": "7c32136",
+      "subject": "fix(calendar): gate every outbound Outlook push behind CALENDAR_OUTBOUND_SYNC (BUG-EF-209)"
+    }
+  ],
+  "filesChanged": [
+    "lib/calendar-sync.ts",
+    "app/api/cron/sync-calendar/route.ts",
+    "app/api/integrations/microsoft/status/route.ts"
+  ],
+  "verify": {
+    "tsc": "clean (0 errors, 0 pre-existing)",
+    "tests": "n/a — no test runner for lib/calendar-sync.ts; repo has vitest but no calendar-sync tests exist",
+    "escapeGrep": "0 hits — all 6 external call sites (move-clasing-session, sessions/[id], book-sessions x2, shift-schedule, microsoft/status) now reach functions that return early when disabled"
+  },
+  "deviations": [],
+  "blockers": [],
+  "done": true
+}
