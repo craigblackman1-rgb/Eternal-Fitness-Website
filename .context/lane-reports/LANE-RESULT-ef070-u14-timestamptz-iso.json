@@ -1,0 +1,33 @@
+{
+  "lane": "ef070-u14-timestamptz-iso",
+  "wo": "wo-ef-pwa-parity-2026-09-09",
+  "unit": "u14",
+  "commits": [
+    {
+      "sha": "3c27bdd",
+      "subject": "fix(u14): normalise JSONB-embedded timestamptz before sending to client"
+    },
+    {
+      "sha": "df10eeb",
+      "subject": "chore: lane exit files for ef070-u14-timestamptz-iso"
+    }
+  ],
+  "filesChanged": [
+    "lib/pg-timestamp.ts",
+    "app/api/sessions/[id]/route.ts",
+    "app/api/clients/[id]/sessions/latest-completed/route.ts",
+    "app/api/clients/[id]/route.ts",
+    "app/api/blocks/[id]/sessions/route.ts",
+    "app/api/outlook-bookings/[id]/confirm/route.ts",
+    "app/api/hub/availability/move-clashing-session/route.ts",
+    "lib/portal-data.ts"
+  ],
+  "verify": {
+    "tsc": "clean",
+    "tests": "pass: 280/280",
+    "escapeGrep": "0 hits"
+  },
+  "deviations": [],
+  "blockers": [],
+  "done": true
+}
