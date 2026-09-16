@@ -10,7 +10,7 @@ import {
   setConfirmBeforeSync,
   type GraphCalendar,
 } from "@/lib/graph-client";
-import { syncCalendar } from "@/lib/calendar-sync";
+import { syncCalendar, outboundSyncEnabled } from "@/lib/calendar-sync";
 
 export const dynamic = "force-dynamic";
 
@@ -74,6 +74,9 @@ export async function POST(request: Request) {
 
   try {
     await setCalendar(calendarId, calendarName);
+    if (!outboundSyncEnabled()) {
+      return NextResponse.json({ success: true, sync: { skipped: "outbound sync disabled" } });
+    }
     const result = await syncCalendar();
     return NextResponse.json({ success: true, sync: result });
   } catch (err) {

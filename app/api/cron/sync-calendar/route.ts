@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createHash, timingSafeEqual } from "crypto";
-import { syncCalendar } from "@/lib/calendar-sync";
+import { syncCalendar, outboundSyncEnabled } from "@/lib/calendar-sync";
 import { syncOutlookBookings } from "@/lib/outlook-bookings";
 import { GraphReconnectError } from "@/lib/graph-client";
 import { getPool } from "@/lib/pg-client";
@@ -70,10 +70,8 @@ async function handle(request: Request) {
   }
 
   try {
-    const outboundEnabled = process.env.CALENDAR_OUTBOUND_SYNC === "enabled";
-
     let result: Record<string, unknown> | Awaited<ReturnType<typeof syncCalendar>>;
-    if (outboundEnabled) {
+    if (outboundSyncEnabled()) {
       result = await syncCalendar();
     } else {
       console.log(

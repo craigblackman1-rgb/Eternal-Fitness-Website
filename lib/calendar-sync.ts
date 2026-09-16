@@ -28,6 +28,17 @@ import type { Session, TimeTier } from "@/types";
  * pause instead of creating a duplicate — see outlook_duplicate_candidates.
  */
 
+/**
+ * BUG-EF-209: every outbound Outlook push must be gated behind this flag.
+ * Returns true only when the operator has explicitly enabled outbound sync
+ * via the CALENDAR_OUTBOUND_SYNC env var. All callers of syncCalendar() and
+ * syncSessionCalendarEvent() are now covered by the guard at the top of
+ * those two functions.
+ */
+export function outboundSyncEnabled(): boolean {
+  return process.env.CALENDAR_OUTBOUND_SYNC === "enabled";
+}
+
 // Sync window: yesterday to +60 days, matching the WO spec.
 const WINDOW_PAST_MS = 24 * 60 * 60 * 1000;
 const WINDOW_FUTURE_MS = 60 * 24 * 60 * 60 * 1000;
@@ -125,6 +136,11 @@ async function resolveClientNames(db: ReturnType<typeof createPgClient>, blockId
  */
 export async function syncCalendar(): Promise<SyncResult> {
   const result: SyncResult = { created: 0, updated: 0, deleted: 0, pendingDelete: 0, unchanged: 0, paused: 0, skipped: null, errors: [] };
+
+  if (!outboundSyncEnabled()) {
+    result.skipped = "outbound sync disabled (CALENDAR_OUTBOUND_SYNC)";
+    return result;
+  }
 
   if (!graphConfigured()) {
     result.skipped = "Graph env vars not configured";
@@ -419,6 +435,7 @@ export async function syncCalendar(): Promise<SyncResult> {
  * are swallowed by the caller — the cron run repairs any miss.
  */
 export async function syncSessionCalendarEvent(sessionId: string): Promise<void> {
+  if (!outboundSyncEnabled()) return;
   if (!graphConfigured()) return;
   const status = await getIntegrationStatus();
   if (!status.connected || !status.calendarId) return;
