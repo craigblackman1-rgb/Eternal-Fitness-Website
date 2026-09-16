@@ -10,6 +10,10 @@
     {
       "sha": "9eb7cbe",
       "subject": "Add lane reports for ef068-u29-add-exercises"
+    },
+    {
+      "sha": "66edcd1",
+      "subject": "Update lane result with both commits and all changed files"
     }
   ],
   "filesChanged": [
