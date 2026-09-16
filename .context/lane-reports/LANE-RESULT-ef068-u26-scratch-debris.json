@@ -1,0 +1,1 @@
+{"lane":"ef068-u26-scratch-debris","wo":"wo-ef-consolidated-2026-09-08","unit":"u26","commits":[{"sha":"9af378e","subject":"chore: remove abandoned scratch-art.mjs stub (u26 WO-EF-068)"}],"filesChanged":["scratch-art.mjs"],"verify":{"tsc":"clean","tests":"n/a","escapeGrep":"0 hits"},"deviations":[],"blockers":[],"done":true}
