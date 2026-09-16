@@ -1,0 +1,25 @@
+{
+  "lane": "ef067-u4-banned-word-rename",
+  "wo": "wo-ef-unified-training-2026-09-08",
+  "unit": "u4",
+  "commits": [
+    {
+      "sha": "c5aacf4",
+      "subject": "CR-EF-127: rename banned words in hub-block-slots-pool mockup - Workout pool -> Workouts, Rotation order -> Workout order, Pool size sentence reworded"
+    }
+  ],
+  "filesChanged": [
+    "ef-control-hub/desktop/training/hub-block-slots-pool.html",
+    "ef-control-hub/index.html",
+    "ef-control-hub/desktop/clients/hub-client-book-sessions.html",
+    "ef-control-hub/desktop/clients/hub-client-session-pot.html"
+  ],
+  "verify": {
+    "tsc": "clean (no source code changed, only design-system HTML mockups)",
+    "tests": "n/a (HTML mockups, no test suite)",
+    "escapeGrep": "0 hits for 'workout pool', 'rotation order', 'Pool size is independent' in affected files"
+  },
+  "deviations": [],
+  "blockers": [],
+  "done": true
+}
