@@ -157,7 +157,7 @@ export function HubSidebarNav({ onNavigate }: { onNavigate?: () => void }) {
     <div className="flex h-full w-60 shrink-0 flex-col bg-[var(--hub-sidebar)] text-white">
       <div className="flex flex-col items-start justify-center gap-1 px-5 py-3 border-b border-white/[0.07]">
         <EternalFitnessLogo variant="light" className="h-9 w-auto" />
-        <span className="text-[11px] text-white/40 tracking-wide uppercase">
+        <span className="text-[11px] text-white/50 tracking-wide uppercase">
           Trainer Hub
         </span>
       </div>
@@ -166,7 +166,7 @@ export function HubSidebarNav({ onNavigate }: { onNavigate?: () => void }) {
         {navStructure.map((group, gi) => (
           <div key={gi} className={gi > 0 ? "mt-3" : undefined}>
             {group.group && (
-              <p className="px-3 pt-1 pb-1 text-[10px] font-semibold tracking-widest uppercase text-white/30">
+              <p className="px-3 pt-1 pb-1 text-[10px] font-semibold tracking-widest uppercase text-white/50">
                 {group.group}
               </p>
             )}
@@ -191,8 +191,8 @@ export function HubSidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                         isActive
                           ? "bg-[var(--hub-sidebar-active)] text-white"
                           : branchOpen
-                            ? "text-white/75 hover:text-white hover:bg-[var(--hub-sidebar-hover)]"
-                            : "text-white/55 hover:text-white hover:bg-[var(--hub-sidebar-hover)]",
+                            ? "text-white/80 hover:text-white hover:bg-[var(--hub-sidebar-hover)]"
+                            : "text-white/65 hover:text-white hover:bg-[var(--hub-sidebar-hover)]",
                       )}
                     >
                       {isActive && (
@@ -201,7 +201,7 @@ export function HubSidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                       <Icon
                         className={cn(
                           "h-4 w-4 shrink-0",
-                          isActive ? "text-rose" : "text-white/45",
+                          isActive ? "text-rose" : "text-white/50",
                         )}
                       />
                       {item.label}
@@ -220,8 +220,8 @@ export function HubSidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                         className={cn(
                           "p-1.5 rounded-lg transition-colors shrink-0",
                           branchOpen
-                            ? "text-white/60 hover:text-white hover:bg-[var(--hub-sidebar-hover)]"
-                            : "text-white/30 hover:text-white/60 hover:bg-[var(--hub-sidebar-hover)]",
+                            ? "text-white/70 hover:text-white hover:bg-[var(--hub-sidebar-hover)]"
+                            : "text-white/40 hover:text-white/60 hover:bg-[var(--hub-sidebar-hover)]",
                         )}
                         aria-expanded={branchOpen}
                       >
@@ -249,7 +249,7 @@ export function HubSidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                               "relative flex items-center rounded-lg pl-[40px] pr-3 py-1.5 text-[13px] font-medium transition-colors duration-100",
                               childActive
                                 ? "bg-[var(--hub-sidebar-active)] text-white"
-                                : "text-white/55 hover:text-white hover:bg-[var(--hub-sidebar-hover)]",
+                                : "text-white/65 hover:text-white hover:bg-[var(--hub-sidebar-hover)]",
                             )}
                           >
                             {childActive && (
@@ -270,13 +270,13 @@ export function HubSidebarNav({ onNavigate }: { onNavigate?: () => void }) {
         <Link
           href="/hub/settings"
           onClick={onNavigate}
-          className={cn(
-            "relative flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-100",
-            pathname === "/hub/settings" ||
-              pathname.startsWith("/hub/settings/")
-              ? "bg-[var(--hub-sidebar-active)] text-white"
-              : "text-white/55 hover:text-white hover:bg-[var(--hub-sidebar-hover)]",
-          )}
+            className={cn(
+              "relative flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-100",
+              pathname === "/hub/settings" ||
+                pathname.startsWith("/hub/settings/")
+                ? "bg-[var(--hub-sidebar-active)] text-white"
+                : "text-white/65 hover:text-white hover:bg-[var(--hub-sidebar-hover)]",
+            )}
         >
           {(pathname === "/hub/settings" ||
             pathname.startsWith("/hub/settings/")) && (
@@ -288,7 +288,7 @@ export function HubSidebarNav({ onNavigate }: { onNavigate?: () => void }) {
               pathname === "/hub/settings" ||
                 pathname.startsWith("/hub/settings/")
                 ? "text-rose"
-                : "text-white/45",
+                : "text-white/50",
             )}
           />
           Settings
@@ -302,14 +302,14 @@ export function HubSidebarNav({ onNavigate }: { onNavigate?: () => void }) {
           </div>
           <div className="text-xs min-w-0 flex-1">
             <p className="font-semibold text-white truncate">Esther Fair</p>
-            <p className="text-white/40">
+            <p className="text-white/50">
               Level 4 Cancer &amp; Exercise Rehab
             </p>
           </div>
           <button
             onClick={handleSignOut}
             title="Sign out"
-            className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-[var(--hub-sidebar-hover)] transition-colors"
+            className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-[var(--hub-sidebar-hover)] transition-colors"
           >
             <IconLogOut className="h-4 w-4" />
           </button>
