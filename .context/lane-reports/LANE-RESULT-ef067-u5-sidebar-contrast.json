@@ -1,0 +1,22 @@
+{
+  "lane": "ef067-u5-sidebar-contrast",
+  "wo": "wo-ef-unified-training-2026-09-08",
+  "unit": "u5",
+  "commits": [
+    {
+      "sha": "a1aff55",
+      "subject": "fix(hub): bump sidebar text/icon opacity to meet WCAG AA contrast"
+    }
+  ],
+  "filesChanged": [
+    "app/hub/(protected)/HubSidebar.tsx"
+  ],
+  "verify": {
+    "tsc": "clean (0 errors)",
+    "tests": "n/a",
+    "escapeGrep": "0 hits (1 hit at white/40 on chevron — UI component, 3.57:1 passes 3:1 threshold)"
+  },
+  "deviations": [],
+  "blockers": [],
+  "done": true
+}
