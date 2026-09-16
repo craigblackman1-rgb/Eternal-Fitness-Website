@@ -6,10 +6,16 @@
     {
       "sha": "9f9cebc",
       "subject": "Add Long-Lever Plank and Weighted Plank exercises (WO-EF-068 u29)"
+    },
+    {
+      "sha": "9eb7cbe",
+      "subject": "Add lane reports for ef068-u29-add-exercises"
     }
   ],
   "filesChanged": [
-    "db/migrations/20260916_exercises_plank_variants.sql"
+    "db/migrations/20260916_exercises_plank_variants.sql",
+    ".context/lane-reports/LANE-RESULT-ef068-u29-add-exercises.json",
+    ".context/lane-reports/LANE-NOTES-ef068-u29-add-exercises.md"
   ],
   "verify": {
     "tsc": "n/a (no TS touched)",
