@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { syncSessionCalendarEvent } from "@/lib/calendar-sync";
+import { normaliseSessionData } from "@/lib/pg-timestamp";
 
 /**
  * CR-EF-097 — POST /api/hub/availability/move-clashing-session
@@ -86,5 +87,5 @@ export async function POST(request: Request) {
     console.error("Calendar sync failed after move (cron will retry):", err);
   }
 
-  return NextResponse.json({ ok: true, session: data });
+  return NextResponse.json({ ok: true, session: normaliseSessionData(data) });
 }

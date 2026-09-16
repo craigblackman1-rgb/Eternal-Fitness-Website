@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { materializeBookingSession } from "@/lib/outlook-bookings";
+import { normaliseSessionData } from "@/lib/pg-timestamp";
 
 // CR-EF-050/090 — turn an Outlook Bookings event into a real session. This is
 // now the manual fallback for the cases the sync's auto-confirm (CR-EF-090,
@@ -70,5 +71,5 @@ export async function POST(request: Request, { params }: { params: { id: string 
     .single();
   if (bookingErr2) return NextResponse.json({ error: bookingErr2.message }, { status: 500 });
 
-  return NextResponse.json({ session, booking: updatedBooking }, { status: 201 });
+  return NextResponse.json({ session: normaliseSessionData(session), booking: updatedBooking }, { status: 201 });
 }

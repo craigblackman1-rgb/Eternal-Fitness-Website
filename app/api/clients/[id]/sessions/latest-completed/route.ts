@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { getPool } from "@/lib/pg-client";
+import { toIsoTimestamp } from "@/lib/pg-timestamp";
 import type { SessionVersion } from "@/types";
 
 interface LatestCompletedRow {
@@ -59,7 +60,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     week: row.week,
     phase: row.phase,
     archetype: row.archetype,
-    completed_at: row.data.session_log?.completed_at ?? null,
+    completed_at: toIsoTimestamp(row.data.session_log?.completed_at ?? null),
     versions: row.data.versions ?? { warm_up: [], main_block: [], cooldown: [] },
   });
 }

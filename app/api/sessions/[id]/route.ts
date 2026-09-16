@@ -8,6 +8,7 @@ import { getSessionStatus } from "@/lib/session-transitions";
 import { londonDayKey } from "@/lib/schedule-dates";
 import { computeRollForwardPlan } from "@/lib/workout-roll-forward";
 import { reStampSession } from "@/lib/programs/delivery";
+import { normaliseSessionData } from "@/lib/pg-timestamp";
 import type { DBSession } from "@/types";
 
 // Fields a staff PATCH is allowed to update on a session. `data` carries the
@@ -40,11 +41,11 @@ export async function GET(_request: Request, { params }: { params: { id: string 
       .order("session_number", { ascending: true });
     if (blockSessions) {
       const reStamped = await reStampSession(sessionRow, blockSessions as DBSession[]);
-      return NextResponse.json(reStamped);
+      return NextResponse.json(normaliseSessionData(reStamped));
     }
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json(normaliseSessionData(data));
 }
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
@@ -448,7 +449,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     }
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json(normaliseSessionData(data));
 }
 
 export async function DELETE(_request: Request, { params }: { params: { id: string } }) {

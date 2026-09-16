@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { normaliseClientEquipment } from "@/lib/client-equipment";
+import { toIsoTimestamp } from "@/lib/pg-timestamp";
 
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -34,7 +35,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   }
 
   const lastSessionLog = sessions?.[0] ? ((sessions[0] as any).data?.session_log ?? null) : null;
-  const lastSessionDate = lastSessionLog?.completed_at ?? null;
+  const lastSessionDate = toIsoTimestamp(lastSessionLog?.completed_at ?? null);
 
   return NextResponse.json({
     ...client,

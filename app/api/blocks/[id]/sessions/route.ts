@@ -4,6 +4,7 @@ import { MAX_BLOCK_WEEKS, type Session, type Archetype, type Phase, type Exercis
 import { ensureUids } from "@/lib/exercise-ref";
 import { attachSupplementaryWork } from "@/lib/supplementary-attach";
 import { reStampSession, reStampBlockSessions } from "@/lib/programs/delivery";
+import { normaliseSessionData } from "@/lib/pg-timestamp";
 import { resolveSlotForWeek } from "@/lib/programs/resolve";
 import { getLastUsedMap } from "@/lib/workout-last-used";
 
@@ -62,10 +63,10 @@ export async function GET(request: Request, { params }: { params: { id: string }
         .order("session_number", { ascending: true });
       if (allSessions) {
         const reStamped = await reStampSession(data as DBSession, allSessions as DBSession[]);
-        return NextResponse.json(reStamped);
+        return NextResponse.json(normaliseSessionData(reStamped));
       }
     }
-    return NextResponse.json(data);
+    return NextResponse.json(normaliseSessionData(data));
   }
 
   if (sessionNumber) {
@@ -84,10 +85,10 @@ export async function GET(request: Request, { params }: { params: { id: string }
         .order("session_number", { ascending: true });
       if (allSessions) {
         const reStamped = await reStampSession(data as DBSession, allSessions as DBSession[]);
-        return NextResponse.json(reStamped);
+        return NextResponse.json(normaliseSessionData(reStamped));
       }
     }
-    return NextResponse.json(data);
+    return NextResponse.json(normaliseSessionData(data));
   }
 
   const { data, error } = await baseQuery;
@@ -121,10 +122,10 @@ export async function GET(request: Request, { params }: { params: { id: string }
       }
     }
 
-    return NextResponse.json(reStamped);
+    return NextResponse.json(reStamped.map(normaliseSessionData));
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json(data.map(normaliseSessionData));
 }
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
@@ -409,5 +410,5 @@ export async function POST(request: Request, { params }: { params: { id: string 
     });
   }
 
-  return NextResponse.json(created, { status: 201 });
+  return NextResponse.json(normaliseSessionData(created), { status: 201 });
 }

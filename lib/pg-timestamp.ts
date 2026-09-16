@@ -60,3 +60,23 @@ export function toIsoTimestamp(value: string | null): string | null {
   const mm = digits.length > 2 ? digits.slice(2, 4) : "00";
   return `${body}${sign}${hh}:${mm}`;
 }
+
+/**
+ * Normalise JSONB-embedded timestamps on a session row.
+ *
+ * Postgres column-level timestamptz values are already normalised by the pg
+ * type parsers in `lib/pg-client.ts`. But timestamps nested inside JSONB
+ * columns (e.g. `data.session_log.completed_at`) bypass those parsers —
+ * Postgres serialises JSONB as-is, including the non-ISO `2026-09-03 18:00:00+01`
+ * form. This function patches those fields in-place so the client only ever
+ * receives strict ISO-8601 strings.
+ */
+export function normaliseSessionData<T extends { data?: { session_log?: { completed_at?: string | null } | null } | null }>(
+  row: T,
+): T {
+  const log = row.data?.session_log;
+  if (log && typeof log.completed_at === "string") {
+    log.completed_at = toIsoTimestamp(log.completed_at);
+  }
+  return row;
+}

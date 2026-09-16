@@ -7,6 +7,7 @@
  */
 
 import { createPgClient, getPool } from "@/lib/pg-client";
+import { toIsoTimestamp } from "@/lib/pg-timestamp";
 import type { DeliveryMode, Exercise, Session, SetLog } from "@/types";
 import type { TrendSessionMeta } from "@/lib/progress";
 
@@ -236,7 +237,7 @@ export class PortalDataClient {
         focus_label: row.data?.focus_label ?? "",
         archetype: row.data?.archetype ?? "",
         client_intro: row.data?.client_intro || profileClientIntro,
-        completed_at: row.data?.session_log?.completed_at ?? null,
+        completed_at: toIsoTimestamp(row.data?.session_log?.completed_at ?? null),
         warm_up: (version?.warm_up ?? []).map(toPortalExercise),
         main_block: (version?.main_block ?? []).map(toPortalExercise),
         cooldown: (version?.cooldown ?? []).map(toPortalExercise),
