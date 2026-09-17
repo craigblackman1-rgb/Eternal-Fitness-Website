@@ -1,0 +1,31 @@
+{
+  "lane": "ef049-u1-promote-staging-fixes",
+  "wo": "WO-EF-049",
+  "unit": "u1",
+  "commits": [
+    {
+      "sha": "5947428",
+      "subject": "EF-100/EF-101: off-day completion guard, schedule honesty, unconfirmed bookings"
+    }
+  ],
+  "filesChanged": [
+    "app/api/sessions/[id]/route.ts",
+    "app/hub/(protected)/schedule/ScheduleCalendar.tsx",
+    "app/hub/(protected)/schedule/ScheduleShell.tsx",
+    "app/hub/(protected)/schedule/page.tsx",
+    "app/hub/m/train/[sessionId]/TrainScreen.tsx",
+    "app/hub/(protected)/clients/[id]/blocks/[blockId]/sessions/[sessionNum]/page.tsx"
+  ],
+  "verify": {
+    "tsc": "clean (0 errors)",
+    "tests": "n/a",
+    "escapeGrep": "0 hits"
+  },
+  "deviations": [
+    "Only 1 of 5 cherry-pick targets landed: schedule guards (e914462). The other 4 (sessions-query d2ae786, error-surfacing 009f293, band-equipment 91e890b, lb-kg conversion 9d454c1+8ec286a) were already present on HEAD — all cherry-picks resolved to empty commits and were skipped.",
+    "SessionWorkoutLog.tsx was deleted in HEAD; cherry-picks that modified it were resolved by keeping the deletion (the functionality lives in TrainScreen.tsx and WorkoutLog.tsx now).",
+    "Conflict resolution kept HEAD's more complete implementations in every case (HEAD had superset of the cherry-pick changes including off-day mode logic, programme fields, import refactors)."
+  ],
+  "blockers": [],
+  "done": true
+}
