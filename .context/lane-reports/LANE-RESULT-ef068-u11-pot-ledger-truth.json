@@ -1,0 +1,25 @@
+{
+  "lane": "ef068-u11-pot-ledger-truth",
+  "wo": "wo-ef-consolidated-2026-09-08",
+  "unit": "u11",
+  "commits": [
+    {
+      "sha": "4a3c0b4",
+      "subject": "BUG-EF-144 + BUG-EF-148: pot ledger events in date order, package start from purchase, free cancels collapsed, ongoing clients keep null purchased"
+    }
+  ],
+  "filesChanged": [
+    "lib/pot-ledger.ts",
+    "app/api/clients/[id]/pot-ledger/route.ts",
+    "app/hub/(protected)/clients/[id]/PotLedger.tsx",
+    "lib/__tests__/pot-ledger-order.test.ts"
+  ],
+  "verify": {
+    "tsc": "clean (0 errors)",
+    "tests": "pass: 26/26 (pot-ledger-order: 16, session-pot: 10)",
+    "escapeGrep": "0 hits (no '0 of 0' in codebase)"
+  },
+  "deviations": [],
+  "blockers": [],
+  "done": true
+}
