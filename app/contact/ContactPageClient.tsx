@@ -8,6 +8,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Section, SectionHeading, PageHero, CTABand } from "@/components/ds";
 import { useBookingModal } from "@/components/BookingModal";
+import { captureAttribution, fireGenerateLeadEvent } from "@/lib/attribution";
 
 interface FormData {
   name: string;
@@ -86,16 +87,18 @@ export default function ContactPageClient() {
 
     setSubmitting(true);
     try {
+      const attribution = captureAttribution();
       const res = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ source: "contact_form", ...form }),
+        body: JSON.stringify({ source: "contact_form", ...form, ...attribution }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         toast.error(body.error || "Something went wrong sending your message. Please call or email directly.");
         return;
       }
+      fireGenerateLeadEvent(attribution, "contact_form");
       setSent(true);
     } catch {
       toast.error("Something went wrong sending your message. Please call or email directly.");
