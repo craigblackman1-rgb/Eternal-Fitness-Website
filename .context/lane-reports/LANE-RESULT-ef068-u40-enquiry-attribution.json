@@ -1,0 +1,47 @@
+{
+  "lane": "ef068-u40-enquiry-attribution",
+  "wo": "wo-ef-consolidated-2026-09-08",
+  "unit": "u40",
+  "commits": [
+    {
+      "sha": "175ac41",
+      "subject": "CR-EF-208: migration — create leads table + attribution columns on discovery_call_leads"
+    },
+    {
+      "sha": "851803f",
+      "subject": "CR-EF-208: /api/leads — store lead in DB with attribution columns"
+    },
+    {
+      "sha": "1ff70d9",
+      "subject": "CR-EF-208: /api/discovery-call — store attribution columns on lead insert"
+    },
+    {
+      "sha": "6517612",
+      "subject": "CR-EF-208: lib/attribution.ts — client-side UTM capture + GA4 generate_lead event"
+    },
+    {
+      "sha": "cccd8b2",
+      "subject": "CR-EF-208: ContactPageClient — send attribution data + fire GA4 generate_lead"
+    },
+    {
+      "sha": "82ce53e",
+      "subject": "CR-EF-208: DiscoveryCallClient — send attribution data + fire GA4 generate_lead"
+    }
+  ],
+  "filesChanged": [
+    "db/migrations/20260921_enquiry_attribution.sql",
+    "lib/attribution.ts",
+    "app/api/leads/route.ts",
+    "app/api/discovery-call/route.ts",
+    "app/contact/ContactPageClient.tsx",
+    "app/discovery-call/DiscoveryCallClient.tsx"
+  ],
+  "verify": {
+    "tsc": "clean (0 errors)",
+    "tests": "n/a — no test infrastructure for these files",
+    "escapeGrep": "0 hits — real characters throughout"
+  },
+  "deviations": [],
+  "blockers": [],
+  "done": true
+}
