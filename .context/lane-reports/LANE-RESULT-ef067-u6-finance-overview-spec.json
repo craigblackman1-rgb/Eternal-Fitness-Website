@@ -1,0 +1,22 @@
+{
+  "lane": "ef067-u6-finance-overview-spec",
+  "wo": "wo-ef-unified-training-2026-09-08",
+  "unit": "u6",
+  "commits": [
+    {
+      "sha": "1198df4",
+      "subject": "fix(CR-EF-141): finance overview matches spec — cut KPI band, forecast/tax from dashboard, restore 4 Elsewhere links"
+    }
+  ],
+  "filesChanged": [
+    "app/hub/(protected)/cashflow/page.tsx"
+  ],
+  "verify": {
+    "tsc": "clean (0 errors)",
+    "tests": "n/a",
+    "escapeGrep": "0 hits"
+  },
+  "deviations": [],
+  "blockers": [],
+  "done": true
+}
