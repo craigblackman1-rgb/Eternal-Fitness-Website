@@ -16,14 +16,13 @@ const crumbLabels: Record<string, string> = {
   "/hub/compliance": "Compliance",
   "/hub/cashflow": "Cashflow",
   "/hub/settings": "Settings",
-  "/hub/agreements": "Agreements",
+
   "/hub/reports/updates": "Email updates",
   "/hub/sessions/review": "Cancellation review",
   "/hub/sessions/lapse-review": "Lapse review",
   "/hub/documents": "Sent documents",
   "/hub/cashflow/invoices": "Invoices",
   "/hub/cashflow/transactions": "Transactions",
-  "/hub/cashflow/forecast": "Forecast",
 };
 
 /** Section routes whose children show as Hub / Section / Page. */
@@ -33,7 +32,6 @@ const sectionRoutes: Record<string, string> = {
   "/hub/cashflow": "Finance",
   "/hub/cashflow/invoices": "Finance",
   "/hub/cashflow/transactions": "Finance",
-  "/hub/cashflow/forecast": "Finance",
 };
 
 function resolveCrumb(pathname: string): { section: string | null; label: string } {
@@ -54,7 +52,6 @@ function resolveCrumb(pathname: string): { section: string | null; label: string
   if (pathname.startsWith("/hub/clients/") && pathname.endsWith("/edit")) return { section: "Clients", label: "Edit Client" };
   if (pathname.startsWith("/hub/clients/new")) return { section: null, label: "New Client" };
   if (pathname.startsWith("/hub/clients/")) return { section: "Clients", label: "Client" };
-  if (pathname.startsWith("/hub/agreements/")) return { section: "Documents", label: "Agreement" };
   if (pathname.startsWith("/hub/programs/")) return { section: null, label: "Programme builder" };
   return { section: null, label: "Hub" };
 }

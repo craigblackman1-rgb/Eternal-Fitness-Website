@@ -82,7 +82,6 @@ const navStructure: NavGroup[] = [
         children: [
           { href: "/hub/document-templates", label: "Templates" },
           { href: "/hub/documents", label: "Sent documents" },
-          { href: "/hub/agreements", label: "Agreements" },
         ],
       },
       { href: "/hub/reports/updates", label: "Updates", icon: IconMail },
@@ -99,7 +98,6 @@ const navStructure: NavGroup[] = [
         children: [
           { href: "/hub/cashflow/invoices", label: "Invoices" },
           { href: "/hub/cashflow/transactions", label: "Transactions" },
-          { href: "/hub/cashflow/forecast", label: "Forecast" },
         ],
       },
     ],
