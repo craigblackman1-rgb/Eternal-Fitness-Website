@@ -1,12 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase-server";
-import { StatusBadge, KpiTile } from "@/components/hub";
-import { IconCheckCircle, IconCheck, IconClock, IconTriangleAlert } from "@/components/icons";
-import { computeForecast } from "@/lib/cashflow-forecast";
-import { currentTaxYear, getTaxYearBounds } from "@/lib/cashflow-tax";
+import { StatusBadge } from "@/components/hub";
 import { getMoneySummary } from "@/lib/hub/money-summary";
-import { ForecastSection } from "./ForecastSection";
-import { TaxSection } from "./TaxSection";
 
 /* ── S9 Finance overview (design-systems v3/13-finance.html) ──────────────
    Replaces the old four-KPI-tile + tax/forecast-card dashboard. The reality
@@ -50,45 +45,20 @@ const DOT: Record<string, string> = {
 export default async function CashflowOverviewPage() {
   const supabase = createClient();
   const now = new Date();
-  const today = now.toISOString().slice(0, 10);
 
-  const taxYear = currentTaxYear();
-  const taxBounds = getTaxYearBounds(taxYear);
+  const [invoicesRes, invoiceCountRes] = await Promise.all([
+    supabase
+      .from("invoices")
+      .select("id, invoice_number, status, total, issue_date, due_date, updated_at, created_at, clients(name, client_number, display_code)")
+      .order("updated_at", { ascending: false }),
+    supabase.from("invoices").select("id", { count: "exact", head: true }),
+  ]);
 
-  const [clientsRes, invoicesRes, invoiceCountRes, forecast, taxCalcRes] =
-    await Promise.all([
-      supabase
-        .from("clients")
-        .select(
-          "id, name, client_number, client_status, block_expiry_date, sessions_remaining, sessions_purchased, pot_baseline_used, client_rate, session_duration",
-        )
-        .eq("client_status", "active"),
-      supabase
-        .from("invoices")
-        .select("id, invoice_number, status, total, issue_date, due_date, updated_at, created_at, clients(name, client_number, display_code)")
-        .order("updated_at", { ascending: false }),
-      supabase.from("invoices").select("id", { count: "exact", head: true }),
-      computeForecast(),
-      supabase
-        .from("tax_calculations")
-        .select("total_tax_due, taxable_profit")
-        .eq("tax_year", taxYear)
-        .eq("period_type", "annual")
-        .order("calculated_at", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-    ]);
-
-  const clients = clientsRes.data ?? [];
   const allInvoices = invoicesRes.data ?? [];
   const invoiceTotalCount = invoiceCountRes.count ?? allInvoices.length;
 
-  // ── Finance KPIs — from the same shared helper the PWA money page uses ──
+  // ── Action queue — shared helper the PWA money page also uses ──
   const summary = await getMoneySummary(now);
-  const kpiInvoiced = summary.invoiced;
-  const kpiPaid = summary.collected;
-  const kpiOutstanding = summary.outstanding;
-  const kpiOverdue = summary.overdue;
   const queue = summary.actionQueue;
 
   const needCount = queue.length;
@@ -99,40 +69,12 @@ export default async function CashflowOverviewPage() {
       {/* Header — no avatar, this page has no single subject. */}
       <div className="mb-3.5">
         <div className="flex items-baseline gap-2.5 flex-wrap">
-          <h1 className="m-0 text-[22px] font-bold tracking-[-.015em] text-[var(--color-ink)]">Cashflow</h1>
+          <h1 className="m-0 text-[25px] font-bold tracking-tight text-[var(--color-ink)]">Finance</h1>
         </div>
         <p className="mt-1 mb-0 text-[13px] text-[var(--color-body)] max-w-[76ch]">
           Invoices you&rsquo;ve raised through the hub, and what the bank actually confirms. Most of Esther&rsquo;s
           clients pay her outside the app — this page cannot tell you who owes money, only what paperwork is open.
         </p>
-      </div>
-
-      {/* ── KPI band ─────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 mb-3.5">
-        <KpiTile
-          icon={<IconCheckCircle className="h-5 w-5" />}
-          label="Invoiced this month"
-          value={fmt(kpiInvoiced)}
-          statusToken="success"
-        />
-        <KpiTile
-          icon={<IconCheck className="h-5 w-5" />}
-          label="Paid"
-          value={fmt(kpiPaid)}
-          statusToken="primary"
-        />
-        <KpiTile
-          icon={<IconClock className="h-5 w-5" />}
-          label="Outstanding"
-          value={fmt(kpiOutstanding)}
-          statusToken="warning"
-        />
-        <KpiTile
-          icon={<IconTriangleAlert className="h-5 w-5" />}
-          label="Overdue"
-          value={fmt(kpiOverdue)}
-          statusToken={kpiOverdue > 0 ? "danger" : "neutral"}
-        />
       </div>
 
       {/* ── Needs you ── */}
@@ -270,26 +212,29 @@ export default async function CashflowOverviewPage() {
         )}
       </div>
 
-      {/* ── Forecast (merged from /cashflow/forecast) ── */}
-      <ForecastSection forecast={forecast} />
-
-      {/* ── Tax estimate (merged from /cashflow/tax) ── */}
-      <TaxSection
-        taxYear={taxYear}
-        taxBounds={taxBounds}
-        calculation={taxCalcRes.data as { total_tax_due: number; taxable_profit: number } | null}
-      />
-
       {/* ── Elsewhere in Finance ──
-           Reconciliation is now a tab on Bank transactions.
-           Tax and Forecast are inlined above. */}
+           Reconciliation is a tab on Bank transactions.
+           Tax and Forecast are real tools but not decisions for today —
+           kept one click away here, not framed as dashboard tiles. */}
       <div className="flex items-center gap-1.5 flex-wrap py-2.5 px-3 bg-white border border-[var(--hub-border)] rounded-nested shadow-sm">
         <span className="text-[10.5px] font-bold uppercase tracking-wider text-[var(--color-muted)] pr-1">
           Elsewhere
         </span>
+        <Link href="/hub/cashflow/reconciliation" className="flex flex-col px-2.5 py-1.5 rounded-control hover:bg-[var(--hub-hover)] no-underline">
+          <b className="text-[12.5px] font-semibold text-[var(--color-ink)]">Reconciliation</b>
+          <span className="text-[11.5px] text-[var(--color-muted)]">Match bank lines to invoices by hand</span>
+        </Link>
         <Link href="/hub/cashflow/transactions" className="flex flex-col px-2.5 py-1.5 rounded-control hover:bg-[var(--hub-hover)] no-underline">
-          <b className="text-[12.5px] font-semibold text-[var(--color-ink)]">Bank transactions &amp; reconciliation</b>
-          <span className="text-[11.5px] text-[var(--color-muted)]">Import statements, categorise lines, match to invoices</span>
+          <b className="text-[12.5px] font-semibold text-[var(--color-ink)]">Bank transactions</b>
+          <span className="text-[11.5px] text-[var(--color-muted)]">The imported statement, unmatched and matched</span>
+        </Link>
+        <Link href="/hub/cashflow/tax" className="flex flex-col px-2.5 py-1.5 rounded-control hover:bg-[var(--hub-hover)] no-underline">
+          <b className="text-[12.5px] font-semibold text-[var(--color-ink)]">Tax</b>
+          <span className="text-[11.5px] text-[var(--color-muted)]">An estimate, not advice — depends on categorised transactions</span>
+        </Link>
+        <Link href="/hub/cashflow/forecast" className="flex flex-col px-2.5 py-1.5 rounded-control hover:bg-[var(--hub-hover)] no-underline">
+          <b className="text-[12.5px] font-semibold text-[var(--color-ink)]">Forecast</b>
+          <span className="text-[11.5px] text-[var(--color-muted)]">Projected balance from a manually entered starting point</span>
         </Link>
       </div>
     </div>
