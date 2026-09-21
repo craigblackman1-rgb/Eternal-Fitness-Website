@@ -118,6 +118,15 @@ export async function POST(request: Request) {
   const slotStartUtc = typeof body.slotStartUtc === "string" ? body.slotStartUtc.trim() : "";
   const slotEndUtc = typeof body.slotEndUtc === "string" ? body.slotEndUtc.trim() : "";
 
+  // Attribution — captured from the browser on the client side.
+  const referrer = typeof body.referrer === "string" ? truncate(body.referrer.trim(), 2000) : "";
+  const landingPage = typeof body.landing_page === "string" ? truncate(body.landing_page.trim(), 2000) : "";
+  const utmSource = typeof body.utm_source === "string" ? truncate(body.utm_source.trim(), 200) : "";
+  const utmMedium = typeof body.utm_medium === "string" ? truncate(body.utm_medium.trim(), 200) : "";
+  const utmCampaign = typeof body.utm_campaign === "string" ? truncate(body.utm_campaign.trim(), 200) : "";
+  const utmTerm = typeof body.utm_term === "string" ? truncate(body.utm_term.trim(), 200) : "";
+  const utmContent = typeof body.utm_content === "string" ? truncate(body.utm_content.trim(), 200) : "";
+
   if (!name) {
     return NextResponse.json({ error: "Your name is required." }, { status: 400 });
   }
@@ -203,6 +212,13 @@ ${notes ? `<p><strong>Notes:</strong> ${escapeHtml(notes)}</p>` : ""}`,
     slot_start_utc: slotStartUtc,
     slot_end_utc: slotEndUtc,
     calendar_event_id: eventId,
+    referrer,
+    landing_page: landingPage,
+    utm_source: utmSource,
+    utm_medium: utmMedium,
+    utm_campaign: utmCampaign,
+    utm_term: utmTerm,
+    utm_content: utmContent,
   });
 
   if (insertError) {
