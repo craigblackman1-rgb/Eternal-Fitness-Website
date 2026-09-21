@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { supabase } from "@/lib/supabase";
 import { getEmailSender } from "@/lib/email";
 
 /**
@@ -105,6 +106,17 @@ export async function POST(request: Request) {
   const topic = typeof body.topic === "string" ? truncate(body.topic.trim(), 200) : "";
   const message = typeof body.message === "string" ? truncate(body.message.trim(), 5000) : "";
 
+  // Attribution — captured from the browser on the client side and passed
+  // through in the request body.  All fields are optional; an empty string
+  // means the parameter was absent.
+  const referrer = typeof body.referrer === "string" ? truncate(body.referrer.trim(), 2000) : "";
+  const landingPage = typeof body.landing_page === "string" ? truncate(body.landing_page.trim(), 2000) : "";
+  const utmSource = typeof body.utm_source === "string" ? truncate(body.utm_source.trim(), 200) : "";
+  const utmMedium = typeof body.utm_medium === "string" ? truncate(body.utm_medium.trim(), 200) : "";
+  const utmCampaign = typeof body.utm_campaign === "string" ? truncate(body.utm_campaign.trim(), 200) : "";
+  const utmTerm = typeof body.utm_term === "string" ? truncate(body.utm_term.trim(), 200) : "";
+  const utmContent = typeof body.utm_content === "string" ? truncate(body.utm_content.trim(), 200) : "";
+
   const fullName = singleName || [firstName, lastName].filter(Boolean).join(" ");
 
   if (!fullName) {
@@ -115,6 +127,28 @@ export async function POST(request: Request) {
   }
 
   const sourceLabel = SOURCE_LABELS[source];
+
+  // ── Persist the lead row ─────────────────────────────────────────────────
+  const { error: insertError } = await supabase.from("leads").insert({
+    source,
+    name: fullName,
+    email,
+    phone,
+    topic,
+    message,
+    referrer,
+    landing_page: landingPage,
+    utm_source: utmSource,
+    utm_medium: utmMedium,
+    utm_campaign: utmCampaign,
+    utm_term: utmTerm,
+    utm_content: utmContent,
+  });
+
+  if (insertError) {
+    console.error("leads DB insert error:", insertError);
+    // Don't fail the enquiry — the email is the primary notification path.
+  }
 
   const rows = [
     ["Name", fullName],
