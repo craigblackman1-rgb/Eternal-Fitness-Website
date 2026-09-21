@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, type FormEvent } from "react";
+import { captureAttribution, fireGenerateLeadEvent } from "@/lib/attribution";
 
 /**
  * DiscoveryCallClient — the real, wired-up discovery-call booking flow.
@@ -373,6 +374,7 @@ export default function DiscoveryCallClient() {
     setIsConfirming(true);
 
     try {
+      const attribution = captureAttribution();
       const res = await fetch("/api/discovery-call", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -387,6 +389,7 @@ export default function DiscoveryCallClient() {
           notes: notes.trim(),
           slotStartUtc: selectedSlot.startUtc,
           slotEndUtc: selectedSlot.endUtc,
+          ...attribution,
         }),
       });
 
@@ -411,6 +414,7 @@ export default function DiscoveryCallClient() {
       }
 
       // Success
+      fireGenerateLeadEvent(attribution, "discovery_call");
       setConfirmWhen(formatConfirmWhen(selectedSlot.startUtc));
       setConfirmName(name.trim() || "you");
       showPanel("confirmed", `Booking confirmed for ${formatConfirmWhen(selectedSlot.startUtc)}.`);
