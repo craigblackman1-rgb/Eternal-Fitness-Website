@@ -1,0 +1,1 @@
+{"lane":"ef-img-perf-desc-fix1","wo":"wo-ef-medical-conditions-perf-2026-09-25","unit":"","commits":[{"sha":"262c0a0","subject":"fix(BUG-EF-211): review fixes"}],"filesChanged":["app/HomePageClient.tsx","app/design-system.css"],"verify":{"tsc":"clean (0 errors, 0 pre-existing)","tests":"n/a","escapeGrep":"0 hits"},"deviations":[],"blockers":[],"done":true}
