@@ -1,0 +1,22 @@
+{
+  "lane": "ef-medical-conditions-page-fix1",
+  "wo": "wo-ef-medical-conditions-perf-2026-09-25",
+  "unit": "CR-EF-209",
+  "commits": [
+    {
+      "sha": "cf1c348",
+      "subject": "fix(CR-EF-209): fix literal \\u escape in hero heading and swap hero image"
+    }
+  ],
+  "filesChanged": [
+    "app/medical-conditions/MedicalConditionsClient.tsx"
+  ],
+  "verify": {
+    "tsc": "clean (0 errors, 0 pre-existing)",
+    "tests": "n/a",
+    "escapeGrep": "0 hits on raw JSX text (remaining \\u escapes are all inside {\"...\"} strings, which JS handles correctly)"
+  },
+  "deviations": [],
+  "blockers": [],
+  "done": true
+}
