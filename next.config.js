@@ -8,8 +8,12 @@ const nextConfig = {
     // runs fine self-hosted via `sharp` (added 2026-08-17), no Vercel needed.
     // It was previously disabled here on a stale assumption, which meant
     // several multi-MB hero originals were served unresized to every device.
+    // WebP only (2026-09-25): AVIF encode takes 4–6 s per image on cold cache;
+    // WebP is ~10× faster and the quality difference is negligible at this tier.
     unoptimized: false,
-    formats: ["image/avif", "image/webp"],
+    formats: ["image/webp"],
+    minimumCacheTTL: 2592000,
+    deviceSizes: [640, 828, 1080, 1280, 1600, 1920],
   },
   async headers() {
     return [
