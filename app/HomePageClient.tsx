@@ -60,11 +60,11 @@ export default function HomePageClient() {
             <div className="hbs">Level 4 qualified, plus Exercise Referral — so training can carry on if your health picture changes.</div>
           </div>
         </div>
+        <details className="ef-desc ef-desc--overlay-left">
+          <summary>Describe this image</summary>
+          <p>Esther stands inside the power rack with one hand up on the pull-up bar and the other resting on the upright at shoulder height &mdash; the rack itself doubling as something to hold. Behind her, the exercise balls sit in wall cradles and the slam balls on a tiered rack; the barbell is up on the rack&rsquo;s own hooks. The matting she is standing on is clear.</p>
+        </details>
       </section>
-      <details className="ef-desc">
-        <summary>Describe this image</summary>
-        <p>Esther stands inside the power rack with one hand up on the pull-up bar and the other resting on the upright at shoulder height &mdash; the rack itself doubling as something to hold. Behind her, the exercise balls sit in wall cradles and the slam balls on a tiered rack; the barbell is up on the rack&rsquo;s own hooks. The matting she is standing on is clear.</p>
-      </details>
 
       {/* TICKER */}
       <div className="tstrip">
@@ -285,11 +285,11 @@ export default function HomePageClient() {
             <a href="tel:07517658128" className="btn btn-ow">{"Call: 07517 658 128"}</a>
           </div>
         </div>
+        <details className="ef-desc ef-desc--overlay">
+          <summary>Describe this image</summary>
+          <p>Esther stands at the kettlebell shelves with a hand resting on the bells along the top row, turned back towards the camera. The bells sit in weight order, the lighter ones marked with coloured bands. Along the wall behind her are the mirror, the whiteboard, the suspension straps and the adjustable bench, each in its own fixed place; the floor between them is clear.</p>
+        </details>
       </section>
-      <details className="ef-desc">
-        <summary>Describe this image</summary>
-        <p>Esther stands at the kettlebell shelves with a hand resting on the bells along the top row, turned back towards the camera. The bells sit in weight order, the lighter ones marked with coloured bands. Along the wall behind her are the mirror, the whiteboard, the suspension straps and the adjustable bench, each in its own fixed place; the floor between them is clear.</p>
-      </details>
 
       </main>
 

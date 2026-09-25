@@ -49,13 +49,13 @@ export function CTABand({ layout = "overlay", image, imageAlt, imagePosition, he
             {secondaryCta && <CtaButton cta={{ ...secondaryCta, variant: secondaryCta.variant ?? "ghost-white" }} />}
           </div>
         </div>
+        {imageDescription && (
+          <details className="ef-desc ef-desc--overlay">
+            <summary>Describe this image</summary>
+            <p>{imageDescription}</p>
+          </details>
+        )}
       </section>
-      {imageDescription && (
-        <details className="ef-desc">
-          <summary>Describe this image</summary>
-          <p>{imageDescription}</p>
-        </details>
-      )}
     </>
     );
   }

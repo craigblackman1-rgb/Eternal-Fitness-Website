@@ -122,13 +122,13 @@ export function PageHero({
           </div>
         </div>
         {card && <div className="ds-hero-badge">{card}</div>}
+        {imageDescription && (
+          <details className="ef-desc ef-desc--overlay">
+            <summary>Describe this image</summary>
+            <p>{imageDescription}</p>
+          </details>
+        )}
       </section>
-      {imageDescription && (
-        <details className="ef-desc">
-          <summary>Describe this image</summary>
-          <p>{imageDescription}</p>
-        </details>
-      )}
     </>
     );
   }
