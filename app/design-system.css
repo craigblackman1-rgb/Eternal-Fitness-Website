@@ -689,8 +689,11 @@ details.ef-desc.ef-desc--overlay[open] summary { border-bottom-color: rgba(255,2
 details.ef-desc.ef-desc--overlay p { color: rgba(255,255,255,.92); max-height: 40vh; overflow: auto; }
 details.ef-desc.ef-desc--overlay-left { right: auto; left: 16px; }
 @media (max-width: 760px) {
-  details.ef-desc.ef-desc--overlay { right: 12px; bottom: 12px; max-width: calc(100% - 24px); }
-  details.ef-desc.ef-desc--overlay-left { right: auto; left: 12px; }
+  /* Mobile: hero/CTA buttons stack at the bottom, so the pill moves to the top-right corner (below the fixed nav on heroes) */
+  details.ef-desc.ef-desc--overlay,
+  details.ef-desc.ef-desc--overlay-left { top: 12px; bottom: auto; right: 12px; left: auto; max-width: calc(100% - 24px); }
+  #hero details.ef-desc.ef-desc--overlay,
+  .ds-hero details.ef-desc.ef-desc--overlay { top: 84px; }
 }
 
 /* ── Figure wrapper for image + disclosure pairs
