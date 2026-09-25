@@ -1,0 +1,20 @@
+{
+  "lane": "ef-img-desc-fix2",
+  "wo": "wo-ef-medical-conditions-perf-2026-09-25",
+  "unit": null,
+  "commits": [
+    {
+      "sha": "0cf2e75f7bdd8cc1f098728d47aa74e4fc8095f3",
+      "subject": "fix(BUG-EF-211): overlay pill top-right on mobile"
+    }
+  ],
+  "filesChanged": ["app/design-system.css"],
+  "verify": {
+    "tsc": "clean | 0 errors (0 pre-existing)",
+    "tests": "n/a",
+    "escapeGrep": "0 hits"
+  },
+  "deviations": [],
+  "blockers": [],
+  "done": true
+}
