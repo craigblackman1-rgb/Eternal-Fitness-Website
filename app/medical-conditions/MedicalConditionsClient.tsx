@@ -54,11 +54,12 @@ export default function MedicalConditionsClient() {
 
       <main id="main-content">
       <PageHero
-        image="/images/who-mobility.jpg"
-        imageAlt="Esther guiding a client through a mobility exercise in the studio"
-        imageObjectPosition="50% 40%"
+        image="/images/approach-step3-deadlift-clients.jpg"
+        imageAlt="Esther and a client hinged forward side by side in the private Worthing studio, the client holding one small dumbbell and Esther running her hands down her own thighs to show the path the hinge takes."
+        imageObjectPosition="55% 45%"
+        imageObjectPositionWide="60% 40%"
         eyebrow={"Training With a Medical Condition"}
-        heading={<>The Barrier Isn\u2019t<br />the Diagnosis</>}
+        heading={<>{"The Barrier Isn\u2019t"}<br />{"the Diagnosis"}</>}
         subhead={"One-to-one personal training in Worthing for people living with a medical condition \u2014 carrying a diagnosis, a lot of apprehension, or both. Screened properly, paced to you, and adapted to how you feel on the day."}
         primaryCta={bookCta}
         secondaryCta={{ label: "How I Work", href: "#how-i-work", variant: "ghost-white" }}
