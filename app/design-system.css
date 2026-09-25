@@ -690,6 +690,7 @@ details.ef-desc.ef-desc--overlay p { color: rgba(255,255,255,.92); max-height: 4
 details.ef-desc.ef-desc--overlay-left { right: auto; left: 16px; }
 @media (max-width: 760px) {
   details.ef-desc.ef-desc--overlay { right: 12px; bottom: 12px; max-width: calc(100% - 24px); }
+  details.ef-desc.ef-desc--overlay-left { right: auto; left: 12px; }
 }
 
 /* ── Figure wrapper for image + disclosure pairs

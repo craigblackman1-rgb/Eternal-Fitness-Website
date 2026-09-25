@@ -60,7 +60,7 @@ export default function HomePageClient() {
             <div className="hbs">Level 4 qualified, plus Exercise Referral — so training can carry on if your health picture changes.</div>
           </div>
         </div>
-        <details className="ef-desc ef-desc--overlay-left">
+        <details className="ef-desc ef-desc--overlay ef-desc--overlay-left">
           <summary>Describe this image</summary>
           <p>Esther stands inside the power rack with one hand up on the pull-up bar and the other resting on the upright at shoulder height &mdash; the rack itself doubling as something to hold. Behind her, the exercise balls sit in wall cradles and the slam balls on a tiered rack; the barbell is up on the rack&rsquo;s own hooks. The matting she is standing on is clear.</p>
         </details>
