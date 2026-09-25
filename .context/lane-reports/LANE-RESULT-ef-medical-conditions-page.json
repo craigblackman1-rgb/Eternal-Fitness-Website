@@ -1,0 +1,24 @@
+{
+  "lane": "ef-medical-conditions-page",
+  "wo": "wo-ef-medical-conditions-perf-2026-09-25",
+  "unit": "CR-EF-209",
+  "commits": [
+    {
+      "sha": "fe40230",
+      "subject": "Add /medical-conditions landing page (WO-EF-073)"
+    }
+  ],
+  "filesChanged": [
+    "app/medical-conditions/page.tsx",
+    "app/medical-conditions/MedicalConditionsClient.tsx",
+    "app/sitemap.ts"
+  ],
+  "verify": {
+    "tsc": "clean | 0 errors (0 pre-existing)",
+    "tests": "n/a",
+    "escapeGrep": "0 hits | 0 hits"
+  },
+  "deviations": [],
+  "blockers": [],
+  "done": true
+}
